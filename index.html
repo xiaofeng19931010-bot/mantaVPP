@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manta VPP | Device Access Management</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#1E40AF', // Deep Tech Blue
+                            light: '#3B82F6',
+                            dark: '#1E3A8A',
+                        },
+                        surface: {
+                            DEFAULT: '#1E293B', // Slate 800
+                            light: '#334155', // Slate 700
+                            dark: '#0F172A', // Slate 900
+                        },
+                        success: '#10B981', // Emerald
+                        danger: '#F43F5E', // Rose
+                        warning: '#F59E0B', // Amber
+                    },
+                    backgroundImage: {
+                        'glass': 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                        'glass-hover': 'linear-gradient(135deg, rgba(51, 65, 85, 0.7) 0%, rgba(30, 41, 59, 0.8) 100%)',
+                        'tech-glow': 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0) 70%)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles for Scrollbar & Glassmorphism -->
+    <style>
+        body {
+            background-color: #0F172A;
+            color: #F8FAFC;
+        }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3B82F6;
+            color: #60A5FA;
+        }
+    </style>
+    
+    <!-- ECharts for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="antialiased overflow-hidden h-screen w-screen flex text-sm">
+
+    <!-- Sidebar -->
+    <aside class="glass-sidebar w-64 h-full flex flex-col z-20 transition-all duration-300">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-white/5">
+            <div class="flex items-center gap-2 text-brand-light font-bold text-xl tracking-tight">
+                <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
+                <span>Manta VPP</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 py-6 px-3 space-y-1">
+            <div class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Platform</div>
+            
+            <a href="#" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group active" onclick="app.navigate('dashboard')">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                <span>Data Access</span>
+            </a>
+            
+            <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group" onclick="app.navigate('vpp')">
+                <i data-lucide="network" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                <span>VPP Management</span>
+            </a>
+
+            <div class="px-3 mt-8 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">System</div>
+            
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group">
+                <i data-lucide="settings" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-white/5">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand to-brand-light flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-brand/20">
+                    AD
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">Admin User</p>
+                    <p class="text-xs text-slate-400 truncate">admin@manta.energy</p>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-tech-glow bg-no-repeat bg-cover">
+        
+        <!-- Header -->
+        <header class="h-16 glass-panel border-l-0 border-r-0 border-t-0 flex items-center justify-between px-8 z-10">
+            <!-- Breadcrumbs -->
+            <div class="flex items-center gap-2 text-slate-400">
+                <span class="hover:text-white cursor-pointer transition-colors">Manta Platform</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                <span id="page-title" class="text-white font-medium">Data Access</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-slate-400 hover:text-white transition-colors relative">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full border border-surface-dark"></span>
+                </button>
+                <div class="h-6 w-px bg-white/10"></div>
+                <button class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                    <span>Support</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Container -->
+        <div id="content-area" class="flex-1 overflow-y-auto p-8 relative scroll-smooth">
+            <!-- Content will be injected here by app.js -->
+        </div>
+
+    </main>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Modals Container -->
+    <div id="modal-container" class="fixed inset-0 z-40 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-0" id="modal-backdrop"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div id="modal-content" class="bg-surface border border-white/10 rounded-xl shadow-2xl w-full max-w-4xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+                <!-- Modal content injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- VPP Drawer Container -->
+    <div id="drawer-container" class="fixed inset-0 z-40 hidden pointer-events-none">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-0 pointer-events-auto" id="drawer-backdrop"></div>
+        <div class="absolute inset-y-0 right-0 max-w-md w-full bg-surface border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 pointer-events-auto flex flex-col" id="drawer-content">
+            <!-- Drawer content injected here -->
+        </div>
+    </div>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
