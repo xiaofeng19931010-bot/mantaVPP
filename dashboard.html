@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manta Admin - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        manta: {
+                            primary: '#2E9F58',
+                            dark: '#1A6E3B',
+                            light: '#F4F7F9',
+                            text: '#333333',
+                            border: '#E5E7EB',
+                            error: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom pattern for the left side to mimic the "tech" look */
+        .tech-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+    </style>
+</head>
+<body class="bg-white h-screen flex overflow-hidden">
+
+    <!-- Left Side: Graphic Area -->
+    <div class="hidden lg:flex lg:w-1/2 bg-manta-primary relative flex-col justify-center px-12 xl:px-24 overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 tech-pattern opacity-30"></div>
+        
+        <!-- Decorative Cube/Graphic (CSS representation) -->
+        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/4 opacity-20">
+             <i class="fas fa-cube text-[400px] text-white"></i>
+        </div>
+
+        <!-- Content -->
+        <div class="relative z-10 mb-20">
+            <h1 class="text-6xl font-bold text-white leading-tight">
+                Hello<br>
+                MANTA
+            </h1>
+        </div>
+        
+        <!-- Decorative rounded edge on the right is achieved by the white background of the right side, 
+             but if we want the green to have a rounded corner overlaying a background, 
+             we can add a pseudo-element or just keep it split. 
+             The design looks like the green shape has a rounded border-radius on the right.
+        -->
+        <div class="absolute top-0 right-0 bottom-0 w-16 bg-white rounded-l-[4rem] transform translate-x-8 hidden"></div>
+    </div>
+
+    <!-- Right Side: Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div class="w-full max-w-md">
+            <h2 class="text-3xl font-bold text-manta-primary mb-8">MANTA</h2>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-6" novalidate>
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                        <span class="text-red-500 mr-1">*</span>Email
+                    </label>
+                    <input type="email" id="email" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-manta-primary focus:border-manta-primary transition-colors placeholder-gray-400" 
+                           placeholder="" value="">
+                    <p id="email-error" class="text-red-500 text-xs mt-1 hidden">Email is required</p>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        <span class="text-red-500 mr-1">*</span>Password
+                    </label>
+                    <input type="password" id="password" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-manta-primary focus:border-manta-primary transition-colors placeholder-gray-400" 
+                           placeholder="" value="">
+                     <p id="password-error" class="text-red-500 text-xs mt-1 hidden">Password is required</p>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-manta-primary text-white py-3 rounded hover:bg-manta-dark transition-colors font-medium text-base shadow-sm mt-4">
+                    Log In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            let isValid = true;
+
+            // Reset errors
+            emailInput.classList.remove('border-red-500');
+            passwordInput.classList.remove('border-red-500');
+            emailError.classList.add('hidden');
+            passwordError.classList.add('hidden');
+
+            // Email Validation
+            if (!email) {
+                emailInput.classList.add('border-red-500');
+                emailError.textContent = 'Email is required';
+                emailError.classList.remove('hidden');
+                isValid = false;
+            } else if (!email.includes('@')) {
+                emailInput.classList.add('border-red-500');
+                emailError.textContent = 'Please enter a valid email';
+                emailError.classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Password Validation
+            if (!password) {
+                passwordInput.classList.add('border-red-500');
+                passwordError.classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Add loading state
+                const btn = e.target.querySelector('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                btn.disabled = true;
+
+                // Simulate API call
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 800);
+            }
+        }
+    </script>
+</body>
+</html>

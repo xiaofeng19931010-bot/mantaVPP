@@ -5,15 +5,8 @@ const MOCK_DATA = {
         { id: 2, name: 'Industrial Park Zone 1', vpp: 'State Grid VPP', status: 'offline', type: 'CLOUD', inverters: 20, invertersOnline: 20, invertersOffline: 0, batteries: 40, batteriesOnline: 0, batteriesOffline: 40, vendor: 'Sungrow', appKey: 'manta_app_123', appAccess: 'sec_8f92a3c7d1e5' },
         { id: 3, name: 'Solar Farm Alpha', vpp: 'Local Energy VPP', status: 'online', type: 'MANTA', inverters: 50, invertersOnline: 48, invertersOffline: 2, batteries: 0, batteriesOnline: 0, batteriesOffline: 0, ip: '10.0.0.5' },
     ],
-    vpps: [
-        { id: 1, name: 'State Grid VPP', description: 'Primary grid balancing pool', capacity: '2.5 MWh', devices: 45 },
-        { id: 2, name: 'Local Energy VPP', description: 'Community solar sharing', capacity: '800 kWh', devices: 12 },
-    ],
-    assignedDevices: [
-         { id: 201, sn: 'INV-2023-099', vendor: 'Huawei', type: 'Inverter', status: 'online', vppId: 1, capacity: 50, userName: 'John Doe', phone: '+1 555-0101', email: 'john@example.com', address: '123 Solar St' },
-         { id: 202, sn: 'BAT-2023-100', vendor: 'Tesla', type: 'Battery', status: 'online', vppId: 1, capacity: 100, userName: 'Jane Smith', phone: '+1 555-0102', email: 'jane@example.com', address: '456 Battery Ln' },
-         { id: 203, sn: 'INV-2023-101', vendor: 'Sungrow', type: 'Inverter', status: 'offline', vppId: 2, capacity: 60, userName: 'Bob Brown', phone: '+1 555-0103', email: 'bob@example.com', address: '789 Power Ave' },
-    ],
+    vpps: [],
+    assignedDevices: [],
     devices: [
         { id: 101, sn: 'INV-2024-001', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way' },
         { id: 102, sn: 'BAT-2024-002', vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd' },
@@ -29,7 +22,7 @@ const state = {
     dashboardFilter: 'ALL',
     nodes: [...MOCK_DATA.accessNodes],
     vpps: [...MOCK_DATA.vpps],
-    selectedVppId: MOCK_DATA.vpps[0].id,
+    selectedVppId: null,
     detailsTab: 'Inverters', // Inverters or Batteries
     vppDeviceTab: 'assigned', // assigned or discovery
     assignedSearchQuery: '',
@@ -37,6 +30,13 @@ const state = {
     detailsSearchQuery: '',
     selectedNodeId: null,
     isSuperAdmin: true, // Default to true to simulate an admin user
+    cloudBound: false, // New state for cloud platform binding
+    currentUser: {
+        company: 'Manta Energy',
+        country: 'Australia',
+        abn: '12 345 678 901',
+        address: '100 Miller St, North Sydney NSW 2060'
+    }
 };
 
 // App Object
@@ -82,6 +82,7 @@ const app = {
         const titles = {
             'dashboard': 'Data Access',
             'vpp': 'VPP Management',
+            'device_management': 'Device Management',
             'details': 'Access Details'
         };
         document.getElementById('page-title').textContent = titles[viewName] || 'Dashboard';
@@ -97,11 +98,342 @@ const app = {
             this.renderDashboard(contentArea);
         } else if (viewName === 'vpp') {
             this.renderVPP(contentArea);
+        } else if (viewName === 'vpp_details') {
+            this.renderVPPDetails(contentArea, params.id);
+        } else if (viewName === 'device_management') {
+            this.renderDeviceManagement(contentArea);
+        } else if (viewName === 'system_details') {
+            this.renderSystemDetails(contentArea, params.id);
         } else if (viewName === 'details') {
             this.renderDetails(contentArea, params.id);
         }
 
         lucide.createIcons();
+    },
+
+    renderDeviceManagement(container) {
+        if (!state.cloudBound) {
+            // Empty State - Bind Cloud Platform
+            container.className = 'flex-1 flex items-center justify-center h-full fade-in';
+            container.innerHTML = `
+                <div class="text-center">
+                    <div class="bg-surface-dark/50 p-6 rounded-full inline-block mb-4 border border-white/5">
+                        <i data-lucide="cloud-off" class="w-12 h-12 text-slate-500 opacity-50"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">No System Connected</h2>
+                    <p class="text-slate-400 mb-6 max-w-md mx-auto">Connect a system to synchronize and manage your devices.</p>
+                    <button onclick="app.openCloudBindDrawer()" class="bg-brand hover:bg-brand-light text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand/20 flex items-center gap-2 mx-auto">
+                        <i data-lucide="link" class="w-5 h-5"></i>
+                        <span>Connect</span>
+                    </button>
+                </div>
+            `;
+        } else {
+            // System List (Card View)
+            container.className = "flex-1 flex flex-col gap-4 h-full overflow-hidden p-8";
+            
+            const systems = state.systems || [];
+
+            container.innerHTML = `
+                <!-- System List -->
+                <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
+                    <div class="flex justify-between items-center bg-surface-dark/30 p-2 rounded-xl border border-white/5 h-[58px]">
+                        <h2 class="text-xl font-bold text-white pl-2">Connected System List</h2>
+                        <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-brand hover:bg-brand-light text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-lg shadow-brand/20 hover:shadow-brand/40 active:scale-95 border border-brand-light/20">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>New</span>
+                        </button>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
+                        ${systems.map(sys => {
+                            let iconName = 'cloud';
+                            if (sys.type === 'SCADA') iconName = 'database';
+                            if (sys.type === 'Edge') iconName = 'cpu';
+
+                            const sysDevices = (state.devices || []).filter(d => d.vendor === sys.vendor);
+                            const invs = sysDevices.filter(d => d.type === 'Inverter');
+                            const bats = sysDevices.filter(d => d.type === 'Battery');
+                            
+                            const stats = {
+                                inv: {
+                                    total: invs.length,
+                                    online: invs.filter(d => d.status === 'online').length,
+                                    offline: invs.filter(d => d.status === 'offline').length,
+                                    cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                    onlineCap: invs.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                    offlineCap: invs.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
+                                },
+                                bat: {
+                                    total: bats.length,
+                                    online: bats.filter(d => d.status === 'online').length,
+                                    offline: bats.filter(d => d.status === 'offline').length,
+                                    cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                    onlineCap: bats.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                    offlineCap: bats.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
+                                }
+                            };
+
+                            const getStatusConfig = (s) => {
+                                const status = (s || '').toLowerCase();
+                                if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
+                                if (status === 'connected' || status === 'online') return { color: 'bg-success', text: 'Connected' };
+                                return { color: 'bg-slate-500', text: 'Disconnected' };
+                            };
+                            const statusConfig = getStatusConfig(sys.status);
+
+                            return `
+                            <div onclick="app.navigate('system_details', { id: ${sys.id} })" class="group glass-panel p-3 rounded-xl cursor-pointer border-l-4 border-l-brand bg-white/5 hover:bg-white/10 transition-all duration-300 relative h-full flex flex-col">
+                                <!-- Header Section -->
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <h3 class="font-bold text-white group-hover:text-brand-light transition-colors line-clamp-1">${sys.name}</h3>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                                                <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
+                                                <span class="text-[10px] text-slate-300 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">${sys.type}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stats Grid -->
+                                <div class="grid grid-cols-2 gap-2 text-xs mt-auto">
+                                    <!-- Inverters Panel -->
+                                    <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
+                                        <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
+                                            <i data-lucide="zap" class="w-3 h-3 text-brand"></i>
+                                            <span>Inverters</span>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-slate-500">Total</span>
+                                                <span class="text-slate-200 font-mono text-[11px]">${stats.inv.total} <span class="text-slate-600">|</span> ${stats.inv.cap}kW</span>
+                                            </div>
+                                            <div class="space-y-1 pt-1 border-t border-white/5">
+                                                <div class="flex justify-between items-center">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+                                                        <span class="text-slate-500 text-[10px]">Online</span>
+                                                    </div>
+                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.inv.online} <span class="text-slate-600">/</span> ${stats.inv.onlineCap}kW</span>
+                                                </div>
+                                                <div class="flex justify-between items-center">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                                                        <span class="text-slate-500 text-[10px]">Offline</span>
+                                                    </div>
+                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.inv.offline} <span class="text-slate-600">/</span> ${stats.inv.offlineCap}kW</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Batteries Panel -->
+                                    <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
+                                        <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
+                                            <i data-lucide="battery" class="w-3 h-3 text-blue-400"></i>
+                                            <span>Batteries</span>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-slate-500">Total</span>
+                                                <span class="text-slate-200 font-mono text-[11px]">${stats.bat.total} <span class="text-slate-600">|</span> ${stats.bat.cap}kWh</span>
+                                            </div>
+                                            <div class="space-y-1 pt-1 border-t border-white/5">
+                                                <div class="flex justify-between items-center">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+                                                        <span class="text-slate-500 text-[10px]">Online</span>
+                                                    </div>
+                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.bat.online} <span class="text-slate-600">/</span> ${stats.bat.onlineCap}kWh</span>
+                                                </div>
+                                                <div class="flex justify-between items-center">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                                                        <span class="text-slate-500 text-[10px]">Offline</span>
+                                                    </div>
+                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.bat.offline} <span class="text-slate-600">/</span> ${stats.bat.offlineCap}kWh</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    renderSystemDetails(container, systemId) {
+        const system = state.systems.find(s => s.id == systemId);
+        if (!system) return this.navigate('device_management');
+
+        container.className = 'flex-1 flex flex-col h-full fade-in space-y-6 px-8 py-8'; // Added padding
+
+        // Header with Back Button
+        const header = document.createElement('div');
+        header.className = 'flex items-center gap-4';
+        header.innerHTML = `
+            <button onclick="app.navigate('device_management')" class="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white" aria-label="Back to Device Management">
+                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <div>
+                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                    ${system.name}
+                    <span class="text-xs px-2 py-0.5 rounded border border-white/10 text-slate-400 font-normal">${system.type}</span>
+                </h1>
+            </div>
+        `;
+        container.appendChild(header);
+
+        // Mock devices for this system (using existing state.devices as pool)
+        const devices = state.devices || [];
+        
+        // Calculate Metrics
+        const totalDevices = devices.length;
+        const onlineDevices = devices.filter(d => d.status === 'online').length;
+        const offlineDevices = totalDevices - onlineDevices;
+        const totalCapacity = devices.reduce((sum, d) => sum + (d.capacity || 0), 0);
+
+        // Summary Cards
+        const summary = document.createElement('div');
+        summary.className = 'grid grid-cols-1 md:grid-cols-4 gap-4';
+        summary.innerHTML = `
+            <div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="space-y-0.5">
+                         <div class="text-sm text-white font-mono"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Type:</span>${system.type}</div>
+                         <div class="text-sm text-white font-mono"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>Australia</div>
+                         <div class="text-sm text-white font-mono"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Mfr:</span>${system.vendor}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+                    <i data-lucide="cpu" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Devices</p>
+                </div>
+                <div class="absolute top-4 right-4">
+                    <p class="text-2xl font-bold text-white">${totalDevices}</p>
+                </div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-success/20 text-success">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Online</p>
+                </div>
+                <div class="absolute top-4 right-4">
+                    <span class="text-2xl font-bold text-white">${onlineDevices}</span>
+                </div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-slate-700/50 text-slate-400">
+                    <i data-lucide="wifi-off" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Offline</p>
+                </div>
+                <div class="absolute top-4 right-4">
+                    <p class="text-2xl font-bold text-white">${offlineDevices}</p>
+                </div>
+            </div>
+        `;
+        container.appendChild(summary);
+
+        // Content (Device List)
+        const content = document.createElement('div');
+        content.className = 'flex-1 flex flex-col glass-panel rounded-2xl border-white/5 overflow-hidden';
+        
+        content.innerHTML = `
+            <!-- Table Header -->
+            <div class="flex justify-between items-center p-4 border-b border-white/5 bg-white/5">
+                 <h2 class="text-xl font-bold text-white pl-2">Device List</h2>
+                 <div class="flex gap-2">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input 
+                            type="text" 
+                            placeholder="Search" 
+                            class="bg-surface-dark border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand/50 w-64 transition-colors"
+                        >
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Device Table -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-xs text-slate-500 border-b border-white/5">
+                            <th class="pb-3 font-medium">SN</th>
+                            <th class="pb-3 font-medium">Type</th>
+                            <th class="pb-3 font-medium">Manufacturer</th>
+                            <th class="pb-3 font-medium">NMI</th>
+                            <th class="pb-3 font-medium">VPP</th>
+                            <th class="pb-3 font-medium">Status</th>
+                            <th class="pb-3 font-medium">Owner</th>
+                            <th class="pb-3 font-medium">Owner Email</th>
+                            <th class="pb-3 font-medium">DNSP</th>
+                            <th class="pb-3 font-medium">Retailer</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        ${devices.length > 0 ? devices.map(dev => {
+                            const nmi = dev.nmi || `410${Math.floor(Math.random() * 9000000 + 1000000)}`;
+                            const dnsp = dev.dnsp || ['Ausgrid', 'Endeavour Energy', 'Essential Energy'][Math.floor(Math.random() * 3)];
+                            const retailer = dev.retailer || ['AGL', 'Origin', 'EnergyAustralia'][Math.floor(Math.random() * 3)];
+                            const vpp = state.vpps.find(v => v.id === dev.vppId);
+                            const vppName = vpp ? vpp.name : '-';
+                            
+                            return `
+                            <tr class="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
+                                <td class="py-3 font-mono text-slate-300 group-hover:text-white">${dev.sn}</td>
+                                <td class="py-3 text-slate-400">
+                                    <span class="flex items-center gap-2">
+                                        <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
+                                        ${dev.type}
+                                    </span>
+                                </td>
+                                <td class="py-3 text-slate-400">${dev.vendor}</td>
+                                <td class="py-3 font-mono text-slate-400">${nmi}</td>
+                                <td class="py-3 text-slate-400">${vppName}</td>
+                                <td class="py-3">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-slate-700 text-slate-400'}">
+                                        <span class="w-1 h-1 rounded-full bg-current"></span>
+                                        ${dev.status}
+                                    </span>
+                                </td>
+                                <td class="py-3 text-slate-400">${dev.userName || '-'}</td>
+                                <td class="py-3 text-slate-400 text-xs">${dev.email || '-'}</td>
+                                <td class="py-3 text-slate-400">${dnsp}</td>
+                                <td class="py-3 text-slate-400">${retailer}</td>
+                            </tr>
+                        `}).join('') : `
+                            <tr>
+                                <td colspan="10" class="py-8 text-center text-slate-500">
+                                    No devices found.
+                                </td>
+                            </tr>
+                        `}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        container.appendChild(content);
     },
 
     // ==========================================
@@ -141,11 +473,6 @@ const app = {
                         <span>Manta</span>
                     </button>
                 </div>
-
-                <button onclick="app.openCreateModal()" class="flex items-center gap-2 bg-brand hover:bg-brand-light text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand/20 hover:shadow-brand/40 active:scale-95 border border-brand-light/20">
-                    <i data-lucide="plus" class="w-5 h-5"></i>
-                    <span>New</span>
-                </button>
             </div>
         `;
         container.appendChild(actionBar);
@@ -349,7 +676,6 @@ const app = {
         infoPanel.innerHTML = `
             ${sensitiveInfoHTML}
             <div>
-                <h3 class="text-sm font-semibold text-white mb-3">General Info</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center border-b border-white/5 pb-2">
                         <span class="text-slate-400 text-sm">Vendor</span>
@@ -505,27 +831,36 @@ const app = {
     },
 
     renderVPP(container) {
+        container.innerHTML = ''; 
+
+        if (state.vpps.length === 0) {
+            container.className = "flex-1 flex items-center justify-center h-full";
+            container.innerHTML = `
+                <div class="text-center">
+                    <div class="bg-surface-dark/50 p-6 rounded-full inline-block mb-4 border border-white/5">
+                        <i data-lucide="server" class="w-12 h-12 text-slate-500 opacity-50"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">No VPPs Created</h2>
+                    <button onclick="app.openVPPDrawer()" class="bg-brand hover:bg-brand-light text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand/20 flex items-center gap-2 mx-auto">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Create</span>
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
         // Layout: Left (VPP List) | Right (Device Discovery)
-        container.className = "flex-1 flex gap-8 h-full overflow-hidden p-8";
+        container.className = "flex-1 flex flex-col gap-4 h-full overflow-hidden p-8";
         
-        const selectedVpp = state.vpps.find(v => v.id === state.selectedVppId) || state.vpps[0];
-        const assignedDevices = MOCK_DATA.assignedDevices
-            .filter(d => d.vppId === selectedVpp.id)
-            .filter(d => {
-                if (!state.assignedSearchQuery) return true;
-                const q = state.assignedSearchQuery.toLowerCase();
-                return (d.sn && d.sn.toLowerCase().includes(q)) ||
-                       (d.vendor && d.vendor.toLowerCase().includes(q)) ||
-                       (d.type && d.type.toLowerCase().includes(q)) ||
-                       (d.userName && d.userName.toLowerCase().includes(q)) ||
-                       (d.phone && d.phone.toLowerCase().includes(q)) ||
-                       (d.email && d.email.toLowerCase().includes(q)) ||
-                       (d.address && d.address.toLowerCase().includes(q));
-            });
+        // Ensure selectedVppId is valid
+        if (!state.vpps.find(v => v.id === state.selectedVppId)) {
+            state.selectedVppId = state.vpps[0].id;
+        }
 
         container.innerHTML = `
-            <!-- Left Column: VPP List -->
-            <div class="w-1/3 flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
+            <!-- VPP List -->
+            <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                 <div class="flex justify-between items-center bg-surface-dark/30 p-2 rounded-xl border border-white/5 h-[58px]">
                     <h2 class="text-xl font-bold text-white pl-2">VPP List</h2>
                     <button onclick="app.openVPPDrawer()" class="flex items-center gap-2 bg-brand hover:bg-brand-light text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-lg shadow-brand/20 hover:shadow-brand/40 active:scale-95 border border-brand-light/20">
@@ -534,7 +869,7 @@ const app = {
                     </button>
                 </div>
                 
-                <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+                <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
                     ${state.vpps.map((vpp) => {
                         const isSelected = vpp.id === state.selectedVppId;
                         const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
@@ -563,15 +898,14 @@ const app = {
 
                         // VPP Card Template
                         return `
-                        <div onclick="app.selectVPP(${vpp.id})" class="group glass-panel p-4 rounded-xl cursor-pointer border-l-4 ${isSelected ? 'border-l-brand bg-white/5' : 'border-l-transparent hover:border-l-slate-500 hover:bg-white/5'} transition-all duration-300 relative">
+                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group glass-panel p-3 rounded-xl cursor-pointer border-l-4 ${isSelected ? 'border-l-brand bg-white/5' : 'border-l-transparent hover:border-l-slate-500 hover:bg-white/5'} transition-all duration-300 relative h-full flex flex-col">
                             <!-- Header Section -->
                             <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <h3 class="font-bold text-white group-hover:text-brand-light transition-colors">${vpp.name}</h3>
-                                        ${isSelected ? '<span class="flex h-2 w-2 rounded-full bg-brand"></span>' : ''}
+                                        <h3 class="font-bold text-white group-hover:text-brand-light transition-colors line-clamp-1">${vpp.name}</h3>
+                                        ${isSelected ? '<span class="flex h-2 w-2 rounded-full bg-brand shrink-0"></span>' : ''}
                                     </div>
-                                    <p class="text-xs text-slate-400 line-clamp-1">${vpp.description}</p>
                                 </div>
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="px-2 py-1 rounded bg-surface-dark border border-white/10 hover:bg-white/10 text-xs font-medium text-slate-300 hover:text-white transition-colors shadow-lg flex items-center gap-1">
@@ -582,7 +916,7 @@ const app = {
                             </div>
                             
                             <!-- Stats Grid -->
-                            <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="grid grid-cols-2 gap-2 text-xs mt-auto">
                                 <!-- Inverters Panel -->
                                 <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
                                     <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
@@ -647,17 +981,113 @@ const app = {
                     `}).join('')}
                 </div>
             </div>
+        `;
+    },
 
-            <!-- Right Column: Device Management -->
-            <div class="flex-1 flex flex-col gap-4 slide-up" style="animation-delay: 0.2s;">
-                
-                <!-- Tab Switcher & Header -->
-                <div class="flex justify-between items-center bg-surface-dark/30 p-2 rounded-xl border border-white/5 h-[58px]">
-                     <div class="flex bg-surface-dark rounded-lg p-1 border border-white/5">
-                        <button onclick="app.setVppDeviceTab('assigned')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all ${state.vppDeviceTab === 'assigned' ? 'bg-brand text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}">Joined Devices</button>
-                        <button onclick="app.setVppDeviceTab('discovery')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all ${state.vppDeviceTab === 'discovery' ? 'bg-brand text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}">Joinable Devices</button>
-                     </div>
-                     ${state.vppDeviceTab === 'assigned' ? `
+    renderVPPDetails(container, vppId) {
+        container.innerHTML = '';
+        const vpp = state.vpps.find(v => v.id == vppId);
+        if (!vpp) return this.navigate('vpp');
+        
+        state.selectedVppId = vppId; // Ensure selectedVppId is updated
+
+        const allVppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
+        const totalDevices = allVppDevices.length;
+        const onlineDevices = allVppDevices.filter(d => d.status === 'online').length;
+        const offlineDevices = totalDevices - onlineDevices;
+
+        const assignedDevices = allVppDevices
+            .filter(d => {
+                if (!state.assignedSearchQuery) return true;
+                const q = state.assignedSearchQuery.toLowerCase();
+                return (d.sn && d.sn.toLowerCase().includes(q)) ||
+                       (d.vendor && d.vendor.toLowerCase().includes(q)) ||
+                       (d.type && d.type.toLowerCase().includes(q)) ||
+                       (d.userName && d.userName.toLowerCase().includes(q)) ||
+                       (d.phone && d.phone.toLowerCase().includes(q)) ||
+                       (d.email && d.email.toLowerCase().includes(q)) ||
+                       (d.address && d.address.toLowerCase().includes(q));
+            });
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'flex items-center gap-4 mb-8';
+        header.innerHTML = `
+            <button onclick="app.navigate('vpp')" class="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
+                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <div>
+                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                    ${vpp.name}
+                </h1>
+            </div>
+        `;
+        container.appendChild(header);
+
+        // Content
+        const content = document.createElement('div');
+        content.className = 'flex-1 flex flex-col gap-4 slide-up';
+        content.style.height = 'calc(100% - 80px)'; // Adjust for header
+        
+        content.innerHTML = `
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+                        <i data-lucide="info" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="space-y-0.5">
+                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Company:</span>${vpp.company || '-'}</div>
+                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>${vpp.country || '-'}</div>
+                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">ABN/VAT:</span>${vpp.abn || '-'}</div>
+                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">DNSP:</span>${vpp.dnsp || '-'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+                        <i data-lucide="cpu" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Devices</p>
+                    </div>
+                    <div class="absolute top-4 right-4">
+                        <p class="text-2xl font-bold text-white">${totalDevices}</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-success/20 text-success">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Online</p>
+                    </div>
+                    <div class="absolute top-4 right-4">
+                        <span class="text-2xl font-bold text-white">${onlineDevices}</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-slate-700/50 text-slate-400">
+                        <i data-lucide="wifi-off" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Offline</p>
+                    </div>
+                    <div class="absolute top-4 right-4">
+                        <p class="text-2xl font-bold text-white">${offlineDevices}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unified Panel -->
+            <div class="flex-1 flex flex-col glass-panel rounded-2xl border-white/5 overflow-hidden">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-4 border-b border-white/5 bg-white/5">
+                     <h2 class="text-xl font-bold text-white pl-2">Device List</h2>
                      <div class="flex gap-2">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
@@ -670,143 +1100,66 @@ const app = {
                                 class="bg-surface-dark border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand/50 w-64 transition-colors"
                             >
                         </div>
-                        <button onclick="app.openAddDeviceDrawer()" class="flex items-center gap-2 bg-brand hover:bg-brand-light text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-lg shadow-brand/20">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>Add Device</span>
-                        </button>
-                        <button onclick="app.openBatchAddModal()" class="flex items-center gap-2 bg-surface-dark border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all">
-                            <i data-lucide="upload" class="w-4 h-4"></i>
-                            <span>Batch Add</span>
-                        </button>
                      </div>
-                     ` : ''}
-                     ${state.vppDeviceTab === 'discovery' ? `
-                     <div class="relative">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                        <input 
-                            type="text" 
-                            id="discovery-search-input"
-                            placeholder="Search" 
-                            value="${state.discoverySearchQuery || ''}"
-                            oninput="app.setDiscoverySearch(this.value)"
-                            class="bg-surface-dark border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand/50 w-64 transition-colors"
-                        >
-                     </div>
-                     ` : ''}
                 </div>
 
-                <!-- Content Panel -->
-                <div class="flex-1 flex flex-col glass-panel rounded-2xl border-white/5 overflow-hidden">
-                    ${state.vppDeviceTab === 'assigned' ? `
-                        <!-- Assigned Devices List -->
-                        <div class="flex-1 overflow-y-auto p-6">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="text-xs text-slate-500 border-b border-white/5">
-                                        <th class="pb-3 font-medium">Serial Number</th>
-                                        <th class="pb-3 font-medium">Type</th>
-                                        <th class="pb-3 font-medium">Vendor</th>
-                                        <th class="pb-3 font-medium">Status</th>
-                                        <th class="pb-3 font-medium">Capacity</th>
-                                        <th class="pb-3 font-medium">User Name</th>
-                                        <th class="pb-3 font-medium">Phone</th>
-                                        <th class="pb-3 font-medium">Email</th>
-                                        <th class="pb-3 font-medium">Address</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-sm">
-                                    ${assignedDevices.length > 0 ? assignedDevices.map(dev => `
-                                        <tr class="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
-                                            <td class="py-3 font-mono text-slate-300 group-hover:text-white">${dev.sn}</td>
-                                            <td class="py-3 text-slate-400">
-                                                <span class="flex items-center gap-2">
-                                                    <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
-                                                    ${dev.type}
-                                                </span>
-                                            </td>
-                                            <td class="py-3 text-slate-400">${dev.vendor}</td>
-                                            <td class="py-3">
-                                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-slate-700 text-slate-400'}">
-                                                    <span class="w-1 h-1 rounded-full bg-current"></span>
-                                                    ${dev.status}
-                                                </span>
-                                            </td>
-                                            <td class="py-3 text-slate-400">${dev.capacity} kW</td>
-                                            <td class="py-3 text-slate-400">${dev.userName || '-'}</td>
-                                            <td class="py-3 font-mono text-xs text-slate-400">${dev.phone || '-'}</td>
-                                            <td class="py-3 text-xs text-slate-400">${dev.email || '-'}</td>
-                                            <td class="py-3 text-xs text-slate-400" title="${dev.address || '-'}">${dev.address ? (dev.address.length > 10 ? dev.address.substring(0, 10) + '...' : dev.address) : '-'}</td>
-                                        </tr>
-                                    `).join('') : `
-                                        <tr>
-                                            <td colspan="9" class="py-8 text-center text-slate-500">
-                                                当前暂无设备
-                                            </td>
-                                        </tr>
-                                    `}
-                                </tbody>
-                            </table>
-                        </div>
-                    ` : `
-                        <!-- Device Discovery List -->
-                        <div class="flex-1 overflow-y-auto p-6">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="text-xs text-slate-500 border-b border-white/5">
-                                        <th class="pb-3 font-medium">Serial Number</th>
-                                        <th class="pb-3 font-medium">Type</th>
-                                        <th class="pb-3 font-medium">Vendor</th>
-                                        <th class="pb-3 font-medium">Status</th>
-                                        <th class="pb-3 font-medium">Capacity</th>
-                                        <th class="pb-3 font-medium">User Name</th>
-                                        <th class="pb-3 font-medium">Phone</th>
-                                        <th class="pb-3 font-medium">Email</th>
-                                        <th class="pb-3 font-medium">Address</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-sm">
-                                    ${MOCK_DATA.devices
-                                        .filter(dev => {
-                                            if (!state.discoverySearchQuery) return true;
-                                            const q = state.discoverySearchQuery.toLowerCase();
-                                            return (dev.sn && dev.sn.toLowerCase().includes(q)) ||
-                                                   (dev.vendor && dev.vendor.toLowerCase().includes(q)) ||
-                                                   (dev.type && dev.type.toLowerCase().includes(q)) ||
-                                                   (dev.userName && dev.userName.toLowerCase().includes(q)) ||
-                                                   (dev.phone && dev.phone.toLowerCase().includes(q)) ||
-                                                   (dev.email && dev.email.toLowerCase().includes(q)) ||
-                                                   (dev.address && dev.address.toLowerCase().includes(q));
-                                        })
-                                        .map(dev => `
-                                        <tr class="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
-                                            <td class="py-3 font-mono text-slate-300 group-hover:text-white">${dev.sn}</td>
-                                            <td class="py-3 text-slate-400">
-                                                <span class="flex items-center gap-2">
-                                                    <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
-                                                    ${dev.type}
-                                                </span>
-                                            </td>
-                                            <td class="py-3 text-slate-400">${dev.vendor}</td>
-                                            <td class="py-3">
-                                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-slate-700 text-slate-400'}">
-                                                    <span class="w-1 h-1 rounded-full bg-current"></span>
-                                                    ${dev.status}
-                                                </span>
-                                            </td>
-                                            <td class="py-3 text-slate-400">${dev.capacity} kW</td>
-                                            <td class="py-3 text-slate-400">${app.formatSensitive(dev.userName)}</td>
-                                            <td class="py-3 font-mono text-xs text-slate-400">${app.formatSensitive(dev.phone)}</td>
-                                            <td class="py-3 text-xs text-slate-400">${app.formatSensitive(dev.email)}</td>
-                                            <td class="py-3 text-xs text-slate-400" title="${app.formatSensitive(dev.address)}">${dev.address ? (app.formatSensitive(dev.address).length > 10 ? app.formatSensitive(dev.address).substring(0, 10) + '...' : app.formatSensitive(dev.address)) : '-'}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `}
+                <!-- Assigned Devices List -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs text-slate-500 border-b border-white/5">
+                                <th class="pb-3 font-medium">SN</th>
+                                <th class="pb-3 font-medium">Type</th>
+                                <th class="pb-3 font-medium">Manufacturer</th>
+                                <th class="pb-3 font-medium">NMI</th>
+                                <th class="pb-3 font-medium">Status</th>
+                                <th class="pb-3 font-medium">Owner</th>
+                                <th class="pb-3 font-medium">Owner Email</th>
+                                <th class="pb-3 font-medium">DNSP</th>
+                                <th class="pb-3 font-medium">Retailer</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            ${assignedDevices.length > 0 ? assignedDevices.map(dev => {
+                                const nmi = dev.nmi || `410${Math.floor(Math.random() * 9000000 + 1000000)}`;
+                                const dnsp = dev.dnsp || ['Ausgrid', 'Endeavour Energy', 'Essential Energy'][Math.floor(Math.random() * 3)];
+                                const retailer = dev.retailer || ['AGL', 'Origin', 'EnergyAustralia'][Math.floor(Math.random() * 3)];
+                                return `
+                                <tr class="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
+                                    <td class="py-3 font-mono text-slate-300 group-hover:text-white">${dev.sn}</td>
+                                    <td class="py-3 text-slate-400">
+                                        <span class="flex items-center gap-2">
+                                            <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
+                                            ${dev.type}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-slate-400">${dev.vendor}</td>
+                                    <td class="py-3 font-mono text-slate-400">${nmi}</td>
+                                    <td class="py-3">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-slate-700 text-slate-400'}">
+                                            <span class="w-1 h-1 rounded-full bg-current"></span>
+                                            ${dev.status}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-slate-400">${dev.userName || '-'}</td>
+                                    <td class="py-3 text-xs text-slate-400">${dev.email || '-'}</td>
+                                    <td class="py-3 text-slate-400">${dnsp}</td>
+                                    <td class="py-3 text-slate-400">${retailer}</td>
+                                </tr>
+                            `}).join('') : `
+                                <tr>
+                                    <td colspan="9" class="py-8 text-center text-slate-500">
+                                        当前暂无设备
+                                    </td>
+                                </tr>
+                            `}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         `;
+        
+        container.appendChild(content);
     },
 
     // ==========================================
@@ -819,6 +1172,64 @@ const app = {
         lucide.createIcons();
     },
 
+    syncDevices() {
+        const btn = document.getElementById('btn-sync-devices');
+        if (!btn) return;
+        
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `
+            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+            <span>Syncing...</span>
+        `;
+        lucide.createIcons();
+        
+        // Simulate network request
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+            lucide.createIcons();
+            this.showToast('Devices synchronized successfully', 'success');
+        }, 1500);
+    },
+
+    showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        const colors = {
+            success: 'bg-surface-dark border-success/50 text-success',
+            error: 'bg-surface-dark border-danger/50 text-danger',
+            info: 'bg-surface-dark border-brand/50 text-brand-light'
+        };
+        const icons = {
+            success: 'check-circle',
+            error: 'alert-circle',
+            info: 'info'
+        };
+
+        toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg border shadow-xl transform transition-all duration-300 translate-x-full opacity-0 ${colors[type]}`;
+        toast.innerHTML = `
+            <i data-lucide="${icons[type]}" class="w-5 h-5"></i>
+            <span class="font-medium text-sm">${message}</span>
+        `;
+
+        container.appendChild(toast);
+        lucide.createIcons();
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+        });
+
+        // Remove after 3s
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    },
+
     setVppDeviceTab(tab) {
         state.vppDeviceTab = tab;
         this.renderVPP(document.getElementById('content-area'));
@@ -827,7 +1238,12 @@ const app = {
 
     setAssignedSearch(query) {
         state.assignedSearchQuery = query;
-        this.renderVPP(document.getElementById('content-area'));
+        const container = document.getElementById('content-area');
+        if (state.currentView === 'vpp_details') {
+            this.renderVPPDetails(container, state.selectedVppId);
+        } else {
+            this.renderVPP(container);
+        }
         lucide.createIcons();
         // Keep focus on input after re-render
         const input = document.getElementById('assigned-search-input');
@@ -1274,12 +1690,13 @@ const app = {
     openVPPDrawer(vppId = null) {
         const isEdit = !!vppId;
         const vpp = isEdit ? state.vpps.find(v => v.id === vppId) : null;
+        const title = isEdit ? 'Edit VPP' : (state.vpps.length === 0 ? 'Create VPP' : 'Add VPP');
         
         const drawerContent = document.getElementById('drawer-content');
         drawerContent.innerHTML = `
             <div class="p-6 h-full flex flex-col">
                 <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-bold text-white">${isEdit ? 'Edit VPP' : 'Create New VPP'}</h3>
+                    <h3 class="text-xl font-bold text-white">${title}</h3>
                     <button onclick="app.closeDrawer()" class="text-slate-400 hover:text-white transition-colors">
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
@@ -1287,18 +1704,47 @@ const app = {
 
                 <form onsubmit="app.handleVPPSubmit(event, ${vppId})" class="space-y-6 flex-1">
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400 uppercase">VPP Name</label>
-                        <input type="text" value="${isEdit ? vpp.name : ''}" required class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Virtual Power Plant X">
+                        <label class="text-xs font-semibold text-slate-400">VPP Name</label>
+                        <input type="text" name="name" value="${isEdit ? vpp.name : ''}" required class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Virtual Power Plant X">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400 uppercase">Description</label>
-                        <textarea rows="4" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all resize-none" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                        <label class="text-xs font-semibold text-slate-400">Company</label>
+                        <input type="text" name="company" value="${isEdit ? (vpp.company || '') : state.currentUser.company}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Acme Corp">
                     </div>
 
-                    <div class="pt-4">
-                        <button type="submit" id="vpp-submit-btn" class="w-full bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                            <span>${isEdit ? 'Save Changes' : 'Create VPP'}</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-400">Country</label>
+                            <input type="text" name="country" value="${isEdit ? (vpp.country || '') : state.currentUser.country}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Australia">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-400">ABN/VAT</label>
+                            <input type="text" name="abn" value="${isEdit ? (vpp.abn || '') : state.currentUser.abn}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. 12 345 678 901">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-400">Business Address</label>
+                        <input type="text" name="address" value="${isEdit ? (vpp.address || '') : state.currentUser.address}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. 123 Solar St, Sydney">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-400">DNSP</label>
+                        <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Energy Provider Name">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-400">Description</label>
+                        <textarea name="description" rows="4" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all resize-none" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                    </div>
+
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-surface-dark border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                            Cancel
+                        </button>
+                        <button type="submit" id="vpp-submit-btn" class="flex-1 bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                            <span>Submit</span>
                         </button>
                     </div>
                 </form>
@@ -1306,6 +1752,359 @@ const app = {
         `;
         lucide.createIcons();
         this.toggleDrawer(true);
+    },
+
+    openCloudBindDrawer(isEdit = false) {
+        const title = isEdit ? 'Edit System Configuration' : 'Connect';
+        const drawerContent = document.getElementById('drawer-content');
+        
+        // Mock Data based on Region and Company
+        const getScadaOptions = () => {
+            const country = state.currentUser.country;
+            const company = state.currentUser.company;
+            
+            // Base options
+            let options = ['Ignition', 'WinCC', 'Wonderware', 'VTScada'];
+            
+            // Region specific additions
+            if (country === 'China') {
+                options = ['KingView', 'ForceControl', ...options];
+            } else if (country === 'Germany') {
+                options = ['WinCC', 'Zenon', 'Beckhoff TwinCAT', ...options.filter(o => o !== 'WinCC')]; // Prioritize German brands
+            }
+            
+            // Company specific customization (Mock logic)
+            if (company.includes('Grid')) {
+                 options.push('PowerScada X');
+            }
+            
+            return [...new Set(options)]; // Remove duplicates
+        };
+
+        const getEdgeOptions = () => {
+            const country = state.currentUser.country;
+            const company = state.currentUser.company;
+            
+            // Base options
+            let options = ['Manta Edge X1 (SN: 882910)', 'Manta Edge Gateway (SN: 112039)'];
+            
+            // Region specific additions
+            if (country === 'China') {
+                 options = ['Manta Edge CN-Red (SN: 992011)', ...options];
+            } else if (country === 'Germany') {
+                 options = ['Manta Edge DE-Pro (SN: 771234)', ...options];
+            }
+            
+             // Company specific customization (Mock logic)
+             if (company.includes('Grid')) {
+                  options.push('Grid Edge Controller (SN: 554433)');
+             }
+             
+             return [...new Set(options)];
+        };
+
+        const getCloudOptions = () => {
+            const country = state.currentUser.country;
+            
+            // Base options
+            let options = ['Sungrow', 'Huawei', 'Tesla', 'BYD', 'CATL'];
+            
+            // Region specific additions
+            if (country === 'China') {
+                 options = ['Growatt', 'GoodWe', 'Ginlong (Solis)', ...options];
+            } else if (country === 'Germany') {
+                 options = ['SMA', 'Fronius', 'Siemens', 'Kostal', ...options];
+            } else if (country === 'USA') {
+                 options = ['Enphase', 'SolarEdge', 'Generac', ...options];
+            } else if (country === 'Australia') {
+                 options = ['Redback', 'Selectronic', ...options];
+            }
+            
+            return [...new Set(options)];
+        };
+
+        const scadaOptions = getScadaOptions();
+        const edgeOptions = getEdgeOptions();
+        const manufacturers = getCloudOptions();
+
+        drawerContent.innerHTML = `
+            <div class="p-6 h-full flex flex-col">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-bold text-white">${title}</h3>
+                    <button onclick="app.closeDrawer()" class="text-slate-400 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <form onsubmit="app.handleCloudBindSubmit(event)" class="space-y-6 flex-1">
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- System Type -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-400">System Type</label>
+                            <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
+                                <option value="cloud">Manufacturer Cloud</option>
+                                <option value="scada">SCADA</option>
+                                <option value="edge">Edge</option>
+                            </select>
+                        </div>
+
+                        <!-- Country Selection -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-400">Country</label>
+                            <select name="country" onchange="app.updateSystemOptions(this.value)" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
+                                <option value="Australia" ${state.currentUser.country === 'Australia' ? 'selected' : ''}>Australia</option>
+                                <option value="China" ${state.currentUser.country === 'China' ? 'selected' : ''}>China</option>
+                                <option value="USA" ${state.currentUser.country === 'USA' ? 'selected' : ''}>USA</option>
+                                <option value="Germany" ${state.currentUser.country === 'Germany' ? 'selected' : ''}>Germany</option>
+                                <option value="Japan" ${state.currentUser.country === 'Japan' ? 'selected' : ''}>Japan</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cloud: Manufacturers (Multi-select) -->
+                    <div id="section-cloud" class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-400">Manufacturer Cloud (Multi-select)</label>
+                        <div class="bg-surface-dark border border-white/10 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                            ${manufacturers.map(m => `
+                                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
+                                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
+                                    <span class="text-sm text-white">${m}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- SCADA: System Selection -->
+                    <div id="section-scada" class="space-y-1.5 hidden">
+                        <label class="text-xs font-semibold text-slate-400">SCADA System</label>
+                        <div class="bg-surface-dark border border-white/10 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                            ${scadaOptions.map(s => `
+                                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
+                                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
+                                    <span class="text-sm text-white">${s}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Edge: Device Selection -->
+                    <div id="section-edge" class="space-y-1.5 hidden">
+                        <label class="text-xs font-semibold text-slate-400">Edge Device</label>
+                        <div class="bg-surface-dark border border-white/10 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                            ${edgeOptions.map(e => `
+                                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
+                                    <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
+                                    <span class="text-sm text-white">${e}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-surface-dark border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                            Cancel
+                        </button>
+                        <button type="submit" id="cloud-submit-btn" class="flex-1 bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                            <span>${isEdit ? 'Update' : 'Submit'}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+        lucide.createIcons();
+        this.toggleDrawer(true);
+    },
+
+    updateSystemOptions(country) {
+        // Update Cloud Options
+        const cloudContainer = document.querySelector('#section-cloud .overflow-y-auto');
+        if (cloudContainer) {
+            // Base options
+            let options = ['Sungrow', 'Huawei', 'Tesla', 'BYD', 'CATL'];
+            
+            // Region specific additions
+            if (country === 'China') {
+                 options = ['Growatt', 'GoodWe', 'Ginlong (Solis)', ...options];
+            } else if (country === 'Germany') {
+                 options = ['SMA', 'Fronius', 'Siemens', 'Kostal', ...options];
+            } else if (country === 'USA') {
+                 options = ['Enphase', 'SolarEdge', 'Generac', ...options];
+            } else if (country === 'Australia') {
+                 options = ['Redback', 'Selectronic', ...options];
+            }
+            
+            const uniqueOptions = [...new Set(options)];
+
+            cloudContainer.innerHTML = uniqueOptions.map(m => `
+                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
+                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
+                    <span class="text-sm text-white">${m}</span>
+                </label>
+            `).join('');
+        }
+
+        // Update SCADA Options
+        const scadaContainer = document.querySelector('#section-scada .overflow-y-auto');
+        if (scadaContainer) {
+            const company = state.currentUser.company;
+            let options = ['Ignition', 'WinCC', 'Wonderware', 'VTScada'];
+            
+            if (country === 'China') {
+                options = ['KingView', 'ForceControl', ...options];
+            } else if (country === 'Germany') {
+                options = ['WinCC', 'Zenon', 'Beckhoff TwinCAT', ...options.filter(o => o !== 'WinCC')];
+            }
+            
+            if (company.includes('Grid')) {
+                 options.push('PowerScada X');
+            }
+            
+            const uniqueOptions = [...new Set(options)];
+
+            scadaContainer.innerHTML = uniqueOptions.map(s => `
+                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
+                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
+                    <span class="text-sm text-white">${s}</span>
+                </label>
+            `).join('');
+        }
+
+        // Update Edge Options
+        const edgeContainer = document.querySelector('#section-edge .overflow-y-auto');
+        if (edgeContainer) {
+             const company = state.currentUser.company;
+             let options = ['Manta Edge X1 (SN: 882910)', 'Manta Edge Gateway (SN: 112039)'];
+             
+             if (country === 'China') {
+                  options = ['Manta Edge CN-Red (SN: 992011)', ...options];
+             } else if (country === 'Germany') {
+                  options = ['Manta Edge DE-Pro (SN: 771234)', ...options];
+             }
+             
+             if (company.includes('Grid')) {
+                  options.push('Grid Edge Controller (SN: 554433)');
+             }
+             
+             const uniqueOptions = [...new Set(options)];
+
+             edgeContainer.innerHTML = uniqueOptions.map(e => `
+                 <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
+                     <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
+                     <span class="text-sm text-white">${e}</span>
+                 </label>
+             `).join('');
+        }
+    },
+
+    handleSystemTypeChange(type) {
+        const cloudSection = document.getElementById('section-cloud');
+        const scadaSection = document.getElementById('section-scada');
+        const edgeSection = document.getElementById('section-edge');
+
+        cloudSection.classList.add('hidden');
+        scadaSection.classList.add('hidden');
+        edgeSection.classList.add('hidden');
+
+        if (type === 'cloud') {
+            cloudSection.classList.remove('hidden');
+        } else if (type === 'scada') {
+            scadaSection.classList.remove('hidden');
+        } else if (type === 'edge') {
+            edgeSection.classList.remove('hidden');
+        }
+    },
+
+    handleCloudBindSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const btn = document.getElementById('cloud-submit-btn');
+        const systemType = formData.get('systemType');
+        
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...`;
+        lucide.createIcons();
+        
+        setTimeout(() => {
+            state.cloudBound = true;
+            // state.cloudAccount and state.cloudSecret removed
+            
+            if (!state.systems) state.systems = [];
+            const newSystems = [];
+            const timestamp = Date.now();
+
+            if (systemType === 'cloud') {
+                const manufacturers = formData.getAll('manufacturers');
+                state.cloudVendor = manufacturers.join(', '); // Keep legacy support
+                
+                manufacturers.forEach((m, index) => {
+                    newSystems.push({
+                        id: timestamp + index,
+                        name: `${m} Cloud`,
+                        type: 'Cloud',
+                        vendor: m,
+                        deviceCount: Math.floor(Math.random() * 10) + 1, // Random mock count
+                        status: 'online'
+                    });
+                });
+            } else if (systemType === 'scada') {
+                 const scadaSystems = formData.getAll('scada');
+                 state.cloudVendor = scadaSystems.join(', ');
+                 
+                 scadaSystems.forEach((s, index) => {
+                    newSystems.push({
+                        id: timestamp + index,
+                        name: s,
+                        type: 'SCADA',
+                        vendor: 'SCADA Provider',
+                        deviceCount: Math.floor(Math.random() * 5) + 1,
+                        status: 'online'
+                    });
+                 });
+             } else {
+                 const edgeDevices = formData.getAll('edge');
+                 state.cloudVendor = edgeDevices.join(', ');
+                 
+                 edgeDevices.forEach((e, index) => {
+                    // Extract name from "Name (SN: ...)" format if needed, or use full string
+                    const namePart = e.split(' (SN:')[0] || e;
+                    
+                    newSystems.push({
+                        id: timestamp + index,
+                        name: namePart,
+                        type: 'Edge',
+                        vendor: 'Manta Systems',
+                        deviceCount: 1, 
+                        status: 'online'
+                    });
+                 });
+             }
+            
+            // Add new systems to state
+            state.systems.push(...newSystems);
+
+            // Populate devices if empty (first bind simulation)
+            if (!state.devices || state.devices.length === 0) {
+                 state.devices = [
+                    { sn: 'INV-2024001', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 50, address: '123 Solar St, Sydney' },
+                    { sn: 'BAT-2024002', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 13.5, address: '123 Solar St, Sydney' },
+                    { sn: 'INV-2024003', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'offline', capacity: 100, address: '456 Wind Way, Melbourne' },
+                    { sn: 'BAT-2024004', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 27, address: '456 Wind Way, Melbourne' },
+                    { sn: 'INV-2024005', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 30, address: '789 Energy Rd, Brisbane' }
+                ];
+            }
+
+            this.showToast('Systems connected successfully', 'success');
+            this.toggleDrawer(false);
+            this.renderDeviceManagement(document.getElementById('content-area'));
+            lucide.createIcons();
+        }, 1500);
+    },
+
+    syncDevices() {
+        this.showToast('Syncing devices...', 'info');
+        setTimeout(() => {
+             this.showToast('Devices synchronized successfully', 'success');
+        }, 1500);
     },
 
     handleCreateSubmit(e, type) {
@@ -1358,24 +2157,80 @@ const app = {
         lucide.createIcons();
 
         setTimeout(() => {
-            const name = e.target.querySelector('input').value;
-            const description = e.target.querySelector('textarea').value;
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const company = formData.get('company');
+            const country = formData.get('country');
+            const abn = formData.get('abn');
+            const address = formData.get('address');
+            const dnsp = formData.get('dnsp');
+            const description = formData.get('description');
             
             if (isEdit) {
                 const vpp = state.vpps.find(v => v.id === vppId);
                 if (vpp) {
                     vpp.name = name;
+                    vpp.company = company;
+                    vpp.country = country;
+                    vpp.abn = abn;
+                    vpp.address = address;
+                    vpp.dnsp = dnsp;
                     vpp.description = description;
                 }
             } else {
                 const newVPP = {
                     id: Date.now(),
                     name: name,
+                    company: company,
+                    country: country,
+                    abn: abn,
+                    address: address,
+                    dnsp: dnsp,
                     description: description,
                     capacity: '0 kWh',
-                    devices: 0
+                    devices: 0,
+                    createdAt: Date.now()
                 };
+
+                // Simulate Devices (5 Inverters, 3 Batteries)
+                const mockInverters = Array.from({length: 5}, (_, i) => ({
+                    id: Date.now() + i,
+                    sn: `INV-SIM-${Date.now()}-${i}`,
+                    vendor: ['Sungrow', 'Huawei', 'Tesla'][Math.floor(Math.random() * 3)],
+                    type: 'Inverter',
+                    status: Math.random() > 0.2 ? 'online' : 'offline',
+                    vppId: newVPP.id,
+                    capacity: 50,
+                    userName: `Sim User ${i}`,
+                    phone: `+1 555-0${i}`,
+                    email: `sim${i}@example.com`,
+                    address: `${i} Simulation St`
+                }));
+
+                const mockBatteries = Array.from({length: 3}, (_, i) => ({
+                    id: Date.now() + 100 + i,
+                    sn: `BAT-SIM-${Date.now()}-${i}`,
+                    vendor: ['CATL', 'BYD', 'Tesla'][Math.floor(Math.random() * 3)],
+                    type: 'Battery',
+                    status: Math.random() > 0.2 ? 'online' : 'offline',
+                    vppId: newVPP.id,
+                    capacity: 100,
+                    userName: `Sim User ${i}`,
+                    phone: `+1 555-0${i}`,
+                    email: `sim${i}@example.com`,
+                    address: `${i} Simulation St`
+                }));
+
+                const newDevices = [...mockInverters, ...mockBatteries];
+                MOCK_DATA.assignedDevices.push(...newDevices);
+
+                // Update VPP stats
+                const totalCapacity = newDevices.reduce((sum, d) => sum + d.capacity, 0);
+                newVPP.capacity = totalCapacity >= 1000 ? (totalCapacity/1000).toFixed(1) + ' MWh' : totalCapacity + ' kWh';
+                newVPP.devices = newDevices.length;
+
                 state.vpps.unshift(newVPP);
+                state.selectedVppId = newVPP.id;
             }
             
             this.showToast(`VPP ${isEdit ? 'Updated' : 'Created'} successfully`, 'success');
@@ -1717,6 +2572,12 @@ const app = {
             el.textContent = '••••••••••••••••';
             el.classList.remove('text-brand-light');
         }
+    },
+
+    editVPP(vppId) {
+        // In a real app, this would open a modal with form fields
+        // For now, we'll just show a toast or alert
+        this.showToast('Edit functionality coming soon!', 'info');
     },
 
     initChart() {

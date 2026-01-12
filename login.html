@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Manta VPP</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        manta: {
+                            primary: '#2E9F58',
+                            dark: '#1A6E3B',
+                            light: '#F4F7F9',
+                            text: '#333333',
+                            border: '#E5E7EB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .tech-pattern {
+            background-color: #2E9F58;
+            background-image: 
+                linear-gradient(30deg, #2E9F58 12%, transparent 12.5%, transparent 87%, #2E9F58 87.5%, #2E9F58),
+                linear-gradient(150deg, #2E9F58 12%, transparent 12.5%, transparent 87%, #2E9F58 87.5%, #2E9F58),
+                linear-gradient(30deg, #2E9F58 12%, transparent 12.5%, transparent 87%, #2E9F58 87.5%, #2E9F58),
+                linear-gradient(150deg, #2E9F58 12%, transparent 12.5%, transparent 87%, #2E9F58 87.5%, #2E9F58),
+                linear-gradient(60deg, #34b363 25%, transparent 25.5%, transparent 75%, #34b363 75%, #34b363),
+                linear-gradient(60deg, #34b363 25%, transparent 25.5%, transparent 75%, #34b363 75%, #34b363);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+            opacity: 1;
+        }
+        .glass-overlay {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex overflow-hidden font-sans">
+
+    <!-- Left Side - Visual -->
+    <div class="hidden lg:flex w-1/2 relative bg-manta-primary overflow-hidden items-center justify-center">
+        <!-- Abstract Tech Background -->
+        <div class="absolute inset-0 tech-pattern opacity-30"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-manta-primary via-transparent to-manta-dark opacity-90"></div>
+        
+        <!-- Content -->
+        <div class="relative z-10 text-white p-12 max-w-lg">
+            <h1 class="text-6xl font-bold mb-6 leading-tight">Hello<br>MANTA</h1>
+            <div class="w-24 h-2 bg-white/30 rounded-full mb-8"></div>
+            <!-- Decorative Tech Elements -->
+            <div class="grid grid-cols-4 gap-4 opacity-30">
+                <div class="h-2 bg-white rounded"></div>
+                <div class="h-2 bg-white rounded col-span-2"></div>
+                <div class="h-2 bg-white rounded"></div>
+                <div class="h-2 bg-white rounded col-span-2"></div>
+                <div class="h-2 bg-white rounded"></div>
+                <div class="h-2 bg-white rounded"></div>
+            </div>
+        </div>
+
+        <!-- Decorative Circles -->
+        <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -top-32 -right-32 w-96 h-96 bg-manta-dark/30 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="w-full lg:w-1/2 bg-white flex flex-col justify-center items-center p-8 relative">
+        <div class="w-full max-w-md">
+            <h2 class="text-3xl font-bold text-manta-primary mb-12">MANTA</h2>
+            
+            <form id="loginForm" class="space-y-6" novalidate>
+                <!-- Email Field -->
+                <div class="space-y-2">
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        <span class="text-red-500 mr-1">*</span>Email
+                    </label>
+                    <input type="email" id="email" name="email" 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-manta-primary focus:ring-2 focus:ring-manta-primary/20 outline-none transition-all"
+                        placeholder="Enter your email">
+                    <p id="email-error" class="text-xs text-red-500 hidden">Email is required</p>
+                </div>
+
+                <!-- Password Field -->
+                <div class="space-y-2">
+                    <label for="password" class="block text-sm font-medium text-gray-700">
+                        <span class="text-red-500 mr-1">*</span>Password
+                    </label>
+                    <input type="password" id="password" name="password" 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-manta-primary focus:ring-2 focus:ring-manta-primary/20 outline-none transition-all"
+                        placeholder="Enter your password">
+                    <p id="password-error" class="text-xs text-red-500 hidden">Password is required</p>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                    class="w-full bg-manta-primary text-white font-bold py-3.5 rounded-lg hover:bg-manta-dark transition-all shadow-lg shadow-manta-primary/20 active:scale-[0.98] mt-4">
+                    Log In
+                </button>
+            </form>
+
+            <div class="mt-8 text-center">
+                <p class="text-xs text-gray-400">© 2024 Manta Energy. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            
+            let isValid = true;
+            
+            // Reset errors
+            emailError.classList.add('hidden');
+            passwordError.classList.add('hidden');
+            emailInput.classList.remove('border-red-500');
+            passwordInput.classList.remove('border-red-500');
+
+            // Validate Email
+            if (!emailInput.value.trim()) {
+                emailError.textContent = 'Email is required';
+                emailError.classList.remove('hidden');
+                emailInput.classList.add('border-red-500');
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+                emailError.textContent = 'Please enter a valid email';
+                emailError.classList.remove('hidden');
+                emailInput.classList.add('border-red-500');
+                isValid = false;
+            }
+
+            // Validate Password
+            if (!passwordInput.value) {
+                passwordError.classList.remove('hidden');
+                passwordInput.classList.add('border-red-500');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Show loading state
+                const btn = this.querySelector('button[type="submit"]');
+                const originalText = btn.innerText;
+                btn.innerText = 'Logging in...';
+                btn.disabled = true;
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                // Simulate API call
+                setTimeout(() => {
+                    // Save login state
+                    localStorage.setItem('manta_isLoggedIn', 'true');
+                    localStorage.setItem('manta_userEmail', emailInput.value);
+                    localStorage.setItem('manta_userName', 'Admin User'); // Mock name
+
+                    // Redirect to dashboard
+                    window.location.href = 'index.html';
+                }, 1000);
+            }
+        });
+
+        // Clear errors on input
+        ['email', 'password'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                document.getElementById(`${id}-error`).classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
