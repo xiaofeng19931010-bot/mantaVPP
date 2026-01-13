@@ -124,6 +124,7 @@
         </div>
     </div>
 
+    <script src="users.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -171,13 +172,46 @@
 
                 // Simulate API call
                 setTimeout(() => {
-                    // Save login state
-                    localStorage.setItem('manta_isLoggedIn', 'true');
-                    localStorage.setItem('manta_userEmail', emailInput.value);
-                    localStorage.setItem('manta_userName', 'Admin User'); // Mock name
+                    const email = emailInput.value.toLowerCase().trim();
+                    
+                    // Find user in MOCK_USERS
+                    const user = MOCK_USERS.find(u => u.email.toLowerCase() === email);
+                    
+                    if (user) {
+                        // Check if user is active
+                        if (user.status !== 'Active') {
+                             emailError.textContent = 'Account is inactive. Please contact support.';
+                             emailError.classList.remove('hidden');
+                             emailInput.classList.add('border-red-500');
+                             
+                             // Reset button
+                             const btn = this.querySelector('button[type="submit"]');
+                             btn.innerText = originalText;
+                             btn.disabled = false;
+                             btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                             return;
+                        }
 
-                    // Redirect to dashboard
-                    window.location.href = 'index.html';
+                        // Save login state with real user data
+                        localStorage.setItem('manta_isLoggedIn', 'true');
+                        localStorage.setItem('manta_userEmail', user.email);
+                        localStorage.setItem('manta_userName', user.userName);
+                        localStorage.setItem('manta_userCompany', user.company || '');
+                        
+                        // Redirect to dashboard
+                        window.location.href = 'index.html';
+                    } else {
+                        // User not found
+                        emailError.textContent = 'Account not found';
+                        emailError.classList.remove('hidden');
+                        emailInput.classList.add('border-red-500');
+                        
+                        // Reset button
+                        const btn = this.querySelector('button[type="submit"]');
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    }
                 }, 1000);
             }
         });

@@ -61,6 +61,15 @@ const MOCK_DATA = {
         { id: 6, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:35:48 - 20:00:00', power: 10.00 },
         { id: 7, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 20:00:00', power: 411.19 },
         { id: 8, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 19:31:06', power: 10.00 },
+    ],
+
+    companies: [
+        { id: 1, name: 'Solar Naturally Pty Ltd', industry: 'Energy Retailer', country: 'Australia', status: 'Active' },
+        { id: 2, name: 'GPOWER PTY LTD', industry: 'Commercial & Industrial', country: 'USA', status: 'Inactive' },
+        { id: 3, name: 'Regen Power Pty Ltd', industry: 'Energy Retailer', country: 'Spain', status: 'Active' },
+        { id: 4, name: 'Connect Solar Cycle Team', industry: 'Commercial & Industrial', country: 'Germany', status: 'Inactive' },
+        { id: 5, name: 'Green Energy Co', industry: 'Energy Retailer', country: 'Australia', status: 'Active' },
+        { id: 6, name: 'Manta Energy', industry: 'Technology', country: 'Australia', status: 'Active' }
     ]
 };
 
@@ -89,6 +98,7 @@ const state = {
     currentView: 'overview',
     // nodes removed
     vpps: [...MOCK_DATA.vpps],
+    systems: [], // Initialize systems array
     selectedVppId: null,
     vppDeviceTab: 'assigned', // assigned or discovery
     assignedSearchQuery: '',
@@ -106,8 +116,60 @@ const state = {
 // App Object
 const app = {
     init() {
+        if (!this.checkLogin()) return;
+        this.loadUserInfo();
         this.navigate('overview');
         this.setupGlobalListeners();
+    },
+
+    loadUserInfo() {
+        const userName = localStorage.getItem('manta_userName');
+        const userEmail = localStorage.getItem('manta_userEmail');
+        const userCompany = localStorage.getItem('manta_userCompany');
+        
+        if (userName && userEmail) {
+            // Update State
+            state.currentUser = {
+                name: userName,
+                email: userEmail,
+                company: userCompany
+            };
+
+            // Update UI
+            const nameEl = document.getElementById('user-name');
+            const emailEl = document.getElementById('user-email');
+            const initialsEl = document.getElementById('user-initials');
+            
+            if (nameEl) nameEl.textContent = userName;
+            if (emailEl) emailEl.textContent = userEmail;
+            
+            // Update Initials (First letter of First and Last name)
+            if (initialsEl) {
+                const parts = userName.trim().split(' ');
+                let initials = parts[0][0];
+                if (parts.length > 1) {
+                    initials += parts[parts.length - 1][0];
+                }
+                initialsEl.textContent = initials.toUpperCase();
+            }
+        }
+    },
+
+    checkLogin() {
+        const isLoggedIn = localStorage.getItem('manta_isLoggedIn') === 'true';
+        // Check if we are already on the login page to avoid infinite loop (though app.js is likely only used in index.html)
+        if (!isLoggedIn && !window.location.pathname.includes('login.html')) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        return true;
+    },
+
+    handleLogout() {
+        localStorage.removeItem('manta_isLoggedIn');
+        localStorage.removeItem('manta_userEmail');
+        localStorage.removeItem('manta_userName');
+        window.location.href = 'login.html';
     },
 
     formatSensitive(text) {
@@ -1791,6 +1853,24 @@ const app = {
         this.overviewChart = myChart;
     },
 
+    disconnectSystem(id, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+
+        const system = state.systems.find(s => s.id === id);
+        if (!system) return;
+
+        this.showConfirmModal(
+            'Disconnect Platform',
+            'Are you sure you want to disconnect Manta from this platform? Note: After disconnection, devices under this connection will no longer be controlled by Manta.',
+            () => {
+                system.status = 'disconnected';
+                this.renderDeviceManagement(document.getElementById('content-area'));
+            }
+        );
+    },
+
     renderDeviceManagement(container) {
         if (!state.cloudBound) {
             // Empty State - Bind Cloud Platform
@@ -1800,11 +1880,11 @@ const app = {
                     <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
                         <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-2">No System Connected</h2>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">No Platform Connected</h2>
                     <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a system to synchronize and manage your devices.</p>
                     <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
                         <i data-lucide="link" class="w-5 h-5"></i>
-                        <span>Connect</span>
+                        <span>Connect Platform</span>
                     </button>
                 </div>
             `;
@@ -1818,7 +1898,7 @@ const app = {
                 <!-- System List -->
                 <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                     <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
-                        <h2 class="text-xl font-bold text-gray-900 pl-2">Connected System List</h2>
+                        <h2 class="text-xl font-bold text-gray-900 pl-2">Platform List</h2>
                         <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             <span>New</span>
@@ -1856,17 +1936,29 @@ const app = {
 
                             const getStatusConfig = (s) => {
                                 const status = (s || '').toLowerCase();
-                                if (status === 'connecting') return { color: 'bg-yellow-500', text: '接入中' };
+                                if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
                                 if (status === 'connected' || status === 'online') return { color: 'bg-manta-primary', text: 'Connected' };
                                 return { color: 'bg-gray-400', text: 'Disconnected' };
                             };
                             const statusConfig = getStatusConfig(sys.status);
+                            const isConnecting = (sys.status || '').toLowerCase() === 'connecting';
+                            const isDisconnected = (sys.status || '').toLowerCase() === 'disconnected';
+                            const onclickAttr = isConnecting ? '' : `onclick="app.navigate('system_details', { id: ${sys.id} })"`;
+                            const cursorClass = isConnecting ? 'cursor-default' : 'cursor-pointer';
 
                             return `
-                            <div onclick="app.navigate('system_details', { id: ${sys.id} })" class="group bg-white p-3 rounded-xl cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
-                                <div class="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 z-10">
-                                    <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
-                                    <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                            <div ${onclickAttr} class="group bg-white p-3 rounded-xl ${cursorClass} border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
+                                <div class="absolute top-3 right-3 z-20">
+                                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 ${!isDisconnected ? 'group-hover:hidden' : ''} transition-all duration-200">
+                                        <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
+                                        <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                                    </div>
+                                    ${!isDisconnected ? `
+                                    <button onclick="app.disconnectSystem(${sys.id}, event)" class="hidden group-hover:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all duration-200 shadow-sm">
+                                        <i data-lucide="unlink" class="w-3 h-3"></i>
+                                        <span class="text-[10px] font-medium uppercase tracking-wider">Disconnect</span>
+                                    </button>
+                                    ` : ''}
                                 </div>
 
                                 <!-- Header Section -->
@@ -1962,7 +2054,7 @@ const app = {
         const header = document.createElement('div');
         header.className = 'flex items-center gap-4';
         header.innerHTML = `
-            <button onclick="app.navigate('vpp')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900" aria-label="Back to VPP Management">
+            <button onclick="app.navigate('device_management')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900" aria-label="Back to Platform List">
                 <i data-lucide="arrow-left" class="w-6 h-6"></i>
             </button>
             <div>
@@ -2564,15 +2656,15 @@ const app = {
         const content = document.getElementById('modal-content');
         
         content.innerHTML = `
-            <div class="p-8 text-center">
-                <div class="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
+            <div class="p-8 text-center bg-white rounded-2xl">
+                <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100">
                     <i data-lucide="alert-triangle" class="w-8 h-8"></i>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-3">${title}</h3>
-                <p class="text-slate-400 mb-8 text-base leading-relaxed">${message}</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">${title}</h3>
+                <p class="text-gray-500 mb-8 text-base leading-relaxed">${message}</p>
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="modal-cancel-btn" class="w-full py-3 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition-all font-medium">Cancel</button>
-                    <button id="modal-confirm-btn" class="w-full py-3 rounded-xl bg-brand text-white hover:bg-brand-light transition-all font-bold shadow-lg shadow-brand/20">Confirm</button>
+                    <button id="modal-cancel-btn" class="w-full py-3 rounded-xl border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all font-medium">Cancel</button>
+                    <button id="modal-confirm-btn" class="w-full py-3 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all font-bold shadow-lg shadow-red-600/20">Confirm</button>
                 </div>
             </div>
         `;
@@ -2809,23 +2901,23 @@ const app = {
 
                     <div class="space-y-1.5">
                         <label class="text-xs font-semibold text-gray-500">Company</label>
-                        <input type="text" name="company" value="${isEdit ? (vpp.company || '') : state.currentUser.company}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Acme Corp">
+                        <input type="text" name="company" value="${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Acme Corp">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-gray-500">Country</label>
-                            <input type="text" name="country" value="${isEdit ? (vpp.country || '') : state.currentUser.country}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Australia">
+                            <input type="text" name="country" value="${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Australia">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-gray-500">ABN/VAT</label>
-                            <input type="text" name="abn" value="${isEdit ? (vpp.abn || '') : state.currentUser.abn}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 12 345 678 901">
+                            <input type="text" name="abn" value="${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 12 345 678 901">
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
                         <label class="text-xs font-semibold text-gray-500">Business Address</label>
-                        <input type="text" name="address" value="${isEdit ? (vpp.address || '') : state.currentUser.address}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 123 Solar St, Sydney">
+                        <input type="text" name="address" value="${isEdit ? (vpp.address || '') : (state.currentUser?.address || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 123 Solar St, Sydney">
                     </div>
 
                     <div class="space-y-1.5">
@@ -2854,77 +2946,64 @@ const app = {
     },
 
     openCloudBindDrawer(isEdit = false) {
-        const title = isEdit ? 'Edit System Configuration' : 'Connect';
+        const title = isEdit ? 'Edit System Configuration' : 'Connect Platform';
         const drawerContent = document.getElementById('drawer-content');
         
-        // Mock Data based on Region and Company
-        const getScadaOptions = () => {
-            const country = state.currentUser.country;
-            const company = state.currentUser.company;
-            
-            // Base options
-            let options = ['Ignition', 'WinCC', 'Wonderware', 'VTScada'];
-            
-            // Region specific additions
-            if (country === 'China') {
-                options = ['KingView', 'ForceControl', ...options];
-            } else if (country === 'Germany') {
-                options = ['WinCC', 'Zenon', 'Beckhoff TwinCAT', ...options.filter(o => o !== 'WinCC')]; // Prioritize German brands
+        // 1. Get current user's company
+        const companyName = state.currentUser?.company;
+        
+        if (!companyName) {
+             this.showToast('Access Denied: No company associated with user.', 'error');
+             return;
+        }
+        
+        // 2. Check if company exists in allowed list (MOCK_DATA.companies or global MOCK_COMPANIES)
+        let companyInfo = MOCK_DATA.companies?.find(c => c.name === companyName);
+        
+        if (!companyInfo && typeof MOCK_COMPANIES !== 'undefined') {
+            const extCompany = MOCK_COMPANIES.find(c => c.companyName === companyName);
+            if (extCompany) {
+                companyInfo = {
+                    name: extCompany.companyName,
+                    country: extCompany.nation,
+                    status: extCompany.status
+                };
             }
-            
-            // Company specific customization (Mock logic)
-            if (company.includes('Grid')) {
-                 options.push('PowerScada X');
-            }
-            
-            return [...new Set(options)]; // Remove duplicates
+        }
+        
+        if (!companyInfo) {
+            this.showToast('Access Denied: Your company is not authorized.', 'error');
+            return;
+        }
+
+        if (companyInfo.status !== 'Active') {
+            this.showToast('Access Denied: Your company account is inactive.', 'error');
+            return;
+        }
+
+        // 3. Get country from company info
+        const country = companyInfo.country || state.currentUser?.country;
+        
+        if (!country) {
+             this.showToast('Configuration Error: Country not defined for company.', 'error');
+             return;
+        }
+
+        // Mock Data based on Region and Company (using MOCK_ACCESS_NODES)
+        // Filter out already connected items from state.systems
+        const connectedSystemNames = (state.systems || [])
+            .map(s => s.name);
+
+        const getOptions = (type) => {
+             if (typeof MOCK_ACCESS_NODES === 'undefined') return [];
+             return MOCK_ACCESS_NODES
+                 .filter(n => n.type === type && n.company === companyName && !connectedSystemNames.includes(n.name))
+                 .map(n => n.name);
         };
 
-        const getEdgeOptions = () => {
-            const country = state.currentUser.country;
-            const company = state.currentUser.company;
-            
-            // Base options
-            let options = ['Manta Edge X1 (SN: 882910)', 'Manta Edge Gateway (SN: 112039)'];
-            
-            // Region specific additions
-            if (country === 'China') {
-                 options = ['Manta Edge CN-Red (SN: 992011)', ...options];
-            } else if (country === 'Germany') {
-                 options = ['Manta Edge DE-Pro (SN: 771234)', ...options];
-            }
-            
-             // Company specific customization (Mock logic)
-             if (company.includes('Grid')) {
-                  options.push('Grid Edge Controller (SN: 554433)');
-             }
-             
-             return [...new Set(options)];
-        };
-
-        const getCloudOptions = () => {
-            const country = state.currentUser.country;
-            
-            // Base options
-            let options = ['Sungrow', 'Huawei', 'Tesla', 'BYD', 'CATL'];
-            
-            // Region specific additions
-            if (country === 'China') {
-                 options = ['Growatt', 'GoodWe', 'Ginlong (Solis)', ...options];
-            } else if (country === 'Germany') {
-                 options = ['SMA', 'Fronius', 'Siemens', 'Kostal', ...options];
-            } else if (country === 'USA') {
-                 options = ['Enphase', 'SolarEdge', 'Generac', ...options];
-            } else if (country === 'Australia') {
-                 options = ['Redback', 'Selectronic', ...options];
-            }
-            
-            return [...new Set(options)];
-        };
-
-        const scadaOptions = getScadaOptions();
-        const edgeOptions = getEdgeOptions();
-        const manufacturers = getCloudOptions();
+        const scadaOptions = getOptions('SCADA');
+        const edgeOptions = getOptions('EDGE');
+        const manufacturers = getOptions('CLOUD');
 
         drawerContent.innerHTML = `
             <div class="p-6 h-full flex flex-col">
@@ -2947,16 +3026,10 @@ const app = {
                             </select>
                         </div>
 
-                        <!-- Country Selection -->
+                        <!-- Country Selection (Read-only) -->
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">Country</label>
-                            <select name="country" onchange="app.updateSystemOptions(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
-                                <option value="Australia" ${state.currentUser.country === 'Australia' ? 'selected' : ''}>Australia</option>
-                                <option value="China" ${state.currentUser.country === 'China' ? 'selected' : ''}>China</option>
-                                <option value="USA" ${state.currentUser.country === 'USA' ? 'selected' : ''}>USA</option>
-                                <option value="Germany" ${state.currentUser.country === 'Germany' ? 'selected' : ''}>Germany</option>
-                                <option value="Japan" ${state.currentUser.country === 'Japan' ? 'selected' : ''}>Japan</option>
-                            </select>
+                            <label class="text-xs font-semibold text-gray-500">Country (Company Region)</label>
+                            <input type="text" name="country" value="${country}" readonly class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-500 outline-none cursor-not-allowed">
                         </div>
                     </div>
 
@@ -2964,12 +3037,12 @@ const app = {
                     <div id="section-cloud" class="space-y-1.5">
                         <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud (Multi-select)</label>
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
-                            ${manufacturers.map(m => `
+                            ${manufacturers.length > 0 ? manufacturers.map(m => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                                     <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                                     <span class="text-sm text-gray-900">${m}</span>
                                 </label>
-                            `).join('')}
+                            `).join('') : '<div class="p-2 text-sm text-gray-500">No cloud nodes found for your company.</div>'}
                         </div>
                     </div>
 
@@ -2977,12 +3050,12 @@ const app = {
                     <div id="section-scada" class="space-y-1.5 hidden">
                         <label class="text-xs font-semibold text-gray-500">SCADA System</label>
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
-                            ${scadaOptions.map(s => `
+                            ${scadaOptions.length > 0 ? scadaOptions.map(s => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                                     <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                                     <span class="text-sm text-gray-900">${s}</span>
                                 </label>
-                            `).join('')}
+                            `).join('') : '<div class="p-2 text-sm text-gray-500">No SCADA systems found for your company.</div>'}
                         </div>
                     </div>
 
@@ -2990,12 +3063,12 @@ const app = {
                     <div id="section-edge" class="space-y-1.5 hidden">
                         <label class="text-xs font-semibold text-gray-500">Edge Device</label>
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
-                            ${edgeOptions.map(e => `
+                            ${edgeOptions.length > 0 ? edgeOptions.map(e => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                                     <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                                     <span class="text-sm text-gray-900">${e}</span>
                                 </label>
-                            `).join('')}
+                            `).join('') : '<div class="p-2 text-sm text-gray-500">No edge nodes found for your company.</div>'}
                         </div>
                     </div>
 
@@ -3016,83 +3089,51 @@ const app = {
     },
 
     updateSystemOptions(country) {
+        const company = state.currentUser?.company || '';
+        const connectedSystemNames = (state.systems || []).map(s => s.name);
+        
+        // Helper to get options
+        const getOptions = (type) => {
+            if (typeof MOCK_ACCESS_NODES === 'undefined') return [];
+            return MOCK_ACCESS_NODES
+                .filter(n => n.type === type && n.company === company && !connectedSystemNames.includes(n.name))
+                .map(n => n.name);
+        };
+
         // Update Cloud Options
         const cloudContainer = document.querySelector('#section-cloud .overflow-y-auto');
         if (cloudContainer) {
-            // Base options
-            let options = ['Sungrow', 'Huawei', 'Tesla', 'BYD', 'CATL'];
-            
-            // Region specific additions
-            if (country === 'China') {
-                 options = ['Growatt', 'GoodWe', 'Ginlong (Solis)', ...options];
-            } else if (country === 'Germany') {
-                 options = ['SMA', 'Fronius', 'Siemens', 'Kostal', ...options];
-            } else if (country === 'USA') {
-                 options = ['Enphase', 'SolarEdge', 'Generac', ...options];
-            } else if (country === 'Australia') {
-                 options = ['Redback', 'Selectronic', ...options];
-            }
-            
-            const uniqueOptions = [...new Set(options)];
-
-            cloudContainer.innerHTML = uniqueOptions.map(m => `
+            const options = getOptions('CLOUD');
+            cloudContainer.innerHTML = options.length ? options.map(m => `
                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                     <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                     <span class="text-sm text-gray-900">${m}</span>
                 </label>
-            `).join('');
+            `).join('') : '<div class="p-2 text-sm text-gray-500">No cloud nodes found for your company.</div>';
         }
 
         // Update SCADA Options
         const scadaContainer = document.querySelector('#section-scada .overflow-y-auto');
         if (scadaContainer) {
-            const company = state.currentUser.company;
-            let options = ['Ignition', 'WinCC', 'Wonderware', 'VTScada'];
-            
-            if (country === 'China') {
-                options = ['KingView', 'ForceControl', ...options];
-            } else if (country === 'Germany') {
-                options = ['WinCC', 'Zenon', 'Beckhoff TwinCAT', ...options.filter(o => o !== 'WinCC')];
-            }
-            
-            if (company.includes('Grid')) {
-                 options.push('PowerScada X');
-            }
-            
-            const uniqueOptions = [...new Set(options)];
-
-            scadaContainer.innerHTML = uniqueOptions.map(s => `
+            const options = getOptions('SCADA');
+            scadaContainer.innerHTML = options.length ? options.map(s => `
                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                     <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                     <span class="text-sm text-gray-900">${s}</span>
                 </label>
-            `).join('');
+            `).join('') : '<div class="p-2 text-sm text-gray-500">No SCADA systems found for your company.</div>';
         }
 
         // Update Edge Options
         const edgeContainer = document.querySelector('#section-edge .overflow-y-auto');
         if (edgeContainer) {
-             const company = state.currentUser.company;
-             let options = ['Manta Edge X1 (SN: 882910)', 'Manta Edge Gateway (SN: 112039)'];
-             
-             if (country === 'China') {
-                  options = ['Manta Edge CN-Red (SN: 992011)', ...options];
-             } else if (country === 'Germany') {
-                  options = ['Manta Edge DE-Pro (SN: 771234)', ...options];
-             }
-             
-             if (company.includes('Grid')) {
-                  options.push('Grid Edge Controller (SN: 554433)');
-             }
-             
-             const uniqueOptions = [...new Set(options)];
-
-             edgeContainer.innerHTML = uniqueOptions.map(e => `
-                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                     <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                     <span class="text-sm text-gray-900">${e}</span>
-                 </label>
-             `).join('');
+            const options = getOptions('EDGE');
+            edgeContainer.innerHTML = options.length ? options.map(e => `
+                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                    <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                    <span class="text-sm text-gray-900">${e}</span>
+                </label>
+            `).join('') : '<div class="p-2 text-sm text-gray-500">No edge devices found for your company.</div>';
         }
     },
 
@@ -3156,25 +3197,25 @@ const app = {
                         type: 'SCADA',
                         vendor: 'SCADA Provider',
                         deviceCount: Math.floor(Math.random() * 5) + 1,
-                        status: 'connecting'
+                        status: 'connected'
                     });
-                 });
-             } else {
-                 const edgeDevices = formData.getAll('edge');
-                 state.cloudVendor = edgeDevices.join(', ');
-                 
-                 edgeDevices.forEach((e, index) => {
-                    // Extract name from "Name (SN: ...)" format if needed, or use full string
-                    const namePart = e.split(' (SN:')[0] || e;
-                    
-                    newSystems.push({
-                        id: timestamp + index,
-                        name: namePart,
-                        type: 'Edge',
-                        vendor: 'Manta Systems',
-                        deviceCount: 1, 
-                        status: 'connecting'
-                    });
+                });
+            } else {
+                const edgeDevices = formData.getAll('edge');
+                state.cloudVendor = edgeDevices.join(', ');
+                
+                edgeDevices.forEach((e, index) => {
+                   // Extract name from "Name (SN: ...)" format if needed, or use full string
+                   const namePart = e.split(' (SN:')[0] || e;
+                   
+                   newSystems.push({
+                       id: timestamp + index,
+                       name: namePart,
+                       type: 'Edge',
+                       vendor: 'Manta Systems',
+                       deviceCount: 1, 
+                       status: 'connected'
+                   });
                  });
              }
             
