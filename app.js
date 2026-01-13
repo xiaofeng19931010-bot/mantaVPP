@@ -143,23 +143,33 @@ const app = {
         if (!container) return;
 
         const breadcrumbPaths = {
-            'overview': ['Overview'],
-            'electricity_market': ['Electricity Market'],
-            'trading': ['Trading'],
-            'trading_rules': ['Trading', 'Trading Rules'],
-            'trading_events': ['Trading', 'Trading Events'],
-            'smart_feed_in': ['Smart Feed-in'],
-            'smart_feed_in_rules': ['Smart Feed-in', 'Smart Feed-in Rules'],
-            'smart_feed_in_events': ['Smart Feed-in', 'Smart Feed-in Events'],
-            'cap_service': ['Cap Service'],
-            'vpp': ['System', 'VPP Management'],
-            'device_management': ['System', 'Device Management'],
-            'vpp_details': ['System', 'VPP Management', 'VPP Details'],
-            'system_details': ['System', 'VPP Management', 'System Details'],
+            'overview': [{label: 'Overview'}],
+            'electricity_market': [{label: 'Electricity Market'}],
+            'wholesale_price': [{label: 'Electricity Market'}, {label: 'Wholesale Price'}],
+            'arbitrage_points': [{label: 'Electricity Market'}, {label: 'Arbitrage Points'}],
+            'trading': [{label: 'Trading'}],
+            'trading_rules': [{label: 'Trading'}, {label: 'Trading Rules'}],
+            'trading_events': [{label: 'Trading'}, {label: 'Trading Events'}],
+            'smart_feed_in': [{label: 'Smart Feed-in'}],
+            'smart_feed_in_rules': [{label: 'Smart Feed-in'}, {label: 'Smart Feed-in Rules'}],
+            'smart_feed_in_events': [{label: 'Smart Feed-in'}, {label: 'Smart Feed-in Events'}],
+            'cap_service': [{label: 'Cap Service'}],
+            'vpp': [{label: 'System'}, {label: 'VPP Management'}],
+            'device_management': [{label: 'System'}, {label: 'Device Management'}],
+            'vpp_details': [
+                {label: 'System'}, 
+                {label: 'VPP Management', view: 'vpp'}, 
+                {label: 'VPP Details'}
+            ],
+            'system_details': [
+                {label: 'System'}, 
+                {label: 'VPP Management', view: 'vpp'}, 
+                {label: 'System Details'}
+            ],
         };
 
-        const currentPath = breadcrumbPaths[viewName] || ['Overview'];
-        const path = ['Manta', ...currentPath];
+        const currentPath = breadcrumbPaths[viewName] || [{label: 'Overview'}];
+        const path = [{label: 'Manta', view: 'overview'}, ...currentPath];
         
         let html = '';
         
@@ -171,17 +181,18 @@ const app = {
             const isLast = index === path.length - 1;
             const isRoot = index === 0; // Manta
             
-            if (isRoot) {
-                html += `
-                    <button onclick="app.navigate('overview')" class="flex items-center gap-1.5 text-gray-500 hover:text-manta-primary transition-colors group">
-                        <i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">${item}</span>
+            if (item.view && !isLast) {
+                 const paramsStr = item.params ? `, ${JSON.stringify(item.params).replace(/"/g, "'")}` : '';
+                 html += `
+                    <button onclick="app.navigate('${item.view}'${paramsStr})" class="flex items-center gap-1.5 text-gray-500 hover:text-manta-primary transition-colors group">
+                        ${isRoot ? '<i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>' : ''}
+                        <span class="font-medium">${item.label}</span>
                     </button>
                 `;
             } else if (isLast) {
-                 html += `<span class="text-gray-900 font-semibold">${item}</span>`;
+                 html += `<span class="text-gray-900 font-semibold">${item.label}</span>`;
             } else {
-                 html += `<span class="text-gray-500 font-medium">${item}</span>`;
+                 html += `<span class="text-gray-500 font-medium">${item.label}</span>`;
             }
         });
         
@@ -1845,7 +1856,7 @@ const app = {
 
                             const getStatusConfig = (s) => {
                                 const status = (s || '').toLowerCase();
-                                if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
+                                if (status === 'connecting') return { color: 'bg-yellow-500', text: '接入中' };
                                 if (status === 'connected' || status === 'online') return { color: 'bg-manta-primary', text: 'Connected' };
                                 return { color: 'bg-gray-400', text: 'Disconnected' };
                             };
@@ -1853,17 +1864,18 @@ const app = {
 
                             return `
                             <div onclick="app.navigate('system_details', { id: ${sys.id} })" class="group bg-white p-3 rounded-xl cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
+                                <div class="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 z-10">
+                                    <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
+                                    <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                                </div>
+
                                 <!-- Header Section -->
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
-                                        <div class="flex items-center gap-2 mb-2">
+                                        <div class="flex items-center gap-2 mb-2 pr-20">
                                             <h3 class="font-bold text-gray-900 transition-colors line-clamp-1">${sys.name}</h3>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100">
-                                                <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
-                                                <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
-                                            </div>
                                             <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">${sys.type}</p>
                                         </div>
                                     </div>
@@ -1950,7 +1962,7 @@ const app = {
         const header = document.createElement('div');
         header.className = 'flex items-center gap-4';
         header.innerHTML = `
-            <button onclick="app.navigate('device_management')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900" aria-label="Back to Device Management">
+            <button onclick="app.navigate('vpp')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900" aria-label="Back to VPP Management">
                 <i data-lucide="arrow-left" class="w-6 h-6"></i>
             </button>
             <div>
@@ -3130,7 +3142,7 @@ const app = {
                         type: 'Cloud',
                         vendor: m,
                         deviceCount: Math.floor(Math.random() * 10) + 1, // Random mock count
-                        status: 'online'
+                        status: 'connecting'
                     });
                 });
             } else if (systemType === 'scada') {
@@ -3144,7 +3156,7 @@ const app = {
                         type: 'SCADA',
                         vendor: 'SCADA Provider',
                         deviceCount: Math.floor(Math.random() * 5) + 1,
-                        status: 'online'
+                        status: 'connecting'
                     });
                  });
              } else {
@@ -3161,7 +3173,7 @@ const app = {
                         type: 'Edge',
                         vendor: 'Manta Systems',
                         deviceCount: 1, 
-                        status: 'online'
+                        status: 'connecting'
                     });
                  });
              }
