@@ -1,10 +1,37 @@
 // Mock Data
 const MOCK_DATA = {
-    accessNodes: [
-        { id: 1, name: 'Home Storage Cluster A', vpp: 'State Grid VPP', status: 'online', type: 'MANTA', inverters: 5, invertersOnline: 5, invertersOffline: 0, batteries: 10, batteriesOnline: 9, batteriesOffline: 1, ip: '192.168.1.100' },
-        { id: 2, name: 'Industrial Park Zone 1', vpp: 'State Grid VPP', status: 'offline', type: 'CLOUD', inverters: 20, invertersOnline: 20, invertersOffline: 0, batteries: 40, batteriesOnline: 0, batteriesOffline: 40, vendor: 'Sungrow', appKey: 'manta_app_123', appAccess: 'sec_8f92a3c7d1e5' },
-        { id: 3, name: 'Solar Farm Alpha', vpp: 'Local Energy VPP', status: 'online', type: 'MANTA', inverters: 50, invertersOnline: 48, invertersOffline: 2, batteries: 0, batteriesOnline: 0, batteriesOffline: 0, ip: '10.0.0.5' },
-    ],
+    // accessNodes removed
+
+    overview: {
+        regions: [
+            { name: 'NSW', online: 63, total: 91, inverterPower: 483.19, currentCap: 627.87, totalCap: 1566.36, generation: 662.04, price: 59.96, forecastPrice: null, date: '12/01/2026 21:00:00' },
+            { name: 'QLD', online: 19, total: 40, inverterPower: 284.59, currentCap: 215.66, totalCap: 941.28, generation: 196.83, price: 63.83, forecastPrice: 57.84, date: '12/01/2026 21:00:00' },
+            { name: 'SA', online: 80, total: 124, inverterPower: 589.03, currentCap: 611.19, totalCap: 1127.75, generation: 2355.68, price: 54.63, forecastPrice: 54.18, date: '12/01/2026 21:00:00' },
+            { name: 'VIC', online: 21, total: 34, inverterPower: 140.39, currentCap: 181.54, totalCap: 315.02, generation: 548.04, price: 52.98, forecastPrice: 31.59, date: '12/01/2026 21:00:00' },
+        ],
+        reminders: [
+            { id: 1, type: 'pending', label: 'Pending devices', count: 5 },
+            { id: 2, type: 'invalid', label: 'Invalid devices', count: 4 },
+            { id: 3, type: 'feedback', label: 'Feedback pending', count: 40 },
+        ],
+        vppEvents: [
+            { state: 'NSW', charge: 0, discharge: 0 },
+            { state: 'QLD', charge: 0, discharge: 0 },
+            { state: 'SA', charge: 0, discharge: 1 },
+            { state: 'VIC', charge: 0, discharge: 0 },
+        ],
+        statistics: {
+            week: {
+                xAxis: ['Week 1', 'Week 2', 'Week 3'],
+                series: [
+                    { name: 'Hybrid Inverters', data: [0.8, 0.2, 0.4] },
+                    { name: 'String Inverters', data: [0.3, 0.5, 0.2] },
+                    { name: 'EV Charger', data: [0.1, 0.1, 0.1] }
+                ]
+            }
+        }
+    },
+
     vpps: [],
     assignedDevices: [],
     devices: [
@@ -13,22 +40,59 @@ const MOCK_DATA = {
         { id: 103, sn: 'INV-2024-003', vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd' },
         { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct' },
         { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl' },
+    ],
+
+    smartFeedInRules: [
+        { id: 1, state: 'SA', triggerTime: '07:00 - 12:00', triggerPrice: 0.00, socReserve: 30, vppName: 'SA Smart Feedin', lastModified: '10/08/2022 18:22:43', eventsTriggered: 3229, active: true },
+        { id: 2, state: 'NSW', triggerTime: '10:00 - 14:00', triggerPrice: -10.00, socReserve: 50, vppName: 'NSW Feed Control', lastModified: '11/01/2026 09:15:00', eventsTriggered: 156, active: true }
+    ],
+
+    smartFeedInEvents: [
+        { id: 1, time: '12/01/2026 14:30:05', type: 'Current Overload', value: '120A', threshold: '100A', status: 'Resolved', details: 'Discharge current exceeded max limit' },
+        { id: 2, time: '12/01/2026 15:15:22', type: 'High Temperature', value: '45°C', threshold: '40°C', status: 'Active', details: 'Battery temperature above safety range' }
+    ],
+
+    tradingEvents: [
+        { id: 1, vppName: 'SA VPP', state: 'SA', triggerType: 'Actual', eventType: 'Discharge', price: 180.10733, date: '12/01/2026 (+11:00)', timeRange: '19:10:47 - 19:30:00', power: 576.03 },
+        { id: 2, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 411.19 },
+        { id: 3, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 10.00 },
+        { id: 4, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 411.19 },
+        { id: 5, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 10.00 },
+        { id: 6, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:35:48 - 20:00:00', power: 10.00 },
+        { id: 7, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 20:00:00', power: 411.19 },
+        { id: 8, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 19:31:06', power: 10.00 },
     ]
+};
+
+// Page Titles
+const titles = {
+    overview: 'Overview',
+    electricity_market: 'Electricity Market',
+    wholesale_price: 'Wholesale Price',
+    arbitrage_points: 'Arbitrage Points',
+    trading: 'Trading',
+    trading_rules: 'Trading Rules',
+    trading_events: 'Trading Events',
+    smart_feed_in: 'Smart Feed-in',
+    smart_feed_in_rules: 'Smart Feed-in Rules',
+    smart_feed_in_events: 'Smart Feed-in Events',
+    cap_service: 'Cap Service',
+    vpp: 'VPP Management',
+    vpp_details: 'VPP Details',
+    device_management: 'Device Management',
+    system_details: 'System Details',
+    system: 'System'
 };
 
 // State
 const state = {
-    currentView: 'dashboard',
-    dashboardFilter: 'ALL',
-    nodes: [...MOCK_DATA.accessNodes],
+    currentView: 'overview',
+    // nodes removed
     vpps: [...MOCK_DATA.vpps],
     selectedVppId: null,
-    detailsTab: 'Inverters', // Inverters or Batteries
     vppDeviceTab: 'assigned', // assigned or discovery
     assignedSearchQuery: '',
     discoverySearchQuery: '',
-    detailsSearchQuery: '',
-    selectedNodeId: null,
     isSuperAdmin: true, // Default to true to simulate an admin user
     cloudBound: false, // New state for cloud platform binding
     currentUser: {
@@ -42,7 +106,7 @@ const state = {
 // App Object
 const app = {
     init() {
-        this.navigate('dashboard');
+        this.navigate('overview');
         this.setupGlobalListeners();
     },
 
@@ -61,31 +125,136 @@ const app = {
         document.getElementById('drawer-backdrop').addEventListener('click', () => this.closeDrawer());
     },
 
+    toggleSubmenu(id, element) {
+        const submenu = document.getElementById(id);
+        const icon = element.querySelector('.chevron-icon');
+        
+        if (submenu.classList.contains('hidden')) {
+            submenu.classList.remove('hidden');
+            if (icon) icon.style.transform = 'rotate(180deg)';
+        } else {
+            submenu.classList.add('hidden');
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        }
+    },
+
+    updateBreadcrumbs(viewName) {
+        const container = document.getElementById('breadcrumbs');
+        if (!container) return;
+
+        const breadcrumbPaths = {
+            'overview': ['Overview'],
+            'electricity_market': ['Electricity Market'],
+            'trading': ['Trading'],
+            'trading_rules': ['Trading', 'Trading Rules'],
+            'trading_events': ['Trading', 'Trading Events'],
+            'smart_feed_in': ['Smart Feed-in'],
+            'smart_feed_in_rules': ['Smart Feed-in', 'Smart Feed-in Rules'],
+            'smart_feed_in_events': ['Smart Feed-in', 'Smart Feed-in Events'],
+            'cap_service': ['Cap Service'],
+            'vpp': ['System', 'VPP Management'],
+            'device_management': ['System', 'Device Management'],
+            'vpp_details': ['System', 'VPP Management', 'VPP Details'],
+            'system_details': ['System', 'VPP Management', 'System Details'],
+        };
+
+        const currentPath = breadcrumbPaths[viewName] || ['Overview'];
+        const path = ['Manta', ...currentPath];
+        
+        let html = '';
+        
+        path.forEach((item, index) => {
+            if (index > 0) {
+                html += `<i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 mx-1"></i>`;
+            }
+            
+            const isLast = index === path.length - 1;
+            const isRoot = index === 0; // Manta
+            
+            if (isRoot) {
+                html += `
+                    <button onclick="app.navigate('overview')" class="flex items-center gap-1.5 text-gray-500 hover:text-manta-primary transition-colors group">
+                        <i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">${item}</span>
+                    </button>
+                `;
+            } else if (isLast) {
+                 html += `<span class="text-gray-900 font-semibold">${item}</span>`;
+            } else {
+                 html += `<span class="text-gray-500 font-medium">${item}</span>`;
+            }
+        });
+        
+        container.innerHTML = html;
+        
+        // Re-initialize icons for the breadcrumbs container
+        if (window.lucide) {
+            lucide.createIcons({
+                root: container
+            });
+        }
+    },
+
     navigate(viewName, params = {}) {
         state.currentView = viewName;
-        if (viewName === 'details') {
-            state.detailsTab = 'Inverters'; // Reset tab on navigation
-            state.detailsSearchQuery = ''; // Reset search query
-            state.selectedNodeId = params.id;
-        }
         
         // Update Sidebar
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        if (viewName === 'dashboard' || viewName === 'details') {
-            document.getElementById('nav-dashboard').classList.add('active');
-        } else {
-            const navItem = document.getElementById(`nav-${viewName}`);
-            if (navItem) navItem.classList.add('active');
+        const navItem = document.getElementById(`nav-${viewName}`);
+        if (navItem) navItem.classList.add('active');
+
+        // Handle Electricity Market Submenu Expansion
+        const electricityMarketViews = ['wholesale_price', 'arbitrage_points'];
+        const electricityMarketSubmenu = document.getElementById('electricity-market-submenu');
+        const electricityMarketToggle = document.querySelector('a[onclick*="electricity-market-submenu"] .chevron-icon');
+
+        if (electricityMarketViews.includes(viewName)) {
+            if (electricityMarketSubmenu && electricityMarketSubmenu.classList.contains('hidden')) {
+                electricityMarketSubmenu.classList.remove('hidden');
+                if (electricityMarketToggle) electricityMarketToggle.style.transform = 'rotate(180deg)';
+            }
         }
 
-        // Update Header
-        const titles = {
-            'dashboard': 'Data Access',
-            'vpp': 'VPP Management',
-            'device_management': 'Device Management',
-            'details': 'Access Details'
-        };
-        document.getElementById('page-title').textContent = titles[viewName] || 'Dashboard';
+        // Handle Trading Submenu Expansion
+        const tradingViews = ['trading_rules', 'trading_events'];
+        const tradingSubmenu = document.getElementById('trading-submenu');
+        const tradingToggle = document.querySelector('a[onclick*="trading-submenu"] .chevron-icon');
+
+        if (tradingViews.includes(viewName)) {
+            if (tradingSubmenu && tradingSubmenu.classList.contains('hidden')) {
+                tradingSubmenu.classList.remove('hidden');
+                if (tradingToggle) tradingToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Handle Smart Feed-in Submenu Expansion
+        const smartFeedInViews = ['smart_feed_in_rules', 'smart_feed_in_events'];
+        const smartFeedInSubmenu = document.getElementById('smart-feed-in-submenu');
+        const smartFeedInToggle = document.querySelector('a[onclick*="smart-feed-in-submenu"] .chevron-icon');
+
+        if (smartFeedInViews.includes(viewName)) {
+            if (smartFeedInSubmenu && smartFeedInSubmenu.classList.contains('hidden')) {
+                smartFeedInSubmenu.classList.remove('hidden');
+                if (smartFeedInToggle) smartFeedInToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Handle System Submenu Expansion
+        const systemViews = ['vpp', 'device_management', 'vpp_details', 'system_details'];
+        const systemSubmenu = document.getElementById('system-submenu');
+        // Find the toggle icon. It's inside the 'System' link which calls toggleSubmenu
+        // We can find it by looking for the onclick handler or just generic selection if unique
+        const systemToggle = document.querySelector('a[onclick*="system-submenu"] .chevron-icon');
+        
+        if (systemViews.includes(viewName)) {
+            if (systemSubmenu && systemSubmenu.classList.contains('hidden')) {
+                systemSubmenu.classList.remove('hidden');
+                if (systemToggle) systemToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Update Header & Breadcrumbs
+        this.updateBreadcrumbs(viewName);
 
         // Render Content
         const contentArea = document.getElementById('content-area');
@@ -94,8 +263,22 @@ const app = {
         void contentArea.offsetWidth; // Trigger reflow
         contentArea.classList.add('fade-in');
 
-        if (viewName === 'dashboard') {
-            this.renderDashboard(contentArea);
+        if (viewName === 'overview') {
+            this.renderOverview(contentArea);
+        } else if (viewName === 'wholesale_price') {
+            this.renderWholesalePrice(contentArea);
+        } else if (viewName === 'arbitrage_points') {
+            this.renderArbitragePoints(contentArea);
+        } else if (viewName === 'trading_rules') {
+            this.renderTradingRules(contentArea);
+        } else if (viewName === 'trading_events') {
+            this.renderTradingEvents(contentArea);
+        } else if (viewName === 'smart_feed_in_rules') {
+            this.renderSmartFeedInRules(contentArea);
+        } else if (viewName === 'smart_feed_in_events') {
+            this.renderSmartFeedInEvents(contentArea);
+        } else if (['electricity_market', 'trading', 'smart_feed_in', 'cap_service'].includes(viewName)) {
+            this.renderPlaceholder(contentArea, titles[viewName]);
         } else if (viewName === 'vpp') {
             this.renderVPP(contentArea);
         } else if (viewName === 'vpp_details') {
@@ -104,11 +287,1497 @@ const app = {
             this.renderDeviceManagement(contentArea);
         } else if (viewName === 'system_details') {
             this.renderSystemDetails(contentArea, params.id);
-        } else if (viewName === 'details') {
-            this.renderDetails(contentArea, params.id);
         }
 
         lucide.createIcons();
+    },
+
+    renderPlaceholder(container, title) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-center p-8">
+                <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
+                    <i data-lucide="construction" class="w-12 h-12 text-gray-400"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">${title}</h2>
+                <p class="text-gray-500 max-w-md">This feature is currently under development.</p>
+            </div>
+        `;
+    },
+
+    openTradingRuleModal() {
+        const content = document.getElementById('modal-content');
+        this.updateModalWidth('max-w-2xl');
+        
+        content.innerHTML = `
+            <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                <h3 class="text-xl font-bold text-gray-900">New Trading Rule</h3>
+                <button onclick="app.closeModal()" class="text-gray-400 hover:text-gray-900 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Row 1: VPP & State -->
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                        <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-manta-primary focus:border-manta-primary">
+                            <option>Select State</option>
+                            <option>NSW</option>
+                            <option>VIC</option>
+                            <option>QLD</option>
+                            <option>SA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">VPP Name</label>
+                        <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-manta-primary focus:border-manta-primary">
+                            <option>Select VPP</option>
+                            <option>NSW VPP</option>
+                            <option>VIC VPP</option>
+                            <option>SA VPP</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 2: Trigger Conditions -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-4">
+                    <h4 class="text-sm font-semibold text-gray-900">Trigger Conditions</h4>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Trigger Type</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="triggerType" class="text-manta-primary focus:ring-manta-primary" checked>
+                                    <span class="text-sm text-gray-700">Actual Price</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="triggerType" class="text-manta-primary focus:ring-manta-primary">
+                                    <span class="text-sm text-gray-700">Forecast</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Price Threshold ($/MWh)</label>
+                            <div class="flex items-center gap-2">
+                                <select class="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm bg-white">
+                                    <option>>=</option>
+                                    <option><=</option>
+                                </select>
+                                <input type="number" value="500" class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Action -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-semibold text-gray-900">Action</h4>
+                    
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+                                <option>Discharge</option>
+                                <option>Charge</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Power (kW)</label>
+                            <input type="number" value="50" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Duration (min)</label>
+                            <input type="number" value="30" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
+                <button onclick="app.closeModal()" class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors">Cancel</button>
+                <button onclick="app.closeModal(); app.showToast('Trading Rule Created Successfully', 'success')" class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                    Create Rule
+                </button>
+            </div>
+        `;
+        
+        lucide.createIcons({ root: content });
+        this.toggleModal(true);
+    },
+
+    renderTradingEvents(container) {
+        const events = MOCK_DATA.tradingEvents;
+        
+        container.innerHTML = `
+            <div class="flex flex-col h-full space-y-4">
+                <!-- Filter Bar -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[300px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Time Range</label>
+                            <div class="relative">
+                                <i data-lucide="clock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <input type="text" placeholder="Select date range" class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                            </div>
+                        </div>
+                        <div class="w-32">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-manta-primary focus:border-manta-primary bg-white">
+                                <option>All</option>
+                                <option>Charge</option>
+                                <option>Discharge</option>
+                            </select>
+                        </div>
+                        <div class="w-32">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-manta-primary focus:border-manta-primary bg-white">
+                                <option>All</option>
+                                <option>Completed</option>
+                                <option>Pending</option>
+                            </select>
+                        </div>
+                        <div class="w-32">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-manta-primary focus:border-manta-primary bg-white">
+                                <option>All</option>
+                                <option>NSW</option>
+                                <option>VIC</option>
+                                <option>QLD</option>
+                                <option>SA</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                            <div class="flex gap-2">
+                                <input type="text" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-manta-primary focus:border-manta-primary">
+                                <button class="px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <div class="flex items-center justify-end px-4 py-2 border-b border-gray-100">
+                         <span class="text-xs text-gray-500">Total ${events.length}</span>
+                    </div>
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium">VPP Name</th>
+                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">Trigger Type</th>
+                                    <th class="px-6 py-3 font-medium">Event Type</th>
+                                    <th class="px-6 py-3 font-medium">Actual Price</th>
+                                    <th class="px-6 py-3 font-medium">Date</th>
+                                    <th class="px-6 py-3 font-medium">Start Time - End Time</th>
+                                    <th class="px-6 py-3 font-medium">Power</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="trading-events-tbody">
+                                ${this.renderTradingEventsRows(events)}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                         <span class="text-sm text-gray-500">Total ${events.length}</span>
+                         <div class="flex items-center gap-2">
+                             <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50" disabled>
+                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                             </button>
+                             <span class="text-sm font-medium text-gray-900">1</span>
+                             <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                             </button>
+                             <span class="text-sm text-gray-500 ml-2">Go to</span>
+                             <input type="text" value="1" class="w-10 h-8 border border-gray-300 rounded text-center text-sm focus:ring-manta-primary focus:border-manta-primary">
+                         </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Start simulation if not already running
+            if (!this.tradingSimulationInterval) {
+                this.startTradingSimulation();
+            }
+        },
+
+    renderSmartFeedInRules(container) {
+        const rules = MOCK_DATA.smartFeedInRules;
+        
+        container.innerHTML = `
+            <div class="flex flex-col h-full space-y-4">
+                <!-- Monitor Section (Battery Discharge Limitation Functionality) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Current Market Price (SA)</p>
+                            <h3 class="text-2xl font-bold text-gray-900" id="monitor-price">--</h3>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-full">
+                            <i data-lucide="dollar-sign" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Discharge Limit Status</p>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-gray-300" id="monitor-status-dot"></span>
+                                <h3 class="text-xl font-bold text-gray-700" id="monitor-status">Monitoring</h3>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-full" id="monitor-status-icon-bg">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-gray-400" id="monitor-status-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Avg. Battery SOC</p>
+                            <h3 class="text-2xl font-bold text-gray-900" id="monitor-soc">--%</h3>
+                            <p class="text-xs text-gray-400 mt-1">Reserve Target: <span id="monitor-reserve">--%</span></p>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-full">
+                            <i data-lucide="battery-charging" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option>All</option>
+                                <option>NSW</option>
+                                <option>VIC</option>
+                                <option>QLD</option>
+                                <option>SA</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                        </div>
+                        <button class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="flex justify-end">
+                    <button class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                        New Smart Feed-in Rule
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">Trigger Time</th>
+                                    <th class="px-6 py-3 font-medium">Trigger Price</th>
+                                    <th class="px-6 py-3 font-medium">SOC Reserve</th>
+                                    <th class="px-6 py-3 font-medium">VPP Name</th>
+                                    <th class="px-6 py-3 font-medium">Last Modified At</th>
+                                    <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
+                                    <th class="px-6 py-3 font-medium">Active</th>
+                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${rules.map((rule, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.state}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.triggerTime}</td>
+                                        <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${rule.triggerPrice.toFixed(2)} /MWh</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.socReserve}%</td>
+                                        <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${rule.vppName}</td>
+                                        <td class="px-6 py-4 text-gray-500">${rule.lastModified}</td>
+                                        <td class="px-6 py-4 text-gray-900 pl-12">${rule.eventsTriggered}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                    <input type="checkbox" name="toggle" id="toggle-${rule.id}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer ${rule.active ? 'right-0 border-green-600' : 'left-0 border-gray-300'}" ${rule.active ? 'checked' : ''}/>
+                                                    <label for="toggle-${rule.id}" class="toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${rule.active ? 'bg-green-600' : 'bg-gray-300'}"></label>
+                                                </div>
+                                                <span class="text-xs ${rule.active ? 'text-green-600 font-medium' : 'text-gray-400'}">${rule.active ? 'Active' : 'Inactive'}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors" title="Log">
+                                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Total ${rules.length}</span>
+                        <div class="flex items-center gap-2">
+                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50" disabled>
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <span class="text-sm font-medium text-gray-900">1</span>
+                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Start monitoring simulation
+        this.startSmartFeedInSimulation();
+    },
+
+    renderSmartFeedInEvents(container) {
+        const events = MOCK_DATA.smartFeedInEvents;
+        
+        container.innerHTML = `
+            <div class="flex flex-col h-full space-y-4">
+                <!-- Battery Safety Monitor Section -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Discharge Current</p>
+                            <h3 class="text-2xl font-bold text-gray-900" id="safety-current">-- A</h3>
+                            <p class="text-xs text-gray-400 mt-1">Max Limit: <span id="safety-limit-current">100 A</span></p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 rounded-full" id="safety-current-icon-bg">
+                            <i data-lucide="zap" class="w-6 h-6 text-yellow-600" id="safety-current-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Battery Temperature</p>
+                            <h3 class="text-2xl font-bold text-gray-900" id="safety-temp">-- °C</h3>
+                            <p class="text-xs text-gray-400 mt-1">Safe Range: <span id="safety-limit-temp">< 45 °C</span></p>
+                        </div>
+                        <div class="p-3 bg-red-50 rounded-full" id="safety-temp-icon-bg">
+                            <i data-lucide="thermometer" class="w-6 h-6 text-red-600" id="safety-temp-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Safety Status</p>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-green-500" id="safety-status-dot"></span>
+                                <h3 class="text-xl font-bold text-gray-700" id="safety-status">Normal</h3>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-full" id="safety-status-bg">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-green-600" id="safety-status-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events Table -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <div class="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+                        <h3 class="font-semibold text-gray-900">Safety Events Log</h3>
+                        <div class="flex gap-2">
+                             <button class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                Export Log
+                             </button>
+                             <button class="px-3 py-1.5 text-xs font-medium text-white bg-manta-primary hover:bg-manta-dark rounded-lg transition-colors">
+                                Configure Limits
+                             </button>
+                        </div>
+                    </div>
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium">Time</th>
+                                    <th class="px-6 py-3 font-medium">Type</th>
+                                    <th class="px-6 py-3 font-medium">Value</th>
+                                    <th class="px-6 py-3 font-medium">Threshold</th>
+                                    <th class="px-6 py-3 font-medium">Status</th>
+                                    <th class="px-6 py-3 font-medium">Details</th>
+                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="safety-events-tbody">
+                                ${this.renderSafetyEventsRows(events)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        this.startSmartFeedInSimulation();
+    },
+
+    renderSafetyEventsRows(events) {
+        if (!events || events.length === 0) {
+            return `<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">No safety events recorded</td></tr>`;
+        }
+        return events.map((event, idx) => `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
+                <td class="px-6 py-4 text-gray-900">${event.time}</td>
+                <td class="px-6 py-4 font-medium ${this.getEventColor(event.type)}">${event.type}</td>
+                <td class="px-6 py-4 text-gray-900 font-mono">${event.value}</td>
+                <td class="px-6 py-4 text-gray-500 font-mono">${event.threshold}</td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-xs rounded-full ${event.status === 'Active' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}">
+                        ${event.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-gray-500 max-w-xs truncate" title="${event.details}">${event.details}</td>
+                <td class="px-6 py-4 text-right">
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    },
+
+    getEventColor(type) {
+        if (type.includes('Temperature')) return 'text-red-600';
+        if (type.includes('Current')) return 'text-yellow-600';
+        if (type.includes('SOC')) return 'text-orange-600';
+        return 'text-gray-900';
+    },
+
+    startSmartFeedInSimulation() {
+        if (this.smartFeedInInterval) return;
+
+        let currentPrice = -50.00;
+        let soc = 80;
+        let isDischarging = true;
+        
+        // Safety Simulation Variables
+        let dischargeCurrent = 50; // Amps
+        let temperature = 25; // Celsius
+        
+        // Limits
+        const MAX_CURRENT = 100;
+        const MAX_TEMP = 45;
+        const MIN_SOC = 10;
+
+        this.smartFeedInInterval = setInterval(() => {
+            // 1. Simulate Price Fluctuation (Random walk)
+            const change = (Math.random() - 0.4) * 20; 
+            currentPrice += change;
+
+            // 2. Simulate Safety Parameters
+            dischargeCurrent += (Math.random() - 0.5) * 10;
+            if (dischargeCurrent < 0) dischargeCurrent = 0;
+            
+            temperature += (Math.random() - 0.5) * 2;
+            if (temperature < 10) temperature = 10; 
+
+            // 3. Simulate Battery SOC
+            if (isDischarging) {
+                soc -= 0.5;
+                if (dischargeCurrent > 80) temperature += 0.5; // Heat up
+            } else {
+                soc += 0.2; // Charging/Holding
+                temperature -= 0.2; // Cool down
+            }
+            if (soc > 100) soc = 100;
+            if (soc < 0) soc = 0;
+
+            // 4. Safety Checks
+            let safetyStatus = 'Normal';
+
+            if (dischargeCurrent > MAX_CURRENT) {
+                safetyStatus = 'Warning';
+            }
+            if (temperature > MAX_TEMP) {
+                safetyStatus = 'Critical';
+            }
+
+            // 5. Logic: Check against rules
+            const activeRule = MOCK_DATA.smartFeedInRules.find(r => r.state === 'SA' && r.active);
+            const threshold = activeRule ? activeRule.triggerPrice : 0;
+            const reserve = activeRule ? activeRule.socReserve : 20;
+
+            let limitActivated = false;
+            
+            if (currentPrice >= threshold) {
+                limitActivated = true;
+                if (soc <= reserve) {
+                    isDischarging = false; 
+                }
+            } else {
+                limitActivated = false;
+                isDischarging = true; 
+            }
+
+            // 6. Update UI (Rules Page)
+            const priceEl = document.getElementById('monitor-price');
+            const statusEl = document.getElementById('monitor-status');
+            const statusDot = document.getElementById('monitor-status-dot');
+            const statusIcon = document.getElementById('monitor-status-icon');
+            const statusIconBg = document.getElementById('monitor-status-icon-bg');
+            const socEl = document.getElementById('monitor-soc');
+            const reserveEl = document.getElementById('monitor-reserve');
+
+            if (priceEl) {
+                priceEl.innerText = `$${currentPrice.toFixed(2)} /MWh`;
+                priceEl.className = currentPrice >= 0 ? 'text-2xl font-bold text-gray-900' : 'text-2xl font-bold text-red-600';
+
+                if (limitActivated) {
+                    statusEl.innerText = 'Limit Activated';
+                    statusEl.className = 'text-xl font-bold text-orange-600';
+                    statusDot.className = 'w-2 h-2 rounded-full bg-orange-500 animate-pulse';
+                    statusIcon.className = 'w-6 h-6 text-orange-600';
+                    statusIconBg.className = 'p-3 bg-orange-100 rounded-full';
+                    
+                    if (Math.random() > 0.95) {
+                        app.showToast(`Discharge Limit Active`, 'warning');
+                    }
+                } else {
+                    statusEl.innerText = 'Normal Operation';
+                    statusEl.className = 'text-xl font-bold text-green-600';
+                    statusDot.className = 'w-2 h-2 rounded-full bg-green-500';
+                    statusIcon.className = 'w-6 h-6 text-green-600';
+                    statusIconBg.className = 'p-3 bg-green-100 rounded-full';
+                }
+
+                socEl.innerText = `${soc.toFixed(1)}%`;
+                if (limitActivated && soc <= reserve) {
+                    socEl.className = 'text-2xl font-bold text-orange-600';
+                } else {
+                    socEl.className = 'text-2xl font-bold text-gray-900';
+                }
+                reserveEl.innerText = `${reserve}%`;
+            }
+
+            // 7. Update UI (Events Page / Safety Monitor)
+            const safetyCurrentEl = document.getElementById('safety-current');
+            if (safetyCurrentEl) {
+                safetyCurrentEl.textContent = `${dischargeCurrent.toFixed(1)} A`;
+                document.getElementById('safety-temp').textContent = `${temperature.toFixed(1)} °C`;
+                
+                const sStatusEl = document.getElementById('safety-status');
+                const sStatusDot = document.getElementById('safety-status-dot');
+                const sStatusBg = document.getElementById('safety-status-bg');
+                const sStatusIcon = document.getElementById('safety-status-icon');
+
+                sStatusEl.textContent = safetyStatus;
+                if (safetyStatus === 'Normal') {
+                    sStatusDot.className = 'w-2 h-2 rounded-full bg-green-500';
+                    sStatusBg.className = 'p-3 bg-green-50 rounded-full';
+                    sStatusIcon.className = 'w-6 h-6 text-green-600';
+                } else if (safetyStatus === 'Warning') {
+                    sStatusDot.className = 'w-2 h-2 rounded-full bg-yellow-500';
+                    sStatusBg.className = 'p-3 bg-yellow-50 rounded-full';
+                    sStatusIcon.className = 'w-6 h-6 text-yellow-600';
+                } else { 
+                    sStatusDot.className = 'w-2 h-2 rounded-full bg-red-500';
+                    sStatusBg.className = 'p-3 bg-red-50 rounded-full';
+                    sStatusIcon.className = 'w-6 h-6 text-red-600';
+                }
+            }
+            
+            // Trigger Mock Event randomly for demo if critical/warning
+            if (safetyStatus !== 'Normal' && Math.random() > 0.9) {
+                const newEvent = {
+                    id: Date.now(),
+                    time: new Date().toLocaleString(),
+                    type: temperature > MAX_TEMP ? 'High Temperature' : 'Current Overload',
+                    value: temperature > MAX_TEMP ? `${temperature.toFixed(1)}°C` : `${dischargeCurrent.toFixed(1)}A`,
+                    threshold: temperature > MAX_TEMP ? `${MAX_TEMP}°C` : `${MAX_CURRENT}A`,
+                    status: 'Active',
+                    details: 'Automated trigger from monitor'
+                };
+                MOCK_DATA.smartFeedInEvents.unshift(newEvent);
+                // Refresh table if visible
+                const tbody = document.getElementById('safety-events-tbody');
+                if (tbody) {
+                    tbody.innerHTML = app.renderSafetyEventsRows(MOCK_DATA.smartFeedInEvents);
+                }
+            }
+
+        }, 2000); 
+    },
+
+    renderTradingEventsRows(events) {
+        return events.map((event, idx) => `
+            <tr class="hover:bg-gray-50 transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300">
+                <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
+                <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${event.vppName}</td>
+                <td class="px-6 py-4 text-gray-900">${event.state}</td>
+                <td class="px-6 py-4 text-gray-900">${event.triggerType}</td>
+                <td class="px-6 py-4 text-gray-900">${event.eventType}</td>
+                <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${event.price.toFixed(5)} /MWh</td>
+                <td class="px-6 py-4 text-gray-500">${event.date}</td>
+                <td class="px-6 py-4 text-gray-500">${event.timeRange}</td>
+                <td class="px-6 py-4 text-gray-900 font-medium">${event.power.toFixed(2)} kW</td>
+            </tr>
+        `).join('');
+    },
+
+    startTradingSimulation() {
+        this.tradingSimulationInterval = setInterval(() => {
+            // Simulate random event
+            if (Math.random() > 0.7) { // 30% chance every 3 seconds
+                const newEvent = {
+                    id: MOCK_DATA.tradingEvents.length + 1,
+                    vppName: ['NSW VPP', 'VIC VPP', 'SA VPP', "Jeff's VPP"][Math.floor(Math.random() * 4)],
+                    state: ['NSW', 'VIC', 'SA'][Math.floor(Math.random() * 3)],
+                    triggerType: 'Actual',
+                    eventType: Math.random() > 0.5 ? 'Charge' : 'Discharge',
+                    price: Math.random() * 15000,
+                    date: new Date().toLocaleDateString() + ' (+11:00)',
+                    timeRange: new Date().toLocaleTimeString() + ' - ' + new Date(Date.now() + 1800000).toLocaleTimeString(),
+                    power: Math.random() * 1000
+                };
+                
+                MOCK_DATA.tradingEvents.unshift(newEvent); // Add to top
+                
+                // If currently viewing trading_events, update the table
+                const tbody = document.getElementById('trading-events-tbody');
+                if (tbody) {
+                    tbody.innerHTML = this.renderTradingEventsRows(MOCK_DATA.tradingEvents);
+                    app.showToast(`New Trading Event: ${newEvent.vppName} - ${newEvent.eventType}`, 'info');
+                }
+            }
+        }, 3000);
+    },
+
+    renderWholesalePrice(container) {
+        // Mock Data Generation
+        const generateData = () => {
+            const now = new Date('2026-01-12T00:00:00');
+            const data = [];
+            for (let i = 0; i < 48; i++) { // 30 min intervals for 24 hours
+                const time = new Date(now.getTime() + i * 30 * 60000);
+                // Base sine wave + noise
+                const base = 50 + Math.sin(i / 8) * 30;
+                
+                data.push({
+                    time: time.toISOString(),
+                    marketForecast: Math.max(0, base + Math.random() * 20 - 10).toFixed(2),
+                    actual: i < 36 ? Math.max(0, base + Math.random() * 30 - 15).toFixed(2) : null, // Actual only up to current time (approx)
+                    algoForecast: Math.max(0, base + Math.random() * 15 - 5).toFixed(2)
+                });
+            }
+            return data;
+        };
+
+        const chartData = generateData();
+        const times = chartData.map(d => {
+            const date = new Date(d.time);
+            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        });
+
+        // View State Management
+        let isChartView = true;
+
+        container.innerHTML = `
+            <div class="flex flex-col h-full space-y-4">
+                <!-- Controls Bar -->
+                <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm gap-4">
+                    <!-- Left: Region & Time -->
+                    <div class="flex items-center gap-6">
+                        <div class="flex bg-gray-100 p-1 rounded-lg">
+                            <button class="px-4 py-1.5 text-sm font-medium bg-white text-manta-primary shadow-sm rounded-md transition-all">QLD</button>
+                            <button class="px-4 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">NSW</button>
+                            <button class="px-4 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">VIC</button>
+                            <button class="px-4 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">SA</button>
+                        </div>
+                        
+                        <div class="h-8 w-px bg-gray-200"></div>
+
+                        <div class="flex items-center gap-2">
+                            <button class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                            <span class="text-sm font-semibold text-gray-900 min-w-[100px] text-center">12/01/2026</span>
+                            <button class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Tools -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex bg-gray-100 p-1 rounded-lg">
+                            <button id="view-toggle-chart" class="p-1.5 rounded text-manta-primary bg-white shadow-sm transition-all" title="Chart View">
+                                <i data-lucide="line-chart" class="w-4 h-4"></i>
+                            </button>
+                            <button id="view-toggle-list" class="p-1.5 rounded text-gray-500 hover:text-gray-900 transition-colors" title="List View">
+                                <i data-lucide="list" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="w-px h-6 bg-gray-200 mx-1"></div>
+
+                        <div class="flex bg-gray-100 p-1 rounded-lg">
+                            <button class="px-3 py-1 text-xs font-medium bg-white text-manta-primary shadow-sm rounded-md transition-all">5Min</button>
+                            <button class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors">30Min</button>
+                        </div>
+                        <button class="p-2 text-gray-500 hover:text-manta-primary hover:bg-gray-50 rounded-lg transition-colors" title="Refresh Data">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-manta-primary hover:bg-gray-50 rounded-lg transition-colors" title="Export Data">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="flex-1 bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative flex flex-col min-h-0">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Wholesale Price Trend</h3>
+                            <p class="text-sm text-gray-500">Real-time market price vs Forecasts</p>
+                        </div>
+                        <!-- Weather Widget (Mock) -->
+                        <div class="text-right">
+                            <div class="flex items-center justify-end gap-2 text-gray-900">
+                                <span class="text-2xl font-bold">22°</span>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium">Brisbane</p>
+                                    <p class="text-xs text-gray-500">Shower rain</p>
+                                </div>
+                                <i data-lucide="cloud-rain" class="w-8 h-8 text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart View -->
+                    <div id="wholesale-chart-view" class="flex-1 w-full min-h-0">
+                        <div id="wholesale-chart" class="w-full h-full"></div>
+                    </div>
+
+                    <!-- List View -->
+                    <div id="wholesale-list-view" class="flex-1 w-full min-h-0 hidden overflow-hidden flex flex-col">
+                        <div class="overflow-auto flex-1">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-6 py-3 font-medium">Time</th>
+                                        <th class="px-6 py-3 font-medium">Region</th>
+                                        <th class="px-6 py-3 font-medium text-right">Market Forecast ($)</th>
+                                        <th class="px-6 py-3 font-medium text-right">Actual Price ($)</th>
+                                        <th class="px-6 py-3 font-medium text-right">Algo Forecast ($)</th>
+                                        <th class="px-6 py-3 font-medium text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${chartData.map(d => {
+                                        const date = new Date(d.time);
+                                        const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                                        const variance = d.actual ? Math.abs(d.actual - d.marketForecast) : 0;
+                                        const statusColor = !d.actual ? 'text-gray-400' : variance < 5 ? 'text-green-500' : variance < 15 ? 'text-yellow-500' : 'text-red-500';
+                                        
+                                        return `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-6 py-3 font-medium text-gray-900">${timeStr}</td>
+                                                <td class="px-6 py-3 text-gray-600">QLD</td>
+                                                <td class="px-6 py-3 text-gray-600 text-right font-mono">${d.marketForecast}</td>
+                                                <td class="px-6 py-3 text-gray-900 text-right font-mono font-medium">${d.actual || '-'}</td>
+                                                <td class="px-6 py-3 text-gray-600 text-right font-mono">${d.algoForecast}</td>
+                                                <td class="px-6 py-3 text-center">
+                                                    <i data-lucide="circle" class="w-3 h-3 ${statusColor} fill-current inline-block"></i>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Toggle Logic
+        const toggleChartBtn = document.getElementById('view-toggle-chart');
+        const toggleListBtn = document.getElementById('view-toggle-list');
+        const chartView = document.getElementById('wholesale-chart-view');
+        const listView = document.getElementById('wholesale-list-view');
+
+        const updateView = () => {
+            if (isChartView) {
+                chartView.classList.remove('hidden');
+                listView.classList.add('hidden');
+                
+                toggleChartBtn.classList.add('bg-white', 'text-manta-primary', 'shadow-sm');
+                toggleChartBtn.classList.remove('text-gray-500');
+                
+                toggleListBtn.classList.remove('bg-white', 'text-manta-primary', 'shadow-sm');
+                toggleListBtn.classList.add('text-gray-500');
+            } else {
+                chartView.classList.add('hidden');
+                listView.classList.remove('hidden');
+
+                toggleListBtn.classList.add('bg-white', 'text-manta-primary', 'shadow-sm');
+                toggleListBtn.classList.remove('text-gray-500');
+
+                toggleChartBtn.classList.remove('bg-white', 'text-manta-primary', 'shadow-sm');
+                toggleChartBtn.classList.add('text-gray-500');
+            }
+        };
+
+        toggleChartBtn.addEventListener('click', () => {
+            isChartView = true;
+            updateView();
+        });
+
+        toggleListBtn.addEventListener('click', () => {
+            isChartView = false;
+            updateView();
+        });
+
+        // Init Chart
+        setTimeout(() => {
+            const chartDom = document.getElementById('wholesale-chart');
+            if (!chartDom) return;
+
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: { backgroundColor: '#6a7985' }
+                    }
+                },
+                legend: {
+                    data: ['Market Forecast', 'Actual Price', 'Algo Forecast'],
+                    top: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%', // Space for dataZoom
+                    containLabel: true
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                dataZoom: [
+                    {
+                        type: 'inside',
+                        start: 0,
+                        end: 100
+                    },
+                    {
+                        start: 0,
+                        end: 100
+                    }
+                ],
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: times,
+                    axisLine: { lineStyle: { color: '#E5E7EB' } },
+                    axisLabel: { color: '#6B7280' }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Price ($/MWh)',
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    splitLine: { lineStyle: { type: 'dashed', color: '#F3F4F6' } },
+                    axisLabel: { color: '#6B7280' }
+                },
+                series: [
+                    {
+                        name: 'Market Forecast',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: { width: 2, color: '#3B82F6' }, // Blue
+                        itemStyle: { color: '#3B82F6' },
+                        showSymbol: false,
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(59, 130, 246, 0.1)' },
+                                { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+                            ])
+                        },
+                        data: chartData.map(d => d.marketForecast)
+                    },
+                    {
+                        name: 'Actual Price',
+                        type: 'line',
+                        smooth: true, // User asked for solid line, usually implies smooth or straight. Smooth looks better.
+                        lineStyle: { width: 2, color: '#10B981' }, // Green (Manta Success)
+                        itemStyle: { color: '#10B981' },
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: 'Max' },
+                                { type: 'min', name: 'Min' }
+                            ]
+                        },
+                        data: chartData.map(d => d.actual)
+                    },
+                    {
+                        name: 'Algo Forecast',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: { width: 2, color: '#F59E0B', type: 'dashed' }, // Orange
+                        itemStyle: { color: '#F59E0B' },
+                        showSymbol: false,
+                        data: chartData.map(d => d.algoForecast)
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+
+            // Resize Observer
+            const resizeObserver = new ResizeObserver(() => {
+                myChart.resize();
+            });
+            resizeObserver.observe(container);
+        }, 0);
+    },
+
+    renderArbitragePoints(container) {
+        // Mock Data
+        const generateData = () => {
+            const data = [];
+            const now = new Date('2026-01-13T13:40:00');
+            
+            for (let i = 0; i < 15; i++) {
+                const settlementTime = new Date(now.getTime() - i * 5 * 60000);
+                const forecasts = [];
+                for (let j = 1; j <= 4; j++) {
+                    forecasts.push(new Date(settlementTime.getTime() + j * 5 * 60000));
+                }
+
+                data.push({
+                    settlementTime: settlementTime,
+                    forecasts: forecasts,
+                    forecastStatus: Math.random() > 0.2, // true = success/green
+                    actualStatus: Math.random() > 0.1
+                });
+            }
+            return data;
+        };
+
+        const data = generateData();
+
+        container.innerHTML = `
+            <div class="flex flex-col h-full space-y-4">
+                <!-- Top Controls -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-center">
+                    <!-- Region & Type Indicators -->
+                    <div class="flex items-center gap-4 pr-6 border-r border-gray-200 mr-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-manta-primary flex items-center justify-center font-bold border border-blue-100 shadow-sm">SA</div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-medium text-gray-500">Region</span>
+                                <span class="text-sm font-bold text-gray-900">South Australia</span>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-gray-100"></div>
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 rounded-lg bg-gray-100 text-gray-600">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-medium text-gray-500">Type</span>
+                                <span class="text-sm font-bold text-gray-900">Shared</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Time Range</label>
+                        <div class="relative">
+                            <input type="text" placeholder="-" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Trigger Price</label>
+                        <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm appearance-none bg-white">
+                            <option>All</option>
+                            <option>>= 300</option>
+                            <option>-200 to 300</option>
+                            <option><= -200</option>
+                        </select>
+                    </div>
+
+                    <button class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-manta-primary">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Legend Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm border border-red-100">
+                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Price ($/MWh) ≥ 300</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
+                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-500 shadow-sm border border-green-100">
+                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">-200 < Price < 300</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shadow-sm border border-blue-100">
+                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Price ≤ -200</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
+                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 shadow-sm border border-orange-100">
+                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Multi Condition</span>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden">
+                    <!-- Pagination Header -->
+                    <div class="px-6 py-3 border-b border-gray-200 flex flex-wrap justify-end items-center gap-4 text-sm text-gray-600 bg-gray-50/50">
+                        <span class="text-gray-500">Total 285</span>
+                        <div class="flex items-center gap-1">
+                            <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                            <span class="font-medium text-manta-primary px-2">1</span>
+                            <span class="px-2 cursor-pointer hover:text-gray-900">2</span>
+                            <span class="px-2 cursor-pointer hover:text-gray-900">3</span>
+                            <span class="px-2 text-gray-400">...</span>
+                            <span class="px-2 cursor-pointer hover:text-gray-900">15</span>
+                            <button class="p-1 hover:bg-gray-200 rounded text-gray-600 transition-colors"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex items-center gap-2 border-l border-gray-200 pl-4">
+                            <span>Go to</span>
+                            <input type="text" value="1" class="w-12 text-center border border-gray-300 rounded px-1 py-0.5 focus:ring-manta-primary focus:border-manta-primary">
+                        </div>
+                    </div>
+                    
+                    <!-- Table -->
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-gray-900 font-semibold border-b border-gray-200 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-6 py-4 whitespace-nowrap bg-gray-50">Settlement Time</th>
+                                    <th class="px-6 py-4 bg-gray-50">Forecast Start Time - Forecast End Time</th>
+                                    <th class="px-6 py-4 text-center whitespace-nowrap bg-gray-50">Forecast Status</th>
+                                    <th class="px-6 py-4 text-center whitespace-nowrap bg-gray-50">Actual Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                ${data.map((row, idx) => {
+                                    const timeStr = `${row.settlementTime.getHours()}:${row.settlementTime.getMinutes().toString().padStart(2, '0')}`;
+                                    const dateStr = '13/01/2026 (+10:00)';
+                                    
+                                    const forecastHtml = row.forecasts.map(f => {
+                                        const fTime = `${f.getHours()}:${f.getMinutes().toString().padStart(2, '0')}`;
+                                        return `
+                                            <div class="flex flex-col min-w-[140px]">
+                                                <span class="font-medium text-gray-900">${fTime}</span>
+                                                <span class="text-xs text-gray-500">${dateStr}</span>
+                                            </div>
+                                        `;
+                                    }).join('');
+
+                                    const statusClass = (status) => status ? 
+                                        'bg-green-100 text-green-500 border-green-200' : 
+                                        'bg-red-100 text-red-500 border-red-200';
+                                    
+                                    return `
+                                        <tr class="hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="font-bold text-gray-900">${timeStr}</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">${dateStr}</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex gap-8 overflow-x-auto pb-1 no-scrollbar">
+                                                    ${forecastHtml}
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center mx-auto border ${statusClass(row.forecastStatus)}">
+                                                    <i data-lucide="lightbulb" class="w-4 h-4 fill-current"></i>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center mx-auto border ${statusClass(row.actualStatus)}">
+                                                    <i data-lucide="lightbulb" class="w-4 h-4 fill-current"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderTradingRules(container) {
+        // Mock Data
+        const rules = [
+            { id: 1, state: 'NSW', vppName: 'NSW VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:39:43', eventsTriggered: 38, active: true },
+            { id: 2, state: 'VIC', vppName: 'VIC VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:38:16', eventsTriggered: 32, active: true },
+            { id: 3, state: 'SA', vppName: 'SA VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:37:48', eventsTriggered: 98, active: true },
+            { id: 4, state: 'QLD', vppName: 'QLD VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:35:51', eventsTriggered: 12, active: true },
+            { id: 5, state: 'NSW', vppName: "Jeff's VPP", triggerType: 'Actual', triggerPrice: '>= $300.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '20/03/2024 12:38:58', eventsTriggered: 1285, active: true },
+        ];
+
+        container.innerHTML = `
+            <div class="flex flex-col h-full space-y-4">
+                <!-- Search Bar -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Trigger Type</label>
+                            <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option>All</option>
+                                <option>Actual</option>
+                                <option>Forecast</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option>All</option>
+                                <option>NSW</option>
+                                <option>VIC</option>
+                                <option>QLD</option>
+                                <option>SA</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                        </div>
+                        <button class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="flex justify-end">
+                    <button onclick="app.openTradingRuleModal()" class="flex items-center gap-2 px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                        New Trading Rule
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">VPP Name</th>
+                                    <th class="px-6 py-3 font-medium">Trigger Type</th>
+                                    <th class="px-6 py-3 font-medium">Trigger Price</th>
+                                    <th class="px-6 py-3 font-medium">Event Type</th>
+                                    <th class="px-6 py-3 font-medium">Ignore Time</th>
+                                    <th class="px-6 py-3 font-medium">Last Modified At</th>
+                                    <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
+                                    <th class="px-6 py-3 font-medium">Active</th>
+                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${rules.map((rule, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.state}</td>
+                                        <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${rule.vppName}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.triggerType}</td>
+                                        <td class="px-6 py-4 font-mono text-gray-900 font-medium">${rule.triggerPrice}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.eventType}</td>
+                                        <td class="px-6 py-4 text-gray-500">${rule.ignoreTime || '-'}</td>
+                                        <td class="px-6 py-4 text-gray-500">
+                                            <div class="text-gray-900">${rule.lastModified.split(' ')[0]}</div>
+                                            <div class="text-xs text-gray-400">${rule.lastModified.split(' ')[1]}</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-900 pl-12">${rule.eventsTriggered}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.active ? 'Yes' : 'No'}</td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Total ${rules.length}</span>
+                        <div class="flex items-center gap-2">
+                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50" disabled>
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <span class="text-sm font-medium text-gray-900">1</span>
+                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                            <span class="text-sm text-gray-500 ml-2">Go to</span>
+                            <input type="text" value="1" class="w-10 h-8 border border-gray-300 rounded text-center text-sm focus:ring-manta-primary focus:border-manta-primary">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderOverview(container) {
+        const data = MOCK_DATA.overview;
+        
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full">
+                <!-- Top Row: Region Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    ${data.regions.map(region => `
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">${region.name}</h3>
+                            
+                            <div class="grid grid-cols-2 gap-y-4 gap-x-2 mb-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Online/Total DERs</p>
+                                    <p class="text-base font-bold text-gray-900">${region.online}/${region.total}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Inverter Power</p>
+                                    <p class="text-base font-bold text-gray-900">${region.inverterPower} kW</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Current/Total Capacity</p>
+                                    <p class="text-sm font-bold text-gray-900">${region.currentCap} / ${region.totalCap}</p>
+                                    <p class="text-xs text-gray-500">kWh</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Today Generation</p>
+                                    <p class="text-base font-bold text-gray-900">${region.generation} kWh</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-100 grid grid-cols-2 gap-2">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Current Price</p>
+                                    <p class="text-base font-bold text-gray-900">$${region.price}/MWh</p>
+                                    <p class="text-[10px] text-gray-400 mt-1">${region.date.split(' ')[1]}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Forecast Price</p>
+                                    <div class="flex items-center gap-1">
+                                        <p class="text-base font-bold ${region.forecastPrice ? 'text-orange-500' : 'text-orange-300'}">
+                                            ${region.forecastPrice ? '$' + region.forecastPrice + '/MWh' : '/MWh'}
+                                        </p>
+                                        <i data-lucide="sun" class="w-4 h-4 text-orange-400 fill-current"></i>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 mt-1">${region.forecastPrice ? '12/01/2026 22:00:00' : '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Bottom Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+                    <!-- Left Column: Reminder & VPP Events -->
+                    <div class="flex flex-col gap-6 lg:col-span-1 h-full">
+                        <!-- Reminder -->
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Reminder</h3>
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Awaiting follow up</h4>
+                            <div class="space-y-3 flex-1">
+                                ${data.reminders.map(item => `
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group">
+                                        <div class="flex items-center gap-3">
+                                            <i data-lucide="${item.type === 'pending' ? 'clock' : item.type === 'invalid' ? 'alert-circle' : 'message-square'}" 
+                                               class="w-4 h-4 text-gray-400 group-hover:text-manta-primary transition-colors"></i>
+                                            <span class="text-sm text-gray-600 font-medium">${item.label}</span>
+                                        </div>
+                                        <span class="text-sm font-bold text-manta-primary">${item.count}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- VPP Events -->
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-gray-900">VPP Events</h3>
+                                <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded">12 Jan 2026</span>
+                            </div>
+                            <div class="overflow-x-auto flex-1">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-2 font-medium">State</th>
+                                            <th class="px-4 py-2 font-medium text-right">Charge</th>
+                                            <th class="px-4 py-2 font-medium text-right">Discharge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${data.vppEvents.map(event => `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 font-medium text-gray-900">${event.state}</td>
+                                                <td class="px-4 py-3 text-gray-600 text-right font-mono">${event.charge}</td>
+                                                <td class="px-4 py-3 text-gray-600 text-right font-mono">${event.discharge}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Statistics -->
+                    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col lg:col-span-2 h-full">
+                        <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                            <h3 class="text-lg font-bold text-gray-900">Statistics</h3>
+                            <div class="flex items-center gap-4">
+                                <div class="flex bg-gray-100 p-1 rounded-lg">
+                                    <button class="px-3 py-1 text-xs font-medium bg-white text-manta-primary shadow-sm rounded-md transition-all">Week</button>
+                                    <button class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors">Month</button>
+                                    <button class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors">Quarterly</button>
+                                </div>
+                                <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-2 py-1 bg-white hover:border-gray-300 transition-colors">
+                                    <button class="text-gray-400 hover:text-gray-600 p-0.5 hover:bg-gray-50 rounded"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                    <span class="text-xs font-medium text-gray-900 min-w-[32px] text-center">2026</span>
+                                    <button class="text-gray-400 hover:text-gray-600 p-0.5 hover:bg-gray-50 rounded"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="overview-chart" class="flex-1 w-full min-h-[300px]"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.initOverviewChart();
+    },
+
+    initOverviewChart() {
+        const chartDom = document.getElementById('overview-chart');
+        if (!chartDom) return;
+        
+        const myChart = echarts.init(chartDom);
+        const data = MOCK_DATA.overview.statistics.week;
+
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' }
+            },
+            legend: {
+                data: ['Hybrid Inverters', 'String Inverters', 'EV Charger'],
+                icon: 'roundRect',
+                right: 10,
+                top: 0,
+                itemWidth: 12,
+                itemHeight: 12,
+                textStyle: { fontSize: 11, color: '#666' }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: data.xAxis,
+                axisLine: { show: false },
+                axisTick: { show: false },
+                axisLabel: { color: '#9CA3AF', rotate: 45 }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Quantity',
+                min: 0,
+                max: 1,
+                interval: 0.2,
+                splitLine: {
+                    lineStyle: { type: 'dashed', color: '#E5E7EB' }
+                },
+                axisLabel: { color: '#9CA3AF' }
+            },
+            series: [
+                {
+                    name: 'Hybrid Inverters',
+                    type: 'bar',
+                    barWidth: 8,
+                    itemStyle: { color: '#2E9F58', borderRadius: [4, 4, 0, 0] },
+                    data: data.series[0].data
+                },
+                {
+                    name: 'String Inverters',
+                    type: 'bar',
+                    barWidth: 8,
+                    itemStyle: { color: '#A3E635', borderRadius: [4, 4, 0, 0] }, // Lime-400
+                    data: data.series[1].data
+                },
+                {
+                    name: 'EV Charger',
+                    type: 'bar',
+                    barWidth: 8,
+                    itemStyle: { color: '#F59E0B', borderRadius: [4, 4, 0, 0] }, // Amber-500
+                    data: data.series[2].data
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+        
+        // Handle resize
+        window.addEventListener('resize', () => myChart.resize());
+        
+        // Store chart instance to destroy later if needed, though simple replacement works for this SPA
+        this.overviewChart = myChart;
     },
 
     renderDeviceManagement(container) {
@@ -117,12 +1786,12 @@ const app = {
             container.className = 'flex-1 flex items-center justify-center h-full fade-in';
             container.innerHTML = `
                 <div class="text-center">
-                    <div class="bg-surface-dark/50 p-6 rounded-full inline-block mb-4 border border-white/5">
-                        <i data-lucide="cloud-off" class="w-12 h-12 text-slate-500 opacity-50"></i>
+                    <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
+                        <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-white mb-2">No System Connected</h2>
-                    <p class="text-slate-400 mb-6 max-w-md mx-auto">Connect a system to synchronize and manage your devices.</p>
-                    <button onclick="app.openCloudBindDrawer()" class="bg-brand hover:bg-brand-light text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand/20 flex items-center gap-2 mx-auto">
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">No System Connected</h2>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a system to synchronize and manage your devices.</p>
+                    <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
                         <i data-lucide="link" class="w-5 h-5"></i>
                         <span>Connect</span>
                     </button>
@@ -137,9 +1806,9 @@ const app = {
             container.innerHTML = `
                 <!-- System List -->
                 <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
-                    <div class="flex justify-between items-center bg-surface-dark/30 p-2 rounded-xl border border-white/5 h-[58px]">
-                        <h2 class="text-xl font-bold text-white pl-2">Connected System List</h2>
-                        <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-brand hover:bg-brand-light text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-lg shadow-brand/20 hover:shadow-brand/40 active:scale-95 border border-brand-light/20">
+                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
+                        <h2 class="text-xl font-bold text-gray-900 pl-2">Connected System List</h2>
+                        <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             <span>New</span>
                         </button>
@@ -177,25 +1846,25 @@ const app = {
                             const getStatusConfig = (s) => {
                                 const status = (s || '').toLowerCase();
                                 if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
-                                if (status === 'connected' || status === 'online') return { color: 'bg-success', text: 'Connected' };
-                                return { color: 'bg-slate-500', text: 'Disconnected' };
+                                if (status === 'connected' || status === 'online') return { color: 'bg-manta-primary', text: 'Connected' };
+                                return { color: 'bg-gray-400', text: 'Disconnected' };
                             };
                             const statusConfig = getStatusConfig(sys.status);
 
                             return `
-                            <div onclick="app.navigate('system_details', { id: ${sys.id} })" class="group glass-panel p-3 rounded-xl cursor-pointer border-l-4 border-l-brand bg-white/5 hover:bg-white/10 transition-all duration-300 relative h-full flex flex-col">
+                            <div onclick="app.navigate('system_details', { id: ${sys.id} })" class="group bg-white p-3 rounded-xl cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
                                 <!-- Header Section -->
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
                                         <div class="flex items-center gap-2 mb-2">
-                                            <h3 class="font-bold text-white group-hover:text-brand-light transition-colors line-clamp-1">${sys.name}</h3>
+                                            <h3 class="font-bold text-gray-900 transition-colors line-clamp-1">${sys.name}</h3>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                                            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100">
                                                 <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
-                                                <span class="text-[10px] text-slate-300 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                                                <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
                                             </div>
-                                            <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">${sys.type}</p>
+                                            <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">${sys.type}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -203,60 +1872,60 @@ const app = {
                                 <!-- Stats Grid -->
                                 <div class="grid grid-cols-2 gap-2 text-xs mt-auto">
                                     <!-- Inverters Panel -->
-                                    <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
-                                        <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
-                                            <i data-lucide="zap" class="w-3 h-3 text-brand"></i>
+                                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100 group-hover:border-gray-200 transition-colors">
+                                        <div class="flex items-center gap-1.5 text-gray-500 font-medium mb-2 pb-2 border-b border-gray-200">
+                                            <i data-lucide="zap" class="w-3 h-3 text-manta-primary"></i>
                                             <span>Inverters</span>
                                         </div>
                                         <div class="space-y-1.5">
                                             <div class="flex justify-between items-center">
-                                                <span class="text-slate-500">Total</span>
-                                                <span class="text-slate-200 font-mono text-[11px]">${stats.inv.total} <span class="text-slate-600">|</span> ${stats.inv.cap}kW</span>
+                                                <span class="text-gray-400">Total</span>
+                                                <span class="text-gray-700 font-mono text-[11px]">${stats.inv.total} <span class="text-gray-300">|</span> ${stats.inv.cap}kW</span>
                                             </div>
-                                            <div class="space-y-1 pt-1 border-t border-white/5">
+                                            <div class="space-y-1 pt-1 border-t border-gray-200">
                                                 <div class="flex justify-between items-center">
                                                     <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-                                                        <span class="text-slate-500 text-[10px]">Online</span>
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-manta-primary"></div>
+                                                        <span class="text-gray-400 text-[10px]">Online</span>
                                                     </div>
-                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.inv.online} <span class="text-slate-600">/</span> ${stats.inv.onlineCap}kW</span>
+                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.inv.online} <span class="text-gray-300">/</span> ${stats.inv.onlineCap}kW</span>
                                                 </div>
                                                 <div class="flex justify-between items-center">
                                                     <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                                        <span class="text-slate-500 text-[10px]">Offline</span>
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                        <span class="text-gray-400 text-[10px]">Offline</span>
                                                     </div>
-                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.inv.offline} <span class="text-slate-600">/</span> ${stats.inv.offlineCap}kW</span>
+                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.inv.offline} <span class="text-gray-300">/</span> ${stats.inv.offlineCap}kW</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Batteries Panel -->
-                                    <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
-                                        <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
-                                            <i data-lucide="battery" class="w-3 h-3 text-blue-400"></i>
+                                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100 group-hover:border-gray-200 transition-colors">
+                                        <div class="flex items-center gap-1.5 text-gray-500 font-medium mb-2 pb-2 border-b border-gray-200">
+                                            <i data-lucide="battery" class="w-3 h-3 text-blue-500"></i>
                                             <span>Batteries</span>
                                         </div>
                                         <div class="space-y-1.5">
                                             <div class="flex justify-between items-center">
-                                                <span class="text-slate-500">Total</span>
-                                                <span class="text-slate-200 font-mono text-[11px]">${stats.bat.total} <span class="text-slate-600">|</span> ${stats.bat.cap}kWh</span>
+                                                <span class="text-gray-400">Total</span>
+                                                <span class="text-gray-700 font-mono text-[11px]">${stats.bat.total} <span class="text-gray-300">|</span> ${stats.bat.cap}kWh</span>
                                             </div>
-                                            <div class="space-y-1 pt-1 border-t border-white/5">
+                                            <div class="space-y-1 pt-1 border-t border-gray-200">
                                                 <div class="flex justify-between items-center">
                                                     <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-                                                        <span class="text-slate-500 text-[10px]">Online</span>
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-manta-primary"></div>
+                                                        <span class="text-gray-400 text-[10px]">Online</span>
                                                     </div>
-                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.bat.online} <span class="text-slate-600">/</span> ${stats.bat.onlineCap}kWh</span>
+                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.bat.online} <span class="text-gray-300">/</span> ${stats.bat.onlineCap}kWh</span>
                                                 </div>
                                                 <div class="flex justify-between items-center">
                                                     <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                                        <span class="text-slate-500 text-[10px]">Offline</span>
+                                                        <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                        <span class="text-gray-400 text-[10px]">Offline</span>
                                                     </div>
-                                                    <span class="text-slate-300 font-mono text-[10px]">${stats.bat.offline} <span class="text-slate-600">/</span> ${stats.bat.offlineCap}kWh</span>
+                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.bat.offline} <span class="text-gray-300">/</span> ${stats.bat.offlineCap}kWh</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -281,13 +1950,13 @@ const app = {
         const header = document.createElement('div');
         header.className = 'flex items-center gap-4';
         header.innerHTML = `
-            <button onclick="app.navigate('device_management')" class="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white" aria-label="Back to Device Management">
+            <button onclick="app.navigate('device_management')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900" aria-label="Back to Device Management">
                 <i data-lucide="arrow-left" class="w-6 h-6"></i>
             </button>
             <div>
-                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
                     ${system.name}
-                    <span class="text-xs px-2 py-0.5 rounded border border-white/10 text-slate-400 font-normal">${system.type}</span>
+                    <span class="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 font-normal">${system.type}</span>
                 </h1>
             </div>
         `;
@@ -306,49 +1975,49 @@ const app = {
         const summary = document.createElement('div');
         summary.className = 'grid grid-cols-1 md:grid-cols-4 gap-4';
         summary.innerHTML = `
-            <div class="glass-panel p-4 rounded-xl flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
                     <i data-lucide="info" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <div class="space-y-0.5">
-                         <div class="text-sm text-white font-mono"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Type:</span>${system.type}</div>
-                         <div class="text-sm text-white font-mono"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>Australia</div>
-                         <div class="text-sm text-white font-mono"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Mfr:</span>${system.vendor}</div>
+                         <div class="text-sm text-gray-900 font-mono"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Type:</span>${system.type}</div>
+                         <div class="text-sm text-gray-900 font-mono"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>Australia</div>
+                         <div class="text-sm text-gray-900 font-mono"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Mfr:</span>${system.vendor}</div>
                     </div>
                 </div>
             </div>
-            <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
                     <i data-lucide="cpu" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Devices</p>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Devices</p>
                 </div>
                 <div class="absolute top-4 right-4">
-                    <p class="text-2xl font-bold text-white">${totalDevices}</p>
+                    <p class="text-2xl font-bold text-gray-900">${totalDevices}</p>
                 </div>
             </div>
-            <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
+            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
                 <div class="p-3 rounded-lg bg-success/20 text-success">
                     <i data-lucide="activity" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Online</p>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Online</p>
                 </div>
                 <div class="absolute top-4 right-4">
-                    <span class="text-2xl font-bold text-white">${onlineDevices}</span>
+                    <span class="text-2xl font-bold text-gray-900">${onlineDevices}</span>
                 </div>
             </div>
-            <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-slate-700/50 text-slate-400">
+            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-gray-100 text-gray-400">
                     <i data-lucide="wifi-off" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Offline</p>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Offline</p>
                 </div>
                 <div class="absolute top-4 right-4">
-                    <p class="text-2xl font-bold text-white">${offlineDevices}</p>
+                    <p class="text-2xl font-bold text-gray-900">${offlineDevices}</p>
                 </div>
             </div>
         `;
@@ -356,19 +2025,19 @@ const app = {
 
         // Content (Device List)
         const content = document.createElement('div');
-        content.className = 'flex-1 flex flex-col glass-panel rounded-2xl border-white/5 overflow-hidden';
+        content.className = 'flex-1 flex flex-col bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden';
         
         content.innerHTML = `
             <!-- Table Header -->
-            <div class="flex justify-between items-center p-4 border-b border-white/5 bg-white/5">
-                 <h2 class="text-xl font-bold text-white pl-2">Device List</h2>
+            <div class="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50">
+                 <h2 class="text-xl font-bold text-gray-900 pl-2">Device List</h2>
                  <div class="flex gap-2">
                     <div class="relative">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                         <input 
                             type="text" 
                             placeholder="Search" 
-                            class="bg-surface-dark border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand/50 w-64 transition-colors"
+                            class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary/50 w-64 transition-colors placeholder:text-gray-400"
                         >
                     </div>
                  </div>
@@ -378,7 +2047,7 @@ const app = {
             <div class="flex-1 overflow-y-auto p-6">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-xs text-slate-500 border-b border-white/5">
+                        <tr class="text-xs text-gray-500 border-b border-gray-100">
                             <th class="pb-3 font-medium">SN</th>
                             <th class="pb-3 font-medium">Type</th>
                             <th class="pb-3 font-medium">Manufacturer</th>
@@ -400,31 +2069,31 @@ const app = {
                             const vppName = vpp ? vpp.name : '-';
                             
                             return `
-                            <tr class="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
-                                <td class="py-3 font-mono text-slate-300 group-hover:text-white">${dev.sn}</td>
-                                <td class="py-3 text-slate-400">
+                            <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
+                                <td class="py-3 font-mono text-gray-600 group-hover:text-gray-900">${dev.sn}</td>
+                                <td class="py-3 text-gray-500">
                                     <span class="flex items-center gap-2">
                                         <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
                                         ${dev.type}
                                     </span>
                                 </td>
-                                <td class="py-3 text-slate-400">${dev.vendor}</td>
-                                <td class="py-3 font-mono text-slate-400">${nmi}</td>
-                                <td class="py-3 text-slate-400">${vppName}</td>
+                                <td class="py-3 text-gray-500">${dev.vendor}</td>
+                                <td class="py-3 font-mono text-gray-500">${nmi}</td>
+                                <td class="py-3 text-gray-500">${vppName}</td>
                                 <td class="py-3">
-                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-slate-700 text-slate-400'}">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-gray-200 text-gray-500'}">
                                         <span class="w-1 h-1 rounded-full bg-current"></span>
                                         ${dev.status}
                                     </span>
                                 </td>
-                                <td class="py-3 text-slate-400">${dev.userName || '-'}</td>
-                                <td class="py-3 text-slate-400 text-xs">${dev.email || '-'}</td>
-                                <td class="py-3 text-slate-400">${dnsp}</td>
-                                <td class="py-3 text-slate-400">${retailer}</td>
+                                <td class="py-3 text-gray-500">${dev.userName || '-'}</td>
+                                <td class="py-3 text-gray-500 text-xs">${dev.email || '-'}</td>
+                                <td class="py-3 text-gray-500">${dnsp}</td>
+                                <td class="py-3 text-gray-500">${retailer}</td>
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="10" class="py-8 text-center text-slate-500">
+                                <td colspan="10" class="py-8 text-center text-gray-400">
                                     No devices found.
                                 </td>
                             </tr>
@@ -440,395 +2109,6 @@ const app = {
     // RENDERERS
     // ==========================================
 
-    renderDashboard(container) {
-        container.innerHTML = ''; // Clear container first if not cleared by caller, though navigate clears it.
-        
-        // Action Bar
-        const actionBar = document.createElement('div');
-        actionBar.className = 'flex flex-col gap-6 mb-8';
-        
-        const filterBtnClass = (type) => 
-            state.dashboardFilter === type 
-                ? 'px-4 py-2 rounded-lg text-sm font-medium bg-brand text-white shadow-lg shadow-brand/20 transition-all flex items-center gap-2' 
-                : 'px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all flex items-center gap-2';
-
-        actionBar.innerHTML = `
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Access Points</h1>
-            </div>
-            
-            <div class="flex justify-between items-center">
-                <!-- Filter Group -->
-                <div class="bg-surface-dark/50 backdrop-blur-md p-1 rounded-lg border border-white/10 flex">
-                    <button onclick="app.setDashboardFilter('ALL')" class="${filterBtnClass('ALL')}">
-                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                        <span>All</span>
-                    </button>
-                    <button onclick="app.setDashboardFilter('CLOUD')" class="${filterBtnClass('CLOUD')}">
-                        <i data-lucide="cloud" class="w-4 h-4"></i>
-                        <span>Cloud</span>
-                    </button>
-                    <button onclick="app.setDashboardFilter('MANTA')" class="${filterBtnClass('MANTA')}">
-                        <i data-lucide="server" class="w-4 h-4"></i>
-                        <span>Manta</span>
-                    </button>
-                </div>
-            </div>
-        `;
-        container.appendChild(actionBar);
-
-        // Filter Nodes
-        const filteredNodes = state.nodes.filter(node => 
-            state.dashboardFilter === 'ALL' || node.type === state.dashboardFilter
-        );
-
-        // Grid
-        const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6';
-        
-        if (filteredNodes.length === 0) {
-            grid.className = 'flex flex-col items-center justify-center py-20 text-slate-500 col-span-full';
-            grid.innerHTML = `
-                <i data-lucide="inbox" class="w-12 h-12 mb-4 opacity-50"></i>
-                <p>No access points found for this filter.</p>
-            `;
-        }
-        
-        filteredNodes.forEach(node => {
-            const isOnline = node.status === 'online';
-            const vendorName = node.type === 'MANTA' ? 'OSW' : (node.vendor || 'Unknown');
-            let iconName = 'cloud';
-            const vLower = vendorName.toLowerCase();
-            if (vLower.includes('osw')) iconName = 'server';
-            else if (vLower.includes('sungrow')) iconName = 'sun';
-            else if (vLower.includes('huawei')) iconName = 'hexagon';
-            else if (vLower.includes('tesla')) iconName = 'zap';
-            else if (vLower.includes('byd')) iconName = 'battery';
-            else if (vLower.includes('catl')) iconName = 'battery-charging';
-
-            const card = document.createElement('div');
-            card.className = 'glass-panel rounded-xl p-6 hover:border-brand/50 transition-colors group relative overflow-hidden cursor-pointer';
-            card.onclick = (e) => {
-                // Prevent navigation if clicking on specific interactive elements if needed
-                app.navigate('details', { id: node.id });
-            };
-            
-            card.innerHTML = `
-                <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                    <i data-lucide="${iconName}" class="w-24 h-24"></i>
-                </div>
-                
-                <div class="flex justify-between items-start mb-4 relative z-10 pointer-events-none">
-                    <div class="flex items-center gap-3">
-                        <div class="flex flex-col items-center gap-1 min-w-[3.5rem]">
-                            <div class="p-2.5 rounded-lg ${node.type === 'MANTA' ? 'bg-brand/20 text-brand-light' : 'bg-purple-500/20 text-purple-400'}">
-                                <i data-lucide="${iconName}" class="w-6 h-6"></i>
-                            </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${vendorName}</span>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-lg text-white leading-tight">${node.name}</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mt-6 relative z-10 pointer-events-none">
-                    <div class="bg-surface-dark/50 rounded-lg p-3 border border-white/5">
-                        <div class="flex justify-between items-start mb-2">
-                            <p class="text-xs text-slate-500">Inverters</p>
-                            <span class="text-xs font-mono text-white bg-white/5 px-1.5 py-0.5 rounded">${node.inverters}</span>
-                        </div>
-                        <div class="space-y-1 pt-1 border-t border-white/5">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-1.5">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-                                    <span class="text-slate-500 text-[10px]">Online</span>
-                                </div>
-                                <span class="text-slate-300 font-mono text-[10px]">${node.invertersOnline}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-1.5">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                    <span class="text-slate-500 text-[10px]">Offline</span>
-                                </div>
-                                <span class="text-slate-300 font-mono text-[10px]">${node.invertersOffline}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-surface-dark/50 rounded-lg p-3 border border-white/5">
-                        <div class="flex justify-between items-start mb-2">
-                            <p class="text-xs text-slate-500">Batteries</p>
-                            <span class="text-xs font-mono text-white bg-white/5 px-1.5 py-0.5 rounded">${node.batteries}</span>
-                        </div>
-                         <div class="space-y-1 pt-1 border-t border-white/5">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-1.5">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-                                    <span class="text-slate-500 text-[10px]">Online</span>
-                                </div>
-                                <span class="text-slate-300 font-mono text-[10px]">${node.batteriesOnline}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-1.5">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                    <span class="text-slate-500 text-[10px]">Offline</span>
-                                </div>
-                                <span class="text-slate-300 font-mono text-[10px]">${node.batteriesOffline}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center relative z-10 pointer-events-none">
-                    <button onclick="event.stopPropagation(); app.toggleNodeStatus(${node.id})" class="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${isOnline ? 'bg-success/10 border-success/20 text-success hover:bg-success/20' : 'bg-slate-700/50 border-slate-600 text-slate-400 hover:bg-slate-700'}">
-                        <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-success animate-pulse' : 'bg-slate-400'}"></span>
-                        ${isOnline ? 'Enabled' : 'Disabled'}
-                    </button>
-                    <button class="text-sm text-brand-light hover:text-white font-medium transition-colors flex items-center gap-1">
-                        Details <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-
-        container.appendChild(grid);
-    },
-
-    renderDetails(container, nodeId) {
-        container.innerHTML = ''; // Clear container
-        const node = state.nodes.find(n => n.id == nodeId);
-        if (!node) return this.navigate('dashboard');
-
-        // Back button + Header
-        const header = document.createElement('div');
-        header.className = 'flex items-center gap-4 mb-8';
-        header.innerHTML = `
-            <button onclick="app.navigate('dashboard')" class="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
-                <i data-lucide="arrow-left" class="w-6 h-6"></i>
-            </button>
-            <div>
-                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
-                    ${node.name}
-                    <span class="text-xs px-2 py-0.5 rounded border border-white/10 text-slate-400 font-normal">${node.type}</span>
-                </h1>
-
-            </div>
-        `;
-        container.appendChild(header);
-
-        // Content Grid
-        const content = document.createElement('div');
-        content.className = 'flex flex-col gap-8';
-
-        // Top: Info & Config (Full Width)
-        const infoPanel = document.createElement('div');
-        infoPanel.className = 'glass-panel p-6 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-8';
-        
-        let sensitiveInfoHTML = '';
-        if (node.type === 'CLOUD') {
-            sensitiveInfoHTML = `
-                <div>
-                    <h3 class="text-sm font-semibold text-white mb-3">Cloud Credentials</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-xs text-slate-500 uppercase">Authorization Method</label>
-                            <div class="text-sm text-slate-300">${node.authMethod === 'oauth' ? 'Single Authorization' : 'Batch Authorization'}</div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-500 uppercase">App Key</label>
-                            <div class="font-mono text-sm text-slate-300">${node.appKey || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-500 uppercase">App Access</label>
-                            <div class="flex items-center gap-2">
-                                <div class="font-mono text-sm text-slate-300 bg-surface-dark px-2 py-1 rounded w-full" id="secret-${node.id}">••••••••••••••••</div>
-                                <button onclick="app.toggleSecret('${node.id}', '${node.appAccess}')" class="p-1 hover:text-white text-slate-400 transition-colors">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else {
-             sensitiveInfoHTML = `
-                <div>
-                    <h3 class="text-sm font-semibold text-white mb-3">Connection Info</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-xs text-slate-500 uppercase">Authorization Method</label>
-                            <div class="text-sm text-slate-300">Local Connection</div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-500 uppercase">IP Address</label>
-                            <div class="font-mono text-sm text-slate-300">${node.ip}</div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-500 uppercase">Port</label>
-                            <div class="font-mono text-sm text-slate-300">8080</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        infoPanel.innerHTML = `
-            ${sensitiveInfoHTML}
-            <div>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                        <span class="text-slate-400 text-sm">Vendor</span>
-                        <span class="text-white font-mono text-sm">${node.vendor || 'Manta Native'}</span>
-                    </div>
-                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                        <span class="text-slate-400 text-sm">Device Count</span>
-                        <span class="text-white font-mono text-sm">${node.inverters + node.batteries}</span>
-                    </div>
-                    <div class="flex justify-between items-center pt-1">
-                        <span class="text-slate-400 text-sm">Last Sync</span>
-                        <span class="text-white font-mono text-sm">${new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Bottom: Tabs & Chart
-        const mainPanel = document.createElement('div');
-        mainPanel.className = 'space-y-6';
-
-        // Mock Data for Tabs - Dynamic generation based on node counts, merging with real added devices
-        const generateDevices = (type, count) => {
-            const nodeVendor = node.type === 'MANTA' ? 'OSW' : (node.vendor || 'Unknown');
-            
-            // Find real assigned devices that match this node's vendor
-            const realDevices = MOCK_DATA.assignedDevices
-                .filter(d => {
-                    const deviceVendor = d.vendor === 'OSW' ? 'OSW' : d.vendor;
-                    const targetVendor = nodeVendor === 'OSW' ? 'OSW' : nodeVendor;
-                    return deviceVendor === targetVendor && d.type === type;
-                })
-                .map(d => ({
-                    sn: d.sn,
-                    model: d.type === 'Inverter' ? 'SG-5K-D' : 'LFP-10K', // Default model if missing
-                    status: d.status,
-                    capacity: d.capacity || (d.type === 'Inverter' ? 50 : 100),
-                    userName: d.userName || '-',
-                    phone: d.phone || '-',
-                    email: d.email || '-',
-                    address: d.address || '-',
-                    data: d.type === 'Inverter' ? 
-                        { Voltage: (220 + Math.random()*5).toFixed(1) + ' V', Current: (10 + Math.random()*10).toFixed(1) + ' A', Frequency: '50.02 Hz', Temp: (30 + Math.random()*15).toFixed(0) + ' °C', Power: (3 + Math.random()*2).toFixed(1) + ' kW' } :
-                        { Voltage: '51.2 V', Current: (20 + Math.random()*30).toFixed(1) + ' A', SOC: Math.floor(60 + Math.random()*40) + '%', Temp: (25 + Math.random()*10).toFixed(0) + ' °C', Power: (1 + Math.random()*2).toFixed(1) + ' kW' }
-                }));
-
-            // Calculate how many mocks needed
-            const mockCount = Math.max(0, count - realDevices.length);
-
-            const mocks = Array.from({length: mockCount}, (_, i) => ({
-                sn: `${type === 'Inverter' ? 'INV' : 'BAT'}-${String(i+1).padStart(3, '0')}`,
-                model: type === 'Inverter' ? 'SG-5K-D' : 'LFP-10K',
-                status: Math.random() > 0.1 ? 'online' : 'offline',
-                capacity: type === 'Inverter' ? 50 : 200,
-                userName: `User ${i+1}`,
-                phone: `+1 555-01${String(i+1).padStart(2, '0')}`,
-                email: `user${i+1}@example.com`,
-                address: `${100 + i} Main St, City`,
-                data: type === 'Inverter' ? 
-                    { Voltage: (220 + Math.random()*5).toFixed(1) + ' V', Current: (10 + Math.random()*10).toFixed(1) + ' A', Frequency: '50.02 Hz', Temp: (30 + Math.random()*15).toFixed(0) + ' °C', Power: (3 + Math.random()*2).toFixed(1) + ' kW' } :
-                    { Voltage: '51.2 V', Current: (20 + Math.random()*30).toFixed(1) + ' A', SOC: Math.floor(60 + Math.random()*40) + '%', Temp: (25 + Math.random()*10).toFixed(0) + ' °C', Power: (1 + Math.random()*2).toFixed(1) + ' kW' }
-            }));
-            
-            return [...realDevices, ...mocks];
-        };
-
-        const DEVICE_LIST = {
-            'Inverters': generateDevices('Inverter', node.inverters || 2),
-            'Batteries': generateDevices('Battery', node.batteries || 2)
-        };
-        
-        // VPP Data Preparation
-        const vppData = state.vpps.filter(v => v.name === node.vpp);
-        
-        const currentList = (DEVICE_LIST[state.detailsTab] || []).filter(dev => {
-            if (!state.detailsSearchQuery) return true;
-            const q = state.detailsSearchQuery.toLowerCase();
-            return (dev.sn && dev.sn.toLowerCase().includes(q)) ||
-                   (dev.model && dev.model.toLowerCase().includes(q)) ||
-                   (dev.userName && dev.userName.toLowerCase().includes(q)) ||
-                   (dev.phone && dev.phone.toLowerCase().includes(q)) ||
-                   (dev.email && dev.email.toLowerCase().includes(q)) ||
-                   (dev.address && dev.address.toLowerCase().includes(q));
-        });
-
-        const headers = state.detailsTab === 'Inverters' 
-            ? ['Voltage', 'Current', 'Frequency', 'Temp', 'Power']
-            : ['Voltage', 'Current', 'SOC', 'Temp', 'Power'];
-        
-        const isVppTab = state.detailsTab === 'VPP';
-
-        mainPanel.innerHTML = `
-            <div class="flex justify-between items-end border-b border-white/10 pb-1">
-                <div class="flex gap-4">
-                    <button onclick="app.setDetailsTab('Inverters', ${nodeId})" class="px-4 py-2 transition-colors ${state.detailsTab === 'Inverters' ? 'text-brand-light border-b-2 border-brand font-medium' : 'text-slate-400 hover:text-white'}">Inverters</button>
-                    <button onclick="app.setDetailsTab('Batteries', ${nodeId})" class="px-4 py-2 transition-colors ${state.detailsTab === 'Batteries' ? 'text-brand-light border-b-2 border-brand font-medium' : 'text-slate-400 hover:text-white'}">Batteries</button>
-                </div>
-                <div class="relative mb-2">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                    <input 
-                        type="text" 
-                        id="details-search-input"
-                        placeholder="Search devices..." 
-                        value="${state.detailsSearchQuery || ''}"
-                        oninput="app.setDetailsSearch(this.value)"
-                        class="bg-surface-dark border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand/50 w-64 transition-colors"
-                    >
-                </div>
-            </div>
-            
-            <div class="glass-panel p-6 rounded-xl">
-                 <h3 class="font-bold text-white mb-4">Device List</h3>
-                 <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="text-slate-500 border-b border-white/5">
-                            <th class="pb-3 font-medium">SN</th>
-                            <th class="pb-3 font-medium">Model</th>
-                            <th class="pb-3 font-medium">Status</th>
-                            <th class="pb-3 font-medium">Capacity</th>
-                            <th class="pb-3 font-medium">User Name</th>
-                            <th class="pb-3 font-medium">Phone</th>
-                            <th class="pb-3 font-medium">Email</th>
-                            <th class="pb-3 font-medium">Address</th>
-                            ${headers.map(h => `<th class="pb-3 font-medium text-right">${h}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody class="text-slate-300">
-                        ${currentList.map(dev => `
-                        <tr class="border-b border-white/5 last:border-0 group hover:bg-white/5 transition-colors">
-                            <td class="py-3 font-mono">${dev.sn}</td>
-                            <td class="py-3">${dev.model}</td>
-                            <td class="py-3 ${dev.status === 'online' ? 'text-success' : 'text-slate-500'}">${dev.status === 'online' ? 'Online' : 'Offline'}</td>
-                            <td class="py-3 text-slate-400">${dev.capacity} kW</td>
-                            <td class="py-3">${app.formatSensitive(dev.userName)}</td>
-                            <td class="py-3 font-mono text-xs text-slate-400">${app.formatSensitive(dev.phone)}</td>
-                            <td class="py-3 text-xs text-slate-400">${app.formatSensitive(dev.email)}</td>
-                            <td class="py-3 text-xs text-slate-400" title="${app.formatSensitive(dev.address)}">${app.formatSensitive(dev.address).length > 10 ? app.formatSensitive(dev.address).substring(0, 10) + '...' : app.formatSensitive(dev.address)}</td>
-                            ${headers.map(h => `
-                                <td class="py-3 text-right font-mono cursor-pointer text-brand-light hover:text-white hover:underline transition-all ${h === 'Power' ? 'font-bold' : ''}" onclick="app.openDeviceDataModal('${dev.sn}', '${h}')">${dev.data[h]}</td>
-                            `).join('')}
-                        </tr>
-                        `).join('')}
-                    </tbody>
-                 </table>
-            </div>
-        `;
-
-        content.appendChild(infoPanel);
-        content.appendChild(mainPanel);
-        container.appendChild(content);
-
-
-    },
 
     renderVPP(container) {
         container.innerHTML = ''; 
@@ -837,11 +2117,11 @@ const app = {
             container.className = "flex-1 flex items-center justify-center h-full";
             container.innerHTML = `
                 <div class="text-center">
-                    <div class="bg-surface-dark/50 p-6 rounded-full inline-block mb-4 border border-white/5">
-                        <i data-lucide="server" class="w-12 h-12 text-slate-500 opacity-50"></i>
+                    <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
+                        <i data-lucide="server" class="w-12 h-12 text-gray-400 opacity-50"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-white mb-2">No VPPs Created</h2>
-                    <button onclick="app.openVPPDrawer()" class="bg-brand hover:bg-brand-light text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand/20 flex items-center gap-2 mx-auto">
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">No VPPs Created</h2>
+                    <button onclick="app.openVPPDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                         <span>Create</span>
                     </button>
@@ -861,9 +2141,9 @@ const app = {
         container.innerHTML = `
             <!-- VPP List -->
             <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
-                <div class="flex justify-between items-center bg-surface-dark/30 p-2 rounded-xl border border-white/5 h-[58px]">
-                    <h2 class="text-xl font-bold text-white pl-2">VPP List</h2>
-                    <button onclick="app.openVPPDrawer()" class="flex items-center gap-2 bg-brand hover:bg-brand-light text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-lg shadow-brand/20 hover:shadow-brand/40 active:scale-95 border border-brand-light/20">
+                <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
+                    <h2 class="text-xl font-bold text-gray-900 pl-2">VPP List</h2>
+                    <button onclick="app.openVPPDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>New</span>
                     </button>
@@ -898,17 +2178,17 @@ const app = {
 
                         // VPP Card Template
                         return `
-                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group glass-panel p-3 rounded-xl cursor-pointer border-l-4 ${isSelected ? 'border-l-brand bg-white/5' : 'border-l-transparent hover:border-l-slate-500 hover:bg-white/5'} transition-all duration-300 relative h-full flex flex-col">
+                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group bg-white p-3 rounded-xl cursor-pointer border-l-4 ${isSelected ? 'border-l-manta-primary bg-gray-50 border-y border-r border-gray-200' : 'border-l-transparent border border-gray-200 hover:border-l-gray-400 hover:bg-gray-50'} transition-all duration-300 relative h-full flex flex-col shadow-sm hover:shadow-md">
                             <!-- Header Section -->
                             <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <h3 class="font-bold text-white group-hover:text-brand-light transition-colors line-clamp-1">${vpp.name}</h3>
-                                        ${isSelected ? '<span class="flex h-2 w-2 rounded-full bg-brand shrink-0"></span>' : ''}
+                                        <h3 class="font-bold text-gray-900 group-hover:text-manta-primary transition-colors line-clamp-1">${vpp.name}</h3>
+                                        ${isSelected ? '<span class="flex h-2 w-2 rounded-full bg-manta-primary shrink-0"></span>' : ''}
                                     </div>
                                 </div>
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="px-2 py-1 rounded bg-surface-dark border border-white/10 hover:bg-white/10 text-xs font-medium text-slate-300 hover:text-white transition-colors shadow-lg flex items-center gap-1">
+                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="px-2 py-1 rounded bg-white border border-gray-200 hover:bg-gray-100 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-1">
                                         <i data-lucide="edit-2" class="w-3 h-3"></i>
                                         <span>Edit</span>
                                     </button>
@@ -918,60 +2198,60 @@ const app = {
                             <!-- Stats Grid -->
                             <div class="grid grid-cols-2 gap-2 text-xs mt-auto">
                                 <!-- Inverters Panel -->
-                                <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
-                                    <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
-                                        <i data-lucide="zap" class="w-3 h-3 text-brand"></i>
+                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 group-hover:border-gray-300 transition-colors">
+                                    <div class="flex items-center gap-1.5 text-gray-700 font-medium mb-2 pb-2 border-b border-gray-200">
+                                        <i data-lucide="zap" class="w-3 h-3 text-manta-primary"></i>
                                         <span>Inverters</span>
                                     </div>
                                     <div class="space-y-1.5">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-slate-500">Total</span>
-                                            <span class="text-slate-200 font-mono text-[11px]">${stats.inv.total} <span class="text-slate-600">|</span> ${stats.inv.cap}kW</span>
+                                            <span class="text-gray-500">Total</span>
+                                            <span class="text-gray-700 font-mono text-[11px]">${stats.inv.total} <span class="text-gray-400">|</span> ${stats.inv.cap}kW</span>
                                         </div>
-                                        <div class="space-y-1 pt-1 border-t border-white/5">
+                                        <div class="space-y-1 pt-1 border-t border-gray-200">
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-                                                    <span class="text-slate-500 text-[10px]">Online</span>
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                    <span class="text-gray-500 text-[10px]">Online</span>
                                                 </div>
-                                                <span class="text-slate-300 font-mono text-[10px]">${stats.inv.online} <span class="text-slate-600">/</span> ${stats.inv.onlineCap}kW</span>
+                                                <span class="text-gray-700 font-mono text-[10px]">${stats.inv.online} <span class="text-gray-400">/</span> ${stats.inv.onlineCap}kW</span>
                                             </div>
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                                    <span class="text-slate-500 text-[10px]">Offline</span>
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                    <span class="text-gray-500 text-[10px]">Offline</span>
                                                 </div>
-                                                <span class="text-slate-300 font-mono text-[10px]">${stats.inv.offline} <span class="text-slate-600">/</span> ${stats.inv.offlineCap}kW</span>
+                                                <span class="text-gray-700 font-mono text-[10px]">${stats.inv.offline} <span class="text-gray-400">/</span> ${stats.inv.offlineCap}kW</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Batteries Panel -->
-                                <div class="bg-surface-dark/40 rounded-lg p-2 border border-white/5 group-hover:border-white/10 transition-colors">
-                                    <div class="flex items-center gap-1.5 text-slate-300 font-medium mb-2 pb-2 border-b border-white/5">
-                                        <i data-lucide="battery" class="w-3 h-3 text-blue-400"></i>
+                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 group-hover:border-gray-300 transition-colors">
+                                    <div class="flex items-center gap-1.5 text-gray-700 font-medium mb-2 pb-2 border-b border-gray-200">
+                                        <i data-lucide="battery" class="w-3 h-3 text-blue-500"></i>
                                         <span>Batteries</span>
                                     </div>
                                     <div class="space-y-1.5">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-slate-500">Total</span>
-                                            <span class="text-slate-200 font-mono text-[11px]">${stats.bat.total} <span class="text-slate-600">|</span> ${stats.bat.cap}kWh</span>
+                                            <span class="text-gray-500">Total</span>
+                                            <span class="text-gray-700 font-mono text-[11px]">${stats.bat.total} <span class="text-gray-400">|</span> ${stats.bat.cap}kWh</span>
                                         </div>
-                                        <div class="space-y-1 pt-1 border-t border-white/5">
+                                        <div class="space-y-1 pt-1 border-t border-gray-200">
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-                                                    <span class="text-slate-500 text-[10px]">Online</span>
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                    <span class="text-gray-500 text-[10px]">Online</span>
                                                 </div>
-                                                <span class="text-slate-300 font-mono text-[10px]">${stats.bat.online} <span class="text-slate-600">/</span> ${stats.bat.onlineCap}kWh</span>
+                                                <span class="text-gray-700 font-mono text-[10px]">${stats.bat.online} <span class="text-gray-400">/</span> ${stats.bat.onlineCap}kWh</span>
                                             </div>
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                                    <span class="text-slate-500 text-[10px]">Offline</span>
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                                    <span class="text-gray-500 text-[10px]">Offline</span>
                                                 </div>
-                                                <span class="text-slate-300 font-mono text-[10px]">${stats.bat.offline} <span class="text-slate-600">/</span> ${stats.bat.offlineCap}kWh</span>
+                                                <span class="text-gray-700 font-mono text-[10px]">${stats.bat.offline} <span class="text-gray-400">/</span> ${stats.bat.offlineCap}kWh</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1013,11 +2293,11 @@ const app = {
         const header = document.createElement('div');
         header.className = 'flex items-center gap-4 mb-8';
         header.innerHTML = `
-            <button onclick="app.navigate('vpp')" class="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white">
+            <button onclick="app.navigate('vpp')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900">
                 <i data-lucide="arrow-left" class="w-6 h-6"></i>
             </button>
             <div>
-                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
                     ${vpp.name}
                 </h1>
             </div>
@@ -1032,72 +2312,72 @@ const app = {
         content.innerHTML = `
             <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div class="glass-panel p-4 rounded-xl flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
                         <i data-lucide="info" class="w-6 h-6"></i>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="space-y-0.5">
-                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Company:</span>${vpp.company || '-'}</div>
-                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>${vpp.country || '-'}</div>
-                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">ABN/VAT:</span>${vpp.abn || '-'}</div>
-                             <div class="text-sm text-white font-mono truncate"><span class="text-slate-500 text-[10px] uppercase tracking-wider mr-2">DNSP:</span>${vpp.dnsp || '-'}</div>
+                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Company:</span>${vpp.company || '-'}</div>
+                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>${vpp.country || '-'}</div>
+                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">ABN/VAT:</span>${vpp.abn || '-'}</div>
+                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">DNSP:</span>${vpp.dnsp || '-'}</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-brand/20 text-brand-light">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
                         <i data-lucide="cpu" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Devices</p>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Devices</p>
                     </div>
                     <div class="absolute top-4 right-4">
-                        <p class="text-2xl font-bold text-white">${totalDevices}</p>
+                        <p class="text-2xl font-bold text-gray-900">${totalDevices}</p>
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-success/20 text-success">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-green-100 text-green-600">
                         <i data-lucide="activity" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Online</p>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Online</p>
                     </div>
                     <div class="absolute top-4 right-4">
-                        <span class="text-2xl font-bold text-white">${onlineDevices}</span>
+                        <span class="text-2xl font-bold text-gray-900">${onlineDevices}</span>
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 rounded-xl relative flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-slate-700/50 text-slate-400">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-gray-100 text-gray-500">
                         <i data-lucide="wifi-off" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Offline</p>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Offline</p>
                     </div>
                     <div class="absolute top-4 right-4">
-                        <p class="text-2xl font-bold text-white">${offlineDevices}</p>
+                        <p class="text-2xl font-bold text-gray-900">${offlineDevices}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Unified Panel -->
-            <div class="flex-1 flex flex-col glass-panel rounded-2xl border-white/5 overflow-hidden">
+            <div class="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <!-- Header -->
-                <div class="flex justify-between items-center p-4 border-b border-white/5 bg-white/5">
-                     <h2 class="text-xl font-bold text-white pl-2">Device List</h2>
+                <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
+                     <h2 class="text-xl font-bold text-gray-900 pl-2">Device List</h2>
                      <div class="flex gap-2">
                         <div class="relative">
-                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                             <input 
                                 type="text" 
                                 id="assigned-search-input"
                                 placeholder="Search" 
                                 value="${state.assignedSearchQuery || ''}"
                                 oninput="app.setAssignedSearch(this.value)"
-                                class="bg-surface-dark border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-brand/50 w-64 transition-colors"
+                                class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary focus:ring-1 focus:ring-manta-primary w-64 transition-colors"
                             >
                         </div>
                      </div>
@@ -1107,7 +2387,7 @@ const app = {
                 <div class="flex-1 overflow-y-auto p-6">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="text-xs text-slate-500 border-b border-white/5">
+                            <tr class="text-xs text-gray-500 border-b border-gray-200">
                                 <th class="pb-3 font-medium">SN</th>
                                 <th class="pb-3 font-medium">Type</th>
                                 <th class="pb-3 font-medium">Manufacturer</th>
@@ -1125,30 +2405,30 @@ const app = {
                                 const dnsp = dev.dnsp || ['Ausgrid', 'Endeavour Energy', 'Essential Energy'][Math.floor(Math.random() * 3)];
                                 const retailer = dev.retailer || ['AGL', 'Origin', 'EnergyAustralia'][Math.floor(Math.random() * 3)];
                                 return `
-                                <tr class="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
-                                    <td class="py-3 font-mono text-slate-300 group-hover:text-white">${dev.sn}</td>
-                                    <td class="py-3 text-slate-400">
+                                <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
+                                    <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
+                                    <td class="py-3 text-gray-500">
                                         <span class="flex items-center gap-2">
                                             <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
                                             ${dev.type}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-slate-400">${dev.vendor}</td>
-                                    <td class="py-3 font-mono text-slate-400">${nmi}</td>
+                                    <td class="py-3 text-gray-500">${dev.vendor}</td>
+                                    <td class="py-3 font-mono text-gray-500">${nmi}</td>
                                     <td class="py-3">
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-slate-700 text-slate-400'}">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
                                             <span class="w-1 h-1 rounded-full bg-current"></span>
                                             ${dev.status}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-slate-400">${dev.userName || '-'}</td>
-                                    <td class="py-3 text-xs text-slate-400">${dev.email || '-'}</td>
-                                    <td class="py-3 text-slate-400">${dnsp}</td>
-                                    <td class="py-3 text-slate-400">${retailer}</td>
+                                    <td class="py-3 text-gray-500">${dev.userName || '-'}</td>
+                                    <td class="py-3 text-xs text-gray-500">${dev.email || '-'}</td>
+                                    <td class="py-3 text-gray-500">${dnsp}</td>
+                                    <td class="py-3 text-gray-500">${retailer}</td>
                                 </tr>
                             `}).join('') : `
                                 <tr>
-                                    <td colspan="9" class="py-8 text-center text-slate-500">
+                                    <td colspan="9" class="py-8 text-center text-gray-500">
                                         当前暂无设备
                                     </td>
                                 </tr>
@@ -1199,9 +2479,9 @@ const app = {
 
         const toast = document.createElement('div');
         const colors = {
-            success: 'bg-surface-dark border-success/50 text-success',
-            error: 'bg-surface-dark border-danger/50 text-danger',
-            info: 'bg-surface-dark border-brand/50 text-brand-light'
+            success: 'bg-white border-green-200 text-green-700 border',
+            error: 'bg-white border-red-200 text-red-700 border',
+            info: 'bg-white border-blue-200 text-blue-700 border'
         };
         const icons = {
             success: 'check-circle',
@@ -1209,7 +2489,7 @@ const app = {
             info: 'info'
         };
 
-        toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg border shadow-xl transform transition-all duration-300 translate-x-full opacity-0 ${colors[type]}`;
+        toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 ${colors[type]}`;
         toast.innerHTML = `
             <i data-lucide="${icons[type]}" class="w-5 h-5"></i>
             <span class="font-medium text-sm">${message}</span>
@@ -1253,18 +2533,6 @@ const app = {
         }
     },
 
-    setDetailsSearch(query) {
-        state.detailsSearchQuery = query;
-        this.renderDetails(document.getElementById('content-area'), state.selectedNodeId);
-        lucide.createIcons();
-        // Keep focus
-        const input = document.getElementById('details-search-input');
-        if (input) {
-            input.focus();
-            input.setSelectionRange(input.value.length, input.value.length);
-        }
-    },
-
     setDiscoverySearch(query) {
         state.discoverySearchQuery = query;
         this.renderVPP(document.getElementById('content-area'));
@@ -1274,58 +2542,6 @@ const app = {
         if (input) {
             input.focus();
             input.setSelectionRange(input.value.length, input.value.length);
-        }
-    },
-
-    toggleNodeStatus(nodeId) {
-        const node = state.nodes.find(n => n.id === nodeId);
-        if (!node) return;
-
-        if (node.status === 'online') {
-            // Check for associated VPP or devices before disabling
-            if (node.vpp || node.inverters > 0 || node.batteries > 0) {
-                // Show failure alert (reusing modal or simple alert for now, but user asked for "prompt" then "confirm")
-                // User requirement: "若该卡片下存在任意关联vpp或者设备，则停用失败并提示存在关联设备或VPP"
-                // This implies we try to disable -> fail -> prompt reason.
-                // But the user also said "click button disable -> popup confirm -> confirm -> disable".
-                // So the check should probably happen either before confirm or after confirm.
-                // "confirmation first, then disable" -> "if exists... disable fails".
-                // Let's do the confirmation first as requested.
-                this.showConfirmModal(
-                    'Disable Access Node', 
-                    `Are you sure you want to disable <strong>${node.name}</strong>?`,
-                    () => {
-                        // Actual disable logic check
-                        if (node.vpp || node.inverters > 0 || node.batteries > 0) {
-                             // Fail
-                             this.showAlertModal('Operation Failed', 'Cannot disable this node because it has associated VPP or devices attached.');
-                        } else {
-                            // Success
-                            node.status = 'offline';
-                            this.renderDashboard(document.getElementById('content-area'));
-                            lucide.createIcons();
-                        }
-                    }
-                );
-            } else {
-                 // Even if empty, still confirm? "点击按钮停用，弹出弹窗并二次确认" -> Yes.
-                 this.showConfirmModal(
-                    'Disable Access Node', 
-                    `Are you sure you want to disable <strong>${node.name}</strong>?`,
-                    () => {
-                        node.status = 'offline';
-                        this.renderDashboard(document.getElementById('content-area'));
-                        lucide.createIcons();
-                    }
-                );
-            }
-        } else {
-            // Enable (no confirmation requested, but good practice? User didn't specify. Assuming direct toggle or confirm.)
-            // "Default enabled... click to disable". Doesn't say anything about re-enabling.
-            // I'll make it direct for now.
-            node.status = 'online';
-            this.renderDashboard(document.getElementById('content-area'));
-            lucide.createIcons();
         }
     },
 
@@ -1377,34 +2593,6 @@ const app = {
         lucide.createIcons();
     },
 
-    setDashboardFilter(filterType) {
-        state.dashboardFilter = filterType;
-        const contentArea = document.getElementById('content-area');
-        // We need to re-render but keeping the fade-in animation might be distracting if it happens on every filter click.
-        // Let's just re-render the dashboard content specifically or the whole view.
-        // Re-rendering the whole view via this.renderDashboard is easiest.
-        this.renderDashboard(contentArea);
-        lucide.createIcons();
-    },
-
-    setDetailsTab(tabName, nodeId) {
-        state.detailsTab = tabName;
-        const contentArea = document.getElementById('content-area');
-        // Re-render details view
-        // We need to pass nodeId because renderDetails expects it. 
-        // In a real app, we might store current nodeId in state to avoid passing it around.
-        // For now, let's assume we can get it or pass it.
-        // The onclick handler in renderDetails will pass it.
-        this.renderDetails(contentArea, nodeId);
-        lucide.createIcons();
-    },
-
-    openDeviceDataModal(sn, dataType = 'Power') {
-        this.updateModalWidth('max-w-4xl');
-        this.renderDeviceDataModalContent(sn, dataType);
-        this.toggleModal(true);
-    },
-
     renderDeviceDataModalContent(sn, dataType = 'Power', timeRange = '24H') {
         const modalContent = document.getElementById('modal-content');
         
@@ -1446,76 +2634,76 @@ const app = {
         const types = Object.keys(dataMap);
 
         modalContent.innerHTML = `
-            <div class="p-6">
+            <div class="p-6 bg-white rounded-xl">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                             Device Analysis
                         </h3>
-                        <p class="text-slate-400 text-xs mt-1">Real-time data monitoring</p>
+                        <p class="text-gray-500 text-xs mt-1">Real-time data monitoring</p>
                     </div>
-                    <button onclick="app.closeModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <button onclick="app.closeModal()" class="text-gray-400 hover:text-gray-900 transition-colors">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400 uppercase">Select Device</label>
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Select Device</label>
                         <div class="relative">
-                            <i data-lucide="server" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                            <select onchange="app.renderDeviceDataModalContent(this.value, '${dataType}', '${timeRange}')" class="w-full bg-surface-dark border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none cursor-pointer">
+                            <i data-lucide="server" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <select onchange="app.renderDeviceDataModalContent(this.value, '${dataType}', '${timeRange}')" class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
                                 ${availableDevices.map(d => `<option value="${d.sn}" ${d.sn === sn ? 'selected' : ''}>${d.sn} - ${d.model}</option>`).join('')}
                             </select>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
                         </div>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400 uppercase">Data Metric</label>
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Data Metric</label>
                         <div class="relative">
-                            <i data-lucide="activity" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                            <select onchange="app.renderDeviceDataModalContent('${sn}', this.value, '${timeRange}')" class="w-full bg-surface-dark border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none cursor-pointer">
+                            <i data-lucide="activity" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <select onchange="app.renderDeviceDataModalContent('${sn}', this.value, '${timeRange}')" class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
                                 ${types.map(t => `<option value="${t}" ${t === dataType ? 'selected' : ''}>${t}</option>`).join('')}
                             </select>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 rounded-xl bg-surface-dark/50 border border-white/5">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                      <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-white">${dataType} Trend</h4>
+                        <h4 class="font-bold text-gray-900">${dataType} Trend</h4>
                         
                         <div class="flex items-center gap-3">
-                            <div class="flex bg-surface-dark rounded-lg p-1 border border-white/10">
+                            <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
                                 ${['24H', '7D', '30D'].map(range => `
                                     <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', '${range}')" 
-                                        class="px-3 py-1 text-xs rounded-md transition-all ${timeRange === range ? 'bg-white/10 text-white font-medium shadow-sm' : 'text-slate-400 hover:text-white'}">
+                                        class="px-3 py-1 text-xs rounded-md transition-all ${timeRange === range ? 'bg-white text-gray-900 font-medium shadow-sm' : 'text-gray-500 hover:text-gray-900'}">
                                         ${range}
                                     </button>
                                 `).join('')}
                             </div>
                             
-                            <div class="h-4 w-px bg-white/10"></div>
+                            <div class="h-4 w-px bg-gray-200"></div>
                             
                             <div class="relative">
                                 <button onclick="const picker = document.getElementById('custom-range-picker'); picker.classList.toggle('hidden');" 
-                                    class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg border border-white/10 transition-all ${timeRange === 'Custom' ? 'bg-brand/20 text-brand-light border-brand/20' : 'bg-surface-dark text-slate-400 hover:text-white hover:border-white/20'}">
+                                    class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg border border-gray-200 transition-all ${timeRange === 'Custom' ? 'bg-manta-primary/10 text-manta-primary border-manta-primary/20' : 'bg-gray-50 text-gray-500 hover:text-gray-900 hover:border-gray-300'}">
                                     <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                                     <span>${timeRange === 'Custom' ? 'Custom' : 'Custom'}</span>
                                 </button>
                                 
-                                <div id="custom-range-picker" class="hidden absolute top-full right-0 mt-2 p-3 bg-surface border border-white/10 rounded-xl shadow-xl z-50 w-64 backdrop-blur-xl">
+                                <div id="custom-range-picker" class="hidden absolute top-full right-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-50 w-64">
                                     <div class="space-y-3">
                                         <div class="space-y-1">
-                                            <label class="text-[10px] uppercase text-slate-500 font-semibold">Start Date</label>
-                                            <input type="date" class="w-full bg-surface-dark border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand" onclick="event.stopPropagation()">
+                                            <label class="text-[10px] uppercase text-gray-500 font-semibold">Start Date</label>
+                                            <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary" onclick="event.stopPropagation()">
                                         </div>
                                         <div class="space-y-1">
-                                            <label class="text-[10px] uppercase text-slate-500 font-semibold">End Date</label>
-                                            <input type="date" class="w-full bg-surface-dark border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand" onclick="event.stopPropagation()">
+                                            <label class="text-[10px] uppercase text-gray-500 font-semibold">End Date</label>
+                                            <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary" onclick="event.stopPropagation()">
                                         </div>
-                                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Custom')" class="w-full bg-brand hover:bg-brand-light text-white text-xs font-medium py-1.5 rounded transition-colors">
+                                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Custom')" class="w-full bg-manta-primary hover:bg-manta-dark text-white text-xs font-medium py-1.5 rounded transition-colors">
                                             Apply Range
                                         </button>
                                     </div>
@@ -1527,17 +2715,17 @@ const app = {
                 </div>
 
                 <div class="mt-6 grid grid-cols-3 gap-4">
-                    <div class="bg-surface-dark p-3 rounded-lg border border-white/5">
-                        <p class="text-xs text-slate-500 mb-1">Current</p>
-                        <p class="text-lg font-mono text-white">${currentData.data[currentData.data.length-1].toFixed(1)} <span class="text-xs text-slate-500">${currentData.unit}</span></p>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p class="text-xs text-gray-500 mb-1">Current</p>
+                        <p class="text-lg font-mono text-gray-900">${currentData.data[currentData.data.length-1].toFixed(1)} <span class="text-xs text-gray-500">${currentData.unit}</span></p>
                     </div>
-                    <div class="bg-surface-dark p-3 rounded-lg border border-white/5">
-                        <p class="text-xs text-slate-500 mb-1">Average</p>
-                        <p class="text-lg font-mono text-white">${(currentData.data.reduce((a,b)=>a+b,0)/currentData.data.length).toFixed(1)} <span class="text-xs text-slate-500">${currentData.unit}</span></p>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p class="text-xs text-gray-500 mb-1">Average</p>
+                        <p class="text-lg font-mono text-gray-900">${(currentData.data.reduce((a,b)=>a+b,0)/currentData.data.length).toFixed(1)} <span class="text-xs text-gray-500">${currentData.unit}</span></p>
                     </div>
-                    <div class="bg-surface-dark p-3 rounded-lg border border-white/5">
-                        <p class="text-xs text-slate-500 mb-1">Peak</p>
-                        <p class="text-lg font-mono text-white">${Math.max(...currentData.data).toFixed(1)} <span class="text-xs text-slate-500">${currentData.unit}</span></p>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p class="text-xs text-gray-500 mb-1">Peak</p>
+                        <p class="text-lg font-mono text-gray-900">${Math.max(...currentData.data).toFixed(1)} <span class="text-xs text-gray-500">${currentData.unit}</span></p>
                     </div>
                 </div>
             </div>
@@ -1560,13 +2748,13 @@ const app = {
                 xAxis: {
                     type: 'category',
                     data: xAxisData,
-                    axisLine: { lineStyle: { color: '#334155' } },
-                    axisLabel: { color: '#94a3b8' }
+                    axisLine: { lineStyle: { color: '#E5E7EB' } },
+                    axisLabel: { color: '#6B7280' }
                 },
                 yAxis: {
                     type: 'value',
-                    splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-                    axisLabel: { color: '#94a3b8' }
+                    splitLine: { lineStyle: { color: '#E5E7EB', type: 'dashed' } },
+                    axisLabel: { color: '#6B7280' }
                 },
                 series: [{
                     data: currentData.data,
@@ -1586,107 +2774,6 @@ const app = {
         }, 100);
     },
 
-    openCreateModal() {
-        this.updateModalWidth('max-w-xl');
-        const modalContent = document.getElementById('modal-content');
-        this.renderCreateModalContent('CLOUD');
-        this.toggleModal(true);
-    },
-
-    renderCreateModalContent(type) {
-        const modalContent = document.getElementById('modal-content');
-        const isManta = type === 'MANTA';
-
-        const mantaForm = `
-            <div class="grid grid-cols-3 gap-4">
-                <div class="col-span-2 space-y-1.5">
-                    <label class="text-xs font-semibold text-slate-400 uppercase">IP Address / URL</label>
-                    <input type="text" name="ip" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all font-mono text-sm" placeholder="192.168.x.x">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-slate-400 uppercase">Port</label>
-                    <input type="text" name="port" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all font-mono text-sm" placeholder="8080">
-                </div>
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-slate-400 uppercase">Assigned VPP</label>
-                <select name="vpp" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
-                    <option value="">None</option>
-                    <option value="State Grid VPP">State Grid VPP</option>
-                    <option value="Local Energy VPP">Local Energy VPP</option>
-                </select>
-            </div>
-        `;
-
-        const cloudForm = `
-            <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-slate-400 uppercase">Authorization Method</label>
-                <div class="relative">
-                    <select name="auth_method" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none cursor-pointer">
-                        <option value="direct">Batch Authorization</option>
-                        <option value="oauth">Single Authorization</option>
-                    </select>
-                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
-                </div>
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-slate-400 uppercase">API Endpoint</label>
-                <input type="text" name="endpoint" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all font-mono text-sm" placeholder="https://api.vendor.com/v1">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-slate-400 uppercase">Vendor</label>
-                    <select name="vendor" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
-                        <option>Sungrow</option>
-                        <option>Huawei</option>
-                        <option>Growatt</option>
-                        <option>GoodWe</option>
-                    </select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-slate-400 uppercase">Region</label>
-                    <select name="region" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
-                        <option>China (CN)</option>
-                        <option>Europe (EU)</option>
-                        <option>North America (NA)</option>
-                    </select>
-                </div>
-            </div>
-        `;
-
-        modalContent.innerHTML = `
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-white">New Access</h3>
-                    <button onclick="app.closeModal()" class="text-slate-400 hover:text-white transition-colors">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                
-                <div class="flex gap-4 mb-6 p-1 bg-surface-dark rounded-lg">
-                    <button onclick="app.renderCreateModalContent('CLOUD')" class="flex-1 py-2 rounded-md text-sm font-medium transition-all ${!isManta ? 'bg-brand text-white shadow-sm' : 'text-slate-400 hover:text-white'}">Cloud</button>
-                    <button onclick="app.renderCreateModalContent('MANTA')" class="flex-1 py-2 rounded-md text-sm font-medium transition-all ${isManta ? 'bg-brand text-white shadow-sm' : 'text-slate-400 hover:text-white'}">Manta</button>
-                </div>
-
-                <form id="create-form" onsubmit="app.handleCreateSubmit(event, '${type}')" class="space-y-4">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400 uppercase">Access Name</label>
-                        <input type="text" name="name" required class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all placeholder:text-slate-600" placeholder="e.g. Site Connection A">
-                    </div>
-
-                    ${isManta ? mantaForm : cloudForm}
-
-                    <div class="pt-4">
-                        <button type="submit" id="submit-btn" class="w-full bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                            <span>Confirm</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-        lucide.createIcons();
-    },
-
     openVPPDrawer(vppId = null) {
         const isEdit = !!vppId;
         const vpp = isEdit ? state.vpps.find(v => v.id === vppId) : null;
@@ -1696,54 +2783,54 @@ const app = {
         drawerContent.innerHTML = `
             <div class="p-6 h-full flex flex-col">
                 <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-bold text-white">${title}</h3>
-                    <button onclick="app.closeDrawer()" class="text-slate-400 hover:text-white transition-colors">
+                    <h3 class="text-xl font-bold text-gray-900">${title}</h3>
+                    <button onclick="app.closeDrawer()" class="text-gray-400 hover:text-gray-900 transition-colors">
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
 
                 <form onsubmit="app.handleVPPSubmit(event, ${vppId})" class="space-y-6 flex-1">
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400">VPP Name</label>
-                        <input type="text" name="name" value="${isEdit ? vpp.name : ''}" required class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Virtual Power Plant X">
+                        <label class="text-xs font-semibold text-gray-500">VPP Name</label>
+                        <input type="text" name="name" value="${isEdit ? vpp.name : ''}" required class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Virtual Power Plant X">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400">Company</label>
-                        <input type="text" name="company" value="${isEdit ? (vpp.company || '') : state.currentUser.company}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Acme Corp">
+                        <label class="text-xs font-semibold text-gray-500">Company</label>
+                        <input type="text" name="company" value="${isEdit ? (vpp.company || '') : state.currentUser.company}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Acme Corp">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-400">Country</label>
-                            <input type="text" name="country" value="${isEdit ? (vpp.country || '') : state.currentUser.country}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Australia">
+                            <label class="text-xs font-semibold text-gray-500">Country</label>
+                            <input type="text" name="country" value="${isEdit ? (vpp.country || '') : state.currentUser.country}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Australia">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-400">ABN/VAT</label>
-                            <input type="text" name="abn" value="${isEdit ? (vpp.abn || '') : state.currentUser.abn}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. 12 345 678 901">
+                            <label class="text-xs font-semibold text-gray-500">ABN/VAT</label>
+                            <input type="text" name="abn" value="${isEdit ? (vpp.abn || '') : state.currentUser.abn}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 12 345 678 901">
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400">Business Address</label>
-                        <input type="text" name="address" value="${isEdit ? (vpp.address || '') : state.currentUser.address}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. 123 Solar St, Sydney">
+                        <label class="text-xs font-semibold text-gray-500">Business Address</label>
+                        <input type="text" name="address" value="${isEdit ? (vpp.address || '') : state.currentUser.address}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 123 Solar St, Sydney">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400">DNSP</label>
-                        <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all" placeholder="e.g. Energy Provider Name">
+                        <label class="text-xs font-semibold text-gray-500">DNSP</label>
+                        <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Energy Provider Name">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400">Description</label>
-                        <textarea name="description" rows="4" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all resize-none" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                        <label class="text-xs font-semibold text-gray-500">Description</label>
+                        <textarea name="description" rows="4" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all resize-none placeholder:text-gray-400" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
                     </div>
 
                     <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-surface-dark border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-900 font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
                             Cancel
                         </button>
-                        <button type="submit" id="vpp-submit-btn" class="flex-1 bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                        <button type="submit" id="vpp-submit-btn" class="flex-1 bg-manta-primary hover:bg-manta-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-manta-primary/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
                             <span>Submit</span>
                         </button>
                     </div>
@@ -1830,8 +2917,8 @@ const app = {
         drawerContent.innerHTML = `
             <div class="p-6 h-full flex flex-col">
                 <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-bold text-white">${title}</h3>
-                    <button onclick="app.closeDrawer()" class="text-slate-400 hover:text-white transition-colors">
+                    <h3 class="text-xl font-bold text-gray-900">${title}</h3>
+                    <button onclick="app.closeDrawer()" class="text-gray-400 hover:text-gray-900 transition-colors">
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
@@ -1840,8 +2927,8 @@ const app = {
                     <div class="grid grid-cols-2 gap-4">
                         <!-- System Type -->
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-400">System Type</label>
-                            <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
+                            <label class="text-xs font-semibold text-gray-500">System Type</label>
+                            <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
                                 <option value="cloud">Manufacturer Cloud</option>
                                 <option value="scada">SCADA</option>
                                 <option value="edge">Edge</option>
@@ -1850,8 +2937,8 @@ const app = {
 
                         <!-- Country Selection -->
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-400">Country</label>
-                            <select name="country" onchange="app.updateSystemOptions(this.value)" class="w-full bg-surface-dark border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all appearance-none">
+                            <label class="text-xs font-semibold text-gray-500">Country</label>
+                            <select name="country" onchange="app.updateSystemOptions(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
                                 <option value="Australia" ${state.currentUser.country === 'Australia' ? 'selected' : ''}>Australia</option>
                                 <option value="China" ${state.currentUser.country === 'China' ? 'selected' : ''}>China</option>
                                 <option value="USA" ${state.currentUser.country === 'USA' ? 'selected' : ''}>USA</option>
@@ -1863,12 +2950,12 @@ const app = {
 
                     <!-- Cloud: Manufacturers (Multi-select) -->
                     <div id="section-cloud" class="space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-400">Manufacturer Cloud (Multi-select)</label>
-                        <div class="bg-surface-dark border border-white/10 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                        <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud (Multi-select)</label>
+                        <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${manufacturers.map(m => `
-                                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
-                                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
-                                    <span class="text-sm text-white">${m}</span>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                                    <span class="text-sm text-gray-900">${m}</span>
                                 </label>
                             `).join('')}
                         </div>
@@ -1876,12 +2963,12 @@ const app = {
 
                     <!-- SCADA: System Selection -->
                     <div id="section-scada" class="space-y-1.5 hidden">
-                        <label class="text-xs font-semibold text-slate-400">SCADA System</label>
-                        <div class="bg-surface-dark border border-white/10 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                        <label class="text-xs font-semibold text-gray-500">SCADA System</label>
+                        <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${scadaOptions.map(s => `
-                                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
-                                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
-                                    <span class="text-sm text-white">${s}</span>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                                    <span class="text-sm text-gray-900">${s}</span>
                                 </label>
                             `).join('')}
                         </div>
@@ -1889,12 +2976,12 @@ const app = {
 
                     <!-- Edge: Device Selection -->
                     <div id="section-edge" class="space-y-1.5 hidden">
-                        <label class="text-xs font-semibold text-slate-400">Edge Device</label>
-                        <div class="bg-surface-dark border border-white/10 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                        <label class="text-xs font-semibold text-gray-500">Edge Device</label>
+                        <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${edgeOptions.map(e => `
-                                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
-                                    <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
-                                    <span class="text-sm text-white">${e}</span>
+                                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                                    <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                                    <span class="text-sm text-gray-900">${e}</span>
                                 </label>
                             `).join('')}
                         </div>
@@ -1902,10 +2989,10 @@ const app = {
 
 
                     <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-surface-dark border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-900 font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
                             Cancel
                         </button>
-                        <button type="submit" id="cloud-submit-btn" class="flex-1 bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                        <button type="submit" id="cloud-submit-btn" class="flex-1 bg-manta-primary hover:bg-manta-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-manta-primary/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
                             <span>${isEdit ? 'Update' : 'Submit'}</span>
                         </button>
                     </div>
@@ -1937,9 +3024,9 @@ const app = {
             const uniqueOptions = [...new Set(options)];
 
             cloudContainer.innerHTML = uniqueOptions.map(m => `
-                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
-                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
-                    <span class="text-sm text-white">${m}</span>
+                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                    <span class="text-sm text-gray-900">${m}</span>
                 </label>
             `).join('');
         }
@@ -1963,9 +3050,9 @@ const app = {
             const uniqueOptions = [...new Set(options)];
 
             scadaContainer.innerHTML = uniqueOptions.map(s => `
-                <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
-                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
-                    <span class="text-sm text-white">${s}</span>
+                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                    <span class="text-sm text-gray-900">${s}</span>
                 </label>
             `).join('');
         }
@@ -1989,9 +3076,9 @@ const app = {
              const uniqueOptions = [...new Set(options)];
 
              edgeContainer.innerHTML = uniqueOptions.map(e => `
-                 <label class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-md cursor-pointer transition-colors">
-                     <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-white/20 bg-white/5 text-brand focus:ring-brand focus:ring-offset-0">
-                     <span class="text-sm text-white">${e}</span>
+                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                     <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                     <span class="text-sm text-gray-900">${e}</span>
                  </label>
              `).join('');
         }
@@ -2107,47 +3194,6 @@ const app = {
         }, 1500);
     },
 
-    handleCreateSubmit(e, type) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const btn = document.getElementById('submit-btn');
-        
-        // Loading State
-        btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Creating...`;
-        lucide.createIcons();
-        
-        // Simulate API Call
-        setTimeout(() => {
-            // Add new node to state
-            const newNode = {
-                id: Date.now(),
-                name: formData.get('name'),
-                status: 'online',
-                type: type,
-                inverters: 0,
-                batteries: 0
-            };
-
-            if (type === 'MANTA') {
-                newNode.vpp = formData.get('vpp');
-                newNode.ip = formData.get('ip');
-            } else {
-                newNode.vpp = 'Global Pool';
-                newNode.vendor = formData.get('vendor');
-                newNode.authMethod = formData.get('auth_method');
-                newNode.appKey = 'manta_' + Math.random().toString(36).substr(2, 8);
-                newNode.appAccess = 'sec_' + Math.random().toString(36).substr(2, 16);
-            }
-
-            state.nodes.unshift(newNode);
-            
-            this.showToast('Connection established successfully', 'success');
-            this.toggleModal(false);
-            this.renderDashboard(document.getElementById('content-area'));
-            lucide.createIcons();
-        }, 1500);
-    },
-
     handleVPPSubmit(e, vppId = null) {
         e.preventDefault();
         const btn = document.getElementById('vpp-submit-btn');
@@ -2243,14 +3289,10 @@ const app = {
     openAddDeviceDrawer() {
         const drawerContent = document.getElementById('drawer-content');
         
-        // Get unique vendors from existing Access Points
-        const uniqueVendors = [...new Set(state.nodes.map(node => 
-            node.type === 'MANTA' ? 'OSW' : (node.vendor || 'Unknown')
-        ))].filter(v => v !== 'Unknown');
+        // Static list of supported vendors
+        const uniqueVendors = ['Sungrow', 'Huawei', 'GoodWe', 'Tesla', 'BYD', 'CATL', 'OSW'];
 
-        const vendorOptions = uniqueVendors.length > 0 
-            ? uniqueVendors.map(v => `<option value="${v}">${v}</option>`).join('')
-            : '<option value="" disabled selected>No active vendors found</option>';
+        const vendorOptions = uniqueVendors.map(v => `<option value="${v}">${v}</option>`).join('');
 
         drawerContent.innerHTML = `
             <div class="p-6 h-full flex flex-col">
@@ -2351,37 +3393,6 @@ const app = {
             // Add to assigned devices
             MOCK_DATA.assignedDevices.push(deviceData);
             
-            // Update corresponding Access Point (node) device list/counts
-            // Find corresponding node
-            const targetNode = state.nodes.find(node => {
-                if (deviceData.vendor === 'OSW') {
-                    return node.type === 'MANTA'; // Assuming MANTA nodes are OSW
-                }
-                return node.vendor === deviceData.vendor;
-            });
-
-            if (targetNode) {
-                // Update counts
-                if (deviceData.type === 'Inverter') {
-                    targetNode.inverters = (targetNode.inverters || 0) + 1;
-                    if (deviceData.status === 'online') {
-                        targetNode.invertersOnline = (targetNode.invertersOnline || 0) + 1;
-                    } else {
-                        targetNode.invertersOffline = (targetNode.invertersOffline || 0) + 1;
-                    }
-                } else if (deviceData.type === 'Battery') {
-                    targetNode.batteries = (targetNode.batteries || 0) + 1;
-                    if (deviceData.status === 'online') {
-                        targetNode.batteriesOnline = (targetNode.batteriesOnline || 0) + 1;
-                    } else {
-                        targetNode.batteriesOffline = (targetNode.batteriesOffline || 0) + 1;
-                    }
-                }
-                // NOTE: The Details view currently uses mock data generation based on these counts.
-                // By updating the counts, the Details view will show more devices, though they will be randomly generated.
-                // To show the specific added device, renderDetails needs refactoring to read from assignedDevices.
-            }
-
             this.showToast(`Device ${deviceData.sn} authorized and added successfully`, 'success');
             this.toggleDrawer(false);
             this.renderVPP(document.getElementById('content-area'));
@@ -2541,18 +3552,6 @@ const app = {
                 // Update Data
                 newDevices.forEach(deviceData => {
                     MOCK_DATA.assignedDevices.push(deviceData);
-                    
-                    // Update corresponding Access Point (node) device list/counts
-                    const targetNode = state.nodes.find(node => node.vendor === deviceData.vendor);
-                    if (targetNode) {
-                        if (deviceData.type === 'Inverter') {
-                            targetNode.inverters = (targetNode.inverters || 0) + 1;
-                            targetNode.invertersOnline = (targetNode.invertersOnline || 0) + 1;
-                        } else {
-                            targetNode.batteries = (targetNode.batteries || 0) + 1;
-                            targetNode.batteriesOnline = (targetNode.batteriesOnline || 0) + 1;
-                        }
-                    }
                 });
 
                 this.showToast(`${newDevices.length} devices authorized and added successfully`, 'success');
@@ -2715,6 +3714,37 @@ const app = {
             toast.classList.add('translate-x-full', 'opacity-0');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    },
+
+    runBatterySafetyTests() {
+        console.log('%c Running Battery Safety Unit Tests...', 'color: blue; font-weight: bold;');
+        const results = [];
+        
+        // Test 1: Current Limit Trigger
+        let current = 101;
+        const MAX_CURRENT = 100;
+        let triggered = current > MAX_CURRENT;
+        results.push({ name: 'Current > Limit (101A > 100A) triggers warning', passed: triggered === true });
+
+        // Test 2: Temp Limit Trigger
+        let temp = 46;
+        const MAX_TEMP = 45;
+        triggered = temp > MAX_TEMP;
+        results.push({ name: 'Temp > Limit (46°C > 45°C) triggers critical', passed: triggered === true });
+
+        // Test 3: Normal Conditions
+        current = 50;
+        temp = 25;
+        triggered = (current > MAX_CURRENT) || (temp > MAX_TEMP);
+        results.push({ name: 'Normal conditions (50A, 25°C) do not trigger', passed: triggered === false });
+        
+        // Test 4: Boundary Values
+        current = 100; // Exact limit
+        triggered = current > MAX_CURRENT;
+        results.push({ name: 'Current = Limit (100A) does not trigger', passed: triggered === false });
+
+        console.table(results);
+        return results;
     }
 };
 

@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,53 +19,47 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
+                        manta: {
+                            primary: '#2E9F58',
+                            dark: '#1A6E3B',
+                            light: '#F4F7F9',
+                            text: '#333333',
+                            border: '#E5E7EB',
+                            error: '#EF4444'
+                        },
                         brand: {
-                            DEFAULT: '#1E40AF', // Deep Tech Blue
-                            light: '#3B82F6',
-                            dark: '#1E3A8A',
+                            DEFAULT: '#2E9F58', // Manta Green
+                            light: '#4ADE80',
+                            dark: '#1A6E3B',
                         },
                         surface: {
-                            DEFAULT: '#1E293B', // Slate 800
-                            light: '#334155', // Slate 700
-                            dark: '#0F172A', // Slate 900
+                            DEFAULT: '#FFFFFF', // White
+                            light: '#F9FAFB', // Gray 50
+                            dark: '#F3F4F6', // Gray 100
                         },
                         success: '#10B981', // Emerald
-                        danger: '#F43F5E', // Rose
+                        danger: '#EF4444', // Red
                         warning: '#F59E0B', // Amber
-                    },
-                    backgroundImage: {
-                        'glass': 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
-                        'glass-hover': 'linear-gradient(135deg, rgba(51, 65, 85, 0.7) 0%, rgba(30, 41, 59, 0.8) 100%)',
-                        'tech-glow': 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0) 70%)',
                     }
                 }
             }
         }
     </script>
 
-    <!-- Custom Styles for Scrollbar & Glassmorphism -->
+    <!-- Custom Styles -->
     <style>
         body {
-            background-color: #0F172A;
-            color: #F8FAFC;
+            background-color: #F9FAFB; /* Gray 50 */
+            color: #1F2937; /* Gray 800 */
         }
         
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .glass-sidebar {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        .sidebar-active {
+            background-color: #F0FDF4; /* Green 50 */
+            color: #2E9F58; /* Manta Primary */
+            border-right: 3px solid #2E9F58;
         }
 
         /* Custom Scrollbar */
@@ -74,23 +68,16 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5); 
+            background: #F1F5F9; 
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155; 
+            background: #CBD5E1; 
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
+            background: #94A3B8; 
         }
 
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        
-        /* Animation Classes */
         .fade-in {
             animation: fadeIn 0.4s ease-out forwards;
         }
@@ -108,12 +95,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .nav-item.active {
-            background: rgba(59, 130, 246, 0.1);
-            border-left: 3px solid #3B82F6;
-            color: #60A5FA;
-        }
     </style>
     
     <!-- ECharts for Data Visualization -->
@@ -121,80 +102,162 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="antialiased overflow-hidden h-screen w-screen flex text-sm">
+<body class="antialiased overflow-hidden h-screen w-screen flex text-sm font-sans">
 
     <!-- Sidebar -->
-    <aside class="glass-sidebar w-64 h-full flex flex-col z-20 transition-all duration-300">
+    <aside class="w-64 h-full flex flex-col z-20 transition-all duration-300 bg-white border-r border-gray-200 shadow-sm">
         <!-- Logo -->
-        <div class="h-16 flex items-center px-6 border-b border-white/5">
-            <div class="flex items-center gap-2 text-brand-light font-bold text-xl tracking-tight">
+        <div class="h-16 flex items-center px-6 border-b border-gray-100">
+            <div class="flex items-center gap-2 text-manta-primary font-bold text-xl tracking-tight">
                 <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
                 <span>Manta VPP</span>
             </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 py-6 px-3 space-y-1">
-            <div class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Platform</div>
-            
-            <a href="#" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group active" onclick="app.navigate('dashboard')">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                <span>Data Access</span>
+        <nav class="flex-1 py-6 px-0 space-y-1">
+            <a href="#" id="nav-overview" class="nav-item flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group border-r-4 border-transparent" onclick="app.navigate('overview')">
+                <i data-lucide="activity" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                <span class="font-medium">Overview</span>
             </a>
             
-            <div class="px-3 mt-8 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">System</div>
-            
-            <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group" onclick="app.navigate('vpp')">
-                <i data-lucide="network" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                <span>VPP Management</span>
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('electricity-market-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="zap" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Electricity Market</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="electricity-market-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-wholesale_price" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('wholesale_price')">
+                        <i data-lucide="dollar-sign" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Wholesale Price</span>
+                    </a>
+                    
+                    <a href="#" id="nav-arbitrage_points" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('arbitrage_points')">
+                        <i data-lucide="trending-up" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Arbitrage Points</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('trading-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="arrow-left-right" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Trading</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="trading-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-trading_rules" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('trading_rules')">
+                        <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Trading Rules</span>
+                    </a>
+                    
+                    <a href="#" id="nav-trading_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('trading_events')">
+                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Trading Events</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('smart-feed-in-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="sun" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Smart Feed-in</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="smart-feed-in-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-smart_feed_in_rules" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('smart_feed_in_rules')">
+                        <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Smart Feed-in Rules</span>
+                    </a>
+                    
+                    <a href="#" id="nav-smart_feed_in_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('smart_feed_in_events')">
+                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Smart Feed-in Events</span>
+                    </a>
+                </div>
+            </div>
+
+            <a href="#" id="nav-cap_service" class="nav-item flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group border-r-4 border-transparent" onclick="app.navigate('cap_service')">
+                <i data-lucide="shield" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                <span class="font-medium">Cap Service</span>
             </a>
             
-            <a href="#" id="nav-device_management" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group" onclick="app.navigate('device_management')">
-                <i data-lucide="cpu" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                <span>Device Management</span>
-            </a>
-            
-            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors group">
-                <i data-lucide="settings" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                <span>Settings</span>
-            </a>
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('system-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="settings-2" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">System</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="system-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('vpp')">
+                        <i data-lucide="network" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">VPP Management</span>
+                    </a>
+                    
+                    <a href="#" id="nav-device_management" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('device_management')">
+                        <i data-lucide="cpu" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Device Management</span>
+                    </a>
+                    
+                    <a href="#" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent">
+                        <i data-lucide="settings" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Settings</span>
+                    </a>
+                </div>
+            </div>
         </nav>
 
         <!-- User Profile -->
-        <div class="p-4 border-t border-white/5">
-            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand to-brand-light flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-brand/20">
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="w-8 h-8 rounded-full bg-manta-primary/10 flex items-center justify-center text-manta-primary font-bold text-xs">
                     AD
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate">Admin User</p>
-                    <p class="text-xs text-slate-400 truncate">admin@manta.energy</p>
+                    <p class="text-sm font-medium text-gray-900 truncate">Admin User</p>
+                    <p class="text-xs text-gray-500 truncate">admin@manta.energy</p>
                 </div>
-                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
             </div>
         </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-tech-glow bg-no-repeat bg-cover">
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
         
         <!-- Header -->
-        <header class="h-16 glass-panel border-l-0 border-r-0 border-t-0 flex items-center justify-between px-8 z-10">
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-10 shadow-sm">
             <!-- Breadcrumbs -->
-            <div class="flex items-center gap-2 text-slate-400">
-                <span class="hover:text-white cursor-pointer transition-colors">Manta Platform</span>
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                <span id="page-title" class="text-white font-medium">Data Access</span>
+            <div id="breadcrumbs" class="flex items-center text-sm">
+                <button onclick="app.navigate('overview')" class="flex items-center gap-1.5 text-gray-500 hover:text-manta-primary transition-colors group">
+                    <i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                    <span class="font-medium">Manta</span>
+                </button>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 mx-1"></i>
+                <span id="page-title" class="text-gray-900 font-semibold">Overview</span>
             </div>
 
             <!-- Actions -->
             <div class="flex items-center gap-4">
-                <button class="p-2 text-slate-400 hover:text-white transition-colors relative">
+                <button class="p-2 text-gray-400 hover:text-manta-primary transition-colors relative">
                     <i data-lucide="bell" class="w-5 h-5"></i>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full border border-surface-dark"></span>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
                 </button>
-                <div class="h-6 w-px bg-white/10"></div>
-                <button class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+                <div class="h-6 w-px bg-gray-200"></div>
+                <button class="flex items-center gap-2 text-gray-500 hover:text-manta-primary transition-colors">
                     <i data-lucide="help-circle" class="w-5 h-5"></i>
                     <span>Support</span>
                 </button>
