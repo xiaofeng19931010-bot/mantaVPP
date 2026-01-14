@@ -88,7 +88,7 @@ const titles = {
     cap_service: 'Cap Service',
     vpp: 'VPP Management',
     vpp_details: 'VPP Details',
-    device_management: 'Device Management',
+    device_management: 'Device Connection',
     system_details: 'System Details',
     system: 'System'
 };
@@ -1880,11 +1880,11 @@ const app = {
                     <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
                         <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-2">No Platform Connected</h2>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a system to synchronize and manage your devices.</p>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">No Connection Created</h2>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Create a connection to synchronize and manage your devices.</p>
                     <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
                         <i data-lucide="link" class="w-5 h-5"></i>
-                        <span>Connect Platform</span>
+                        <span>Create</span>
                     </button>
                 </div>
             `;
@@ -2946,7 +2946,7 @@ const app = {
     },
 
     openCloudBindDrawer(isEdit = false) {
-        const title = isEdit ? 'Edit System Configuration' : 'Connect Platform';
+        const title = isEdit ? 'Edit System Configuration' : 'Create Connection';
         const drawerContent = document.getElementById('drawer-content');
         
         // 1. Get current user's company
@@ -3018,7 +3018,7 @@ const app = {
                     <div class="grid grid-cols-2 gap-4">
                         <!-- System Type -->
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">System Type</label>
+                            <label class="text-xs font-semibold text-gray-500">Type</label>
                             <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
                                 <option value="cloud">Manufacturer Cloud</option>
                                 <option value="scada">SCADA</option>
@@ -3035,7 +3035,7 @@ const app = {
 
                     <!-- Cloud: Manufacturers (Multi-select) -->
                     <div id="section-cloud" class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud (Multi-select)</label>
+                        <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud</label>
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${manufacturers.length > 0 ? manufacturers.map(m => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
@@ -3048,7 +3048,7 @@ const app = {
 
                     <!-- SCADA: System Selection -->
                     <div id="section-scada" class="space-y-1.5 hidden">
-                        <label class="text-xs font-semibold text-gray-500">SCADA System</label>
+                        <label class="text-xs font-semibold text-gray-500">SCADA</label>
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${scadaOptions.length > 0 ? scadaOptions.map(s => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
@@ -3061,7 +3061,7 @@ const app = {
 
                     <!-- Edge: Device Selection -->
                     <div id="section-edge" class="space-y-1.5 hidden">
-                        <label class="text-xs font-semibold text-gray-500">Edge Device</label>
+                        <label class="text-xs font-semibold text-gray-500">Edge</label>
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${edgeOptions.length > 0 ? edgeOptions.map(e => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
