@@ -2881,7 +2881,7 @@ const app = {
     openVPPDrawer(vppId = null) {
         const isEdit = !!vppId;
         const vpp = isEdit ? state.vpps.find(v => v.id === vppId) : null;
-        const title = isEdit ? 'Edit VPP' : (state.vpps.length === 0 ? 'Create VPP' : 'Add VPP');
+        const title = isEdit ? 'Edit VPP' : 'Create a VPP';
         
         const drawerContent = document.getElementById('drawer-content');
         drawerContent.innerHTML = `
@@ -2946,7 +2946,7 @@ const app = {
     },
 
     openCloudBindDrawer(isEdit = false) {
-        const title = isEdit ? 'Edit System Configuration' : 'Create Connection';
+        const title = isEdit ? 'Edit System Configuration' : 'Create a Connection';
         const drawerContent = document.getElementById('drawer-content');
         
         // 1. Get current user's company
@@ -3021,6 +3021,8 @@ const app = {
                             <label class="text-xs font-semibold text-gray-500">Type</label>
                             <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
                                 <option value="cloud">Manufacturer Cloud</option>
+                                <option value="aggregator_cloud">Aggregator Cloud</option>
+                                <option value="private_cloud">Private Cloud</option>
                                 <option value="scada">SCADA</option>
                                 <option value="edge">Edge</option>
                             </select>
@@ -3033,16 +3035,57 @@ const app = {
                         </div>
                     </div>
 
-                    <!-- Cloud: Manufacturers (Multi-select) -->
-                    <div id="section-cloud" class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud</label>
+                    <!-- Cloud: Manufacturers (Single-select with Mode) -->
+                    <div id="section-cloud" class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="connectionMode" value="create" checked onchange="app.toggleConnectionMode('create')" class="text-manta-primary focus:ring-manta-primary">
+                                    <span class="text-xs font-medium text-gray-700">Create New</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="connectionMode" value="add" onchange="app.toggleConnectionMode('add')" class="text-manta-primary focus:ring-manta-primary">
+                                    <span class="text-xs font-medium text-gray-700">Add Existing</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
                             ${manufacturers.length > 0 ? manufacturers.map(m => `
                                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                                    <input type="radio" name="manufacturers" value="${m}" class="w-4 h-4 border-gray-300 text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                                     <span class="text-sm text-gray-900">${m}</span>
                                 </label>
                             `).join('') : '<div class="p-2 text-sm text-gray-500">No cloud nodes found for your company.</div>'}
+                        </div>
+
+                        <!-- Credentials Inputs -->
+                        <div id="cloud-credentials" class="hidden space-y-4 border-t border-gray-100 pt-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-gray-500">AppKey</label>
+                                <div class="relative group">
+                                    <input type="password" name="appKey" id="input-app-key" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400 font-mono text-sm" placeholder="Enter AppKey">
+                                    <button type="button" onclick="app.copyToClipboard('input-app-key')" class="absolute right-10 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md" title="Copy">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </button>
+                                    <button type="button" onclick="app.togglePasswordVisibility('input-app-key')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors bg-white rounded-md">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-gray-500">AppSecret</label>
+                                <div class="relative group">
+                                    <input type="password" name="appSecret" id="input-app-secret" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400 font-mono text-sm" placeholder="Enter AppSecret">
+                                    <button type="button" onclick="app.copyToClipboard('input-app-secret')" class="absolute right-10 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md" title="Copy">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </button>
+                                    <button type="button" onclick="app.togglePasswordVisibility('input-app-secret')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors bg-white rounded-md">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -3106,7 +3149,7 @@ const app = {
             const options = getOptions('CLOUD');
             cloudContainer.innerHTML = options.length ? options.map(m => `
                 <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                    <input type="checkbox" name="manufacturers" value="${m}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
+                    <input type="radio" name="manufacturers" value="${m}" class="w-4 h-4 border-gray-300 text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
                     <span class="text-sm text-gray-900">${m}</span>
                 </label>
             `).join('') : '<div class="p-2 text-sm text-gray-500">No cloud nodes found for your company.</div>';
@@ -3137,6 +3180,53 @@ const app = {
         }
     },
 
+    toggleConnectionMode(mode) {
+        const credentialsDiv = document.getElementById('cloud-credentials');
+        if (mode === 'add') {
+            credentialsDiv.classList.remove('hidden');
+        } else {
+            credentialsDiv.classList.add('hidden');
+        }
+    },
+
+    togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling.nextElementSibling; // Adjust based on DOM structure
+        const icon = btn.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            // icon replacement handled by lucide, simpler to just replace innerHTML
+            btn.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4"></i>';
+        } else {
+            input.type = 'password';
+            btn.innerHTML = '<i data-lucide="eye" class="w-4 h-4"></i>';
+        }
+        lucide.createIcons();
+    },
+
+    copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        const text = element.value;
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showToast('Copied to clipboard', 'success');
+            }).catch(() => {
+                // Fallback
+                element.select();
+                document.execCommand('copy');
+                this.showToast('Copied to clipboard', 'success');
+            });
+        } else {
+             // Fallback for older browsers
+             element.select();
+             document.execCommand('copy');
+             this.showToast('Copied to clipboard', 'success');
+        }
+    },
+
     handleSystemTypeChange(type) {
         const cloudSection = document.getElementById('section-cloud');
         const scadaSection = document.getElementById('section-scada');
@@ -3146,7 +3236,7 @@ const app = {
         scadaSection.classList.add('hidden');
         edgeSection.classList.add('hidden');
 
-        if (type === 'cloud') {
+        if (['cloud', 'aggregator_cloud', 'private_cloud'].includes(type)) {
             cloudSection.classList.remove('hidden');
         } else if (type === 'scada') {
             scadaSection.classList.remove('hidden');
@@ -3172,19 +3262,34 @@ const app = {
             const newSystems = [];
             const timestamp = Date.now();
 
-            if (systemType === 'cloud') {
+            if (['cloud', 'aggregator_cloud', 'private_cloud'].includes(systemType)) {
                 const manufacturers = formData.getAll('manufacturers');
+                const connectionMode = formData.get('connectionMode');
+                const appKey = formData.get('appKey');
+                const appSecret = formData.get('appSecret');
+
                 state.cloudVendor = manufacturers.join(', '); // Keep legacy support
                 
                 manufacturers.forEach((m, index) => {
-                    newSystems.push({
+                    let typeLabel = 'Cloud';
+                    if (systemType === 'aggregator_cloud') typeLabel = 'Aggregator Cloud';
+                    if (systemType === 'private_cloud') typeLabel = 'Private Cloud';
+
+                    const systemData = {
                         id: timestamp + index,
-                        name: `${m} Cloud`,
-                        type: 'Cloud',
+                        name: `${m} ${typeLabel}`,
+                        type: typeLabel,
                         vendor: m,
                         deviceCount: Math.floor(Math.random() * 10) + 1, // Random mock count
                         status: 'connecting'
-                    });
+                    };
+
+                    if (connectionMode === 'add') {
+                        systemData.credentials = { appKey, appSecret };
+                        // Mock validation or behavior difference for 'Add' vs 'Create'
+                    }
+
+                    newSystems.push(systemData);
                 });
             } else if (systemType === 'scada') {
                  const scadaSystems = formData.getAll('scada');
