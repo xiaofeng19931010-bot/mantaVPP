@@ -2064,7 +2064,6 @@ const app = {
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
                     ${system.name}
-                    <span class="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 font-normal">${system.type}</span>
                 </h1>
             </div>
         `;
@@ -2082,16 +2081,43 @@ const app = {
         // Summary Cards
         const summary = document.createElement('div');
         summary.className = 'grid grid-cols-1 md:grid-cols-4 gap-4';
+        
+        // Mock Credentials (retrieved from system or random mock if missing)
+        const appKey = system.credentials?.appKey || 'manta_cloud_1';
+        const appSecret = system.credentials?.appSecret || 'sec_cloud_1';
+
         summary.innerHTML = `
-            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
-                    <i data-lucide="info" class="w-6 h-6"></i>
+            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl flex flex-col justify-center gap-2 h-full">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-500 text-[10px] uppercase tracking-wider w-16">Type:</span>
+                    <span class="text-sm text-gray-900 font-mono font-medium">${system.type}</span>
                 </div>
-                <div>
-                    <div class="space-y-0.5">
-                         <div class="text-sm text-gray-900 font-mono"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Type:</span>${system.type}</div>
-                         <div class="text-sm text-gray-900 font-mono"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>Australia</div>
-                         <div class="text-sm text-gray-900 font-mono"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Mfr:</span>${system.vendor}</div>
+                <div class="flex items-center gap-2 group">
+                    <span class="text-gray-500 text-[10px] uppercase tracking-wider w-16">AppKey:</span>
+                    <div class="flex-1 flex items-center gap-2 min-w-0">
+                        <input type="password" value="${appKey}" id="details-app-key" readonly class="text-sm text-gray-900 font-mono bg-transparent border-none p-0 w-full focus:ring-0 truncate" />
+                    </div>
+                    <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onclick="app.togglePasswordVisibility('details-app-key')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="app.copyToClipboard('details-app-key')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 group">
+                    <span class="text-gray-500 text-[10px] uppercase tracking-wider w-16">AppSecret:</span>
+                    <div class="flex-1 flex items-center gap-2 min-w-0">
+                        <input type="password" value="${appSecret}" id="details-app-secret" readonly class="text-sm text-gray-900 font-mono bg-transparent border-none p-0 w-full focus:ring-0 truncate" />
+                    </div>
+                    <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="app.togglePasswordVisibility('details-app-secret')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="app.copyToClipboard('details-app-secret')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2163,7 +2189,6 @@ const app = {
                             <th class="pb-3 font-medium">VPP</th>
                             <th class="pb-3 font-medium">Status</th>
                             <th class="pb-3 font-medium">Owner</th>
-                            <th class="pb-3 font-medium">Owner Email</th>
                             <th class="pb-3 font-medium">DNSP</th>
                             <th class="pb-3 font-medium">Retailer</th>
                         </tr>
@@ -2195,13 +2220,12 @@ const app = {
                                     </span>
                                 </td>
                                 <td class="py-3 text-gray-500">${dev.userName || '-'}</td>
-                                <td class="py-3 text-gray-500 text-xs">${dev.email || '-'}</td>
                                 <td class="py-3 text-gray-500">${dnsp}</td>
                                 <td class="py-3 text-gray-500">${retailer}</td>
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="10" class="py-8 text-center text-gray-400">
+                                <td colspan="9" class="py-8 text-center text-gray-400">
                                     No devices found.
                                 </td>
                             </tr>
