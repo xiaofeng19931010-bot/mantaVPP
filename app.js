@@ -3061,25 +3061,25 @@ const app = {
 
                     <!-- Cloud: Manufacturers (Single-select with Mode) -->
                     <div id="section-cloud" class="space-y-4">
-                        <div class="flex justify-between items-center">
+                        <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud</label>
-                            <div class="flex gap-4">
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="radio" name="connectionMode" value="create" checked onchange="app.toggleConnectionMode('create')" class="text-manta-primary focus:ring-manta-primary">
-                                    <span class="text-xs font-medium text-gray-700">Create New</span>
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="radio" name="connectionMode" value="add" onchange="app.toggleConnectionMode('add')" class="text-manta-primary focus:ring-manta-primary">
-                                    <span class="text-xs font-medium text-gray-700">Add Existing</span>
-                                </label>
-                            </div>
+                            <select name="manufacturers" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
+                                ${manufacturers.length > 0 ? manufacturers.map(m => `
+                                    <option value="${m}">${m}</option>
+                                `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
+                            </select>
                         </div>
 
-                        <select name="manufacturers" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
-                            ${manufacturers.length > 0 ? manufacturers.map(m => `
-                                <option value="${m}">${m}</option>
-                            `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
-                        </select>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="connectionMode" value="create" checked onchange="app.toggleConnectionMode('create')" class="text-manta-primary focus:ring-manta-primary">
+                                <span class="text-xs font-medium text-gray-700">Create New</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="connectionMode" value="add" onchange="app.toggleConnectionMode('add')" class="text-manta-primary focus:ring-manta-primary">
+                                <span class="text-xs font-medium text-gray-700">Add Existing</span>
+                            </label>
+                        </div>
 
                         <!-- Credentials Inputs -->
                         <div id="cloud-credentials" class="hidden space-y-4 border-t border-gray-100 pt-4">
