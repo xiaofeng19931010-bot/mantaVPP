@@ -1862,8 +1862,8 @@ const app = {
         if (!system) return;
 
         this.showConfirmModal(
-            'Disconnect Platform',
-            'Are you sure you want to disconnect Manta from this platform? Note: After disconnection, devices under this connection will no longer be controlled by Manta.',
+            'Disconnect Sub-VPP',
+            'Are you sure you want to disconnect from this Sub-VPP? Note: After disconnection, devices under this Sub-VPP will no longer be controlled by Manta.',
             () => {
                 system.status = 'disconnected';
                 this.renderDeviceManagement(document.getElementById('content-area'));
@@ -1915,7 +1915,12 @@ const app = {
                             const invs = sysDevices.filter(d => d.type === 'Inverter');
                             const bats = sysDevices.filter(d => d.type === 'Battery');
                             
-                            const stats = {
+                            const isConnecting = (sys.status || '').toLowerCase() === 'connecting';
+                            
+                            const stats = isConnecting ? {
+                                inv: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0 },
+                                bat: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0 }
+                            } : {
                                 inv: {
                                     total: invs.length,
                                     online: invs.filter(d => d.status === 'online').length,
@@ -1941,7 +1946,6 @@ const app = {
                                 return { color: 'bg-gray-400', text: 'Disconnected' };
                             };
                             const statusConfig = getStatusConfig(sys.status);
-                            const isConnecting = (sys.status || '').toLowerCase() === 'connecting';
                             const isDisconnected = (sys.status || '').toLowerCase() === 'disconnected';
                             const onclickAttr = isConnecting ? '' : `onclick="app.navigate('system_details', { id: ${sys.id} })"`;
                             const cursorClass = isConnecting ? 'cursor-default' : 'cursor-pointer';
@@ -3021,10 +3025,6 @@ const app = {
                             <label class="text-xs font-semibold text-gray-500">Type</label>
                             <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
                                 <option value="cloud">Manufacturer Cloud</option>
-                                <option value="aggregator_cloud">Aggregator Cloud</option>
-                                <option value="private_cloud">Private Cloud</option>
-                                <option value="scada">SCADA</option>
-                                <option value="edge">Edge</option>
                             </select>
                         </div>
 
@@ -3051,14 +3051,11 @@ const app = {
                             </div>
                         </div>
 
-                        <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                        <select name="manufacturers" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
                             ${manufacturers.length > 0 ? manufacturers.map(m => `
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                                    <input type="radio" name="manufacturers" value="${m}" class="w-4 h-4 border-gray-300 text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                                    <span class="text-sm text-gray-900">${m}</span>
-                                </label>
-                            `).join('') : '<div class="p-2 text-sm text-gray-500">No cloud nodes found for your company.</div>'}
-                        </div>
+                                <option value="${m}">${m}</option>
+                            `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
+                        </select>
 
                         <!-- Credentials Inputs -->
                         <div id="cloud-credentials" class="hidden space-y-4 border-t border-gray-100 pt-4">
@@ -3326,6 +3323,23 @@ const app = {
             
             // Add new systems to state
             state.systems.push(...newSystems);
+
+            // Auto-update connecting status after 10s
+            newSystems.forEach(sys => {
+                if (sys.status === 'connecting') {
+                    setTimeout(() => {
+                        const targetSys = state.systems.find(s => s.id === sys.id);
+                        if (targetSys) {
+                            targetSys.status = 'connected';
+                            // Re-render if we are in device management view
+                            if (state.currentView === 'device_management') {
+                                this.renderDeviceManagement(document.getElementById('content-area'));
+                                lucide.createIcons();
+                            }
+                        }
+                    }, 10000);
+                }
+            });
 
             // Populate devices if empty (first bind simulation)
             if (!state.devices || state.devices.length === 0) {
