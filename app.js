@@ -1880,8 +1880,8 @@ const app = {
                     <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
                         <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-2">No Connection Created</h2>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Create a connection to synchronize and manage your devices.</p>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">No Sub-VPP Connected</h2>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a sub-VPP to synchronize and manage your devices.</p>
                     <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
                         <i data-lucide="link" class="w-5 h-5"></i>
                         <span>Create</span>
@@ -1898,7 +1898,7 @@ const app = {
                 <!-- System List -->
                 <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                     <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
-                        <h2 class="text-xl font-bold text-gray-900 pl-2">Platform List</h2>
+                        <h2 class="text-xl font-bold text-gray-900 pl-2">Sub-VPP List</h2>
                         <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             <span>New</span>
