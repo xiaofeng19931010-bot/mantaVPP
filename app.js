@@ -44,23 +44,585 @@ const MOCK_DATA = {
 
     smartFeedInRules: [
         { id: 1, state: 'SA', triggerTime: '07:00 - 12:00', triggerPrice: 0.00, socReserve: 30, vppName: 'SA Smart Feedin', lastModified: '10/08/2022 18:22:43', eventsTriggered: 3229, active: true },
-        { id: 2, state: 'NSW', triggerTime: '10:00 - 14:00', triggerPrice: -10.00, socReserve: 50, vppName: 'NSW Feed Control', lastModified: '11/01/2026 09:15:00', eventsTriggered: 156, active: true }
+        { id: 2, state: 'NSW', triggerTime: '10:00 - 14:00', triggerPrice: -10.00, socReserve: 50, vppName: 'NSW Feed Control', lastModified: '11/01/2026 09:15:00', eventsTriggered: 156, active: true },
+        ...Array.from({ length: 15 }, (_, i) => ({
+            id: i + 3,
+            state: ['NSW', 'VIC', 'QLD', 'SA'][i % 4],
+            triggerTime: `${String(i + 6).padStart(2, '0')}:00 - ${String(i + 10).padStart(2, '0')}:00`,
+            triggerPrice: (Math.random() * -20).toFixed(2),
+            socReserve: 20 + i * 2,
+            vppName: `Test VPP ${i + 1}`,
+            lastModified: '12/01/2026 10:00:00',
+            eventsTriggered: Math.floor(Math.random() * 500),
+            active: i % 2 === 0
+        }))
     ],
 
     smartFeedInEvents: [
         { id: 1, time: '12/01/2026 14:30:05', type: 'Current Overload', value: '120A', threshold: '100A', status: 'Resolved', details: 'Discharge current exceeded max limit' },
-        { id: 2, time: '12/01/2026 15:15:22', type: 'High Temperature', value: '45°C', threshold: '40°C', status: 'Active', details: 'Battery temperature above safety range' }
+        { id: 2, time: '12/01/2026 15:15:22', type: 'High Temperature', value: '45°C', threshold: '40°C', status: 'Active', details: 'Battery temperature above safety range' },
+        ...Array.from({ length: 15 }, (_, i) => ({
+            id: i + 3,
+            time: '12/01/2026 ' + String(10 + i).padStart(2, '0') + ':00:00',
+            type: i % 2 === 0 ? 'Current Overload' : 'High Temperature',
+            value: i % 2 === 0 ? (110 + i) + 'A' : (42 + i) + '°C',
+            threshold: i % 2 === 0 ? '100A' : '40°C',
+            status: i % 3 === 0 ? 'Active' : 'Resolved',
+            details: i % 2 === 0 ? 'Discharge current exceeded max limit' : 'Battery temperature above safety range'
+        }))
     ],
 
     tradingEvents: [
-        { id: 1, vppName: 'SA VPP', state: 'SA', triggerType: 'Actual', eventType: 'Discharge', price: 180.10733, date: '12/01/2026 (+11:00)', timeRange: '19:10:47 - 19:30:00', power: 576.03 },
-        { id: 2, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 411.19 },
-        { id: 3, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 10.00 },
-        { id: 4, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 411.19 },
-        { id: 5, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 10.00 },
-        { id: 6, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:35:48 - 20:00:00', power: 10.00 },
-        { id: 7, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 20:00:00', power: 411.19 },
-        { id: 8, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 19:31:06', power: 10.00 },
+        { id: 1, vppName: 'SA VPP', state: 'SA', triggerType: 'Actual', eventType: 'Discharge', price: 180.10733, date: '12/01/2026 (+11:00)', timeRange: '19:10:47 - 19:30:00', power: 576.03, status: 'Completed' },
+        { id: 2, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 411.19, status: 'Completed' },
+        { id: 3, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 10.00, status: 'Completed' },
+        { id: 4, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 411.19, status: 'Completed' },
+        { id: 5, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 10.00, status: 'Completed' },
+        { id: 6, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:35:48 - 20:00:00', power: 10.00, status: 'Completed' },
+        { id: 7, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 20:00:00', power: 411.19, status: 'Completed' },
+        { id: 8, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 19:31:06', power: 10.00, status: 'Completed' },
+        ...Array.from({ length: 15 }, (_, i) => ({
+            id: i + 9,
+            vppName: `VPP ${i + 1}`,
+            state: ['NSW', 'VIC', 'QLD', 'SA'][i % 4],
+            triggerType: 'Actual',
+            eventType: i % 2 === 0 ? 'Charge' : 'Discharge',
+            price: (Math.random() * 1000).toFixed(2),
+            date: '12/01/2026 (+11:00)',
+            timeRange: '12:00:00 - 12:30:00',
+            power: (Math.random() * 500).toFixed(2),
+            status: i % 5 === 0 ? 'Pending' : 'Completed'
+        }))
+    ],
+
+    capGraph: {
+        metrics: {
+            VIC: { online: 12, total: 19, inverterPower: 90.79, currentCap: 98.38, totalCap: 193.80, spotPrice: 60.43, forecastPrice: 56.58 },
+            SA: { online: 45, total: 60, inverterPower: 210.50, currentCap: 250.00, totalCap: 400.00, spotPrice: 45.20, forecastPrice: 42.10 },
+            NSW: { online: 30, total: 40, inverterPower: 150.25, currentCap: 180.50, totalCap: 300.00, spotPrice: 55.80, forecastPrice: 50.30 },
+            QLD: { online: 20, total: 30, inverterPower: 120.00, currentCap: 140.00, totalCap: 220.00, spotPrice: 48.90, forecastPrice: 46.50 }
+        },
+        forecasts: Array.from({ length: 48 }, (_, i) => {
+            const date = new Date('2026-01-14T00:00:00');
+            date.setMinutes(date.getMinutes() + i * 30);
+            return {
+                time: date.toLocaleString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }),
+                price: (20 + Math.random() * 40).toFixed(4) // Random price between 20 and 60
+            };
+        }).reverse(),
+        chartData: Array.from({ length: 24 * 6 }, (_, i) => { // 10 min interval for smoother chart
+             const hour = Math.floor(i / 6);
+             const minute = (i % 6) * 10;
+             const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+             
+             // Simulate solar/battery profile
+             let capacity = 30;
+             if (hour > 6 && hour < 18) {
+                 capacity += 50 * Math.sin(((hour - 6) / 12) * Math.PI); // Solar curve
+             }
+             capacity += Math.random() * 10; // Noise
+
+             let soc = 40;
+             if (hour > 8 && hour < 16) {
+                 soc += 40 * Math.sin(((hour - 8) / 8) * Math.PI); // Charging
+             } else if (hour >= 16) {
+                 soc = 80 - (hour - 16) * 5; // Discharging
+             }
+             soc = Math.max(0, Math.min(100, soc + Math.random() * 5));
+
+             return { time, capacity: capacity.toFixed(2), soc: soc.toFixed(0) };
+        })
+    },
+
+    capRules: [
+        { id: 1, state: 'QLD', scheduleType: 'every_day', targetTime: '06:00', triggerPrice: 300.00, targetCapacity: '4 MWh', vppName: 'QLD VPP', lastModified: '18/12/2025 14:36:23', eventsTriggered: 10, active: false },
+        { id: 2, state: 'SA', scheduleType: 'every_day', targetTime: '05:00', triggerPrice: 0.00, targetCapacity: '5.6 MWh', vppName: 'SA VPP', lastModified: '10/08/2022 18:23:52', eventsTriggered: 304, active: true },
+        ...Array.from({ length: 13 }, (_, i) => ({
+            id: i + 3,
+            state: ['NSW', 'VIC', 'QLD', 'SA'][i % 4],
+            scheduleType: 'every_day',
+            targetTime: `${String(i + 7).padStart(2, '0')}:00`,
+            triggerPrice: (Math.random() * 500).toFixed(2),
+            targetCapacity: (Math.random() * 10).toFixed(1) + ' MWh',
+            vppName: `Test VPP ${i + 1}`,
+            lastModified: '12/01/2026 10:00:00',
+            eventsTriggered: Math.floor(Math.random() * 100),
+            active: i % 2 === 0
+        }))
+    ],
+
+    capEvents: [
+        { id: 1, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '04:30:40 - 05:00:00', power: '931.32 kW', spotPrice: '$1.58092 /MWh', volume: '32.63989 kWh', vppIncome: '-$0.05', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 2, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '04:01:05 - 04:30:00', power: '935.92 kW', spotPrice: '-$30.50 /MWh', volume: '154.568 kWh', vppIncome: '$4.72', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 3, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '03:30:48 - 04:00:00', power: '935.92 kW', spotPrice: '-$21.69 /MWh', volume: '22.68890 kWh', vppIncome: '$0.49', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 4, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '03:20:48 - 03:30:00', power: '935.92 kW', spotPrice: '-$4.337 /MWh', volume: '22.29479 kWh', vppIncome: '$0.10', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        ...Array.from({ length: 15 }, (_, i) => ({
+            id: i + 5,
+            vppName: `VPP ${i + 1}`,
+            eventType: i % 2 === 0 ? 'Charge' : 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '12:00:00 - 12:30:00',
+            power: (Math.random() * 1000).toFixed(2) + ' kW',
+            spotPrice: '$' + (Math.random() * 200).toFixed(2) + ' /MWh',
+            volume: (Math.random() * 100).toFixed(2) + ' kWh',
+            vppIncome: '$' + (Math.random() * 10).toFixed(2),
+            status: ['Success', 'Partially Success', 'Failed'][i % 3],
+            notes: '',
+            serviceTag: ''
+        }))
+    ],
+
+    fcasGroups: [
+        { id: 1, name: 'ASSDE1', onlineDers: 36, totalDers: 223, state: 'SA', inverterSize: '1,103.40 kW', currentSoc: '229.09', totalSoc: '2,586.02 kWh', serviceTag: 'FCAS', eventsTriggered: '', active: false }
+    ],
+
+    fcasData: {
+        stats: {
+            current: { raise60s: 0.200, raise5min: 0.050, raiseAvail: 0.108 },
+            forecast: { raise60s: 0.100, raise5min: 0.010, raiseAvail: 0.082 }
+        },
+        chartData: Array.from({ length: 24 * 6 }, (_, i) => {
+             const hour = Math.floor(i / 6);
+             const minute = (i % 6) * 10;
+             const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+             return { 
+                 time, 
+                 price: (Math.random() * 0.5).toFixed(3), 
+                 capacity: (Math.random() * 5).toFixed(2) 
+             };
+        }),
+        forecast30min: [
+            { label: 'Raise Price (60s)', values: Array(8).fill(0).map(() => (Math.random() * 0.2).toFixed(3)) },
+            { label: 'Raise Price (5min)', values: Array(8).fill(0).map(() => (Math.random() * 0.1).toFixed(3)) }
+        ],
+        bids: Array.from({ length: 15 }, (_, i) => ({
+            id: i + 1,
+            tradingPeriod: '12:00 - 12:30',
+            duid: `DUID-${1000 + i}`,
+            serviceType: i % 2 === 0 ? 'Raise 60 sec' : 'Raise 5 min',
+            maxAvailability: (Math.random() * 10).toFixed(2) + ' MW',
+            submissionDate: '20/01/2026 10:00:00',
+            status: i % 3 === 0 ? 'Pending' : 'Cleared',
+            totalSettlement: '$' + (Math.random() * 100).toFixed(2)
+        }))
+    },
+
+    fcasPriceAvailability: [
+        { id: 1, time: '12/01/2026 14:30', region: 'SA', service: 'Raise 6 sec', price: 15.50, availability: 120.5, cleared: 100.0 },
+        { id: 2, time: '12/01/2026 14:30', region: 'SA', service: 'Lower 6 sec', price: 12.20, availability: 150.0, cleared: 110.0 },
+        { id: 3, time: '12/01/2026 14:30', region: 'VIC', service: 'Raise 6 sec', price: 18.00, availability: 200.0, cleared: 180.0 },
+        { id: 4, time: '12/01/2026 14:30', region: 'NSW', service: 'Raise 5 min', price: 25.00, availability: 300.0, cleared: 250.0 }
+    ],
+
+    reportsVppEvents: [
+        {
+            id: 1,
+            vppName: 'SA VPP',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            power: '576.03 kW',
+            spotPrice: '$180.10733 /MWh',
+            volume: '',
+            vppIncome: '',
+            status: 'Partially Success',
+            notes: 'The device(s) in group failed to schedule.',
+            serviceTag: ''
+        },
+        {
+            id: 2,
+            vppName: 'NSW VPP',
+            eventType: 'Discharge',
+            date: '10/01/2026 (+11:00)',
+            timeRange: '20:31:08 - 21:00:00',
+            power: '411.19 kW',
+            spotPrice: '$344.09265 /MWh',
+            volume: '13.68855 kWh',
+            vppIncome: '$4.71',
+            status: 'Partially Success',
+            notes: 'The device(s) in group failed to schedule.',
+            serviceTag: ''
+        },
+        {
+            id: 3,
+            vppName: "Jeff's VPP",
+            eventType: 'Discharge',
+            date: '10/01/2026 (+11:00)',
+            timeRange: '20:31:08 - 21:00:00',
+            power: '10.00 kW',
+            spotPrice: '$344.09265 /MWh',
+            volume: '0.00000 kWh',
+            vppIncome: '$0.00',
+            status: 'Success',
+            notes: '',
+            serviceTag: ''
+        },
+        {
+            id: 4,
+            vppName: 'NSW VPP',
+            eventType: 'Discharge',
+            date: '10/01/2026 (+11:00)',
+            timeRange: '20:01:28 - 20:30:00',
+            power: '411.19 kW',
+            spotPrice: '$6,951.66... /MWh',
+            volume: '12.25886 kWh',
+            vppIncome: '$85.22',
+            status: 'Partially Success',
+            notes: 'The device(s) in group failed to schedule.',
+            serviceTag: ''
+        },
+        {
+            id: 5,
+            vppName: "Jeff's VPP",
+            eventType: 'Discharge',
+            date: '10/01/2026 (+11:00)',
+            timeRange: '20:01:28 - 20:30:00',
+            power: '10.00 kW',
+            spotPrice: '$6,951.66... /MWh',
+            volume: '0.00000 kWh',
+            vppIncome: '$0.00',
+            status: 'Success',
+            notes: '',
+            serviceTag: ''
+        },
+        {
+            id: 6,
+            vppName: "Jeff's VPP",
+            eventType: 'Discharge',
+            date: '10/01/2026 (+11:00)',
+            timeRange: '19:35:48 - 20:00:00',
+            power: '10.00 kW',
+            spotPrice: '$11,862.3... /MWh',
+            volume: '0.00000 kWh',
+            vppIncome: '$0.00',
+            status: 'Success',
+            notes: '',
+            serviceTag: ''
+        },
+        {
+            id: 7,
+            vppName: 'NSW VPP',
+            eventType: 'Discharge',
+            date: '10/01/2026 (+11:00)',
+            timeRange: '19:31:05 - 20:00:00',
+            power: '411.19 kW',
+            spotPrice: '$11,862.3... /MWh',
+            volume: '14.30293 kWh',
+            vppIncome: '$169.67',
+            status: 'Partially Success',
+            notes: 'The device(s) in group failed to schedule.',
+            serviceTag: ''
+        }
+    ],
+
+    reportsDerEvents: [
+        {
+            id: 1,
+            sn: 'AL2002120020030',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:30:00 - 20:00:00',
+            from: 'User',
+            power: '5.00 kW',
+            spotPrice: '$58.156... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 2,
+            sn: '7F1727AF-6C',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '4.99 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 3,
+            sn: 'AL8002021090031',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '4.60 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 4,
+            sn: 'AL8001321010774',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 5,
+            sn: 'AL2002119120021',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 6,
+            sn: 'AL2002220060275',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 7,
+            sn: 'AL2002118030338',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 8,
+            sn: 'AL2002220080138',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 9,
+            sn: 'AL2002120020452',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        },
+        {
+            id: 10,
+            sn: 'AL2002220060298',
+            eventType: 'Discharge',
+            date: '12/01/2026 (+11:00)',
+            timeRange: '19:10:47 - 19:30:00',
+            from: 'System',
+            power: '5.00 kW',
+            spotPrice: '$180.10... /MWh',
+            volume: '',
+            vppIncome: '',
+            notes: '',
+            status: 'Completed'
+        }
+    ],
+    reportsVppEventItems: [
+        {
+            id: 1,
+            eventId: '826176',
+            nmi: '4407212728',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.342551 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.117868',
+            ownerProfit: '$0.101753',
+            netProfit: '$0.016115'
+        },
+        {
+            id: 2,
+            eventId: '826175',
+            nmi: '4102625721',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.636991 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.219182',
+            ownerProfit: '$0.189215',
+            netProfit: '$0.029967'
+        },
+        {
+            id: 3,
+            eventId: '826170',
+            nmi: '4102880912',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '1.274944 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.438695',
+            ownerProfit: '$0.378716',
+            netProfit: '$0.059980'
+        },
+        {
+            id: 4,
+            eventId: '826167',
+            nmi: '4103496008',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.361796 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.124490',
+            ownerProfit: '$0.107470',
+            netProfit: '$0.017021'
+        },
+        {
+            id: 5,
+            eventId: '826173',
+            nmi: '4102175872',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.000000 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.000000',
+            ownerProfit: '$0.000000',
+            netProfit: '$0.000000'
+        },
+        {
+            id: 6,
+            eventId: '826183',
+            nmi: '4001249805',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.000000 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.000000',
+            ownerProfit: '$0.000000',
+            netProfit: '$0.000000'
+        },
+        {
+            id: 7,
+            eventId: '826156',
+            nmi: '4103974475',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.097184 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.033440',
+            ownerProfit: '$0.028868',
+            netProfit: '$0.004572'
+        },
+        {
+            id: 8,
+            eventId: '826157',
+            nmi: '4103058960',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.000000 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.000000',
+            ownerProfit: '$0.000000',
+            netProfit: '$0.000000'
+        },
+        {
+            id: 9,
+            eventId: '826150',
+            nmi: '4103878722',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.000000 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.000000',
+            ownerProfit: '$0.000000',
+            netProfit: '$0.000000'
+        },
+        {
+            id: 10,
+            eventId: '826164',
+            nmi: '4102786454',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '0.000000 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.000000',
+            ownerProfit: '$0.000000',
+            netProfit: '$0.000000'
+        },
+        {
+            id: 11,
+            eventId: '826171',
+            nmi: '4001263093',
+            eventType: 'Discharge',
+            date: '10/01/2026',
+            timeRange: '20:31:08 - 21:00:00',
+            from: 'VPP',
+            isSettle: 'Y',
+            quantity: '1.542442 kWh',
+            spotPrice: '$0.344090 /kWh',
+            revenue: '$0.530739',
+            ownerProfit: '$0.458175',
+            netProfit: '$0.072564'
+        }
     ],
 
     companies: [
@@ -86,6 +648,18 @@ const titles = {
     smart_feed_in_rules: 'Smart Feed-in Rules',
     smart_feed_in_events: 'Smart Feed-in Events',
     cap_service: 'Cap Service',
+    cap_graph: 'Cap Graph',
+    cap_rules: 'Cap Rules',
+    cap_events: 'Cap Events',
+    fcas: 'FCAS',
+    fcas_groups: 'FCAS Groups',
+    fcas_price_availability: 'Price and Availability',
+    reports: 'Reports',
+    reports_vpp_events: 'VPP Events',
+    reports_der_events: 'DER Events',
+    reports_vpp_event_items: 'VPP Event Items',
+    reports_vpp_event_month_summary: 'VPP Event Month Summary',
+    reports_terminated: 'Terminated',
     vpp: 'VPP Management',
     vpp_details: 'VPP Details',
     device_management: 'Device Connection',
@@ -105,6 +679,80 @@ const state = {
     discoverySearchQuery: '',
     isSuperAdmin: true, // Default to true to simulate an admin user
     cloudBound: false, // New state for cloud platform binding
+    capGraph: {
+        selectedState: 'VIC',
+        selectedDate: '12/01/2026',
+        forecastInterval: '30Min'
+    },
+    capRules: {
+        state: 'All',
+        vppName: '',
+        currentPage: 1
+    },
+    capEvents: {
+        timeRange: '',
+        status: 'All',
+        eventType: 'All',
+        vppName: '',
+        currentPage: 1
+    },
+    smartFeedInRules: {
+        state: 'All',
+        vppName: '',
+        currentPage: 1
+    },
+    smartFeedInEvents: {
+        type: 'All',
+        status: 'All',
+        currentPage: 1
+    },
+    tradingEvents: {
+        timeRange: '',
+        eventType: 'All',
+        status: 'All',
+        state: 'All',
+        vppName: '',
+        currentPage: 1
+    },
+    fcasGroups: {
+        groupName: '',
+        state: 'All',
+        active: 'All',
+        currentPage: 1
+    },
+    fcasPriceAvailability: {
+        region: 'SA',
+        direction: 'Raise', // Raise or Lower
+        date: '20/01/2026',
+        bids: {
+            dateRange: '',
+            serviceType: 'All',
+            currentPage: 1
+        }
+    },
+    reportsVppEvents: {
+        timeRange: '',
+        status: 'All',
+        eventType: 'All',
+        vppName: '',
+        currentPage: 1
+    },
+    reportsDerEvents: {
+        timeRange: '',
+        eventType: 'All',
+        status: 'All',
+        from: 'All',
+        sn: '',
+        currentPage: 1
+    },
+    reportsVppEventItems: {
+        month: '',
+        eventType: 'All',
+        from: 'All',
+        eventId: '',
+        nmi: '',
+        currentPage: 1
+    },
     currentUser: {
         company: 'Manta Energy',
         country: 'Australia',
@@ -216,6 +864,18 @@ const app = {
             'smart_feed_in_rules': [{label: 'Smart Feed-in'}, {label: 'Smart Feed-in Rules'}],
             'smart_feed_in_events': [{label: 'Smart Feed-in'}, {label: 'Smart Feed-in Events'}],
             'cap_service': [{label: 'Cap Service'}],
+            'cap_graph': [{label: 'Cap Service'}, {label: 'Cap Graph'}],
+            'cap_rules': [{label: 'Cap Service'}, {label: 'Cap Rules'}],
+            'cap_events': [{label: 'Cap Service'}, {label: 'Cap Events'}],
+            'fcas': [{label: 'FCAS'}],
+            'fcas_groups': [{label: 'FCAS'}, {label: 'FCAS Groups'}],
+            'fcas_price_availability': [{label: 'FCAS'}, {label: 'Price and Availability'}],
+            'reports': [{label: 'Reports'}],
+            'reports_vpp_events': [{label: 'Reports'}, {label: 'VPP Events'}],
+            'reports_der_events': [{label: 'Reports'}, {label: 'DER Events'}],
+            'reports_vpp_event_items': [{label: 'Reports'}, {label: 'VPP Event Items'}],
+            'reports_vpp_event_month_summary': [{label: 'Reports'}, {label: 'VPP Event Month Summary'}],
+            'reports_terminated': [{label: 'Reports'}, {label: 'Terminated'}],
             'vpp': [{label: 'System'}, {label: 'VPP Management'}],
             'device_management': [{label: 'System'}, {label: 'Device Management'}],
             'vpp_details': [
@@ -312,6 +972,42 @@ const app = {
             }
         }
 
+        // Handle Cap Service Submenu Expansion
+        const capServiceViews = ['cap_graph', 'cap_rules', 'cap_events'];
+        const capServiceSubmenu = document.getElementById('cap-service-submenu');
+        const capServiceToggle = document.querySelector('a[onclick*="cap-service-submenu"] .chevron-icon');
+
+        if (capServiceViews.includes(viewName)) {
+            if (capServiceSubmenu && capServiceSubmenu.classList.contains('hidden')) {
+                capServiceSubmenu.classList.remove('hidden');
+                if (capServiceToggle) capServiceToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Handle FCAS Submenu Expansion
+        const fcasViews = ['fcas_groups', 'fcas_price_availability'];
+        const fcasSubmenu = document.getElementById('fcas-submenu');
+        const fcasToggle = document.querySelector('a[onclick*="fcas-submenu"] .chevron-icon');
+
+        if (fcasViews.includes(viewName)) {
+            if (fcasSubmenu && fcasSubmenu.classList.contains('hidden')) {
+                fcasSubmenu.classList.remove('hidden');
+                if (fcasToggle) fcasToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Handle Reports Submenu Expansion
+        const reportsViews = ['reports_vpp_events', 'reports_der_events', 'reports_vpp_event_items', 'reports_vpp_event_month_summary', 'reports_terminated'];
+        const reportsSubmenu = document.getElementById('reports-submenu');
+        const reportsToggle = document.querySelector('a[onclick*="reports-submenu"] .chevron-icon');
+
+        if (reportsViews.includes(viewName)) {
+            if (reportsSubmenu && reportsSubmenu.classList.contains('hidden')) {
+                reportsSubmenu.classList.remove('hidden');
+                if (reportsToggle) reportsToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
         // Handle System Submenu Expansion
         const systemViews = ['vpp', 'device_management', 'vpp_details', 'system_details'];
         const systemSubmenu = document.getElementById('system-submenu');
@@ -350,7 +1046,23 @@ const app = {
             this.renderSmartFeedInRules(contentArea);
         } else if (viewName === 'smart_feed_in_events') {
             this.renderSmartFeedInEvents(contentArea);
-        } else if (['electricity_market', 'trading', 'smart_feed_in', 'cap_service'].includes(viewName)) {
+        } else if (viewName === 'cap_graph') {
+            this.renderCapGraph(contentArea);
+        } else if (viewName === 'cap_rules') {
+            this.renderCapRules(contentArea);
+        } else if (viewName === 'cap_events') {
+            this.renderCapEvents(contentArea);
+        } else if (viewName === 'fcas_groups') {
+            this.renderFcasGroups(contentArea);
+        } else if (viewName === 'fcas_price_availability') {
+            this.renderFcasPriceAvailability(contentArea);
+        } else if (viewName === 'reports_vpp_events') {
+            this.renderReportsVppEvents(contentArea);
+        } else if (viewName === 'reports_der_events') {
+            this.renderReportsDerEvents(contentArea);
+        } else if (viewName === 'reports_vpp_event_items') {
+            this.renderReportsVppEventItems(contentArea);
+        } else if (['electricity_market', 'trading', 'smart_feed_in', 'cap_service', 'fcas', 'reports', 'reports_vpp_event_month_summary', 'reports_terminated'].includes(viewName)) {
             this.renderPlaceholder(contentArea, titles[viewName]);
         } else if (viewName === 'vpp') {
             this.renderVPP(contentArea);
@@ -363,6 +1075,1453 @@ const app = {
         }
 
         lucide.createIcons();
+    },
+
+    renderCapGraph(container) {
+        const { selectedState, selectedDate, forecastInterval } = state.capGraph;
+        const metrics = MOCK_DATA.capGraph.metrics[selectedState];
+        const forecasts = MOCK_DATA.capGraph.forecasts;
+        const chartData = MOCK_DATA.capGraph.chartData;
+
+        container.innerHTML = `
+            <div class="space-y-6 h-full flex flex-col">
+                <!-- Header Controls -->
+                <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        ${['VIC', 'SA', 'NSW', 'QLD'].map(s => `
+                            <button onclick="app.updateCapGraphState('selectedState', '${s}')" 
+                                class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedState === s ? 'bg-manta-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                                ${s}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="p-1.5 text-gray-400 hover:text-gray-600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700">
+                            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                            <span>12/01/2026</span>
+                        </div>
+                        <button class="p-1.5 text-gray-400 hover:text-gray-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <!-- Metrics Cards -->
+                <div class="grid grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center text-center">
+                        <p class="text-sm text-gray-500 mb-1">Online/Total DERs</p>
+                        <p class="text-xl font-bold text-manta-primary">${metrics.online} / ${metrics.total}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center text-center">
+                        <p class="text-sm text-gray-500 mb-1">Inverter Power</p>
+                        <p class="text-xl font-bold text-manta-primary">${metrics.inverterPower} kW</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center text-center">
+                        <p class="text-sm text-gray-500 mb-1">Current/Total Capacity</p>
+                        <p class="text-xl font-bold text-manta-primary">${metrics.currentCap} / ${metrics.totalCap} kWh</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center text-center">
+                        <p class="text-sm text-gray-500 mb-1">Current Spot Price</p>
+                        <p class="text-xl font-bold text-manta-primary">$${metrics.spotPrice} /MWh</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center text-center">
+                        <p class="text-sm text-gray-500 mb-1">Forecast Price(Next 30 Min)</p>
+                        <p class="text-xl font-bold text-manta-primary">$${metrics.forecastPrice} /MWh</p>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-3 gap-6 flex-1 min-h-0">
+                    <!-- Chart Section -->
+                    <div class="col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col relative">
+                        <div class="absolute top-6 right-6 z-10">
+                             <button class="bg-manta-primary hover:bg-manta-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                Create an Event
+                            </button>
+                        </div>
+                        <div id="cap-graph-chart" class="w-full flex-1 min-h-[400px]"></div>
+                    </div>
+
+                    <!-- Forecast Table Section -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-gray-100 flex items-center justify-end">
+                            <div class="flex bg-gray-100 p-1 rounded-lg">
+                                <button onclick="app.updateCapGraphState('forecastInterval', '30Min')" 
+                                    class="px-3 py-1 text-xs font-medium rounded-md transition-all ${forecastInterval === '30Min' ? 'bg-manta-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
+                                    30Min
+                                </button>
+                                <button onclick="app.updateCapGraphState('forecastInterval', '5Min')" 
+                                    class="px-3 py-1 text-xs font-medium rounded-md transition-all ${forecastInterval === '5Min' ? 'bg-manta-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
+                                    5Min
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 text-gray-500 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-6 py-3 font-medium">Settlement Date</th>
+                                        <th class="px-6 py-3 font-medium text-right">Forecast Price ($/MWh)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${forecasts.map(row => `
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-3 text-gray-900">${row.time}</td>
+                                            <td class="px-6 py-3 text-gray-900 text-right font-medium">${row.price}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Initialize Chart
+        this.initCapGraphChart(chartData);
+    },
+
+    updateCapState(key, value) {
+        // Handle nested keys like 'capRules.state'
+        const parts = key.split('.');
+        if (parts.length === 2) {
+            state[parts[0]][parts[1]] = value;
+            if (parts[0] === 'capRules') {
+                this.renderCapRules(document.getElementById('content-area'));
+            } else if (parts[0] === 'capEvents') {
+                this.renderCapEvents(document.getElementById('content-area'));
+            }
+        }
+    },
+
+    updateSmartFeedInState(key, value) {
+        const parts = key.split('.');
+        if (parts.length === 2) {
+            state[parts[0]][parts[1]] = value;
+            if (parts[0] === 'smartFeedInRules') {
+                this.renderSmartFeedInRules(document.getElementById('content-area'));
+            } else if (parts[0] === 'smartFeedInEvents') {
+                this.renderSmartFeedInEvents(document.getElementById('content-area'));
+            }
+        }
+    },
+
+    updateTradingState(key, value) {
+        const parts = key.split('.');
+        if (parts.length === 2) {
+            state[parts[0]][parts[1]] = value;
+            if (parts[0] === 'tradingEvents') {
+                this.renderTradingEvents(document.getElementById('content-area'));
+            }
+        }
+    },
+
+    renderCapRules(container) {
+        const { state: stateFilter, vppName, currentPage } = state.capRules;
+        
+        // Filter logic
+        let filteredRules = MOCK_DATA.capRules.filter(rule => {
+            const matchState = stateFilter === 'All' || rule.state === stateFilter;
+            const matchVppName = !vppName || rule.vppName.toLowerCase().includes(vppName.toLowerCase());
+            return matchState && matchVppName;
+        });
+
+        const total = filteredRules.length;
+        const totalPages = Math.ceil(total / 10);
+        
+        // Pagination logic
+        const startIdx = (currentPage - 1) * 10;
+        const rules = filteredRules.slice(startIdx, startIdx + 10);
+
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full">
+                <!-- Search & Filter -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <select onchange="app.updateCapState('capRules.state', this.value)" class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option value="All" ${stateFilter === 'All' ? 'selected' : ''}>All</option>
+                                <option value="NSW" ${stateFilter === 'NSW' ? 'selected' : ''}>NSW</option>
+                                <option value="VIC" ${stateFilter === 'VIC' ? 'selected' : ''}>VIC</option>
+                                <option value="QLD" ${stateFilter === 'QLD' ? 'selected' : ''}>QLD</option>
+                                <option value="SA" ${stateFilter === 'SA' ? 'selected' : ''}>SA</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                            <input type="text" value="${vppName}" oninput="app.updateCapState('capRules.vppName', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                        </div>
+                        <button onclick="app.renderCapRules(document.getElementById('content-area'))" class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="flex justify-end">
+                    <button class="flex items-center gap-2 px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                        New Cap Rule
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">Schedule Type</th>
+                                    <th class="px-6 py-3 font-medium">Target Time</th>
+                                    <th class="px-6 py-3 font-medium">Trigger Price</th>
+                                    <th class="px-6 py-3 font-medium">Target Capacity</th>
+                                    <th class="px-6 py-3 font-medium">VPP Name</th>
+                                    <th class="px-6 py-3 font-medium">Last Modified At</th>
+                                    <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
+                                    <th class="px-6 py-3 font-medium">Active</th>
+                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${rules.length > 0 ? rules.map((rule, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-center text-gray-500">${startIdx + idx + 1}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.state}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.scheduleType}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.targetTime}</td>
+                                        <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${typeof rule.triggerPrice === 'number' ? rule.triggerPrice.toFixed(2) : rule.triggerPrice} /MWh</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.targetCapacity}</td>
+                                        <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${rule.vppName}</td>
+                                        <td class="px-6 py-4 text-gray-500">${rule.lastModified}</td>
+                                        <td class="px-6 py-4 text-gray-900 pl-12">${rule.eventsTriggered}</td>
+                                        <td class="px-6 py-4 text-gray-900">
+                                            <div class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only peer" ${rule.active ? 'checked' : ''}>
+                                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-manta-primary"></div>
+                                                <span class="ml-2 text-sm text-gray-600">${rule.active ? 'Active' : 'Inactive'}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors" title="View">
+                                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="11" class="px-6 py-12 text-center text-gray-500">No rules found matching your criteria</td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Total ${total}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateCapState('capRules.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1;
+                                return `<button onclick="app.updateCapState('capRules.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateCapState('capRules.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+    },
+
+    renderCapEvents(container) {
+        const { timeRange, status, eventType, vppName, currentPage } = state.capEvents;
+        
+        // Filter logic
+        let filteredEvents = MOCK_DATA.capEvents.filter(event => {
+            const matchTime = !timeRange || event.date.includes(timeRange) || event.timeRange.includes(timeRange);
+            const matchStatus = status === 'All' || event.status === status;
+            const matchEventType = eventType === 'All' || event.eventType === eventType;
+            const matchVppName = !vppName || event.vppName.toLowerCase().includes(vppName.toLowerCase());
+            return matchTime && matchStatus && matchEventType && matchVppName;
+        });
+
+        const total = filteredEvents.length;
+        const totalPages = Math.ceil(total / 10);
+        
+        // Pagination logic
+        const startIdx = (currentPage - 1) * 10;
+        const events = filteredEvents.slice(startIdx, startIdx + 10);
+
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full">
+                <!-- Search & Filter -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="grid grid-cols-4 gap-4 items-end">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
+                            <div class="relative">
+                                <input type="text" value="${timeRange}" oninput="app.updateCapState('capEvents.timeRange', this.value)" placeholder="Search time..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <i data-lucide="clock" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                            <select onchange="app.updateCapState('capEvents.status', this.value)" class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option value="All" ${status === 'All' ? 'selected' : ''}>All</option>
+                                <option value="Success" ${status === 'Success' ? 'selected' : ''}>Success</option>
+                                <option value="Partially Success" ${status === 'Partially Success' ? 'selected' : ''}>Partially Success</option>
+                                <option value="Failed" ${status === 'Failed' ? 'selected' : ''}>Failed</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
+                            <select onchange="app.updateCapState('capEvents.eventType', this.value)" class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option value="All" ${eventType === 'All' ? 'selected' : ''}>All</option>
+                                <option value="Charge" ${eventType === 'Charge' ? 'selected' : ''}>Charge</option>
+                                <option value="Discharge" ${eventType === 'Discharge' ? 'selected' : ''}>Discharge</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                            <div class="flex gap-2">
+                                <input type="text" value="${vppName}" oninput="app.updateCapState('capEvents.vppName', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                                <button onclick="app.renderCapEvents(document.getElementById('content-area'))" class="px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <!-- Table Header Controls -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                        <span class="text-sm text-gray-500">Total ${total}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateCapState('capEvents.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1;
+                                return `<button onclick="app.updateCapState('capEvents.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateCapState('capEvents.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3 text-center w-12">#</th>
+                                    <th class="px-4 py-3">
+                                        <div class="flex flex-col">
+                                            <span>VPP</span>
+                                            <span>Name</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3">
+                                        <div class="flex flex-col">
+                                            <span>Event</span>
+                                            <span>Type</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3">Date</th>
+                                    <th class="px-4 py-3">Start Time - End Time</th>
+                                    <th class="px-4 py-3">Power</th>
+                                    <th class="px-4 py-3">
+                                        <div class="flex flex-col">
+                                            <span>Spot</span>
+                                            <span>Price</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3">Volume</th>
+                                    <th class="px-4 py-3">
+                                        <div class="flex flex-col">
+                                            <span>VPP</span>
+                                            <span>Income</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3 w-48">Notes</th>
+                                    <th class="px-4 py-3">
+                                        <div class="flex flex-col">
+                                            <span>Service</span>
+                                            <span>Tag</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${events.length > 0 ? events.map((event, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-4 py-4 text-center text-gray-500">${startIdx + idx + 1}</td>
+                                        <td class="px-4 py-4 text-manta-primary font-medium cursor-pointer hover:underline">${event.vppName}</td>
+                                        <td class="px-4 py-4 text-gray-900">${event.eventType}</td>
+                                        <td class="px-4 py-4 text-gray-500 text-xs">${event.date}</td>
+                                        <td class="px-4 py-4 text-gray-900 font-mono text-xs">${event.timeRange}</td>
+                                        <td class="px-4 py-4 text-gray-900">${event.power}</td>
+                                        <td class="px-4 py-4 text-gray-900">${event.spotPrice}</td>
+                                        <td class="px-4 py-4 text-gray-900">${event.volume}</td>
+                                        <td class="px-4 py-4 text-gray-900 font-medium">${event.vppIncome}</td>
+                                        <td class="px-4 py-4">
+                                            <span class="${event.status === 'Success' ? 'text-green-600' : event.status === 'Partially Success' ? 'text-orange-500' : 'text-red-600'} font-medium">
+                                                ${event.status}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-500 text-xs leading-tight max-w-xs">${event.notes}</td>
+                                        <td class="px-4 py-4 text-gray-500">${event.serviceTag}</td>
+                                        <td class="px-4 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="View Details">
+                                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Refresh Status">
+                                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="13" class="px-6 py-12 text-center text-gray-500">No events found matching your criteria</td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+    },
+
+    renderReportsVppEventItems(container) {
+        const { month, eventType, from, eventId, nmi, currentPage } = state.reportsVppEventItems;
+        
+        // Filter logic
+        let filteredEvents = MOCK_DATA.reportsVppEventItems.filter(item => {
+            const matchMonth = !month || item.date.includes(month);
+            const matchEventType = eventType === 'All' || item.eventType === eventType;
+            const matchFrom = from === 'All' || item.from === from;
+            const matchEventId = !eventId || item.eventId.includes(eventId);
+            const matchNmi = !nmi || item.nmi.includes(nmi);
+            return matchMonth && matchEventType && matchFrom && matchEventId && matchNmi;
+        });
+
+        const total = filteredEvents.length;
+        const totalPages = Math.ceil(total / 10);
+        
+        // Pagination logic
+        const startIdx = (currentPage - 1) * 10;
+        const events = filteredEvents.slice(startIdx, startIdx + 10);
+
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
+                <!-- Filters Section -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-end gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Months</label>
+                            <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 bg-white">
+                                <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                                <input type="text" placeholder="-" value="${month}" onchange="app.updateReportsVppEventItemsState('month', this.value)" class="w-full text-sm outline-none bg-transparent">
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
+                            <select onchange="app.updateReportsVppEventItemsState('eventType', this.value)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option value="All" ${eventType === 'All' ? 'selected' : ''}>All</option>
+                                <option value="Discharge" ${eventType === 'Discharge' ? 'selected' : ''}>Discharge</option>
+                                <option value="Charge" ${eventType === 'Charge' ? 'selected' : ''}>Charge</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">From</label>
+                            <select onchange="app.updateReportsVppEventItemsState('from', this.value)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option value="All" ${from === 'All' ? 'selected' : ''}>All</option>
+                                <option value="VPP" ${from === 'VPP' ? 'selected' : ''}>VPP</option>
+                                <option value="User" ${from === 'User' ? 'selected' : ''}>User</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Event ID</label>
+                            <input type="text" value="${eventId}" oninput="app.updateReportsVppEventItemsState('eventId', this.value)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">NMI</label>
+                            <input type="text" value="${nmi}" oninput="app.updateReportsVppEventItemsState('nmi', this.value)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
+                        </div>
+                        <button onclick="app.renderReportsVppEventItems(document.getElementById('content-area'))" class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                         <span class="text-sm text-gray-500">Total ${total}</span>
+                         
+                         <!-- Pagination Controls -->
+                         <div class="flex items-center gap-2 text-sm">
+                            <button onclick="app.updateReportsVppEventItemsState('currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1; // Simplified pagination for now
+                                return `<span class="${pageNum === currentPage ? 'font-medium text-green-600' : 'text-gray-600 cursor-pointer hover:bg-gray-100'} w-6 text-center rounded-full py-1" onclick="app.updateReportsVppEventItemsState('currentPage', ${pageNum})">${pageNum}</span>`;
+                            }).join('')}
+                            
+                            ${totalPages > 5 ? '<span class="text-gray-400">...</span>' : ''}
+                            
+                            <button onclick="app.updateReportsVppEventItemsState('currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                         </div>
+                         
+                         <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
+                             <span>Go to</span>
+                             <input type="text" value="${currentPage}" onchange="app.updateReportsVppEventItemsState('currentPage', parseInt(this.value) || 1)" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                         </div>
+                     </div>
+
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-4 w-16"></th>
+                                    <th class="px-6 py-4">Event ID</th>
+                                    <th class="px-6 py-4">NMI</th>
+                                    <th class="px-6 py-4">Event Type</th>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Start Time - End Time</th>
+                                    <th class="px-6 py-4">From</th>
+                                    <th class="px-6 py-4">Is Settle</th>
+                                    <th class="px-6 py-4">Quantity</th>
+                                    <th class="px-6 py-4">Spot Price</th>
+                                    <th class="px-6 py-4">Revenue</th>
+                                    <th class="px-6 py-4">Owner Profit</th>
+                                    <th class="px-6 py-4">Net Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${events.length > 0 ? events.map((event, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors group">
+                                        <td class="px-6 py-4 text-gray-500">${(currentPage - 1) * 10 + idx + 1}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.eventId}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.nmi}</td>
+                                        <td class="px-6 py-4 text-gray-600">${event.eventType}</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.date}</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.timeRange}</td>
+                                        <td class="px-6 py-4 text-gray-600">${event.from}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.isSettle}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.quantity}</td>
+                                        <td class="px-6 py-4 text-gray-900 font-medium">${event.spotPrice}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.revenue}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.ownerProfit}</td>
+                                        <td class="px-6 py-4 text-gray-900 font-medium">${event.netProfit}</td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="13" class="px-6 py-12 text-center text-gray-500">No events found matching your criteria</td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+    },
+
+    updateReportsVppEventItemsState(key, value) {
+        state.reportsVppEventItems[key] = value;
+        if (key === 'currentPage') {
+            this.renderReportsVppEventItems(document.getElementById('content-area'));
+        }
+    },
+
+    renderFcasGroups(container) {
+        const { groupName, state: filterState, active, currentPage } = state.fcasGroups;
+        
+        // Filter logic
+        let filteredGroups = MOCK_DATA.fcasGroups.filter(group => {
+            const matchName = !groupName || group.name.toLowerCase().includes(groupName.toLowerCase());
+            const matchState = filterState === 'All' || group.state === filterState;
+            const matchActive = active === 'All' || 
+                (active === 'Active' && group.active) || 
+                (active === 'Inactive' && !group.active);
+            return matchName && matchState && matchActive;
+        });
+
+        const total = filteredGroups.length;
+        const totalPages = Math.ceil(total / 10);
+        
+        // Pagination logic
+        const startIdx = (currentPage - 1) * 10;
+        const groups = filteredGroups.slice(startIdx, startIdx + 10);
+
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full">
+                <!-- Search & Filter -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">FCAS Group Name</label>
+                            <input type="text" value="${groupName}" oninput="app.updateFcasGroupsState('groupName', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <select onchange="app.updateFcasGroupsState('state', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option value="All" ${filterState === 'All' ? 'selected' : ''}>All</option>
+                                <option value="NSW" ${filterState === 'NSW' ? 'selected' : ''}>NSW</option>
+                                <option value="VIC" ${filterState === 'VIC' ? 'selected' : ''}>VIC</option>
+                                <option value="QLD" ${filterState === 'QLD' ? 'selected' : ''}>QLD</option>
+                                <option value="SA" ${filterState === 'SA' ? 'selected' : ''}>SA</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                            <select onchange="app.updateFcasGroupsState('active', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option value="All" ${active === 'All' ? 'selected' : ''}>All</option>
+                                <option value="Active" ${active === 'Active' ? 'selected' : ''}>Active</option>
+                                <option value="Inactive" ${active === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                            </select>
+                        </div>
+                        <button onclick="app.renderFcasGroups(document.getElementById('content-area'))" class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+                    <!-- Table Header Controls -->
+                    <div class="flex items-center justify-end px-6 py-4 border-b border-gray-100 gap-4">
+                        <span class="text-sm text-gray-500">Total ${total}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1;
+                                return `<button onclick="app.updateFcasGroupsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            
+                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3">FCAS Group Name</th>
+                                    <th class="px-6 py-3">DERs(Online/Total)</th>
+                                    <th class="px-6 py-3">State</th>
+                                    <th class="px-6 py-3">
+                                        <div class="flex flex-col">
+                                            <span>Inverter</span>
+                                            <span>Size</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3">
+                                        <div class="flex flex-col">
+                                            <span>SOC (Current /</span>
+                                            <span>Total)</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3">Service Tag</th>
+                                    <th class="px-6 py-3">
+                                        <div class="flex flex-col">
+                                            <span>Number of Events</span>
+                                            <span>Triggered</span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3">Active Status</th>
+                                    <th class="px-6 py-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${groups.length > 0 ? groups.map(group => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-gray-900 font-medium">${group.name}</td>
+                                        <td class="px-6 py-4 text-gray-900">${group.onlineDers}/${group.totalDers}</td>
+                                        <td class="px-6 py-4 text-gray-900">${group.state}</td>
+                                        <td class="px-6 py-4 text-gray-900">${group.inverterSize}</td>
+                                        <td class="px-6 py-4 text-gray-900">${group.currentSoc} / ${group.totalSoc}</td>
+                                        <td class="px-6 py-4 text-gray-900">${group.serviceTag}</td>
+                                        <td class="px-6 py-4 text-gray-900">${group.eventsTriggered || ''}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-sm text-gray-500">${group.active ? 'Active' : 'Inactive'}</span>
+                                                <button class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${group.active ? 'bg-manta-primary' : 'bg-gray-200'}">
+                                                    <span class="translate-x-0.5 inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${group.active ? 'translate-x-4.5' : 'translate-x-0.5'}"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
+                                                    <i data-lucide="square-pen" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Add">
+                                                    <i data-lucide="plus-square" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Download">
+                                                    <i data-lucide="file-down" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Report">
+                                                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">No FCAS groups found</td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                     <!-- Pagination Bottom -->
+                    <div class="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-4">
+                        <span class="text-sm text-gray-500">Total ${total}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1;
+                                return `<button onclick="app.updateFcasGroupsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            
+                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+    },
+
+    updateFcasGroupsState(key, value) {
+        state.fcasGroups[key] = value;
+        if (key === 'currentPage' || key === 'state' || key === 'active') {
+            this.renderFcasGroups(document.getElementById('content-area'));
+        }
+    },
+
+    renderFcasPriceAvailability(container) {
+        const { region, direction, date, bids: bidsState } = state.fcasPriceAvailability;
+        const stats = MOCK_DATA.fcasData.stats;
+        const forecast30min = MOCK_DATA.fcasData.forecast30min;
+        
+        // Filter bids
+        const allBids = MOCK_DATA.fcasData.bids;
+        const filteredBids = allBids.filter(bid => {
+            return bidsState.serviceType === 'All' || bid.serviceType === bidsState.serviceType;
+        });
+
+        const totalBids = filteredBids.length;
+        const totalPages = Math.ceil(totalBids / 10);
+        const startIdx = (bidsState.currentPage - 1) * 10;
+        const currentBids = filteredBids.slice(startIdx, startIdx + 10);
+
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
+                <!-- Header Controls -->
+                <div class="flex flex-col gap-4">
+                    <h2 class="text-xl font-bold text-gray-900">Price and Availability</h2>
+                    
+                    <!-- Region Selector -->
+                    <div class="flex items-center gap-2">
+                         ${['SA', 'VIC', 'NSW', 'QLD'].map(r => `
+                            <button onclick="app.updateFcasPriceAvailabilityState('region', '${r}')" 
+                                class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${region === r ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                                ${r}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <!-- Direction Selector -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                             <button onclick="app.updateFcasPriceAvailabilityState('direction', 'Raise')" 
+                                class="px-6 py-1.5 rounded-full text-sm font-medium transition-colors ${direction === 'Raise' ? 'bg-green-600 text-white' : 'text-gray-500 hover:text-gray-700'}">
+                                Raise
+                            </button>
+                            <button onclick="app.updateFcasPriceAvailabilityState('direction', 'Lower')" 
+                                class="px-6 py-1.5 rounded-full text-sm font-medium transition-colors ${direction === 'Lower' ? 'bg-green-600 text-white' : 'text-gray-500 hover:text-gray-700'}">
+                                Lower
+                            </button>
+                        </div>
+
+                        <!-- Date Picker -->
+                        <div class="flex items-center gap-2">
+                             <span class="text-gray-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i> Historical</span>
+                             <button class="p-1 text-gray-400 hover:text-gray-600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                             <div class="bg-white border border-gray-200 rounded px-3 py-1 text-sm font-medium text-gray-700">
+                                ${date}
+                             </div>
+                             <button class="p-1 text-gray-400 hover:text-gray-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics Row -->
+                <div class="grid grid-cols-6 gap-4 text-center">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500">Current Raise Price (60Sec)</span>
+                        <span class="text-lg font-bold text-gray-900">$${stats.current.raise60s} <span class="text-xs font-normal text-gray-400">(/MWh)</span></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500">Current Raise Price (5Min)</span>
+                        <span class="text-lg font-bold text-gray-900">$${stats.current.raise5min} <span class="text-xs font-normal text-gray-400">(/MWh)</span></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500">Current Raise Availability</span>
+                        <span class="text-lg font-bold text-yellow-500">${stats.current.raiseAvail} <span class="text-xs font-normal text-gray-400">(MW)</span></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500">Forecast Raise Price (60Sec)</span>
+                        <span class="text-lg font-bold text-gray-900">$${stats.forecast.raise60s} <span class="text-xs font-normal text-gray-400">(/MWh)</span></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500">Forecast Raise Price (5Min)</span>
+                        <span class="text-lg font-bold text-gray-900">$${stats.forecast.raise5min} <span class="text-xs font-normal text-gray-400">(/MWh)</span></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500">Forecast Raise Availability</span>
+                        <span class="text-lg font-bold text-gray-900">${stats.forecast.raiseAvail} <span class="text-xs font-normal text-gray-400">(MW)</span></span>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm min-h-[400px] flex flex-col">
+                     <div id="fcas-chart" class="w-full flex-1"></div>
+                </div>
+
+                <!-- 30min Forecast Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                        <h3 class="font-medium text-gray-700">30min Forecast</h3>
+                    </div>
+                    <div class="p-4 overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <tbody class="divide-y divide-gray-100">
+                                ${forecast30min.map(row => `
+                                    <tr>
+                                        <td class="py-3 font-medium text-gray-600 pr-4 whitespace-nowrap">${row.label}</td>
+                                        ${row.values.map(val => `
+                                            <td class="px-4 py-3 text-gray-900 text-center">${val}</td>
+                                        `).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- FCAS Bids Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col mt-4">
+                    <div class="p-6 border-b border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">FCAS Bids</h3>
+                        
+                        <div class="flex items-end gap-4">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Trading Period</label>
+                                <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
+                                    <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+                                    <input type="text" placeholder="Start Time" class="w-full text-sm outline-none">
+                                    <span class="text-gray-400">to</span>
+                                    <input type="text" placeholder="End Time" class="w-full text-sm outline-none">
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Service Type</label>
+                                <select onchange="app.updateFcasPriceAvailabilityState('bids.serviceType', this.value)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+                                    <option value="All" ${bidsState.serviceType === 'All' ? 'selected' : ''}>All</option>
+                                    <option value="Raise 6 sec" ${bidsState.serviceType === 'Raise 6 sec' ? 'selected' : ''}>Raise 6 sec</option>
+                                    <option value="Raise 60 sec" ${bidsState.serviceType === 'Raise 60 sec' ? 'selected' : ''}>Raise 60 sec</option>
+                                    <option value="Raise 5 min" ${bidsState.serviceType === 'Raise 5 min' ? 'selected' : ''}>Raise 5 min</option>
+                                </select>
+                            </div>
+                            <button onclick="app.renderFcasPriceAvailability(document.getElementById('content-area'))" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                                Search
+                            </button>
+                            <div class="flex-1 flex justify-end">
+                                <button class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                                    Create an Event
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bids Table -->
+                    <div class="flex-1 overflow-auto min-h-[200px]">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3">Trading Period</th>
+                                    <th class="px-6 py-3">DUID</th>
+                                    <th class="px-6 py-3">Service Type</th>
+                                    <th class="px-6 py-3">Max Availability</th>
+                                    <th class="px-6 py-3">Submission Date</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Total Settlement</th>
+                                    <th class="px-6 py-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${currentBids.length > 0 ? currentBids.map(bid => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-gray-900">${bid.tradingPeriod}</td>
+                                        <td class="px-6 py-4 text-gray-900">${bid.duid}</td>
+                                        <td class="px-6 py-4 text-gray-900">${bid.serviceType}</td>
+                                        <td class="px-6 py-4 text-gray-900">${bid.maxAvailability}</td>
+                                        <td class="px-6 py-4 text-gray-900">${bid.submissionDate}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium ${bid.status === 'Cleared' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                                                ${bid.status}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-900">${bid.totalSettlement}</td>
+                                        <td class="px-6 py-4 text-right">
+                                            <button class="text-gray-400 hover:text-green-600 transition-colors">
+                                                <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="8" class="py-12 text-center text-gray-500">
+                                            No Data
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-4">
+                        <span class="text-sm text-gray-500">Total ${totalBids}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${bidsState.currentPage - 1})" ${bidsState.currentPage <= 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1;
+                                return `<button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === bidsState.currentPage ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            
+                            <button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${bidsState.currentPage + 1})" ${bidsState.currentPage >= totalPages ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+        
+        this.initFcasChart(MOCK_DATA.fcasData.chartData);
+    },
+
+    initFcasChart(data) {
+        const chartDom = document.getElementById('fcas-chart');
+        if (!chartDom) return;
+        
+        const myChart = echarts.init(chartDom);
+        const option = {
+            grid: {
+                top: 40,
+                right: 40,
+                bottom: 20,
+                left: 40,
+                containLabel: true
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'cross' }
+            },
+            xAxis: {
+                type: 'category',
+                data: data.map(item => item.time),
+                axisLine: { show: false },
+                axisTick: { show: false },
+                axisLabel: { color: '#9CA3AF', interval: 5 } // Show every 6th label (1 hour)
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Price ($/MWh)',
+                    position: 'left',
+                    splitLine: { lineStyle: { type: 'dashed' } },
+                    axisLabel: { color: '#9CA3AF' }
+                },
+                {
+                    type: 'value',
+                    name: 'Capacity (MW)',
+                    position: 'right',
+                    splitLine: { show: false },
+                    axisLabel: { color: '#9CA3AF' }
+                }
+            ],
+            series: [
+                {
+                    name: 'Price',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    data: data.map(item => item.price),
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: { color: '#EAB308', width: 2 } // Yellow/Orange
+                },
+                {
+                    name: 'Capacity',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: data.map(item => item.capacity),
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: { color: '#22C55E', width: 2 }, // Green
+                    areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset: 0, color: '#22C55E66'}, {offset: 1, color: '#22C55E00'}]) }
+                }
+            ]
+        };
+        
+        myChart.setOption(option);
+        window.addEventListener('resize', () => myChart.resize());
+    },
+
+    updateFcasState(key, value) {
+        state.fcasPriceAvailability[key] = value;
+        this.renderFcasPriceAvailability(document.getElementById('content-area'));
+    },
+
+    renderReportsVppEvents(container) {
+        const events = MOCK_DATA.reportsVppEvents;
+        const total = 15295; // From screenshot
+        
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
+                <!-- Filters Section -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-end gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
+                            <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+                                <input type="text" placeholder="-" class="w-full text-sm outline-none bg-transparent">
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option>All</option>
+                                <option>Success</option>
+                                <option>Partially Success</option>
+                                <option>Failed</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option>All</option>
+                                <option>Discharge</option>
+                                <option>Charge</option>
+                            </select>
+                        </div>
+                         <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                            <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
+                        </div>
+                        <button class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+                     <div class="flex items-center justify-end px-6 py-4 gap-4 border-b border-gray-100">
+                         <span class="text-sm text-gray-500">Total ${total}</span>
+                         
+                         <!-- Pagination Controls -->
+                         <div class="flex items-center gap-2 text-sm">
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            <span class="font-medium text-green-600 w-6 text-center">1</span>
+                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">2</span>
+                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">3</span>
+                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">4</span>
+                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">5</span>
+                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">6</span>
+                            <span class="text-gray-400">...</span>
+                            <span class="text-gray-600 w-8 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">765</span>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                         </div>
+                         
+                         <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
+                             <span>Go to</span>
+                             <input type="text" value="1" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                         </div>
+                     </div>
+
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-4 w-16"></th>
+                                    <th class="px-6 py-4">VPP Name</th>
+                                    <th class="px-6 py-4">Event Type</th>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Start Time - End Time</th>
+                                    <th class="px-6 py-4">Power</th>
+                                    <th class="px-6 py-4">Spot Price</th>
+                                    <th class="px-6 py-4">Volume</th>
+                                    <th class="px-6 py-4">VPP Income</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 w-64">Notes</th>
+                                    <th class="px-6 py-4">Service Tag</th>
+                                    <th class="px-6 py-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${events.map((event, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors group">
+                                        <td class="px-6 py-4 text-gray-500">${event.id}</td>
+                                        <td class="px-6 py-4">
+                                            <a href="#" class="text-blue-500 hover:text-blue-700 font-medium">${event.vppName}</a>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-600">${event.eventType}</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.date}</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.timeRange}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.power}</td>
+                                        <td class="px-6 py-4 text-gray-900 font-medium">${event.spotPrice}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.volume}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.vppIncome}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="${
+                                                event.status === 'Success' ? 'text-green-600' : 
+                                                event.status === 'Partially Success' ? 'text-orange-500' : 'text-red-500'
+                                            } font-medium block w-max">
+                                                ${event.status}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-500 text-xs leading-relaxed">${event.notes}</td>
+                                        <td class="px-6 py-4 text-gray-500">${event.serviceTag}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
+                                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+    },
+
+    renderReportsDerEvents(container) {
+        const events = MOCK_DATA.reportsDerEvents;
+        const total = 795202; // From screenshot
+        
+        container.innerHTML = `
+            <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
+                <!-- Filters Section -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex items-end gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
+                            <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+                                <input type="text" placeholder="-" class="w-full text-sm outline-none bg-transparent">
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option>All</option>
+                                <option>Discharge</option>
+                                <option>Charge</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option>All</option>
+                                <option>Completed</option>
+                                <option>Failed</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">From</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                <option>All</option>
+                                <option>User</option>
+                                <option>System</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">SN</label>
+                            <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
+                        </div>
+                        <button class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                         <button class="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
+                             Export
+                         </button>
+                         
+                         <div class="flex items-center gap-4">
+                             <span class="text-sm text-gray-500">Total ${total}</span>
+                             
+                             <!-- Pagination Controls -->
+                             <div class="flex items-center gap-2 text-sm">
+                                <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </button>
+                                <span class="font-medium text-green-600 w-6 text-center">1</span>
+                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">2</span>
+                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">3</span>
+                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">4</span>
+                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">5</span>
+                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">6</span>
+                                <span class="text-gray-400">...</span>
+                                <span class="text-gray-600 w-12 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">39761</span>
+                                <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                             </div>
+                             
+                             <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
+                                 <span>Go to</span>
+                                 <input type="text" value="1" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                             </div>
+                         </div>
+                     </div>
+
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-4 w-16"></th>
+                                    <th class="px-6 py-4">SN</th>
+                                    <th class="px-6 py-4">Event Type</th>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Start Time - End Time</th>
+                                    <th class="px-6 py-4">From</th>
+                                    <th class="px-6 py-4">Power</th>
+                                    <th class="px-6 py-4">Spot Price</th>
+                                    <th class="px-6 py-4">Volume</th>
+                                    <th class="px-6 py-4">VPP Income</th>
+                                    <th class="px-6 py-4 w-64">Notes</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${events.map((event, idx) => `
+                                    <tr class="hover:bg-gray-50 transition-colors group">
+                                        <td class="px-6 py-4 text-gray-500">${event.id}</td>
+                                        <td class="px-6 py-4">
+                                            <a href="#" class="text-blue-500 hover:text-blue-700 font-medium">${event.sn}</a>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-600">${event.eventType}</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.date}</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.timeRange}</td>
+                                        <td class="px-6 py-4 text-gray-600">${event.from}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.power}</td>
+                                        <td class="px-6 py-4 text-gray-900 font-medium">${event.spotPrice}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.volume}</td>
+                                        <td class="px-6 py-4 text-gray-900">${event.vppIncome}</td>
+                                        <td class="px-6 py-4 text-gray-500 text-xs leading-relaxed">${event.notes}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-gray-900 font-medium block w-max">
+                                                ${event.status}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
+                                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        lucide.createIcons({
+            root: container
+        });
+    },
+
+    initCapGraphChart(data) {
+        const chartDom = document.getElementById('cap-graph-chart');
+        if (!chartDom) return;
+        
+        const myChart = echarts.init(chartDom);
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'cross' }
+            },
+            legend: {
+                data: ['Available capacity', 'SOC'],
+                top: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: data.map(item => item.time),
+                axisLine: { lineStyle: { color: '#9CA3AF' } },
+                axisLabel: { color: '#6B7280' }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'kWh',
+                    position: 'left',
+                    axisLine: { show: true, lineStyle: { color: '#9CA3AF' } },
+                    axisLabel: { color: '#6B7280' },
+                    splitLine: { lineStyle: { type: 'dashed', color: '#E5E7EB' } }
+                },
+                {
+                    type: 'value',
+                    name: '%',
+                    min: 0,
+                    max: 100,
+                    position: 'right',
+                    axisLine: { show: true, lineStyle: { color: '#9CA3AF' } },
+                    axisLabel: { color: '#6B7280' },
+                    splitLine: { show: false }
+                }
+            ],
+            series: [
+                {
+                    name: 'Available capacity',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(250, 204, 21, 0.5)' },
+                            { offset: 1, color: 'rgba(250, 204, 21, 0.1)' }
+                        ])
+                    },
+                    lineStyle: { color: '#FACC15', width: 0 },
+                    itemStyle: { color: '#FACC15' },
+                    data: data.map(item => item.capacity)
+                },
+                {
+                    name: 'SOC',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    smooth: true,
+                    symbol: 'none',
+                    lineStyle: { color: '#EAB308', width: 2 },
+                    itemStyle: { color: '#EAB308' },
+                    data: data.map(item => item.soc)
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+        
+        // Handle Resize
+        window.addEventListener('resize', () => myChart.resize());
+        
+        // Cleanup on destroy if needed (though app structure is simple here)
+    },
+
+    updateCapGraphState(key, value) {
+        state.capGraph[key] = value;
+        this.renderCapGraph(document.getElementById('content-area'));
     },
 
     renderPlaceholder(container, title) {
@@ -585,7 +2744,21 @@ const app = {
         },
 
     renderSmartFeedInRules(container) {
-        const rules = MOCK_DATA.smartFeedInRules;
+        const { state: stateFilter, vppName, currentPage } = state.smartFeedInRules;
+        
+        // Filter logic
+        let filteredRules = MOCK_DATA.smartFeedInRules.filter(rule => {
+            const matchState = stateFilter === 'All' || rule.state === stateFilter;
+            const matchVppName = !vppName || rule.vppName.toLowerCase().includes(vppName.toLowerCase());
+            return matchState && matchVppName;
+        });
+
+        const total = filteredRules.length;
+        const totalPages = Math.ceil(total / 10);
+        
+        // Pagination logic
+        const startIdx = (currentPage - 1) * 10;
+        const rules = filteredRules.slice(startIdx, startIdx + 10);
         
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
@@ -631,19 +2804,19 @@ const app = {
                     <div class="flex flex-wrap items-end gap-4">
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
-                            <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
-                                <option>All</option>
-                                <option>NSW</option>
-                                <option>VIC</option>
-                                <option>QLD</option>
-                                <option>SA</option>
+                            <select onchange="app.updateSmartFeedInState('smartFeedInRules.state', this.value)" class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
+                                <option value="All" ${stateFilter === 'All' ? 'selected' : ''}>All</option>
+                                <option value="NSW" ${stateFilter === 'NSW' ? 'selected' : ''}>NSW</option>
+                                <option value="VIC" ${stateFilter === 'VIC' ? 'selected' : ''}>VIC</option>
+                                <option value="QLD" ${stateFilter === 'QLD' ? 'selected' : ''}>QLD</option>
+                                <option value="SA" ${stateFilter === 'SA' ? 'selected' : ''}>SA</option>
                             </select>
                         </div>
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
-                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
+                            <input type="text" value="${vppName}" oninput="app.updateSmartFeedInState('smartFeedInRules.vppName', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
                         </div>
-                        <button class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                        <button onclick="app.renderSmartFeedInRules(document.getElementById('content-area'))" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
                             Search
                         </button>
                     </div>
@@ -675,12 +2848,12 @@ const app = {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                ${rules.map((rule, idx) => `
+                                ${rules.length > 0 ? rules.map((rule, idx) => `
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
+                                        <td class="px-6 py-4 text-center text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.state}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.triggerTime}</td>
-                                        <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${rule.triggerPrice.toFixed(2)} /MWh</td>
+                                        <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${typeof rule.triggerPrice === 'number' ? rule.triggerPrice.toFixed(2) : rule.triggerPrice} /MWh</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.socReserve}%</td>
                                         <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${rule.vppName}</td>
                                         <td class="px-6 py-4 text-gray-500">${rule.lastModified}</td>
@@ -708,20 +2881,27 @@ const app = {
                                             </div>
                                         </td>
                                     </tr>
-                                `).join('')}
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="10" class="px-6 py-12 text-center text-gray-500">No rules found matching your criteria</td>
+                                    </tr>
+                                `}
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Pagination -->
                     <div class="border-t border-gray-100 p-4 flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Total ${rules.length}</span>
+                        <span class="text-sm text-gray-500">Total ${total}</span>
                         <div class="flex items-center gap-2">
-                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50" disabled>
+                            <button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            <span class="text-sm font-medium text-gray-900">1</span>
-                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                                const pageNum = i + 1;
+                                return `<button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                         </div>
@@ -732,6 +2912,9 @@ const app = {
         
         // Start monitoring simulation
         this.startSmartFeedInSimulation();
+        lucide.createIcons({
+            root: container
+        });
     },
 
     renderSmartFeedInEvents(container) {

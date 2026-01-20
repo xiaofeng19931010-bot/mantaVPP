@@ -98,7 +98,7 @@
     </style>
     
     <!-- ECharts for Data Visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="lib/echarts.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -187,10 +187,91 @@
                 </div>
             </div>
 
-            <a href="#" id="nav-cap_service" class="nav-item flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group border-r-4 border-transparent" onclick="app.navigate('cap_service')">
-                <i data-lucide="shield" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                <span class="font-medium">Cap Service</span>
-            </a>
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('cap-service-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="shield" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Cap Service</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="cap-service-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-cap_graph" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('cap_graph')">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Cap Graph</span>
+                    </a>
+                    
+                    <a href="#" id="nav-cap_rules" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('cap_rules')">
+                        <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Cap Rules</span>
+                    </a>
+
+                    <a href="#" id="nav-cap_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('cap_events')">
+                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Cap Events</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('fcas-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="radio" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">FCAS</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="fcas-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-fcas_groups" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('fcas_groups')">
+                        <i data-lucide="layers" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">FCAS Groups</span>
+                    </a>
+                    
+                    <a href="#" id="nav-fcas_price_availability" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('fcas_price_availability')">
+                        <i data-lucide="dollar-sign" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Price and Availability</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('reports-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-bar-chart" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Reports</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="reports-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-reports_vpp_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_vpp_events')">
+                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">VPP Events</span>
+                    </a>
+                    
+                    <a href="#" id="nav-reports_der_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_der_events')">
+                        <i data-lucide="zap" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">DER Events</span>
+                    </a>
+                    
+                    <a href="#" id="nav-reports_vpp_event_items" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_vpp_event_items')">
+                        <i data-lucide="list" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">VPP Event Items</span>
+                    </a>
+                    
+                    <a href="#" id="nav-reports_vpp_event_month_summary" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_vpp_event_month_summary')">
+                        <i data-lucide="calendar" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">VPP Event Month Summary</span>
+                    </a>
+                    
+                    <a href="#" id="nav-reports_terminated" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_terminated')">
+                        <i data-lucide="x-circle" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">Terminated</span>
+                    </a>
+                </div>
+            </div>
             
             <div class="group">
                 <a href="#" onclick="app.toggleSubmenu('system-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
