@@ -1,5 +1,5 @@
 {
-  "name": "manta-vpp",
+  "name": "mantaMGT",
   "version": "1.0.0",
   "description": "Manta VPP Management Web Interface",
   "scripts": {

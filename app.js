@@ -675,6 +675,7 @@ const state = {
     systems: [], // Initialize systems array
     selectedVppId: null,
     vppDeviceTab: 'assigned', // assigned or discovery
+    vppDetailsTab: 'der-list', // der-list or event-list
     assignedSearchQuery: '',
     discoverySearchQuery: '',
     isSuperAdmin: true, // Default to true to simulate an admin user
@@ -1067,6 +1068,7 @@ const app = {
         } else if (viewName === 'vpp') {
             this.renderVPP(contentArea);
         } else if (viewName === 'vpp_details') {
+            state.vppDetailsTab = 'der-list';
             this.renderVPPDetails(contentArea, params.id);
         } else if (viewName === 'device_management') {
             this.renderDeviceManagement(contentArea);
@@ -4054,6 +4056,12 @@ const app = {
         );
     },
 
+    toggleSubVPPViewMode(mode) {
+        state.subVPPViewMode = mode;
+        this.renderDeviceManagement(document.getElementById('content-area'));
+        lucide.createIcons();
+    },
+
     renderDeviceManagement(container) {
         if (!state.cloudBound) {
             // Empty State - Bind Cloud Platform
@@ -4072,160 +4080,219 @@ const app = {
                 </div>
             `;
         } else {
-            // System List (Card View)
+            // System List
             container.className = "flex-1 flex flex-col gap-4 h-full overflow-hidden p-8";
             
             const systems = state.systems || [];
+
+            // Ensure subVPPViewMode is set
+            if (!state.subVPPViewMode) state.subVPPViewMode = 'card';
+            const isCardView = state.subVPPViewMode === 'card';
+
+            // Pre-calculate stats for all systems
+            const systemsWithStats = systems.map(sys => {
+                let iconName = 'cloud';
+                if (sys.type === 'SCADA') iconName = 'database';
+                if (sys.type === 'Edge') iconName = 'cpu';
+
+                const sysDevices = (state.devices || []).filter(d => d.vendor === sys.vendor);
+                const invs = sysDevices.filter(d => d.type === 'Inverter');
+                const bats = sysDevices.filter(d => d.type === 'Battery');
+                
+                const isConnecting = (sys.status || '').toLowerCase() === 'connecting';
+                
+                const stats = isConnecting ? {
+                    inv: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0, pvCapacity: 0 },
+                    bat: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0, currentEnergy: 0, socPercentage: 0 }
+                } : {
+                    inv: {
+                        total: invs.length,
+                        online: invs.filter(d => d.status === 'online').length,
+                        offline: invs.filter(d => d.status === 'offline').length,
+                        cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                        pvCapacity: invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0).toFixed(1),
+                        onlineCap: invs.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
+                        offlineCap: invs.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
+                    },
+                    bat: {
+                        total: bats.length,
+                        online: bats.filter(d => d.status === 'online').length,
+                        offline: bats.filter(d => d.status === 'offline').length,
+                        cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                        currentEnergy: bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0),
+                        onlineCap: bats.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
+                        offlineCap: bats.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
+                    }
+                };
+                
+                if (!isConnecting) {
+                    stats.bat.socPercentage = stats.bat.cap > 0 ? Math.round((stats.bat.currentEnergy / stats.bat.cap) * 100) : 0;
+                }
+
+                const getStatusConfig = (s) => {
+                    const status = (s || '').toLowerCase();
+                    if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
+                    if (status === 'connected' || status === 'online') return { color: 'bg-manta-primary', text: 'Connected' };
+                    return { color: 'bg-gray-400', text: 'Disconnected' };
+                };
+                const statusConfig = getStatusConfig(sys.status);
+                const isDisconnected = (sys.status || '').toLowerCase() === 'disconnected';
+                const onclickAttr = isConnecting ? '' : `onclick="app.navigate('system_details', { id: ${sys.id} })"`;
+                const cursorClass = isConnecting ? 'cursor-default' : 'cursor-pointer';
+
+                return { sys, sysDevices, stats, statusConfig, isDisconnected, onclickAttr, cursorClass };
+            });
 
             container.innerHTML = `
                 <!-- System List -->
                 <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                     <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
-                        <h2 class="text-xl font-bold text-gray-900 pl-2">Sub-VPP List</h2>
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-xl font-bold text-gray-900 pl-2">Sub-VPP List</h2>
+                            <button onclick="app.toggleSubVPPViewMode('${isCardView ? 'list' : 'card'}')" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all border border-gray-200 shadow-sm" title="${isCardView ? 'Switch to List View' : 'Switch to Card View'}">
+                                <i data-lucide="${isCardView ? 'list' : 'layout-grid'}" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                         <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             <span>New</span>
                         </button>
                     </div>
                     
-                    <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
-                        ${systems.map(sys => {
-                            let iconName = 'cloud';
-                            if (sys.type === 'SCADA') iconName = 'database';
-                            if (sys.type === 'Edge') iconName = 'cpu';
-
-                            const sysDevices = (state.devices || []).filter(d => d.vendor === sys.vendor);
-                            const invs = sysDevices.filter(d => d.type === 'Inverter');
-                            const bats = sysDevices.filter(d => d.type === 'Battery');
-                            
-                            const isConnecting = (sys.status || '').toLowerCase() === 'connecting';
-                            
-                            const stats = isConnecting ? {
-                                inv: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0 },
-                                bat: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0 }
-                            } : {
-                                inv: {
-                                    total: invs.length,
-                                    online: invs.filter(d => d.status === 'online').length,
-                                    offline: invs.filter(d => d.status === 'offline').length,
-                                    cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
-                                    onlineCap: invs.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
-                                    offlineCap: invs.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
-                                },
-                                bat: {
-                                    total: bats.length,
-                                    online: bats.filter(d => d.status === 'online').length,
-                                    offline: bats.filter(d => d.status === 'offline').length,
-                                    cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
-                                    onlineCap: bats.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
-                                    offlineCap: bats.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
-                                }
-                            };
-
-                            const getStatusConfig = (s) => {
-                                const status = (s || '').toLowerCase();
-                                if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
-                                if (status === 'connected' || status === 'online') return { color: 'bg-manta-primary', text: 'Connected' };
-                                return { color: 'bg-gray-400', text: 'Disconnected' };
-                            };
-                            const statusConfig = getStatusConfig(sys.status);
-                            const isDisconnected = (sys.status || '').toLowerCase() === 'disconnected';
-                            const onclickAttr = isConnecting ? '' : `onclick="app.navigate('system_details', { id: ${sys.id} })"`;
-                            const cursorClass = isConnecting ? 'cursor-default' : 'cursor-pointer';
-
-                            return `
-                            <div ${onclickAttr} class="group bg-white p-3 rounded-xl ${cursorClass} border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
-                                <div class="absolute top-3 right-3 z-20">
-                                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 ${!isDisconnected ? 'group-hover:hidden' : ''} transition-all duration-200">
-                                        <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
-                                        <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                    ${isCardView ? `
+                        <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
+                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, onclickAttr, cursorClass }) => `
+                                <div ${onclickAttr} class="group bg-white p-3 rounded-xl ${cursorClass} border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
+                                    <div class="absolute top-3 right-3 z-20">
+                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 ${!isDisconnected ? 'group-hover:hidden' : ''} transition-all duration-200">
+                                            <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
+                                            <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
+                                        </div>
+                                        ${!isDisconnected ? `
+                                        <button onclick="app.disconnectSystem(${sys.id}, event)" class="hidden group-hover:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all duration-200 shadow-sm">
+                                            <i data-lucide="unlink" class="w-3 h-3"></i>
+                                            <span class="text-[10px] font-medium uppercase tracking-wider">Disconnect</span>
+                                        </button>
+                                        ` : ''}
                                     </div>
-                                    ${!isDisconnected ? `
-                                    <button onclick="app.disconnectSystem(${sys.id}, event)" class="hidden group-hover:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all duration-200 shadow-sm">
-                                        <i data-lucide="unlink" class="w-3 h-3"></i>
-                                        <span class="text-[10px] font-medium uppercase tracking-wider">Disconnect</span>
-                                    </button>
-                                    ` : ''}
-                                </div>
 
-                                <!-- Header Section -->
-                                <div class="flex justify-between items-start mb-3">
-                                    <div>
-                                        <div class="flex items-center gap-2 mb-2 pr-20">
-                                            <h3 class="font-bold text-gray-900 transition-colors line-clamp-1">${sys.name}</h3>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">${sys.type}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Stats Grid -->
-                                <div class="grid grid-cols-2 gap-2 text-xs mt-auto">
-                                    <!-- Inverters Panel -->
-                                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100 group-hover:border-gray-200 transition-colors">
-                                        <div class="flex items-center gap-1.5 text-gray-500 font-medium mb-2 pb-2 border-b border-gray-200">
-                                            <i data-lucide="zap" class="w-3 h-3 text-manta-primary"></i>
-                                            <span>Inverters</span>
-                                        </div>
-                                        <div class="space-y-1.5">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-400">Total</span>
-                                                <span class="text-gray-700 font-mono text-[11px]">${stats.inv.total} <span class="text-gray-300">|</span> ${stats.inv.cap}kW</span>
+                                    <!-- Header Section -->
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-2 pr-20">
+                                                <h3 class="font-bold text-gray-900 transition-colors line-clamp-1">${sys.name}</h3>
                                             </div>
-                                            <div class="space-y-1 pt-1 border-t border-gray-200">
-                                                <div class="flex justify-between items-center">
-                                                    <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-manta-primary"></div>
-                                                        <span class="text-gray-400 text-[10px]">Online</span>
-                                                    </div>
-                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.inv.online} <span class="text-gray-300">/</span> ${stats.inv.onlineCap}kW</span>
-                                                </div>
-                                                <div class="flex justify-between items-center">
-                                                    <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                                                        <span class="text-gray-400 text-[10px]">Offline</span>
-                                                    </div>
-                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.inv.offline} <span class="text-gray-300">/</span> ${stats.inv.offlineCap}kW</span>
-                                                </div>
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">${sys.type}</p>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Batteries Panel -->
-                                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100 group-hover:border-gray-200 transition-colors">
-                                        <div class="flex items-center gap-1.5 text-gray-500 font-medium mb-2 pb-2 border-b border-gray-200">
-                                            <i data-lucide="battery" class="w-3 h-3 text-blue-500"></i>
-                                            <span>Batteries</span>
-                                        </div>
-                                        <div class="space-y-1.5">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-gray-400">Total</span>
-                                                <span class="text-gray-700 font-mono text-[11px]">${stats.bat.total} <span class="text-gray-300">|</span> ${stats.bat.cap}kWh</span>
+                                    
+                                    <!-- Stats Grid -->
+                                    <div class="flex flex-col gap-2 text-xs mt-auto">
+                                        <!-- Group 1: Device Status -->
+                                        <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-3 gap-2 group-hover:border-gray-300 transition-colors">
+                                            <!-- DERs Total -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                                <span class="text-gray-500 text-[10px] scale-90">DERs</span>
+                                                <span class="font-mono font-medium text-gray-900">${sysDevices.length}</span>
                                             </div>
-                                            <div class="space-y-1 pt-1 border-t border-gray-200">
-                                                <div class="flex justify-between items-center">
-                                                    <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-manta-primary"></div>
-                                                        <span class="text-gray-400 text-[10px]">Online</span>
-                                                    </div>
-                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.bat.online} <span class="text-gray-300">/</span> ${stats.bat.onlineCap}kWh</span>
-                                                </div>
-                                                <div class="flex justify-between items-center">
-                                                    <div class="flex items-center gap-1.5">
-                                                        <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                                                        <span class="text-gray-400 text-[10px]">Offline</span>
-                                                    </div>
-                                                    <span class="text-gray-600 font-mono text-[10px]">${stats.bat.offline} <span class="text-gray-300">/</span> ${stats.bat.offlineCap}kWh</span>
-                                                </div>
+                                            <!-- Online -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                                <span class="text-gray-500 text-[10px] scale-90">Online</span>
+                                                <span class="font-mono font-medium text-green-600">${stats.inv.online + stats.bat.online}</span>
+                                            </div>
+                                            <!-- Offline -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                                <span class="text-gray-500 text-[10px] scale-90">Offline</span>
+                                                <span class="font-mono font-medium text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Group 2: Energy Stats -->
+                                        <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-3 gap-2 group-hover:border-gray-300 transition-colors">
+                                            <!-- Inv Power -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                                <span class="text-gray-500 text-[10px] scale-90">Rated Power</span>
+                                                <span class="font-mono font-medium text-gray-900">${stats.inv.cap} kW</span>
+                                            </div>
+                                            <!-- PV Capacity -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                                <span class="text-gray-500 text-[10px] scale-90">PV Capacity</span>
+                                                <span class="font-mono font-medium text-gray-900">${stats.inv.pvCapacity} kW</span>
+                                            </div>
+                                            <!-- SOC -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                                <span class="text-gray-500 text-[10px] scale-90">SOC</span>
+                                                <span class="font-mono font-medium text-gray-900 text-[10px]">${stats.bat.socPercentage}% (${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)}kWh)</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="flex-1 overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-gray-50 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Name</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Type</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Rated Power</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">PV Capacity</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">SOC</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected }) => `
+                                            <tr class="group hover:bg-gray-50 transition-colors">
+                                                <td class="py-3 px-4">
+                                                    <div class="font-medium text-gray-900">${sys.name}</div>
+                                                </td>
+                                                <td class="py-3 px-4">
+                                                    <div class="text-sm text-gray-500">${sys.type}</div>
+                                                </td>
+                                                <td class="py-3 px-4">
+                                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${statusConfig.color} text-white">
+                                                        ${statusConfig.text}
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <div class="text-sm text-gray-900">${sysDevices.length}</div>
+                                                </td>
+                                                <td class="py-3 px-4 text-right">
+                                                    <div class="text-sm text-gray-900 font-mono">${stats.inv.cap} kW</div>
+                                                </td>
+                                                <td class="py-3 px-4 text-right">
+                                                    <div class="text-sm text-gray-900 font-mono">${stats.inv.pvCapacity} kW</div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <div class="text-sm text-gray-900 font-mono">${stats.bat.socPercentage}%</div>
+                                                    <div class="text-[10px] text-gray-500">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)} kWh)</div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <div class="flex items-center justify-center gap-2">
+                                                        <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                                        </button>
+                                                        ${!isDisconnected ? `
+                                                        <button onclick="app.disconnectSystem(${sys.id}, event)" class="text-gray-400 hover:text-red-600 transition-colors">
+                                                            <i data-lucide="unlink" class="w-4 h-4"></i>
+                                                        </button>
+                                                        ` : ''}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
                             </div>
-                            `;
-                        }).join('')}
-                    </div>
+                        </div>
+                    `}
                 </div>
             `;
         }
@@ -4261,23 +4328,27 @@ const app = {
         const offlineDevices = totalDevices - onlineDevices;
         const totalCapacity = devices.reduce((sum, d) => sum + (d.capacity || 0), 0);
 
-        // Summary Cards
-        const summary = document.createElement('div');
-        summary.className = 'grid grid-cols-1 md:grid-cols-4 gap-4';
+        // Summary Section
+        // Details Card
+        const detailsCard = document.createElement('div');
+        detailsCard.className = 'bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4 flex items-center gap-4';
         
         // Mock Credentials (retrieved from system or random mock if missing)
         const appKey = system.credentials?.appKey || 'manta_cloud_1';
         const appSecret = system.credentials?.appSecret || 'sec_cloud_1';
 
-        summary.innerHTML = `
-            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl flex flex-col justify-center gap-2 h-full">
-                <div class="flex items-center gap-2">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-wider w-16">Type:</span>
-                    <span class="text-sm text-gray-900 font-mono font-medium">${system.type}</span>
+        detailsCard.innerHTML = `
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Type -->
+                <div class="flex items-center gap-2 min-w-0">
+                    <i data-lucide="server" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                    <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">Type:</span>${system.type}</div>
                 </div>
-                <div class="flex items-center gap-2 group">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-wider w-16">AppKey:</span>
+                <!-- AppKey -->
+                <div class="flex items-center gap-2 min-w-0 group">
+                    <i data-lucide="key" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
                     <div class="flex-1 flex items-center gap-2 min-w-0">
+                        <span class="text-gray-500 text-[10px] tracking-wider mr-2 whitespace-nowrap">AppKey:</span>
                         <input type="password" value="${appKey}" id="details-app-key" readonly class="text-sm text-gray-900 font-mono bg-transparent border-none p-0 w-full focus:ring-0 truncate" />
                     </div>
                     <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -4289,9 +4360,11 @@ const app = {
                         </button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 group">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-wider w-16">AppSecret:</span>
+                <!-- AppSecret -->
+                <div class="flex items-center gap-2 min-w-0 group">
+                    <i data-lucide="lock" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
                     <div class="flex-1 flex items-center gap-2 min-w-0">
+                        <span class="text-gray-500 text-[10px] tracking-wider mr-2 whitespace-nowrap">AppSecret:</span>
                         <input type="password" value="${appSecret}" id="details-app-secret" readonly class="text-sm text-gray-900 font-mono bg-transparent border-none p-0 w-full focus:ring-0 truncate" />
                     </div>
                     <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -4304,6 +4377,14 @@ const app = {
                     </div>
                 </div>
             </div>
+        `;
+        container.appendChild(detailsCard);
+
+        // Stats Grid
+        const statsGrid = document.createElement('div');
+        statsGrid.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-6';
+        
+        statsGrid.innerHTML = `
             <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
                 <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
                     <i data-lucide="cpu" class="w-6 h-6"></i>
@@ -4338,7 +4419,7 @@ const app = {
                 </div>
             </div>
         `;
-        container.appendChild(summary);
+        container.appendChild(statsGrid);
 
         // Content (Device List)
         const content = document.createElement('div');
@@ -4346,8 +4427,8 @@ const app = {
         
         content.innerHTML = `
             <!-- Table Header -->
-            <div class="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50">
-                 <h2 class="text-xl font-bold text-gray-900 pl-2">Device List</h2>
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+                 <h2 class="text-lg font-bold text-gray-900">DER List</h2>
                  <div class="flex gap-2">
                     <div class="relative">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
@@ -4364,51 +4445,59 @@ const app = {
             <div class="flex-1 overflow-y-auto p-6">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-xs text-gray-500 border-b border-gray-100">
+                        <tr class="text-xs text-gray-500 border-b border-gray-200">
                             <th class="pb-3 font-medium">SN</th>
-                            <th class="pb-3 font-medium">Type</th>
                             <th class="pb-3 font-medium">Manufacturer</th>
-                            <th class="pb-3 font-medium">NMI</th>
-                            <th class="pb-3 font-medium">VPP</th>
                             <th class="pb-3 font-medium">Status</th>
-                            <th class="pb-3 font-medium">Owner</th>
-                            <th class="pb-3 font-medium">DNSP</th>
-                            <th class="pb-3 font-medium">Retailer</th>
+                            <th class="pb-3 font-medium">Rated Power</th>
+                            <th class="pb-3 font-medium">PV Capacity</th>
+                            <th class="pb-3 font-medium">SOC</th>
+                            <th class="pb-3 font-medium">Today Yield</th>
+                            <th class="pb-3 font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         ${devices.length > 0 ? devices.map(dev => {
-                            const nmi = dev.nmi || `410${Math.floor(Math.random() * 9000000 + 1000000)}`;
-                            const dnsp = dev.dnsp || ['Ausgrid', 'Endeavour Energy', 'Essential Energy'][Math.floor(Math.random() * 3)];
-                            const retailer = dev.retailer || ['AGL', 'Origin', 'EnergyAustralia'][Math.floor(Math.random() * 3)];
-                            const vpp = state.vpps.find(v => v.id === dev.vppId);
-                            const vppName = vpp ? vpp.name : '-';
+                            const capacity = dev.capacity || 5;
+                            const ratedPower = capacity.toFixed(1) + ' kW';
+                            const pvCapacity = dev.type === 'Inverter' ? (capacity * 1.2).toFixed(1) + ' kW' : '-';
+                            let socDisplay = '-';
+                            if (dev.type === 'Battery') {
+                                const socVal = dev.soc !== undefined ? dev.soc : Math.floor(40 + Math.random() * 40);
+                                const totalCap = capacity;
+                                const currentEn = (totalCap * socVal) / 100;
+                                socDisplay = `
+                                    <div>
+                                        <div class="text-gray-900">${socVal}%</div>
+                                        <div class="text-[10px] text-gray-500">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
+                                    </div>
+                                `;
+                            }
+                            const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
                             
                             return `
                             <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                <td class="py-3 font-mono text-gray-600 group-hover:text-gray-900">${dev.sn}</td>
-                                <td class="py-3 text-gray-500">
-                                    <span class="flex items-center gap-2">
-                                        <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
-                                        ${dev.type}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-gray-500">${dev.vendor}</td>
-                                <td class="py-3 font-mono text-gray-500">${nmi}</td>
-                                <td class="py-3 text-gray-500">${vppName}</td>
+                                <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
+                                <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
                                 <td class="py-3">
-                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-success/10 text-success' : 'bg-gray-200 text-gray-500'}">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
                                         <span class="w-1 h-1 rounded-full bg-current"></span>
                                         ${dev.status}
                                     </span>
                                 </td>
-                                <td class="py-3 text-gray-500">${dev.userName || '-'}</td>
-                                <td class="py-3 text-gray-500">${dnsp}</td>
-                                <td class="py-3 text-gray-500">${retailer}</td>
+                                <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
+                                <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
+                                <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
+                                <td class="py-3 text-gray-500 font-mono">${todayYield}</td>
+                                <td class="py-3">
+                                    <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </td>
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="9" class="py-8 text-center text-gray-400">
+                                <td colspan="8" class="py-8 text-center text-gray-400">
                                     No devices found.
                                 </td>
                             </tr>
@@ -4424,6 +4513,12 @@ const app = {
     // RENDERERS
     // ==========================================
 
+
+    toggleVPPViewMode(mode) {
+        state.vppViewMode = mode;
+        this.renderVPP(document.getElementById('content-area'));
+        lucide.createIcons();
+    },
 
     renderVPP(container) {
         container.innerHTML = ''; 
@@ -4453,17 +4548,27 @@ const app = {
             state.selectedVppId = state.vpps[0].id;
         }
 
+        // Ensure vppViewMode is set
+        if (!state.vppViewMode) state.vppViewMode = 'card';
+        const isCardView = state.vppViewMode === 'card';
+
         container.innerHTML = `
             <!-- VPP List -->
             <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
-                    <h2 class="text-xl font-bold text-gray-900 pl-2">VPP List</h2>
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-xl font-bold text-gray-900 pl-2">VPP List</h2>
+                        <button onclick="app.toggleVPPViewMode('${isCardView ? 'list' : 'card'}')" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all border border-gray-200 shadow-sm" title="${isCardView ? 'Switch to List View' : 'Switch to Card View'}">
+                            <i data-lucide="${isCardView ? 'list' : 'layout-grid'}" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                     <button onclick="app.openVPPDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>New</span>
                     </button>
                 </div>
                 
+                ${isCardView ? `
                 <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
                     ${state.vpps.map((vpp) => {
                         const isSelected = vpp.id === state.selectedVppId;
@@ -4478,6 +4583,7 @@ const app = {
                                 online: invs.filter(d => d.status === 'online').length,
                                 offline: invs.filter(d => d.status === 'offline').length,
                                 cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                pvCapacity: invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0).toFixed(1),
                                 onlineCap: invs.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
                                 offlineCap: invs.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
                             },
@@ -4487,9 +4593,13 @@ const app = {
                                 offline: bats.filter(d => d.status === 'offline').length,
                                 cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
                                 onlineCap: bats.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
-                                offlineCap: bats.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0)
+                                offlineCap: bats.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                currentEnergy: bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0)
                             }
                         };
+                        
+                        // Calculate Battery SOC percentage based on energy
+                        stats.bat.socPercentage = stats.bat.cap > 0 ? Math.round((stats.bat.currentEnergy / stats.bat.cap) * 100) : 0;
 
                         // VPP Card Template
                         return `
@@ -4511,70 +4621,145 @@ const app = {
                             </div>
                             
                             <!-- Stats Grid -->
-                            <div class="grid grid-cols-2 gap-2 text-xs mt-auto">
-                                <!-- Inverters Panel -->
-                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 group-hover:border-gray-300 transition-colors">
-                                    <div class="flex items-center gap-1.5 text-gray-700 font-medium mb-2 pb-2 border-b border-gray-200">
-                                        <i data-lucide="zap" class="w-3 h-3 text-manta-primary"></i>
-                                        <span>Inverters</span>
+                            <div class="flex flex-col gap-2 text-xs mt-auto">
+                                <!-- Group 1: Device Status -->
+                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-3 gap-2 group-hover:border-gray-300 transition-colors">
+                                    <!-- DERs Total -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                        <span class="text-gray-500 text-[10px] scale-90">DERs</span>
+                                        <span class="font-mono font-medium text-gray-900">${vppDevices.length}</span>
                                     </div>
-                                    <div class="space-y-1.5">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-gray-500">Total</span>
-                                            <span class="text-gray-700 font-mono text-[11px]">${stats.inv.total} <span class="text-gray-400">|</span> ${stats.inv.cap}kW</span>
-                                        </div>
-                                        <div class="space-y-1 pt-1 border-t border-gray-200">
-                                            <div class="flex justify-between items-center">
-                                                <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                                                    <span class="text-gray-500 text-[10px]">Online</span>
-                                                </div>
-                                                <span class="text-gray-700 font-mono text-[10px]">${stats.inv.online} <span class="text-gray-400">/</span> ${stats.inv.onlineCap}kW</span>
-                                            </div>
-                                            <div class="flex justify-between items-center">
-                                                <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                                                    <span class="text-gray-500 text-[10px]">Offline</span>
-                                                </div>
-                                                <span class="text-gray-700 font-mono text-[10px]">${stats.inv.offline} <span class="text-gray-400">/</span> ${stats.inv.offlineCap}kW</span>
-                                            </div>
-                                        </div>
+                                    <!-- Online -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                        <span class="text-gray-500 text-[10px] scale-90">Online</span>
+                                        <span class="font-mono font-medium text-green-600">${stats.inv.online + stats.bat.online}</span>
+                                    </div>
+                                    <!-- Offline -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                        <span class="text-gray-500 text-[10px] scale-90">Offline</span>
+                                        <span class="font-mono font-medium text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
                                     </div>
                                 </div>
 
-                                <!-- Batteries Panel -->
-                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 group-hover:border-gray-300 transition-colors">
-                                    <div class="flex items-center gap-1.5 text-gray-700 font-medium mb-2 pb-2 border-b border-gray-200">
-                                        <i data-lucide="battery" class="w-3 h-3 text-blue-500"></i>
-                                        <span>Batteries</span>
+                                <!-- Group 2: Energy Stats -->
+                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-4 gap-2 group-hover:border-gray-300 transition-colors">
+                                    <!-- Inv Power -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                        <span class="text-gray-500 text-[10px] scale-90">Rated Power</span>
+                                        <span class="font-mono font-medium text-gray-900">${stats.inv.cap} kW</span>
                                     </div>
-                                    <div class="space-y-1.5">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-gray-500">Total</span>
-                                            <span class="text-gray-700 font-mono text-[11px]">${stats.bat.total} <span class="text-gray-400">|</span> ${stats.bat.cap}kWh</span>
-                                        </div>
-                                        <div class="space-y-1 pt-1 border-t border-gray-200">
-                                            <div class="flex justify-between items-center">
-                                                <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                                                    <span class="text-gray-500 text-[10px]">Online</span>
-                                                </div>
-                                                <span class="text-gray-700 font-mono text-[10px]">${stats.bat.online} <span class="text-gray-400">/</span> ${stats.bat.onlineCap}kWh</span>
-                                            </div>
-                                            <div class="flex justify-between items-center">
-                                                <div class="flex items-center gap-1.5">
-                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                                                    <span class="text-gray-500 text-[10px]">Offline</span>
-                                                </div>
-                                                <span class="text-gray-700 font-mono text-[10px]">${stats.bat.offline} <span class="text-gray-400">/</span> ${stats.bat.offlineCap}kWh</span>
-                                            </div>
-                                        </div>
+                                    <!-- PV Capacity -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                        <span class="text-gray-500 text-[10px] scale-90">PV Capacity</span>
+                                        <span class="font-mono font-medium text-gray-900">${stats.inv.pvCapacity} kW</span>
+                                    </div>
+                                    <!-- SOC -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                        <span class="text-gray-500 text-[10px] scale-90">SOC</span>
+                                        <span class="font-mono font-medium text-gray-900 text-[10px]">${stats.bat.socPercentage}% (${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)}kWh)</span>
+                                    </div>
+                                    <!-- Today Gen -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                        <span class="text-gray-500 text-[10px] scale-90">Today Yield</span>
+                                        <span class="font-mono font-medium text-gray-900">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     `}).join('')}
                 </div>
+                ` : `
+                <div class="flex-1 overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">VPP Name</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Company</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Location</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Rated Power</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">PV Capacity</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">SOC</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Today Yield</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${state.vpps.map((vpp) => {
+                                    const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
+                                    
+                                    const invs = vppDevices.filter(d => d.type === 'Inverter');
+                                    const bats = vppDevices.filter(d => d.type === 'Battery');
+                                    
+                                    const stats = {
+                                        inv: {
+                                            total: invs.length,
+                                            online: invs.filter(d => d.status === 'online').length,
+                                            offline: invs.filter(d => d.status === 'offline').length,
+                                            cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                            pvCapacity: invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0).toFixed(1),
+                                        },
+                                        bat: {
+                                            total: bats.length,
+                                            online: bats.filter(d => d.status === 'online').length,
+                                            offline: bats.filter(d => d.status === 'offline').length,
+                                            cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
+                                            currentEnergy: bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0)
+                                        }
+                                    };
+                                    
+                                    stats.bat.socPercentage = stats.bat.cap > 0 ? Math.round((stats.bat.currentEnergy / stats.bat.cap) * 100) : 0;
+
+                                    return `
+                                        <tr class="hover:bg-gray-50 transition-colors group">
+                                            <td class="py-3 px-4">
+                                                <div class="font-medium text-gray-900">${vpp.name}</div>
+                                            </td>
+                                            <td class="py-3 px-4 text-sm text-gray-500">${vpp.company || '-'}</td>
+                                            <td class="py-3 px-4 text-sm text-gray-500">
+                                                <div class="flex flex-col">
+                                                    <span>${vpp.country || '-'}</span>
+                                                    <span class="text-xs text-gray-400">${vpp.address || '-'}</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <div class="flex flex-col items-center gap-1">
+                                                    <span class="font-medium text-gray-900">${vppDevices.length}</span>
+                                                    <div class="flex gap-1 text-[10px]">
+                                                        <span class="text-green-600" title="Online">${stats.inv.online + stats.bat.online}</span>
+                                                        <span class="text-gray-300">/</span>
+                                                        <span class="text-gray-400" title="Offline">${stats.inv.offline + stats.bat.offline}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-mono text-sm text-gray-600">${stats.inv.cap} kW</td>
+                                            <td class="py-3 px-4 text-right font-mono text-sm text-gray-600">${stats.inv.pvCapacity} kW</td>
+                                            <td class="py-3 px-4 text-center">
+                                                <div class="flex flex-col items-center">
+                                                    <span class="text-sm font-medium text-gray-900">${stats.bat.socPercentage}%</span>
+                                                    <span class="text-[10px] text-gray-400">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)} kWh)</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-mono text-sm text-gray-600">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
+                                            <td class="py-3 px-4 text-center">
+                                                <div class="flex items-center justify-center gap-1">
+                                                    <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-manta-primary transition-colors" title="View Details">
+                                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-manta-primary transition-colors" title="Edit VPP">
+                                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                `}
             </div>
         `;
     },
@@ -4590,6 +4775,18 @@ const app = {
         const totalDevices = allVppDevices.length;
         const onlineDevices = allVppDevices.filter(d => d.status === 'online').length;
         const offlineDevices = totalDevices - onlineDevices;
+
+        const invs = allVppDevices.filter(d => d.type === 'Inverter');
+        const bats = allVppDevices.filter(d => d.type === 'Battery');
+        
+        const ratedPower = invs.reduce((sum, d) => sum + (d.capacity || 0), 0);
+        const pvCapacity = invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0);
+        
+        const batCap = bats.reduce((sum, d) => sum + (d.capacity || 0), 0);
+        const currentEnergy = bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0);
+        const socPercentage = batCap > 0 ? Math.round((currentEnergy / batCap) * 100) : 0;
+        
+        const todayYield = ratedPower * (2 + Math.random() * 2);
 
         const assignedDevices = allVppDevices
             .filter(d => {
@@ -4626,64 +4823,81 @@ const app = {
         
         content.innerHTML = `
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
-                        <i data-lucide="info" class="w-6 h-6"></i>
+            <!-- Info Card -->
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4 flex items-center gap-4">
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i data-lucide="building-2" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">Company:</span>${vpp.company || '-'}</div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="space-y-0.5">
-                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Company:</span>${vpp.company || '-'}</div>
-                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">Country:</span>${vpp.country || '-'}</div>
-                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">ABN/VAT:</span>${vpp.abn || '-'}</div>
-                             <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] uppercase tracking-wider mr-2">DNSP:</span>${vpp.dnsp || '-'}</div>
-                        </div>
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i data-lucide="globe" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">Country:</span>${vpp.country || '-'}</div>
                     </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
-                        <i data-lucide="cpu" class="w-6 h-6"></i>
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">State:</span>${vpp.address || '-'}</div>
                     </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Devices</p>
-                    </div>
-                    <div class="absolute top-4 right-4">
-                        <p class="text-2xl font-bold text-gray-900">${totalDevices}</p>
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i data-lucide="zap" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">DNSP:</span>${vpp.dnsp || '-'}</div>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-green-100 text-green-600">
-                        <i data-lucide="activity" class="w-6 h-6"></i>
+            <!-- Metrics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                    <div class="flex flex-col items-center">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs Total</span>
+                         <span class="text-xl font-bold text-gray-900">${totalDevices}</span>
                     </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Online</p>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex flex-col items-center">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
+                         <span class="text-xl font-bold text-green-600">${onlineDevices}</span>
                     </div>
-                    <div class="absolute top-4 right-4">
-                        <span class="text-2xl font-bold text-gray-900">${onlineDevices}</span>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex flex-col items-center">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
+                         <span class="text-xl font-bold text-red-600">${offlineDevices}</span>
                     </div>
                 </div>
-
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-gray-100 text-gray-500">
-                        <i data-lucide="wifi-off" class="w-6 h-6"></i>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
+                    <span class="text-xl font-bold text-gray-900">${ratedPower.toFixed(1)} kW</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
+                    <span class="text-xl font-bold text-gray-900">${pvCapacity.toFixed(1)} kW</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">SOC</span>
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-gray-900">${socPercentage}%</div>
+                        <div class="text-[10px] text-gray-500">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</div>
                     </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Offline</p>
-                    </div>
-                    <div class="absolute top-4 right-4">
-                        <p class="text-2xl font-bold text-gray-900">${offlineDevices}</p>
-                    </div>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
+                    <span class="text-xl font-bold text-gray-900">${todayYield.toFixed(1)} kWh</span>
                 </div>
             </div>
 
             <!-- Unified Panel -->
             <div class="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <!-- Header -->
-                <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
-                     <h2 class="text-xl font-bold text-gray-900 pl-2">Device List</h2>
-                     <div class="flex gap-2">
+                <div class="flex justify-between items-center px-6 pt-4 border-b border-gray-200 bg-gray-50">
+                     <div class="flex gap-6">
+                        <button onclick="app.setVPPDetailsTab('der-list')" class="pb-4 text-sm font-medium border-b-2 transition-colors ${state.vppDetailsTab === 'der-list' ? 'border-manta-primary text-manta-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}">
+                            DER List
+                        </button>
+                        <button onclick="app.setVPPDetailsTab('event-list')" class="pb-4 text-sm font-medium border-b-2 transition-colors ${state.vppDetailsTab === 'event-list' ? 'border-manta-primary text-manta-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}">
+                            Event List
+                        </button>
+                     </div>
+                     <div class="flex gap-2 pb-4">
+                        ${(state.vppDetailsTab === 'der-list') ? `
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                             <input 
@@ -4695,61 +4909,122 @@ const app = {
                                 class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary focus:ring-1 focus:ring-manta-primary w-64 transition-colors"
                             >
                         </div>
+                        ` : ''}
                      </div>
                 </div>
 
-                <!-- Assigned Devices List -->
+                <!-- Content -->
                 <div class="flex-1 overflow-y-auto p-6">
+                    ${(state.vppDetailsTab === 'der-list') ? `
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="text-xs text-gray-500 border-b border-gray-200">
                                 <th class="pb-3 font-medium">SN</th>
-                                <th class="pb-3 font-medium">Type</th>
                                 <th class="pb-3 font-medium">Manufacturer</th>
-                                <th class="pb-3 font-medium">NMI</th>
                                 <th class="pb-3 font-medium">Status</th>
-                                <th class="pb-3 font-medium">Owner</th>
-                                <th class="pb-3 font-medium">Owner Email</th>
-                                <th class="pb-3 font-medium">DNSP</th>
-                                <th class="pb-3 font-medium">Retailer</th>
+                                <th class="pb-3 font-medium">Rated Power</th>
+                                <th class="pb-3 font-medium">PV Capacity</th>
+                                <th class="pb-3 font-medium">SOC</th>
+                                <th class="pb-3 font-medium">Today Yield</th>
+                                <th class="pb-3 font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm">
                             ${assignedDevices.length > 0 ? assignedDevices.map(dev => {
-                                const nmi = dev.nmi || `410${Math.floor(Math.random() * 9000000 + 1000000)}`;
-                                const dnsp = dev.dnsp || ['Ausgrid', 'Endeavour Energy', 'Essential Energy'][Math.floor(Math.random() * 3)];
-                                const retailer = dev.retailer || ['AGL', 'Origin', 'EnergyAustralia'][Math.floor(Math.random() * 3)];
+                                const capacity = dev.capacity || 5;
+                                const ratedPower = capacity.toFixed(1) + ' kW';
+                                const pvCapacity = dev.type === 'Inverter' ? (capacity * 1.2).toFixed(1) + ' kW' : '-';
+                                let socDisplay = '-';
+                                if (dev.type === 'Battery') {
+                                    const socVal = dev.soc !== undefined ? dev.soc : Math.floor(40 + Math.random() * 40);
+                                    const totalCap = capacity;
+                                    const currentEn = (totalCap * socVal) / 100;
+                                    socDisplay = `
+                                        <div>
+                                            <div class="text-gray-900">${socVal}%</div>
+                                            <div class="text-[10px] text-gray-500">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
+                                        </div>
+                                    `;
+                                }
+                                const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
+                                
                                 return `
                                 <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
                                     <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
-                                    <td class="py-3 text-gray-500">
-                                        <span class="flex items-center gap-2">
-                                            <i data-lucide="${dev.type === 'Inverter' ? 'zap' : 'battery'}" class="w-3.5 h-3.5"></i>
-                                            ${dev.type}
-                                        </span>
-                                    </td>
                                     <td class="py-3 text-gray-500">${dev.vendor}</td>
-                                    <td class="py-3 font-mono text-gray-500">${nmi}</td>
                                     <td class="py-3">
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
                                             <span class="w-1 h-1 rounded-full bg-current"></span>
                                             ${dev.status}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-gray-500">${dev.userName || '-'}</td>
-                                    <td class="py-3 text-xs text-gray-500">${dev.email || '-'}</td>
-                                    <td class="py-3 text-gray-500">${dnsp}</td>
-                                    <td class="py-3 text-gray-500">${retailer}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${todayYield}</td>
+                                    <td class="py-3">
+                                        <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             `}).join('') : `
                                 <tr>
-                                    <td colspan="9" class="py-8 text-center text-gray-500">
+                                    <td colspan="8" class="py-8 text-center text-gray-500">
                                         当前暂无设备
                                     </td>
                                 </tr>
                             `}
                         </tbody>
                     </table>
+                    ` : state.vppDetailsTab === 'event-list' ? `
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs text-gray-500 border-b border-gray-200">
+                                <th class="pb-3 font-medium">Date</th>
+                                <th class="pb-3 font-medium">Start Time - End Time</th>
+                                <th class="pb-3 font-medium">Event Type</th>
+                                <th class="pb-3 font-medium">Power</th>
+                                <th class="pb-3 font-medium">Spot Price</th>
+                                <th class="pb-3 font-medium">Volume</th>
+                                <th class="pb-3 font-medium">VPP Income</th>
+                                <th class="pb-3 font-medium">Status</th>
+                                <th class="pb-3 font-medium">Notes</th>
+                                <th class="pb-3 font-medium">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            ${MOCK_DATA.tradingEvents.map(event => `
+                                <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
+                                    <td class="py-3 text-gray-700">${event.date.split(' ')[0]}</td>
+                                    <td class="py-3 text-gray-500">${event.timeRange}</td>
+                                    <td class="py-3 text-gray-700">${event.eventType}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${event.power}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${event.spotPrice}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${event.volume}</td>
+                                    <td class="py-3 text-gray-500 font-mono">${event.vppIncome}</td>
+                                    <td class="py-3">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${event.status === 'Success' ? 'bg-green-100 text-green-700' : event.status === 'Partially Success' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}">
+                                            <span class="w-1 h-1 rounded-full bg-current"></span>
+                                            ${event.status}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-gray-500 max-w-xs truncate" title="${event.notes}">${event.notes || '-'}</td>
+                                    <td class="py-3">
+                                        <button class="text-gray-400 hover:text-manta-primary transition-colors">
+                                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    ` : `
+                    <div class="flex flex-col items-center justify-center h-full text-gray-500">
+                        <i data-lucide="calendar-off" class="w-12 h-12 mb-4 text-gray-300"></i>
+                        <p class="text-sm">No events found</p>
+                    </div>
+                    `}
                 </div>
             </div>
         `;
@@ -4831,6 +5106,12 @@ const app = {
         lucide.createIcons();
     },
 
+    setVPPDetailsTab(tab) {
+        state.vppDetailsTab = tab;
+        this.renderVPPDetails(document.getElementById('content-area'), state.selectedVppId);
+        lucide.createIcons();
+    },
+
     setAssignedSearch(query) {
         state.assignedSearchQuery = query;
         const container = document.getElementById('content-area');
@@ -4906,6 +5187,12 @@ const app = {
         `;
         this.toggleModal(true);
         lucide.createIcons();
+    },
+
+    viewDeviceDetails(sn) {
+        // Default to 'Power' and '24H' for initial view
+        this.renderDeviceDataModalContent(sn, 'Power', '24H');
+        this.toggleModal(true);
     },
 
     renderDeviceDataModalContent(sn, dataType = 'Power', timeRange = '24H') {
@@ -5126,14 +5413,16 @@ const app = {
                         </div>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">Business Address</label>
-                        <input type="text" name="address" value="${isEdit ? (vpp.address || '') : (state.currentUser?.address || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 123 Solar St, Sydney">
-                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-gray-500">State (AU)</label>
+                            <input type="text" name="address" value="${isEdit ? (vpp.address || '') : (state.currentUser?.address || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 123 Solar St, Sydney">
+                        </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">DNSP</label>
-                        <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Energy Provider Name">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-gray-500">DNSP</label>
+                            <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Energy Provider Name">
+                        </div>
                     </div>
 
                     <div class="space-y-1.5">
@@ -5255,17 +5544,17 @@ const app = {
 
                         <div class="flex gap-4">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="connectionMode" value="create" checked onchange="app.toggleConnectionMode('create')" class="text-manta-primary focus:ring-manta-primary">
+                                <input type="radio" name="connectionMode" value="create" onchange="app.toggleConnectionMode('create')" class="text-manta-primary focus:ring-manta-primary">
                                 <span class="text-xs font-medium text-gray-700">Create New</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="connectionMode" value="add" onchange="app.toggleConnectionMode('add')" class="text-manta-primary focus:ring-manta-primary">
+                                <input type="radio" name="connectionMode" value="add" checked onchange="app.toggleConnectionMode('add')" class="text-manta-primary focus:ring-manta-primary">
                                 <span class="text-xs font-medium text-gray-700">Add Existing</span>
                             </label>
                         </div>
 
                         <!-- Credentials Inputs -->
-                        <div id="cloud-credentials" class="hidden space-y-4 border-t border-gray-100 pt-4">
+                        <div id="cloud-credentials" class="space-y-4 border-t border-gray-100 pt-4">
                             <div class="space-y-1.5">
                                 <label class="text-xs font-semibold text-gray-500">AppKey</label>
                                 <div class="relative group">
