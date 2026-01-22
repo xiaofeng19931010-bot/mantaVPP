@@ -115,6 +115,7 @@ VPP Management 模块主要包含以下核心功能：
   "name": "string",
   "company": "string",
   "country": "string",
+  "state": "string",
   "abn": "string",
   "address": "string",
   "dnsp": "string",

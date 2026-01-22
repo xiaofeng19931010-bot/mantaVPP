@@ -121,6 +121,11 @@
                 <span class="font-medium">Overview</span>
             </a>
             
+            <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group border-r-4 border-transparent" onclick="app.navigate('vpp')">
+                <i data-lucide="network" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                <span class="font-medium">VPP Management</span>
+            </a>
+            
             <div class="group">
                 <a href="#" onclick="app.toggleSubmenu('electricity-market-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
                     <div class="flex items-center gap-3">
@@ -283,11 +288,6 @@
                 </a>
                 
                 <div id="system-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('vpp')">
-                        <i data-lucide="network" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">VPP Management</span>
-                    </a>
-                    
                     <a href="#" id="nav-device_management" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('device_management')">
                     <i data-lucide="cpu" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                     <span class="font-medium">Sub-VPP Management</span>

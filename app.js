@@ -678,6 +678,15 @@ const state = {
     vppDetailsTab: 'der-list', // der-list or event-list
     assignedSearchQuery: '',
     discoverySearchQuery: '',
+    vppList: {
+        vppName: '',
+        state: ''
+    },
+    subVppList: {
+        name: '',
+        type: 'All',
+        status: 'All'
+    },
     isSuperAdmin: true, // Default to true to simulate an admin user
     cloudBound: false, // New state for cloud platform binding
     capGraph: {
@@ -4089,8 +4098,41 @@ const app = {
             if (!state.subVPPViewMode) state.subVPPViewMode = 'card';
             const isCardView = state.subVPPViewMode === 'card';
 
+            // Filter systems based on subVppList state
+            let filteredSystems = systems;
+
+            // Name Filter
+            if (state.subVppList && state.subVppList.name) {
+                const searchLower = state.subVppList.name.toLowerCase();
+                filteredSystems = filteredSystems.filter(sys => 
+                    sys.name.toLowerCase().includes(searchLower)
+                );
+            }
+
+            // Type Filter
+            if (state.subVppList && state.subVppList.type && state.subVppList.type !== 'All') {
+                filteredSystems = filteredSystems.filter(sys => 
+                    sys.type === state.subVppList.type
+                );
+            }
+
+            // Status Filter
+            if (state.subVppList && state.subVppList.status && state.subVppList.status !== 'All') {
+                filteredSystems = filteredSystems.filter(sys => {
+                    const sysStatus = (sys.status || 'disconnected').toLowerCase();
+                    if (state.subVppList.status === 'Connected') {
+                        return sysStatus === 'connected' || sysStatus === 'online';
+                    } else if (state.subVppList.status === 'Disconnected') {
+                        return sysStatus === 'disconnected';
+                    } else if (state.subVppList.status === 'Connecting') {
+                        return sysStatus === 'connecting';
+                    }
+                    return true;
+                });
+            }
+
             // Pre-calculate stats for all systems
-            const systemsWithStats = systems.map(sys => {
+            const systemsWithStats = filteredSystems.map(sys => {
                 let iconName = 'cloud';
                 if (sys.type === 'SCADA') iconName = 'database';
                 if (sys.type === 'Edge') iconName = 'cpu';
@@ -4157,6 +4199,61 @@ const app = {
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             <span>New</span>
                         </button>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-end">
+                        <!-- Name Filter -->
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                            <div class="relative">
+                                <input type="text" 
+                                       id="subvpp-name-filter"
+                                       value="${state.subVppList.name || ''}" 
+                                       placeholder="Search by name..." 
+                                       class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all"
+                                       onkeydown="if(event.key === 'Enter') app.filterSubVPPs()">
+                                <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            </div>
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div class="w-[160px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+                            <select id="subvpp-type-filter" 
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all appearance-none cursor-pointer"
+                                    onchange="app.filterSubVPPs()">
+                                <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All Types</option>
+                                <option value="Cloud" ${state.subVppList.type === 'Cloud' ? 'selected' : ''}>Cloud</option>
+                                <option value="SCADA" ${state.subVppList.type === 'SCADA' ? 'selected' : ''}>SCADA</option>
+                                <option value="Edge" ${state.subVppList.type === 'Edge' ? 'selected' : ''}>Edge</option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="w-[160px]">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                            <select id="subvpp-status-filter" 
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all appearance-none cursor-pointer"
+                                    onchange="app.filterSubVPPs()">
+                                <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All Status</option>
+                                <option value="Connected" ${state.subVppList.status === 'Connected' ? 'selected' : ''}>Connected</option>
+                                <option value="Connecting" ${state.subVppList.status === 'Connecting' ? 'selected' : ''}>Connecting</option>
+                                <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
+                            </select>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.filterSubVPPs()" class="px-4 py-2 bg-manta-primary text-white rounded-lg text-sm font-medium hover:bg-manta-dark transition-colors shadow-sm flex items-center gap-2">
+                                <i data-lucide="filter" class="w-4 h-4"></i>
+                                Filter
+                            </button>
+                            <button onclick="app.resetSubVPPFilters()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-2">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                Reset
+                            </button>
+                        </div>
                     </div>
                     
                     ${isCardView ? `
@@ -4552,6 +4649,13 @@ const app = {
         if (!state.vppViewMode) state.vppViewMode = 'card';
         const isCardView = state.vppViewMode === 'card';
 
+        // Filter VPPs
+        const filteredVPPs = state.vpps.filter(vpp => {
+            const nameMatch = !state.vppList.vppName || vpp.name.toLowerCase().includes(state.vppList.vppName.toLowerCase());
+            const stateMatch = !state.vppList.state || vpp.state === state.vppList.state;
+            return nameMatch && stateMatch;
+        });
+
         container.innerHTML = `
             <!-- VPP List -->
             <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
@@ -4567,10 +4671,45 @@ const app = {
                         <span>New</span>
                     </button>
                 </div>
+
+                <!-- Filter Bar -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap md:flex-nowrap gap-4 items-center mb-4">
+                    <!-- Search Input with Icon -->
+                    <div class="relative flex-1 min-w-[200px]">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                        <input type="text" id="vpp-name-filter" placeholder="Search by VPP Name..." value="${state.vppList.vppName}" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:border-manta-primary focus:ring-2 focus:ring-manta-primary/20 transition-all"
+                            onkeydown="if(event.key === 'Enter') app.filterVPPs()">
+                    </div>
+                    
+                    <!-- State Select -->
+                    <div class="relative min-w-[140px]">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <select id="vpp-state-filter" 
+                            class="w-full pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:border-manta-primary focus:ring-2 focus:ring-manta-primary/20 transition-all appearance-none cursor-pointer">
+                            <option value="">All States</option>
+                            ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <button onclick="app.filterVPPs()" class="bg-manta-primary hover:bg-manta-dark text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow active:scale-95 flex items-center gap-2">
+                            <span>Search</span>
+                        </button>
+                        <button onclick="app.resetVPPFilters()" class="bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm hover:border-gray-300 active:scale-95 flex items-center gap-2" title="Reset Filters">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Reset</span>
+                        </button>
+                    </div>
+                </div>
                 
                 ${isCardView ? `
                 <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
-                    ${state.vpps.map((vpp) => {
+                    ${filteredVPPs.map((vpp) => {
                         const isSelected = vpp.id === state.selectedVppId;
                         const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
                         
@@ -4611,6 +4750,7 @@ const app = {
                                         <h3 class="font-bold text-gray-900 group-hover:text-manta-primary transition-colors line-clamp-1">${vpp.name}</h3>
                                         ${isSelected ? '<span class="flex h-2 w-2 rounded-full bg-manta-primary shrink-0"></span>' : ''}
                                     </div>
+                                    <div class="text-xs text-gray-500">${vpp.state || '-'}</div>
                                 </div>
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="px-2 py-1 rounded bg-white border border-gray-200 hover:bg-gray-100 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-1">
@@ -4676,7 +4816,7 @@ const app = {
                                 <tr>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">VPP Name</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Company</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Location</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">State</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Rated Power</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">PV Capacity</th>
@@ -4686,7 +4826,7 @@ const app = {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                ${state.vpps.map((vpp) => {
+                                ${filteredVPPs.map((vpp) => {
                                     const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
                                     
                                     const invs = vppDevices.filter(d => d.type === 'Inverter');
@@ -4719,8 +4859,7 @@ const app = {
                                             <td class="py-3 px-4 text-sm text-gray-500">${vpp.company || '-'}</td>
                                             <td class="py-3 px-4 text-sm text-gray-500">
                                                 <div class="flex flex-col">
-                                                    <span>${vpp.country || '-'}</span>
-                                                    <span class="text-xs text-gray-400">${vpp.address || '-'}</span>
+                                                    <span>${vpp.state || '-'}</span>
                                                 </div>
                                             </td>
                                             <td class="py-3 px-4 text-center">
@@ -4762,6 +4901,7 @@ const app = {
                 `}
             </div>
         `;
+        lucide.createIcons();
     },
 
     renderVPPDetails(container, vppId) {
@@ -4836,7 +4976,7 @@ const app = {
                     </div>
                     <div class="flex items-center gap-2 min-w-0">
                         <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">State:</span>${vpp.address || '-'}</div>
+                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">State:</span>${vpp.state || '-'}</div>
                     </div>
                     <div class="flex items-center gap-2 min-w-0">
                         <i data-lucide="zap" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
@@ -5415,8 +5555,8 @@ const app = {
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">State (AU)</label>
-                            <input type="text" name="address" value="${isEdit ? (vpp.address || '') : (state.currentUser?.address || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 123 Solar St, Sydney">
+                            <label class="text-xs font-semibold text-gray-500">State</label>
+                            <input type="text" name="state" value="${isEdit ? (vpp.state || '') : ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. NSW">
                         </div>
 
                         <div class="space-y-1.5">
@@ -5862,6 +6002,44 @@ const app = {
         }, 1500);
     },
 
+    filterVPPs() {
+        const nameInput = document.getElementById('vpp-name-filter');
+        const stateInput = document.getElementById('vpp-state-filter');
+        
+        state.vppList.vppName = nameInput.value;
+        state.vppList.state = stateInput.value;
+        
+        this.renderVPP(document.getElementById('main-content'));
+    },
+
+    resetVPPFilters() {
+        state.vppList.vppName = '';
+        state.vppList.state = '';
+        this.renderVPP(document.getElementById('main-content'));
+    },
+
+    filterSubVPPs() {
+        const name = document.getElementById('subvpp-name-filter').value;
+        const type = document.getElementById('subvpp-type-filter').value;
+        const status = document.getElementById('subvpp-status-filter').value;
+        
+        state.subVppList.name = name;
+        state.subVppList.type = type;
+        state.subVppList.status = status;
+        
+        this.renderDeviceManagement(document.getElementById('content-area'));
+        lucide.createIcons();
+    },
+
+    resetSubVPPFilters() {
+        state.subVppList.name = '';
+        state.subVppList.type = 'All';
+        state.subVppList.status = 'All';
+        
+        this.renderDeviceManagement(document.getElementById('content-area'));
+        lucide.createIcons();
+    },
+
     handleVPPSubmit(e, vppId = null) {
         e.preventDefault();
         const btn = document.getElementById('vpp-submit-btn');
@@ -5876,6 +6054,7 @@ const app = {
             const company = formData.get('company');
             const country = formData.get('country');
             const abn = formData.get('abn');
+            const stateField = formData.get('state');
             const address = formData.get('address');
             const dnsp = formData.get('dnsp');
             const description = formData.get('description');
@@ -5887,6 +6066,7 @@ const app = {
                     vpp.company = company;
                     vpp.country = country;
                     vpp.abn = abn;
+                    vpp.state = stateField;
                     vpp.address = address;
                     vpp.dnsp = dnsp;
                     vpp.description = description;
@@ -5898,6 +6078,7 @@ const app = {
                     company: company,
                     country: country,
                     abn: abn,
+                    state: stateField,
                     address: address,
                     dnsp: dnsp,
                     description: description,
