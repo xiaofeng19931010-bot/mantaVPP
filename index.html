@@ -125,6 +125,33 @@
                 <i data-lucide="network" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                 <span class="font-medium">VPP Management</span>
             </a>
+
+            <div class="group">
+                <a href="#" onclick="app.toggleSubmenu('der-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="cpu" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">DER Management</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                </a>
+                
+                <div id="der-submenu" class="hidden bg-gray-50/50">
+                    <a href="#" id="nav-der_ess" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('der_ess')">
+                        <i data-lucide="battery" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">ESS</span>
+                    </a>
+                    
+                    <a href="#" id="nav-der_pv" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('der_pv')">
+                        <i data-lucide="sun" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">PV</span>
+                    </a>
+
+                    <a href="#" id="nav-der_ev" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('der_ev')">
+                        <i data-lucide="car" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
+                        <span class="font-medium">EV</span>
+                    </a>
+                </div>
+            </div>
             
             <div class="group">
                 <a href="#" onclick="app.toggleSubmenu('electricity-market-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">

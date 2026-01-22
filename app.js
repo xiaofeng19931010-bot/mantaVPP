@@ -886,10 +886,13 @@ const app = {
             'reports_vpp_event_items': [{label: 'Reports'}, {label: 'VPP Event Items'}],
             'reports_vpp_event_month_summary': [{label: 'Reports'}, {label: 'VPP Event Month Summary'}],
             'reports_terminated': [{label: 'Reports'}, {label: 'Terminated'}],
-            'vpp': [{label: 'System'}, {label: 'VPP Management'}],
+            'vpp': [{label: 'VPP Management'}],
+            'der': [{label: 'DER Management'}],
+            'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
+            'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
+            'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'EV'}],
             'device_management': [{label: 'System'}, {label: 'Device Management'}],
             'vpp_details': [
-                {label: 'System'}, 
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'VPP Details'}
             ],
@@ -1006,6 +1009,18 @@ const app = {
             }
         }
 
+        // Handle DER Management Submenu Expansion
+        const derViews = ['der_ess', 'der_pv', 'der_ev'];
+        const derSubmenu = document.getElementById('der-submenu');
+        const derToggle = document.querySelector('a[onclick*="der-submenu"] .chevron-icon');
+
+        if (derViews.includes(viewName)) {
+            if (derSubmenu && derSubmenu.classList.contains('hidden')) {
+                derSubmenu.classList.remove('hidden');
+                if (derToggle) derToggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
         // Handle Reports Submenu Expansion
         const reportsViews = ['reports_vpp_events', 'reports_der_events', 'reports_vpp_event_items', 'reports_vpp_event_month_summary', 'reports_terminated'];
         const reportsSubmenu = document.getElementById('reports-submenu');
@@ -1076,6 +1091,16 @@ const app = {
             this.renderPlaceholder(contentArea, titles[viewName]);
         } else if (viewName === 'vpp') {
             this.renderVPP(contentArea);
+        } else if (viewName === 'der') {
+            this.renderDERManagement(contentArea);
+        } else if (['der_ess', 'der_pv', 'der_ev'].includes(viewName)) {
+            // Filter devices by type for submenu items
+            let type = 'All';
+            if (viewName === 'der_ess') type = 'Battery';
+            if (viewName === 'der_pv') type = 'Inverter'; // Assuming PV corresponds to Inverter or similar
+            if (viewName === 'der_ev') type = 'EV'; // Assuming EV type exists
+            
+            this.renderDERManagement(contentArea, type);
         } else if (viewName === 'vpp_details') {
             state.vppDetailsTab = 'der-list';
             this.renderVPPDetails(contentArea, params.id);
@@ -4065,6 +4090,25 @@ const app = {
         );
     },
 
+    confirmCloseSystem(id, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+
+        const system = state.systems.find(s => s.id === id);
+        if (!system) return;
+
+        this.showConfirmModal(
+            'Close Sub-VPP Connection',
+            'Are you sure you want to close this connection? The status will be updated to Closed.',
+            () => {
+                system.status = 'closed';
+                this.renderDeviceManagement(document.getElementById('content-area'));
+                lucide.createIcons();
+            }
+        );
+    },
+
     toggleSubVPPViewMode(mode) {
         state.subVPPViewMode = mode;
         this.renderDeviceManagement(document.getElementById('content-area'));
@@ -4120,14 +4164,8 @@ const app = {
             if (state.subVppList && state.subVppList.status && state.subVppList.status !== 'All') {
                 filteredSystems = filteredSystems.filter(sys => {
                     const sysStatus = (sys.status || 'disconnected').toLowerCase();
-                    if (state.subVppList.status === 'Connected') {
-                        return sysStatus === 'connected' || sysStatus === 'online';
-                    } else if (state.subVppList.status === 'Disconnected') {
-                        return sysStatus === 'disconnected';
-                    } else if (state.subVppList.status === 'Connecting') {
-                        return sysStatus === 'connecting';
-                    }
-                    return true;
+                    const filterStatus = state.subVppList.status.toLowerCase();
+                    return sysStatus === filterStatus;
                 });
             }
 
@@ -4144,13 +4182,14 @@ const app = {
                 const isConnecting = (sys.status || '').toLowerCase() === 'connecting';
                 
                 const stats = isConnecting ? {
-                    inv: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0, pvCapacity: 0 },
-                    bat: { total: 0, online: 0, offline: 0, cap: 0, onlineCap: 0, offlineCap: 0, currentEnergy: 0, socPercentage: 0 }
+                    inv: { total: 0, online: 0, offline: 0, disconnected: 0, cap: 0, onlineCap: 0, offlineCap: 0, pvCapacity: 0 },
+                    bat: { total: 0, online: 0, offline: 0, disconnected: 0, cap: 0, onlineCap: 0, offlineCap: 0, currentEnergy: 0, socPercentage: 0 }
                 } : {
                     inv: {
                         total: invs.length,
                         online: invs.filter(d => d.status === 'online').length,
                         offline: invs.filter(d => d.status === 'offline').length,
+                        disconnected: invs.filter(d => d.status === 'disconnected').length,
                         cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
                         pvCapacity: invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0).toFixed(1),
                         onlineCap: invs.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
@@ -4160,6 +4199,7 @@ const app = {
                         total: bats.length,
                         online: bats.filter(d => d.status === 'online').length,
                         offline: bats.filter(d => d.status === 'offline').length,
+                        disconnected: bats.filter(d => d.status === 'disconnected').length,
                         cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
                         currentEnergy: bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0),
                         onlineCap: bats.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
@@ -4173,16 +4213,26 @@ const app = {
 
                 const getStatusConfig = (s) => {
                     const status = (s || '').toLowerCase();
+                    if (status === 'establishing') return { color: 'bg-yellow-500', text: 'Establishing' };
+                    if (status === 'established') return { color: 'bg-manta-primary', text: 'Established' };
+                    if (status === 'closed') return { color: 'bg-gray-400', text: 'Closed' };
+                    if (status === 'disconnected') return { color: 'bg-red-500', text: 'Disconnected' };
+                    if (status === 'failed') return { color: 'bg-red-600', text: 'Failed' };
+                    
                     if (status === 'connecting') return { color: 'bg-yellow-500', text: 'Connecting' };
                     if (status === 'connected' || status === 'online') return { color: 'bg-manta-primary', text: 'Connected' };
                     return { color: 'bg-gray-400', text: 'Disconnected' };
                 };
                 const statusConfig = getStatusConfig(sys.status);
+                const isEstablished = (sys.status || '').toLowerCase() === 'established';
                 const isDisconnected = (sys.status || '').toLowerCase() === 'disconnected';
-                const onclickAttr = isConnecting ? '' : `onclick="app.navigate('system_details', { id: ${sys.id} })"`;
-                const cursorClass = isConnecting ? 'cursor-default' : 'cursor-pointer';
+                // Only allow click navigation if not in a transitional or closed state (optional, but good UX)
+                const isClickable = !['establishing', 'closed', 'disconnected', 'failed'].includes((sys.status || '').toLowerCase());
+                
+                const onclickAttr = isClickable ? `onclick="app.navigate('system_details', { id: ${sys.id} })"` : '';
+                const cursorClass = isClickable ? 'cursor-pointer' : 'cursor-default';
 
-                return { sys, sysDevices, stats, statusConfig, isDisconnected, onclickAttr, cursorClass };
+                return { sys, sysDevices, stats, statusConfig, isEstablished, isDisconnected, onclickAttr, cursorClass };
             });
 
             container.innerHTML = `
@@ -4190,7 +4240,7 @@ const app = {
                 <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                     <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
                         <div class="flex items-center gap-4">
-                            <h2 class="text-xl font-bold text-gray-900 pl-2">Sub-VPP List</h2>
+                            <h2 class="text-xl font-bold text-gray-900 pl-2">Sub-VPPs</h2>
                             <button onclick="app.toggleSubVPPViewMode('${isCardView ? 'list' : 'card'}')" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all border border-gray-200 shadow-sm" title="${isCardView ? 'Switch to List View' : 'Switch to Card View'}">
                                 <i data-lucide="${isCardView ? 'list' : 'layout-grid'}" class="w-5 h-5"></i>
                             </button>
@@ -4237,9 +4287,11 @@ const app = {
                                     class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all appearance-none cursor-pointer"
                                     onchange="app.filterSubVPPs()">
                                 <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All Status</option>
-                                <option value="Connected" ${state.subVppList.status === 'Connected' ? 'selected' : ''}>Connected</option>
-                                <option value="Connecting" ${state.subVppList.status === 'Connecting' ? 'selected' : ''}>Connecting</option>
+                                <option value="Establishing" ${state.subVppList.status === 'Establishing' ? 'selected' : ''}>Establishing</option>
+                                <option value="Established" ${state.subVppList.status === 'Established' ? 'selected' : ''}>Established</option>
+                                <option value="Closed" ${state.subVppList.status === 'Closed' ? 'selected' : ''}>Closed</option>
                                 <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
+                                <option value="Failed" ${state.subVppList.status === 'Failed' ? 'selected' : ''}>Failed</option>
                             </select>
                         </div>
 
@@ -4258,17 +4310,17 @@ const app = {
                     
                     ${isCardView ? `
                         <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
-                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, onclickAttr, cursorClass }) => `
+                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished, onclickAttr, cursorClass }) => `
                                 <div ${onclickAttr} class="group bg-white p-3 rounded-xl ${cursorClass} border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
                                     <div class="absolute top-3 right-3 z-20">
-                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 ${!isDisconnected ? 'group-hover:hidden' : ''} transition-all duration-200">
+                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 ${isEstablished ? 'group-hover:hidden' : ''} transition-all duration-200">
                                             <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
                                             <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
                                         </div>
-                                        ${!isDisconnected ? `
-                                        <button onclick="app.disconnectSystem(${sys.id}, event)" class="hidden group-hover:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all duration-200 shadow-sm">
-                                            <i data-lucide="unlink" class="w-3 h-3"></i>
-                                            <span class="text-[10px] font-medium uppercase tracking-wider">Disconnect</span>
+                                        ${isEstablished ? `
+                                        <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="hidden group-hover:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-all duration-200 shadow-sm">
+                                            <i data-lucide="x" class="w-3 h-3"></i>
+                                            <span class="text-[10px] font-medium uppercase tracking-wider">Close</span>
                                         </button>
                                         ` : ''}
                                     </div>
@@ -4288,7 +4340,7 @@ const app = {
                                     <!-- Stats Grid -->
                                     <div class="flex flex-col gap-2 text-xs mt-auto">
                                         <!-- Group 1: Device Status -->
-                                        <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-3 gap-2 group-hover:border-gray-300 transition-colors">
+                                        <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-4 gap-2 group-hover:border-gray-300 transition-colors">
                                             <!-- DERs Total -->
                                             <div class="flex flex-col items-center justify-center gap-1 text-center">
                                                 <span class="text-gray-500 text-[10px] scale-90">DERs</span>
@@ -4303,6 +4355,11 @@ const app = {
                                             <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
                                                 <span class="text-gray-500 text-[10px] scale-90">Offline</span>
                                                 <span class="font-mono font-medium text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
+                                            </div>
+                                            <!-- Disconnected -->
+                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                                <span class="text-gray-500 text-[10px] scale-90">Disconnected</span>
+                                                <span class="font-mono font-medium text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                             </div>
                                         </div>
 
@@ -4345,7 +4402,7 @@ const app = {
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
-                                        ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected }) => `
+                                        ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished }) => `
                                             <tr class="group hover:bg-gray-50 transition-colors">
                                                 <td class="py-3 px-4">
                                                     <div class="font-medium text-gray-900">${sys.name}</div>
@@ -4359,7 +4416,16 @@ const app = {
                                                     </span>
                                                 </td>
                                                 <td class="py-3 px-4 text-center">
-                                                    <div class="text-sm text-gray-900">${sysDevices.length}</div>
+                                                    <div class="flex flex-col items-center gap-1">
+                                                        <span class="font-medium text-gray-900">${sysDevices.length}</span>
+                                                        <div class="flex gap-1 text-[10px]">
+                                                            <span class="text-green-600" title="Online">${stats.inv.online + stats.bat.online}</span>
+                                                            <span class="text-gray-300">/</span>
+                                                            <span class="text-gray-400" title="Offline">${stats.inv.offline + stats.bat.offline}</span>
+                                                            <span class="text-gray-300">/</span>
+                                                            <span class="text-red-500" title="Disconnected">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td class="py-3 px-4 text-right">
                                                     <div class="text-sm text-gray-900 font-mono">${stats.inv.cap} kW</div>
@@ -4376,11 +4442,15 @@ const app = {
                                                         <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-gray-400 hover:text-manta-primary transition-colors">
                                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                                         </button>
-                                                        ${!isDisconnected ? `
+                                                        ${isEstablished ? `
+                                                        <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-gray-400 hover:text-gray-600 transition-colors" title="Close">
+                                                            <i data-lucide="x" class="w-4 h-4"></i>
+                                                        </button>
+                                                        ` : (!isDisconnected ? `
                                                         <button onclick="app.disconnectSystem(${sys.id}, event)" class="text-gray-400 hover:text-red-600 transition-colors">
                                                             <i data-lucide="unlink" class="w-4 h-4"></i>
                                                         </button>
-                                                        ` : ''}
+                                                        ` : '')}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -4422,7 +4492,8 @@ const app = {
         // Calculate Metrics
         const totalDevices = devices.length;
         const onlineDevices = devices.filter(d => d.status === 'online').length;
-        const offlineDevices = totalDevices - onlineDevices;
+        const offlineDevices = devices.filter(d => d.status === 'offline').length;
+        const disconnectedDevices = devices.filter(d => d.status === 'disconnected').length;
         const totalCapacity = devices.reduce((sum, d) => sum + (d.capacity || 0), 0);
 
         // Summary Section
@@ -4479,7 +4550,7 @@ const app = {
 
         // Stats Grid
         const statsGrid = document.createElement('div');
-        statsGrid.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-6';
+        statsGrid.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 mb-6';
         
         statsGrid.innerHTML = `
             <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
@@ -4487,7 +4558,7 @@ const app = {
                     <i data-lucide="cpu" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Devices</p>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total DERs</p>
                 </div>
                 <div class="absolute top-4 right-4">
                     <p class="text-2xl font-bold text-gray-900">${totalDevices}</p>
@@ -4515,6 +4586,17 @@ const app = {
                     <p class="text-2xl font-bold text-gray-900">${offlineDevices}</p>
                 </div>
             </div>
+            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
+                <div class="p-3 rounded-lg bg-red-50 text-red-500">
+                    <i data-lucide="unlink" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Disconnected</p>
+                </div>
+                <div class="absolute top-4 right-4">
+                    <p class="text-2xl font-bold text-gray-900">${disconnectedDevices}</p>
+                </div>
+            </div>
         `;
         container.appendChild(statsGrid);
 
@@ -4525,7 +4607,7 @@ const app = {
         content.innerHTML = `
             <!-- Table Header -->
             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                 <h2 class="text-lg font-bold text-gray-900">DER List</h2>
+                 <h2 class="text-lg font-bold text-gray-900">DERs</h2>
                  <div class="flex gap-2">
                     <div class="relative">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
@@ -4543,9 +4625,9 @@ const app = {
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="text-xs text-gray-500 border-b border-gray-200">
+                            <th class="pb-3 font-medium">Status</th>
                             <th class="pb-3 font-medium">SN</th>
                             <th class="pb-3 font-medium">Manufacturer</th>
-                            <th class="pb-3 font-medium">Status</th>
                             <th class="pb-3 font-medium">Rated Power</th>
                             <th class="pb-3 font-medium">PV Capacity</th>
                             <th class="pb-3 font-medium">SOC</th>
@@ -4574,14 +4656,14 @@ const app = {
                             
                             return `
                             <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
-                                <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
                                 <td class="py-3">
                                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
                                         <span class="w-1 h-1 rounded-full bg-current"></span>
                                         ${dev.status}
                                     </span>
                                 </td>
+                                <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
+                                <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
                                 <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
                                 <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
                                 <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
@@ -4615,6 +4697,105 @@ const app = {
         state.vppViewMode = mode;
         this.renderVPP(document.getElementById('content-area'));
         lucide.createIcons();
+    },
+
+    renderDERManagement(container, filterType = 'All') {
+        container.className = 'flex-1 flex flex-col h-full fade-in p-8 gap-4';
+        
+        let filteredDevices = state.devices || [];
+        if (filterType !== 'All') {
+            filteredDevices = filteredDevices.filter(d => d.type === filterType);
+        }
+
+        const title = filterType === 'All' ? 'DER Management' : `${filterType} Management`;
+
+        container.innerHTML = `
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-blue-50 text-blue-600">
+                        <i data-lucide="cpu" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total DERs</p>
+                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.length}</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-green-50 text-green-600">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Online</p>
+                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.filter(d => d.status === 'online').length}</p>
+                    </div>
+                </div>
+                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-yellow-50 text-yellow-600">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Capacity</p>
+                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1)} kW</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+                    <div class="p-3 rounded-lg bg-purple-50 text-purple-600">
+                        <i data-lucide="battery-charging" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Energy</p>
+                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.currentEnergy || 0), 0).toFixed(1)} kWh</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device List -->
+            <div class="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Name</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Type</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Vendor</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Capacity</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            ${filteredDevices.length > 0 ? filteredDevices.map(dev => `
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                            ${dev.status}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium text-gray-900">${dev.name}</div>
+                                        <div class="text-xs text-gray-500 font-mono">${dev.sn || '-'}</div>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">${dev.type}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">${dev.vendor}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-sm text-gray-900">${dev.capacity} kW</td>
+                                    <td class="py-3 px-4 text-center">
+                                        <button class="text-gray-400 hover:text-manta-primary transition-colors">
+                                            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('') : `
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-gray-500">No devices found</td>
+                                </tr>
+                            `}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
     },
 
     renderVPP(container) {
@@ -4661,7 +4842,7 @@ const app = {
             <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
                 <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
                     <div class="flex items-center gap-4">
-                        <h2 class="text-xl font-bold text-gray-900 pl-2">VPP List</h2>
+                        <h2 class="text-xl font-bold text-gray-900 pl-2">VPPs</h2>
                         <button onclick="app.toggleVPPViewMode('${isCardView ? 'list' : 'card'}')" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all border border-gray-200 shadow-sm" title="${isCardView ? 'Switch to List View' : 'Switch to Card View'}">
                             <i data-lucide="${isCardView ? 'list' : 'layout-grid'}" class="w-5 h-5"></i>
                         </button>
@@ -4721,6 +4902,7 @@ const app = {
                                 total: invs.length,
                                 online: invs.filter(d => d.status === 'online').length,
                                 offline: invs.filter(d => d.status === 'offline').length,
+                                disconnected: invs.filter(d => d.status === 'disconnected').length,
                                 cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
                                 pvCapacity: invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0).toFixed(1),
                                 onlineCap: invs.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
@@ -4730,6 +4912,7 @@ const app = {
                                 total: bats.length,
                                 online: bats.filter(d => d.status === 'online').length,
                                 offline: bats.filter(d => d.status === 'offline').length,
+                                disconnected: bats.filter(d => d.status === 'disconnected').length,
                                 cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
                                 onlineCap: bats.filter(d => d.status === 'online').reduce((sum, d) => sum + (d.capacity || 0), 0),
                                 offlineCap: bats.filter(d => d.status === 'offline').reduce((sum, d) => sum + (d.capacity || 0), 0),
@@ -4763,7 +4946,7 @@ const app = {
                             <!-- Stats Grid -->
                             <div class="flex flex-col gap-2 text-xs mt-auto">
                                 <!-- Group 1: Device Status -->
-                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-3 gap-2 group-hover:border-gray-300 transition-colors">
+                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-4 gap-2 group-hover:border-gray-300 transition-colors">
                                     <!-- DERs Total -->
                                     <div class="flex flex-col items-center justify-center gap-1 text-center">
                                         <span class="text-gray-500 text-[10px] scale-90">DERs</span>
@@ -4778,6 +4961,11 @@ const app = {
                                     <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
                                         <span class="text-gray-500 text-[10px] scale-90">Offline</span>
                                         <span class="font-mono font-medium text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
+                                    </div>
+                                    <!-- Disconnected -->
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
+                                        <span class="text-gray-500 text-[10px] scale-90">Disconnected</span>
+                                        <span class="font-mono font-medium text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                     </div>
                                 </div>
 
@@ -4869,6 +5057,8 @@ const app = {
                                                         <span class="text-green-600" title="Online">${stats.inv.online + stats.bat.online}</span>
                                                         <span class="text-gray-300">/</span>
                                                         <span class="text-gray-400" title="Offline">${stats.inv.offline + stats.bat.offline}</span>
+                                                        <span class="text-gray-300">/</span>
+                                                        <span class="text-red-500" title="Disconnected">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -4888,6 +5078,9 @@ const app = {
                                                     </button>
                                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-manta-primary transition-colors" title="Edit VPP">
                                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-600 transition-colors" title="Delete VPP">
+                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                     </button>
                                                 </div>
                                             </td>
@@ -4914,7 +5107,8 @@ const app = {
         const allVppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
         const totalDevices = allVppDevices.length;
         const onlineDevices = allVppDevices.filter(d => d.status === 'online').length;
-        const offlineDevices = totalDevices - onlineDevices;
+        const offlineDevices = allVppDevices.filter(d => d.status === 'offline').length;
+        const disconnectedDevices = allVppDevices.filter(d => d.status === 'disconnected').length;
 
         const invs = allVppDevices.filter(d => d.type === 'Inverter');
         const bats = allVppDevices.filter(d => d.type === 'Battery');
@@ -4986,8 +5180,8 @@ const app = {
             </div>
 
             <!-- Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
                     <div class="flex flex-col items-center">
                          <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs Total</span>
                          <span class="text-xl font-bold text-gray-900">${totalDevices}</span>
@@ -5000,7 +5194,12 @@ const app = {
                     <div class="w-px h-8 bg-gray-200"></div>
                     <div class="flex flex-col items-center">
                          <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
-                         <span class="text-xl font-bold text-red-600">${offlineDevices}</span>
+                         <span class="text-xl font-bold text-gray-400">${offlineDevices}</span>
+                    </div>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex flex-col items-center">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
+                         <span class="text-xl font-bold text-red-500">${disconnectedDevices}</span>
                     </div>
                 </div>
                 <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
@@ -5030,10 +5229,10 @@ const app = {
                 <div class="flex justify-between items-center px-6 pt-4 border-b border-gray-200 bg-gray-50">
                      <div class="flex gap-6">
                         <button onclick="app.setVPPDetailsTab('der-list')" class="pb-4 text-sm font-medium border-b-2 transition-colors ${state.vppDetailsTab === 'der-list' ? 'border-manta-primary text-manta-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}">
-                            DER List
+                            DERs
                         </button>
                         <button onclick="app.setVPPDetailsTab('event-list')" class="pb-4 text-sm font-medium border-b-2 transition-colors ${state.vppDetailsTab === 'event-list' ? 'border-manta-primary text-manta-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}">
-                            Event List
+                            Events
                         </button>
                      </div>
                      <div class="flex gap-2 pb-4">
@@ -5059,9 +5258,9 @@ const app = {
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="text-xs text-gray-500 border-b border-gray-200">
+                                <th class="pb-3 font-medium">Status</th>
                                 <th class="pb-3 font-medium">SN</th>
                                 <th class="pb-3 font-medium">Manufacturer</th>
-                                <th class="pb-3 font-medium">Status</th>
                                 <th class="pb-3 font-medium">Rated Power</th>
                                 <th class="pb-3 font-medium">PV Capacity</th>
                                 <th class="pb-3 font-medium">SOC</th>
@@ -5090,14 +5289,14 @@ const app = {
                                 
                                 return `
                                 <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                    <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
-                                    <td class="py-3 text-gray-500">${dev.vendor}</td>
                                     <td class="py-3">
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
                                             <span class="w-1 h-1 rounded-full bg-current"></span>
                                             ${dev.status}
                                         </span>
                                     </td>
+                                    <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
+                                    <td class="py-3 text-gray-500">${dev.vendor}</td>
                                     <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
                                     <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
                                     <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
@@ -5309,6 +5508,49 @@ const app = {
             this.toggleModal(false);
             if (onConfirm) onConfirm();
         };
+    },
+
+    confirmDeleteVPP(vppId) {
+        const vpp = state.vpps.find(v => v.id === vppId);
+        if (!vpp) return;
+
+        const deviceCount = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id).length;
+
+        if (deviceCount > 0) {
+            // Cannot delete modal
+            this.updateModalWidth('max-w-md');
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <div class="p-8 text-center bg-white rounded-2xl">
+                    <div class="w-16 h-16 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 border border-orange-100">
+                        <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Delete a VPP?</h3>
+                    <p class="text-gray-500 mb-8 text-base leading-relaxed">Cannot delete VPP while devices are assigned.</p>
+                    <button onclick="app.toggleModal(false)" class="w-full py-3 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-all font-bold shadow-lg shadow-gray-900/20">OK</button>
+                </div>
+            `;
+            this.toggleModal(true);
+            lucide.createIcons();
+        } else {
+            // Confirm delete modal
+            this.showConfirmModal(
+                'Delete?',
+                'Are you sure you want to delete this VPP?',
+                () => this.deleteVPP(vppId)
+            );
+        }
+    },
+
+    deleteVPP(vppId) {
+        // Remove VPP from state
+        state.vpps = state.vpps.filter(v => v.id !== vppId);
+        
+        // Re-render VPP list
+        this.renderVPP(document.getElementById('content-area'));
+        lucide.createIcons();
+        
+        this.showToast('VPP deleted successfully', 'success');
     },
 
     showAlertModal(title, message) {
@@ -5914,7 +6156,7 @@ const app = {
                         type: typeLabel,
                         vendor: m,
                         deviceCount: Math.floor(Math.random() * 10) + 1, // Random mock count
-                        status: 'connecting'
+                        status: 'establishing'
                     };
 
                     if (connectionMode === 'add') {
@@ -5960,13 +6202,13 @@ const app = {
             // Add new systems to state
             state.systems.push(...newSystems);
 
-            // Auto-update connecting status after 10s
+            // Auto-update establishing status after 10s
             newSystems.forEach(sys => {
-                if (sys.status === 'connecting') {
+                if (sys.status === 'establishing') {
                     setTimeout(() => {
                         const targetSys = state.systems.find(s => s.id === sys.id);
                         if (targetSys) {
-                            targetSys.status = 'connected';
+                            targetSys.status = 'established';
                             // Re-render if we are in device management view
                             if (state.currentView === 'device_management') {
                                 this.renderDeviceManagement(document.getElementById('content-area'));
