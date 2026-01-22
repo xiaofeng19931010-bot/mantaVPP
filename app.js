@@ -4702,93 +4702,185 @@ const app = {
     renderDERManagement(container, filterType = 'All') {
         container.className = 'flex-1 flex flex-col h-full fade-in p-8 gap-4';
         
-        let filteredDevices = state.devices || [];
+        let filteredDevices = [...(state.devices || [])];
         if (filterType !== 'All') {
             filteredDevices = filteredDevices.filter(d => d.type === filterType);
+        }
+
+        // Mock data generation to simulate display if count is low
+        if (filteredDevices.length < 10) {
+             const manufacturers = ['Tesla', 'Sungrow', 'BYD', 'Huawei', 'SolarEdge'];
+             const statuses = ['online', 'offline', 'disconnected'];
+             const states = ['NSW', 'VIC', 'QLD', 'SA', 'WA'];
+             
+             for (let i = 0; i < 15; i++) {
+                 const type = Math.random() > 0.5 ? 'Inverter' : 'Battery';
+                 // If specific filter is active, force that type
+                 const finalType = filterType !== 'All' ? filterType : type;
+                 const isBattery = finalType === 'Battery';
+                 const capacity = Math.floor(Math.random() * 50) + 5;
+                 
+                 filteredDevices.push({
+                     sn: `${finalType === 'Inverter' ? 'INV' : 'BAT'}-SIM-${Date.now()}-${i}`,
+                     nmi: `NMI${Math.floor(Math.random() * 1000000000)}`,
+                     vendor: manufacturers[Math.floor(Math.random() * manufacturers.length)],
+                     status: statuses[Math.floor(Math.random() * statuses.length)],
+                     type: finalType,
+                     capacity: capacity,
+                     soc: isBattery ? Math.floor(Math.random() * 100) : undefined,
+                     vppId: state.vpps.length > 0 ? state.vpps[Math.floor(Math.random() * state.vpps.length)].id : null,
+                     mockState: states[Math.floor(Math.random() * states.length)]
+                 });
+             }
         }
 
         const title = filterType === 'All' ? 'DER Management' : `${filterType} Management`;
 
         container.innerHTML = `
             <!-- Stats Overview -->
-            <div class="grid grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-blue-50 text-blue-600">
-                        <i data-lucide="cpu" class="w-6 h-6"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+                <!-- 1-4. Status Combined Card -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
+                    <div class="flex flex-col items-center flex-1">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs Total</span>
+                         <span class="text-xl font-bold text-gray-900">${filteredDevices.length}</span>
                     </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total DERs</p>
-                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.length}</p>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex flex-col items-center flex-1">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
+                         <span class="text-xl font-bold text-green-600">${filteredDevices.filter(d => d.status === 'online').length}</span>
                     </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-green-50 text-green-600">
-                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex flex-col items-center flex-1">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
+                         <span class="text-xl font-bold text-gray-400">${filteredDevices.filter(d => d.status === 'offline').length}</span>
                     </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Online</p>
-                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.filter(d => d.status === 'online').length}</p>
-                    </div>
-                </div>
-                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-yellow-50 text-yellow-600">
-                        <i data-lucide="zap" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Capacity</p>
-                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1)} kW</p>
+                    <div class="w-px h-8 bg-gray-200"></div>
+                    <div class="flex flex-col items-center flex-1">
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
+                         <span class="text-xl font-bold text-red-500">${filteredDevices.filter(d => d.status === 'disconnected').length}</span>
                     </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-                    <div class="p-3 rounded-lg bg-purple-50 text-purple-600">
-                        <i data-lucide="battery-charging" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Energy</p>
-                        <p class="text-2xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.currentEnergy || 0), 0).toFixed(1)} kWh</p>
-                    </div>
+
+                <!-- 5. Rated Power -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
+                    <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1)} kW</span>
+                </div>
+
+                <!-- 6. PV Capacity -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
+                    <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.type === 'Inverter' ? (d.capacity || 0) * 1.2 : 0), 0).toFixed(1)} kW</span>
+                </div>
+
+                <!-- 7. SOC -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">SOC</span>
+                    ${(() => {
+                        const bats = filteredDevices.filter(d => d.type === 'Battery');
+                        if (!bats.length) return '<span class="text-xl font-bold text-gray-900">-</span>';
+                        
+                        const totalCap = bats.reduce((acc, d) => acc + (d.capacity || 0), 0);
+                        const totalEnergy = bats.reduce((acc, d) => {
+                             const soc = d.soc !== undefined ? d.soc : 50;
+                             return acc + ((d.capacity || 0) * soc / 100);
+                        }, 0);
+                        const avgSoc = totalCap > 0 ? Math.round((totalEnergy / totalCap) * 100) : 0;
+                        
+                        return `
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-gray-900">${avgSoc}%</div>
+                                <div class="text-[10px] text-gray-500">(${totalEnergy.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
+                            </div>
+                        `;
+                    })()}
+                </div>
+
+                <!-- 8. Today Yield -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
+                    <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + ((d.capacity || 0) * 3), 0).toFixed(1)} kWh</span>
                 </div>
             </div>
 
             <!-- Device List -->
             <div class="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
-                <div class="overflow-x-auto flex-1">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-gray-50 sticky top-0 z-10">
-                            <tr>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Name</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Type</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Vendor</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Capacity</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+                     <h2 class="text-lg font-bold text-gray-900">ESSs</h2>
+                     <div class="flex gap-2">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" placeholder="Search" class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary/50 w-64 transition-colors placeholder:text-gray-400">
+                        </div>
+                     </div>
+                </div>
+                <div class="flex-1 overflow-auto p-6">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead>
+                            <tr class="text-xs text-gray-500 border-b border-gray-200">
+                                <th class="px-4 py-3 font-medium">Status</th>
+                                <th class="px-4 py-3 font-medium">SN</th>
+                                <th class="px-4 py-3 font-medium">NMI</th>
+                                <th class="px-4 py-3 font-medium">Manufacturer</th>
+                                <th class="px-4 py-3 font-medium">State</th>
+                                <th class="px-4 py-3 font-medium text-right">Rated Power</th>
+                                <th class="px-4 py-3 font-medium text-right">PV Capacity</th>
+                                <th class="px-4 py-3 font-medium text-center">SOC</th>
+                                <th class="px-4 py-3 font-medium text-right">Today Yield</th>
+                                <th class="px-4 py-3 font-medium">VPP Name</th>
+                                <th class="px-4 py-3 font-medium text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            ${filteredDevices.length > 0 ? filteredDevices.map(dev => `
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="py-3 px-4">
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                        <tbody class="text-sm">
+                            ${filteredDevices.length > 0 ? filteredDevices.map(dev => {
+                                const vpp = state.vpps.find(v => v.id === dev.vppId) || {};
+                                const capacity = dev.capacity || 5;
+                                const ratedPower = capacity.toFixed(1) + ' kW';
+                                const pvCapacity = dev.type === 'Inverter' ? (capacity * 1.2).toFixed(1) + ' kW' : '-';
+                                
+                                let socDisplay = '-';
+                                if (dev.type === 'Battery') {
+                                    const socVal = dev.soc !== undefined ? dev.soc : Math.floor(40 + Math.random() * 40);
+                                    const totalCap = capacity;
+                                    const currentEn = (totalCap * socVal) / 100;
+                                    socDisplay = `
+                                        <div>
+                                            <div class="text-gray-900">${socVal}%</div>
+                                            <div class="text-[10px] text-gray-500">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
+                                
+                                return `
+                                <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">
+                                            <span class="w-1 h-1 rounded-full bg-current"></span>
                                             ${dev.status}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4">
-                                        <div class="font-medium text-gray-900">${dev.name}</div>
-                                        <div class="text-xs text-gray-500 font-mono">${dev.sn || '-'}</div>
-                                    </td>
-                                    <td class="py-3 px-4 text-sm text-gray-600">${dev.type}</td>
-                                    <td class="py-3 px-4 text-sm text-gray-600">${dev.vendor}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-sm text-gray-900">${dev.capacity} kW</td>
-                                    <td class="py-3 px-4 text-center">
-                                        <button class="text-gray-400 hover:text-manta-primary transition-colors">
-                                            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                                    <td class="px-4 py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn || '-'}</td>
+                                    <td class="px-4 py-3 text-gray-500 font-mono">${dev.nmi || '-'}</td>
+                                    <td class="px-4 py-3 text-gray-500">${dev.vendor}</td>
+                                    <td class="px-4 py-3 text-gray-500">${vpp.state || dev.mockState || '-'}</td>
+                                    <td class="px-4 py-3 text-gray-500 font-mono text-right">${ratedPower}</td>
+                                    <td class="px-4 py-3 text-gray-500 font-mono text-right">${pvCapacity}</td>
+                                    <td class="px-4 py-3 text-gray-500 font-mono text-center">${socDisplay}</td>
+                                    <td class="px-4 py-3 text-gray-500 font-mono text-right">${todayYield}</td>
+                                    <td class="px-4 py-3 text-gray-500">${vpp.name || '-'}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button onclick="app.openDeviceEditModal('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
                                         </button>
                                     </td>
                                 </tr>
-                            `).join('') : `
+                            `;
+                            }).join('') : `
                                 <tr>
-                                    <td colspan="6" class="py-8 text-center text-gray-500">No devices found</td>
+                                    <td colspan="11" class="py-8 text-center text-gray-500">No devices found</td>
                                 </tr>
                             `}
                         </tbody>
@@ -4796,6 +4888,90 @@ const app = {
                 </div>
             </div>
         `;
+    },
+
+    openDeviceEditModal(sn) {
+        const device = state.devices.find(d => d.sn === sn);
+        if (!device) return;
+
+        this.updateModalWidth('max-w-lg');
+        const content = document.getElementById('modal-content');
+        
+        content.innerHTML = `
+            <div class="p-6 bg-white rounded-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-900">Edit Device</h3>
+                    <button onclick="app.closeModal()" class="text-gray-400 hover:text-gray-900 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form onsubmit="app.handleDeviceSubmit(event, '${sn}')" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-gray-500">Serial Number</label>
+                        <input type="text" value="${device.sn}" disabled class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-gray-500 cursor-not-allowed">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-gray-500">NMI</label>
+                        <input type="text" name="nmi" value="${device.nmi || ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-gray-500">Manufacturer</label>
+                        <input type="text" name="vendor" value="${device.vendor || ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all">
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-gray-500">Rated Power (kW)</label>
+                        <input type="number" step="0.1" name="capacity" value="${device.capacity || 0}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-gray-500">Assigned VPP</label>
+                        <div class="relative">
+                            <select name="vppId" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
+                                <option value="">Unassigned</option>
+                                ${state.vpps.map(v => `<option value="${v.id}" ${v.id === device.vppId ? 'selected' : ''}>${v.name}</option>`).join('')}
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-3">
+                        <button type="button" onclick="app.closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors font-medium">Cancel</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-manta-primary text-white hover:bg-manta-dark transition-colors font-medium shadow-sm">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        this.toggleModal(true);
+        lucide.createIcons();
+    },
+
+    handleDeviceSubmit(event, sn) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const updates = {
+            nmi: formData.get('nmi'),
+            vendor: formData.get('vendor'),
+            capacity: parseFloat(formData.get('capacity')),
+            vppId: formData.get('vppId') ? parseInt(formData.get('vppId')) : null
+        };
+
+        const deviceIndex = state.devices.findIndex(d => d.sn === sn);
+        if (deviceIndex !== -1) {
+            state.devices[deviceIndex] = { ...state.devices[deviceIndex], ...updates };
+            
+            const container = document.getElementById('content-area');
+            if (state.currentView === 'der') {
+                this.renderDERManagement(container, state.currentFilter || 'All');
+            }
+            
+            this.closeModal();
+            this.showToast('Device updated successfully', 'success');
+        }
     },
 
     renderVPP(container) {
