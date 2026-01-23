@@ -4328,11 +4328,12 @@ const app = {
                                     <!-- Header Section -->
                                     <div class="flex justify-between items-start mb-3">
                                         <div>
-                                            <div class="flex items-center gap-2 mb-2 pr-20">
-                                                <h3 class="font-bold text-gray-900 transition-colors line-clamp-1">${sys.name}</h3>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">${sys.type}</p>
+                                            <div class="flex items-center gap-1 mb-2 pr-20">
+                                                <h3 class="font-bold text-gray-900 transition-colors truncate min-w-0" title="${sys.name}">${sys.name}</h3>
+                                                <span class="flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap uppercase">
+                                                    <i data-lucide="${sys.type === 'Cloud' ? 'cloud' : sys.type === 'Edge' ? 'server' : 'activity'}" class="w-3 h-3 text-gray-400"></i>
+                                                    ${sys.type}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -4362,25 +4363,6 @@ const app = {
                                                 <span class="font-mono font-medium text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                             </div>
                                         </div>
-
-                                        <!-- Group 2: Energy Stats -->
-                                        <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-3 gap-2 group-hover:border-gray-300 transition-colors">
-                                            <!-- Inv Power -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center">
-                                                <span class="text-gray-500 text-[10px] scale-90">Rated Power</span>
-                                                <span class="font-mono font-medium text-gray-900">${stats.inv.cap} kW</span>
-                                            </div>
-                                            <!-- PV Capacity -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                                <span class="text-gray-500 text-[10px] scale-90">PV Capacity</span>
-                                                <span class="font-mono font-medium text-gray-900">${stats.inv.pvCapacity} kW</span>
-                                            </div>
-                                            <!-- SOC -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                                <span class="text-gray-500 text-[10px] scale-90">SOC</span>
-                                                <span class="font-mono font-medium text-gray-900 text-[10px]">${stats.bat.socPercentage}% (${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)}kWh)</span>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             `).join('')}
@@ -4395,9 +4377,9 @@ const app = {
                                             <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Type</th>
                                             <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status</th>
                                             <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Rated Power</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">PV Capacity</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">SOC</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Online</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Offline</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Disconnected</th>
                                             <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -4416,26 +4398,16 @@ const app = {
                                                     </span>
                                                 </td>
                                                 <td class="py-3 px-4 text-center">
-                                                    <div class="flex flex-col items-center gap-1">
-                                                        <span class="font-medium text-gray-900">${sysDevices.length}</span>
-                                                        <div class="flex gap-1 text-[10px]">
-                                                            <span class="text-green-600" title="Online">${stats.inv.online + stats.bat.online}</span>
-                                                            <span class="text-gray-300">/</span>
-                                                            <span class="text-gray-400" title="Offline">${stats.inv.offline + stats.bat.offline}</span>
-                                                            <span class="text-gray-300">/</span>
-                                                            <span class="text-red-500" title="Disconnected">${stats.inv.disconnected + stats.bat.disconnected}</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="py-3 px-4 text-right">
-                                                    <div class="text-sm text-gray-900 font-mono">${stats.inv.cap} kW</div>
-                                                </td>
-                                                <td class="py-3 px-4 text-right">
-                                                    <div class="text-sm text-gray-900 font-mono">${stats.inv.pvCapacity} kW</div>
+                                                    <span class="font-medium text-gray-900">${sysDevices.length}</span>
                                                 </td>
                                                 <td class="py-3 px-4 text-center">
-                                                    <div class="text-sm text-gray-900 font-mono">${stats.bat.socPercentage}%</div>
-                                                    <div class="text-[10px] text-gray-500">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)} kWh)</div>
+                                                    <span class="text-green-600 font-medium">${stats.inv.online + stats.bat.online}</span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="text-gray-400 font-medium">${stats.inv.offline + stats.bat.offline}</span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="text-red-500 font-medium">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                                 </td>
                                                 <td class="py-3 px-4 text-center">
                                                     <div class="flex items-center justify-center gap-2">
@@ -4558,7 +4530,7 @@ const app = {
                     <i data-lucide="cpu" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Total DERs</p>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">DERs</p>
                 </div>
                 <div class="absolute top-4 right-4">
                     <p class="text-2xl font-bold text-gray-900">${totalDevices}</p>
@@ -4628,10 +4600,7 @@ const app = {
                             <th class="pb-3 font-medium">Status</th>
                             <th class="pb-3 font-medium">SN</th>
                             <th class="pb-3 font-medium">Manufacturer</th>
-                            <th class="pb-3 font-medium">Rated Power</th>
-                            <th class="pb-3 font-medium">PV Capacity</th>
-                            <th class="pb-3 font-medium">SOC</th>
-                            <th class="pb-3 font-medium">Today Yield</th>
+                            <th class="pb-3 font-medium">State</th>
                             <th class="pb-3 font-medium">Actions</th>
                         </tr>
                     </thead>
@@ -4664,10 +4633,7 @@ const app = {
                                 </td>
                                 <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
                                 <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
-                                <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
-                                <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
-                                <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
-                                <td class="py-3 text-gray-500 font-mono">${todayYield}</td>
+                                <td class="py-3 text-gray-500">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
                                 <td class="py-3">
                                     <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
@@ -4676,7 +4642,7 @@ const app = {
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="8" class="py-8 text-center text-gray-400">
+                                <td colspan="9" class="py-8 text-center text-gray-400">
                                     No devices found.
                                 </td>
                             </tr>
@@ -4738,11 +4704,11 @@ const app = {
 
         container.innerHTML = `
             <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 ${filterType !== 'Inverter' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4 mb-4">
                 <!-- 1-4. Status Combined Card -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
                     <div class="flex flex-col items-center flex-1">
-                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs Total</span>
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">${filterType === 'Inverter' ? 'PVs' : (filterType === 'EV' ? 'EVs' : 'ESSs')}</span>
                          <span class="text-xl font-bold text-gray-900">${filteredDevices.length}</span>
                     </div>
                     <div class="w-px h-8 bg-gray-200"></div>
@@ -4762,6 +4728,7 @@ const app = {
                     </div>
                 </div>
 
+                ${filterType !== 'EV' ? `
                 <!-- 5. Rated Power -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
@@ -4773,7 +4740,9 @@ const app = {
                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
                     <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.type === 'Inverter' ? (d.capacity || 0) * 1.2 : 0), 0).toFixed(1)} kW</span>
                 </div>
+                ` : ''}
 
+                ${filterType !== 'Inverter' ? `
                 <!-- 7. SOC -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">SOC</span>
@@ -4796,18 +4765,21 @@ const app = {
                         `;
                     })()}
                 </div>
+                ` : ''}
 
+                ${filterType !== 'EV' ? `
                 <!-- 8. Today Yield -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
                     <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + ((d.capacity || 0) * 3), 0).toFixed(1)} kWh</span>
                 </div>
+                ` : ''}
             </div>
 
             <!-- Device List -->
             <div class="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                     <h2 class="text-lg font-bold text-gray-900">ESSs</h2>
+                     <h2 class="text-lg font-bold text-gray-900">${filterType === 'Inverter' ? 'PVs' : (filterType === 'EV' ? 'EVs' : 'ESSs')}</h2>
                      <div class="flex gap-2">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
@@ -4824,10 +4796,12 @@ const app = {
                                 <th class="px-4 py-3 font-medium">NMI</th>
                                 <th class="px-4 py-3 font-medium">Manufacturer</th>
                                 <th class="px-4 py-3 font-medium">State</th>
+                                ${filterType !== 'EV' ? `
                                 <th class="px-4 py-3 font-medium text-right">Rated Power</th>
                                 <th class="px-4 py-3 font-medium text-right">PV Capacity</th>
-                                <th class="px-4 py-3 font-medium text-center">SOC</th>
-                                <th class="px-4 py-3 font-medium text-right">Today Yield</th>
+                                ` : ''}
+                                ${filterType !== 'Inverter' ? '<th class="px-4 py-3 font-medium text-center">SOC</th>' : ''}
+                                ${filterType !== 'EV' ? `<th class="px-4 py-3 font-medium text-right">Today Yield</th>` : ''}
                                 <th class="px-4 py-3 font-medium">VPP Name</th>
                                 <th class="px-4 py-3 font-medium text-center">Actions</th>
                             </tr>
@@ -4859,17 +4833,19 @@ const app = {
                                     <td class="px-4 py-3">
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">
                                             <span class="w-1 h-1 rounded-full bg-current"></span>
-                                            ${dev.status}
+                                            ${dev.status.charAt(0).toUpperCase() + dev.status.slice(1)}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn || '-'}</td>
                                     <td class="px-4 py-3 text-gray-500 font-mono">${dev.nmi || '-'}</td>
                                     <td class="px-4 py-3 text-gray-500">${dev.vendor}</td>
                                     <td class="px-4 py-3 text-gray-500">${vpp.state || dev.mockState || '-'}</td>
+                                    ${filterType !== 'EV' ? `
                                     <td class="px-4 py-3 text-gray-500 font-mono text-right">${ratedPower}</td>
                                     <td class="px-4 py-3 text-gray-500 font-mono text-right">${pvCapacity}</td>
-                                    <td class="px-4 py-3 text-gray-500 font-mono text-center">${socDisplay}</td>
-                                    <td class="px-4 py-3 text-gray-500 font-mono text-right">${todayYield}</td>
+                                    ` : ''}
+                                    ${filterType !== 'Inverter' ? `<td class="px-4 py-3 text-gray-500 font-mono text-center">${socDisplay}</td>` : ''}
+                                    ${filterType !== 'EV' ? `<td class="px-4 py-3 text-gray-500 font-mono text-right">${todayYield}</td>` : ''}
                                     <td class="px-4 py-3 text-gray-500">${vpp.name || '-'}</td>
                                     <td class="px-4 py-3 text-center">
                                         <button onclick="app.openDeviceEditModal('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
@@ -5107,9 +5083,11 @@ const app = {
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
                                         <h3 class="font-bold text-gray-900 group-hover:text-manta-primary transition-colors line-clamp-1">${vpp.name}</h3>
-                                        ${isSelected ? '<span class="flex h-2 w-2 rounded-full bg-manta-primary shrink-0"></span>' : ''}
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap">
+                                            <i data-lucide="map-pin" class="w-3 h-3 text-gray-400"></i>
+                                            ${vpp.state || '-'}
+                                        </span>
                                     </div>
-                                    <div class="text-xs text-gray-500">${vpp.state || '-'}</div>
                                 </div>
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="px-2 py-1 rounded bg-white border border-gray-200 hover:bg-gray-100 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-1">
@@ -5168,7 +5146,6 @@ const app = {
                                         <span class="font-mono font-medium text-gray-900">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</span>
                                     </div>
                                 </div>
-                            </div>
                         </div>
                     `}).join('')}
                 </div>
@@ -5178,8 +5155,7 @@ const app = {
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-gray-50 sticky top-0 z-10">
                                 <tr>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">VPP Name</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Company</th>
+                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Name</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">State</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
                                     <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Rated Power</th>
@@ -5220,7 +5196,6 @@ const app = {
                                             <td class="py-3 px-4">
                                                 <div class="font-medium text-gray-900">${vpp.name}</div>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-gray-500">${vpp.company || '-'}</td>
                                             <td class="py-3 px-4 text-sm text-gray-500">
                                                 <div class="flex flex-col">
                                                     <span>${vpp.state || '-'}</span>
@@ -5335,7 +5310,7 @@ const app = {
             <!-- Summary Cards -->
             <!-- Info Card -->
             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4 flex items-center gap-4">
-                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-center gap-2 min-w-0">
                         <i data-lucide="building-2" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
                         <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">Company:</span>${vpp.company || '-'}</div>
@@ -5348,10 +5323,7 @@ const app = {
                         <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
                         <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">State:</span>${vpp.state || '-'}</div>
                     </div>
-                    <div class="flex items-center gap-2 min-w-0">
-                        <i data-lucide="zap" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                        <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">DNSP:</span>${vpp.dnsp || '-'}</div>
-                    </div>
+
                 </div>
             </div>
 
@@ -5359,7 +5331,7 @@ const app = {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
                 <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
                     <div class="flex flex-col items-center">
-                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs Total</span>
+                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs</span>
                          <span class="text-xl font-bold text-gray-900">${totalDevices}</span>
                     </div>
                     <div class="w-px h-8 bg-gray-200"></div>
@@ -5437,6 +5409,7 @@ const app = {
                                 <th class="pb-3 font-medium">Status</th>
                                 <th class="pb-3 font-medium">SN</th>
                                 <th class="pb-3 font-medium">Manufacturer</th>
+                                <th class="pb-3 font-medium">State</th>
                                 <th class="pb-3 font-medium">Rated Power</th>
                                 <th class="pb-3 font-medium">PV Capacity</th>
                                 <th class="pb-3 font-medium">SOC</th>
@@ -5473,6 +5446,7 @@ const app = {
                                     </td>
                                     <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
                                     <td class="py-3 text-gray-500">${dev.vendor}</td>
+                                    <td class="py-3 text-gray-500">${vpp.state || '-'}</td>
                                     <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
                                     <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
                                     <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
@@ -5485,7 +5459,7 @@ const app = {
                                 </tr>
                             `}).join('') : `
                                 <tr>
-                                    <td colspan="8" class="py-8 text-center text-gray-500">
+                                    <td colspan="9" class="py-8 text-center text-gray-500">
                                         当前暂无设备
                                     </td>
                                 </tr>
@@ -6061,7 +6035,23 @@ const app = {
 
         const scadaOptions = getOptions('SCADA');
         const edgeOptions = getOptions('EDGE');
-        const manufacturers = getOptions('CLOUD');
+        // const manufacturers = getOptions('CLOUD');
+        const allManufacturers = [
+            'Sungrow',
+            'Huawei', 
+            'Growatt',
+            'Ginlong (Solis)',
+            'GoodWe',
+            'SofarSolar',
+            'SolaX Power',
+            'Tesla', 
+            'Fronius',
+            'SMA',
+            'Delta', 
+            'Enphase'
+        ];
+
+        const manufacturers = allManufacturers.filter(m => !connectedSystemNames.includes(m));
 
         drawerContent.innerHTML = `
             <div class="p-6 h-full flex flex-col">
@@ -6328,7 +6318,7 @@ const app = {
 
                     const systemData = {
                         id: timestamp + index,
-                        name: `${m} ${typeLabel}`,
+                        name: m,
                         type: typeLabel,
                         vendor: m,
                         deviceCount: Math.floor(Math.random() * 10) + 1, // Random mock count
