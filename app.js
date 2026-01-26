@@ -640,7 +640,6 @@ const titles = {
     overview: 'Overview',
     electricity_market: 'Electricity Market',
     spot_market: 'Spot Market',
-    wholesale_price: 'Wholesale Price',
     arbitrage_points: 'Arbitrage Points',
     trading: 'Trading',
     trading_rules: 'Trading Rules',
@@ -867,7 +866,6 @@ const app = {
             'overview': [{label: 'Overview'}],
             'electricity_market': [{label: 'Electricity Market'}],
             'spot_market': [{label: 'Electricity Market'}, {label: 'Spot Market'}],
-            'wholesale_price': [{label: 'Electricity Market'}, {label: 'Wholesale Price'}],
             'arbitrage_points': [{label: 'Electricity Market'}, {label: 'Arbitrage Points'}],
             'trading': [{label: 'Trading'}],
             'trading_rules': [{label: 'Trading'}, {label: 'Trading Rules'}],
@@ -953,7 +951,7 @@ const app = {
         if (navItem) navItem.classList.add('active');
 
         // Handle Electricity Market Submenu Expansion
-        const electricityMarketViews = ['spot_market', 'wholesale_price', 'arbitrage_points'];
+        const electricityMarketViews = ['spot_market', 'arbitrage_points'];
         const electricityMarketSubmenu = document.getElementById('electricity-market-submenu');
         const electricityMarketToggle = document.querySelector('a[onclick*="electricity-market-submenu"] .chevron-icon');
 
@@ -1062,8 +1060,6 @@ const app = {
 
         if (viewName === 'overview') {
             this.renderOverview(contentArea);
-        } else if (viewName === 'wholesale_price') {
-            this.renderWholesalePrice(contentArea);
         } else if (viewName === 'arbitrage_points') {
             this.renderArbitragePoints(contentArea);
         } else if (viewName === 'trading_rules') {
@@ -1119,88 +1115,7 @@ const app = {
     },
 
     renderSpotMarket(container) {
-        // Generate Mock Data for Spot Market
-        const now = new Date();
-        const timestamps = [];
-        const prices = [];
-        const predictions = [];
-        const confidenceUpper95 = [];
-        const confidenceLower95 = [];
-        const confidenceUpper80 = [];
-        const confidenceLower80 = [];
-        const signals = [];
-        const ma20 = [];
-        const rsi = [];
-        
-        let currentPrice = 0.68;
-        let trend = 0;
-        let gains = 0;
-        let losses = 0;
-        
-        for (let i = 0; i < 24 * 60; i += 5) { // 5 min intervals for 24h
-            const t = new Date(now.getTime() - (24 * 60 - i) * 60000);
-            timestamps.push(t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-            
-            // Random walk price
-            trend += (Math.random() - 0.5) * 0.02;
-            currentPrice += trend + (Math.random() - 0.5) * 0.05;
-            if (currentPrice < 0.1) currentPrice = 0.1;
-            
-            prices.push(currentPrice.toFixed(3));
-            
-            // Prediction logic
-            const pred = currentPrice * (1 + (Math.random() - 0.5) * 0.05);
-            predictions.push(pred.toFixed(3));
-            
-            // Confidence Intervals (95% and 80%)
-            confidenceUpper95.push((pred * 1.10).toFixed(3));
-            confidenceLower95.push((pred * 0.90).toFixed(3));
-            confidenceUpper80.push((pred * 1.05).toFixed(3));
-            confidenceLower80.push((pred * 0.95).toFixed(3));
-            
-            // Signals
-            if (i > 50 && Math.random() > 0.985) {
-                const type = Math.random() > 0.5 ? 'buy' : 'sell';
-                signals.push({
-                    coord: [timestamps[timestamps.length - 1], currentPrice],
-                    value: type === 'buy' ? '+12%' : '-8%',
-                    itemStyle: { color: type === 'buy' ? '#10B981' : '#EF4444' },
-                    symbol: type === 'buy' ? 'triangle' : 'triangle',
-                    symbolRotate: type === 'buy' ? 0 : 180,
-                    name: type.toUpperCase()
-                });
-            }
-            
-            // MA20
-            if (prices.length >= 20) {
-                const sum = prices.slice(-20).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-                ma20.push((sum / 20).toFixed(3));
-            } else {
-                ma20.push(currentPrice.toFixed(3));
-            }
 
-            // RSI Calculation (Simplified 14-period)
-            if (i > 0) {
-                const change = currentPrice - parseFloat(prices[prices.length - 2]);
-                if (change > 0) {
-                    gains = (gains * 13 + change) / 14;
-                    losses = (losses * 13) / 14;
-                } else {
-                    gains = (gains * 13) / 14;
-                    losses = (losses * 13 - change) / 14;
-                }
-                
-                if (i >= 14 * 5) {
-                    const rs = gains / (losses || 1); // Avoid div by zero
-                    const rsiVal = 100 - (100 / (1 + rs));
-                    rsi.push(rsiVal.toFixed(2));
-                } else {
-                    rsi.push(50);
-                }
-            } else {
-                rsi.push(50);
-            }
-        }
 
         container.innerHTML = `
             <div class="h-full flex flex-col bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
@@ -1208,7 +1123,7 @@ const app = {
                 <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-gray-500">Market:</span>
+                            <span class="text-sm font-medium text-gray-500">Pricing Region:</span>
                             <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
                                 <option>NSW</option>
                                 <option>VIC</option>
@@ -1217,93 +1132,18 @@ const app = {
                                 <option>TAS</option>
                             </select>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-gray-500">Time Range:</span>
-                            <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
-                                <option>Last 24h</option>
-                                <option>Last 7 Days</option>
-                            </select>
+                        <div class="flex p-1 bg-gray-100 rounded-lg">
+                            <button id="spot-tab-realtime" class="px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all">Real-time</button>
+                            <button id="spot-tab-historical" class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Historical</button>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-gray-500">Refresh:</span>
-                            <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
-                                <option>Real-time</option>
-                                <option>5s</option>
-                                <option>30s</option>
-                            </select>
+                        <div id="spot-date-picker-container" class="hidden flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                            <span class="text-sm font-medium text-gray-500">Date:</span>
+                            <input type="date" id="spot-date-picker" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
                         </div>
+
                     </div>
+
                     <div class="flex items-center gap-2">
-                        <span class="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-medium">Market Open</span>
-                    </div>
-                </div>
-
-                <!-- Main Content -->
-                <div class="flex flex-1 min-h-0">
-                    <!-- Chart Area (80%) -->
-                    <div class="flex-[4] bg-white border-r border-gray-200 relative flex flex-col">
-                        <div id="spot-market-chart" class="w-full h-full"></div>
-                    </div>
-
-                    <!-- Sidebar (20%) -->
-                    <div class="flex-1 bg-white p-4 flex flex-col gap-6 overflow-y-auto">
-                        <!-- Key Metrics -->
-                        <div class="space-y-4">
-                            <h3 class="font-bold text-gray-900 text-lg border-b pb-2">Market Status</h3>
-                            
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Current Price</p>
-                                <div class="flex items-end gap-2">
-                                    <span class="text-2xl font-bold text-gray-900">0.68</span>
-                                    <span class="text-sm text-gray-500 mb-1">$/kWh</span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Forecast Avg</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xl font-bold text-manta-primary">0.72</span>
-                                    <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-xs text-gray-500 mb-1">Volatility</p>
-                                    <p class="font-medium text-orange-500">12.8% (High)</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500 mb-1">Confidence</p>
-                                    <p class="font-medium text-green-600">87%</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Trading Performance -->
-                        <div class="space-y-4 pt-4 border-t border-gray-100">
-                            <h3 class="font-bold text-gray-900 text-lg border-b pb-2">Today's Performance</h3>
-                            
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
-                                <p class="font-medium">3 times <span class="text-gray-400 text-xs">(2 Captured)</span></p>
-                            </div>
-
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
-                                <p class="text-lg font-bold text-green-600">+$1,520</p>
-                            </div>
-
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Realized Profit</p>
-                                <p class="text-lg font-bold text-manta-primary">+$980 <span class="text-xs text-gray-400 font-normal">(Real-time)</span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bottom Toolbar -->
-                <div class="bg-white border-t border-gray-200 px-4 py-2 flex items-center justify-between">
-                    <div class="flex gap-2">
                         <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
                             <i data-lucide="download" class="w-4 h-4"></i> Export Chart
                         </button>
@@ -1313,11 +1153,78 @@ const app = {
                         <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
                             <i data-lucide="bell" class="w-4 h-4"></i> Alerts
                         </button>
+                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="maximize" class="w-4 h-4"></i> Fullscreen
+                        </button>
                     </div>
-                    <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
-                        <i data-lucide="maximize" class="w-4 h-4"></i> Fullscreen
-                    </button>
+
                 </div>
+
+                <!-- Main Content -->
+                <div class="flex flex-col flex-1 min-h-0">
+                    <!-- Top Stats Bar -->
+                    <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-8">
+                        <!-- Market Status Group -->
+                        <div class="flex items-center gap-8">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Current Dispatch Price</p>
+                                <div class="flex items-end gap-2">
+                                    <span class="text-2xl font-bold text-gray-900">0.68</span>
+                                    <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                                </div>
+                            </div>
+                            <div class="h-8 w-px bg-gray-200"></div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Next Trading Price</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl font-bold text-manta-primary">0.72</span>
+                                    <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
+                                </div>
+                            </div>
+                            <div class="h-8 w-px bg-gray-200"></div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Current Sellable Energy</p>
+                                <div class="flex items-end gap-2">
+                                    <span class="text-xl font-bold text-gray-900">12.5</span>
+                                    <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                </div>
+                            </div>
+                            <div class="h-8 w-px bg-gray-200"></div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Current Chargeable Capacity</p>
+                                <div class="flex items-end gap-2">
+                                    <span class="text-xl font-bold text-gray-900">8.2</span>
+                                    <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trading Performance Group -->
+                        <div class="flex items-center gap-8">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
+                                <p class="font-medium text-lg">3 <span class="text-gray-400 text-sm font-normal">(2 Captured)</span></p>
+                            </div>
+                            <div class="h-8 w-px bg-gray-200"></div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
+                                <p class="text-lg font-bold text-green-600">+$1,520</p>
+                            </div>
+                            <div class="h-8 w-px bg-gray-200"></div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Realized Profit</p>
+                                <p class="text-lg font-bold text-manta-primary">+$980 <span class="text-xs text-gray-400 font-normal">(Real-time)</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Area -->
+                    <div class="flex-1 bg-white relative flex flex-col">
+                        <div id="spot-market-chart" class="w-full h-full"></div>
+                    </div>
+                </div>
+
+
             </div>
         `;
 
@@ -1328,214 +1235,304 @@ const app = {
             
             const myChart = echarts.init(chartDom);
             
+            // UI Elements
+            const realTimeTab = document.getElementById('spot-tab-realtime');
+            const historicalTab = document.getElementById('spot-tab-historical');
+            const datePickerContainer = document.getElementById('spot-date-picker-container');
+            const datePicker = document.getElementById('spot-date-picker');
+            
+            // Date Picker Setup
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            
+            if (datePicker) {
+                datePicker.max = yesterdayStr;
+                datePicker.value = yesterdayStr;
+            }
+
+            // State
+            let currentMode = 'realtime'; // 'realtime' | 'historical'
+            let currentData = null;
+
+            // Generate Data Function
+            function generateData(dateStr, isRealtime) {
+                const timestamps = [];
+                const prices = [];
+                const predictions = [];
+                const dispatchPrices = [];
+                const tradingPrices = [];
+                const forecastTradingPrices = [];
+                const signals = [];
+                
+                // Seed based on date string for consistency in historical mode
+                let seed = 0;
+                for (let i = 0; i < dateStr.length; i++) {
+                    seed += dateStr.charCodeAt(i);
+                }
+                const random = () => {
+                    const x = Math.sin(seed++) * 10000;
+                    return x - Math.floor(x);
+                };
+
+                const basePrice = 0.5 + (random() * 0.2);
+                let currentTradingPrice = basePrice;
+                
+                // 24 hours * 12 intervals (5 mins) = 288 points
+                const points = 288;
+                
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                const currentTimeIndex = (currentHour * 12) + Math.floor(currentMinute / 5);
+
+                for (let i = 0; i < points; i++) {
+                    const hour = Math.floor(i / 12);
+                    const minute = (i % 12) * 5;
+                    const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    timestamps.push(timeStr);
+                    
+                    // Simulate price curve
+                    const trend = Math.sin(i / 30) * 0.1 + Math.cos(i / 10) * 0.05;
+                    const noise = (random() - 0.5) * 0.05;
+                    const val = basePrice + trend + noise;
+                    
+                    const predVal = val + (random() - 0.5) * 0.02; // Forecast slightly different
+                    predictions.push(predVal.toFixed(3));
+
+                    // Dispatch Price (5-min granularity)
+                    const dispatchVal = val + (random() - 0.5) * 0.04;
+                    dispatchPrices.push(dispatchVal.toFixed(3));
+
+                    // Trading Price (30-min granularity)
+                    if (i % 6 === 0) {
+                        currentTradingPrice = basePrice + trend + (random() - 0.5) * 0.08;
+                    }
+                    
+                    // Forecast Trading Price
+                    const forecastTradingVal = currentTradingPrice + (random() - 0.5) * 0.05;
+
+                    // Only display bars at the center of the 30-min interval (index 3 of 0-5)
+                    // This allows us to control bar width independently of the time axis granularity
+                    if (i % 6 === 3) {
+                        tradingPrices.push(currentTradingPrice.toFixed(3));
+                        forecastTradingPrices.push(forecastTradingVal.toFixed(3));
+                    } else {
+                        tradingPrices.push(null);
+                        forecastTradingPrices.push(null);
+                    }
+                    
+                    // Real-time price logic
+                    if (isRealtime) {
+                        if (i <= currentTimeIndex) {
+                            prices.push(val.toFixed(3));
+                        } else {
+                            prices.push(null); 
+                        }
+                    } else {
+                        // Historical: all prices available
+                        prices.push(val.toFixed(3));
+                    }
+                    
+                    // Random signals
+                    if (i % 50 === 0 && random() > 0.5) {
+                        signals.push({
+                            name: random() > 0.5 ? 'Buy' : 'Sell',
+                            coord: [timeStr, val],
+                            value: random() > 0.5 ? 'B' : 'S',
+                            itemStyle: { color: random() > 0.5 ? '#10B981' : '#EF4444' }
+                        });
+                    }
+                }
+                
+                return { timestamps, prices, predictions, dispatchPrices, tradingPrices, forecastTradingPrices, signals };
+            }
+
+            function updateChart() {
+                const dateStr = currentMode === 'realtime' 
+                    ? new Date().toISOString().split('T')[0] 
+                    : (datePicker ? datePicker.value : new Date().toISOString().split('T')[0]);
+                
+                currentData = generateData(dateStr, currentMode === 'realtime');
+                
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'cross' },
+                        formatter: function (params) {
+                            let html = `<div class="font-bold mb-1">${params[0].axisValue}</div>`;
+                            const dataIndex = params[0].dataIndex;
+                            
+                            // Add Price
+                            const price = params.find(p => p.seriesName === 'Real-time Price');
+                            if (price && price.value !== undefined && price.value !== null) {
+                                html += `<div class="flex justify-between gap-4 text-xs">
+                                    <span style="color:${price.color}">${price.marker} Real-time Price</span>
+                                    <span class="font-mono font-bold">${price.value}</span>
+                                </div>`;
+                            }
+
+                            // Add Dispatch Price
+                            const dispatch = params.find(p => p.seriesName === 'Dispatch Price');
+                            if (dispatch) {
+                                html += `<div class="flex justify-between gap-4 text-xs">
+                                    <span style="color:${dispatch.color}">${dispatch.marker} Dispatch Price</span>
+                                    <span class="font-mono font-bold">${dispatch.value}</span>
+                                </div>`;
+                            }
+
+                            // Add Trading Price
+                            const trading = params.find(p => p.seriesName === 'Trading Price');
+                            if (trading) {
+                                html += `<div class="flex justify-between gap-4 text-xs">
+                                    <span style="color:${trading.color}">${trading.marker} Trading Price</span>
+                                    <span class="font-mono font-bold">${trading.value}</span>
+                                </div>`;
+                            }
+
+                            // Add Forecast Trading Price
+                            const forecastTrading = params.find(p => p.seriesName === 'Forecast Trading Price');
+                            if (forecastTrading) {
+                                html += `<div class="flex justify-between gap-4 text-xs">
+                                    <span style="color:${forecastTrading.color}">${forecastTrading.marker} Forecast Trading Price</span>
+                                    <span class="font-mono font-bold">${forecastTrading.value}</span>
+                                </div>`;
+                            }
+                            
+                            // Add Prediction
+                            const pred = params.find(p => p.seriesName === 'Forecast Price');
+                            if (pred) {
+                                html += `<div class="flex justify-between gap-4 text-xs">
+                                    <span style="color:${pred.color}">${pred.marker} Forecast Price</span>
+                                    <span class="font-mono font-bold">${pred.value}</span>
+                                </div>`;
+                            }
+                            
+                            return html;
+                        }
+                    },
+                    axisPointer: {
+                        link: { xAxisIndex: 'all' }
+                    },
+                    grid: [
+                        {
+                            left: '50px',
+                            right: '50px',
+                            height: '85%',
+                            top: '10%'
+                        }
+                    ],
+                    xAxis: [
+                        {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: currentData.timestamps,
+                            axisLine: { show: false },
+                            axisTick: { show: false },
+                            axisLabel: { show: true, color: '#9ca3af', margin: 10 }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            scale: true,
+                            splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } }
+                        }
+                    ],
+                    series: [
+                        // Real-time Price
+                        {
+                            name: 'Real-time Price',
+                            type: 'line',
+                            data: currentData.prices,
+                            itemStyle: { color: '#2563eb' },
+                            lineStyle: { width: 2 },
+                            showSymbol: false,
+                            markPoint: {
+                                data: currentData.signals,
+                                symbolSize: 40,
+                                label: {
+                                    show: true,
+                                    formatter: '{c}',
+                                    fontSize: 10,
+                                    offset: [0, -5],
+                                    color: '#fff'
+                                }
+                            }
+                        },
+                        // Dispatch Price
+                        {
+                            name: 'Dispatch Price',
+                            type: 'line',
+                            data: currentData.dispatchPrices,
+                            itemStyle: { color: '#F59E0B' }, // Amber
+                            lineStyle: { width: 1.5 },
+                            showSymbol: false
+                        },
+                        // Trading Price
+                        {
+                            name: 'Trading Price',
+                            type: 'bar',
+                            data: currentData.tradingPrices,
+                            itemStyle: { color: '#10B981', opacity: 0.6 }, // Emerald
+                            barWidth: 16, // Fixed width for 30-min block representation
+                            showSymbol: false
+                        },
+                        // Forecast Trading Price
+                        {
+                            name: 'Forecast Trading Price',
+                            type: 'bar',
+                            data: currentData.forecastTradingPrices,
+                            itemStyle: { color: '#059669' }, // Darker Emerald
+                            barWidth: 6, // Narrower width
+                            barGap: '-100%', // Superimpose on Trading Price
+                            z: 10, // Ensure it renders on top
+                            showSymbol: false
+                        },
+                        // Prediction
+                        {
+                            name: 'Forecast Price',
+                            type: 'line',
+                            data: currentData.predictions,
+                            itemStyle: { color: '#8b5cf6' },
+                            lineStyle: { width: 1, type: 'dashed' },
+                            showSymbol: false
+                        },
+                    ]
+                };
+                
+                myChart.setOption(option);
+            }
+            
             // Resize handler
             window.addEventListener('resize', () => myChart.resize());
 
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'cross' },
-                    formatter: function (params) {
-                        let html = `<div class="font-bold mb-1">${params[0].axisValue}</div>`;
-                        const dataIndex = params[0].dataIndex;
-                        
-                        // Add Price
-                        const price = params.find(p => p.seriesName === 'Real-time Price');
-                        if (price) {
-                            html += `<div class="flex justify-between gap-4 text-xs">
-                                <span style="color:${price.color}">${price.marker} Real-time Price</span>
-                                <span class="font-mono font-bold">${price.value}</span>
-                            </div>`;
-                        }
-                        
-                        // Add Prediction
-                        const pred = params.find(p => p.seriesName === 'Forecast Price');
-                        if (pred) {
-                            html += `<div class="flex justify-between gap-4 text-xs">
-                                <span style="color:${pred.color}">${pred.marker} Forecast Price</span>
-                                <span class="font-mono font-bold">${pred.value}</span>
-                            </div>`;
-                        }
-                        
-                        // Add Confidence Intervals
-                        if (confidenceLower95[dataIndex] && confidenceUpper95[dataIndex]) {
-                            html += `<div class="flex justify-between gap-4 text-xs mt-1">
-                                <span class="text-purple-500">● 95% Confidence Interval</span>
-                                <span class="font-mono text-gray-600">[${confidenceLower95[dataIndex]}, ${confidenceUpper95[dataIndex]}]</span>
-                            </div>`;
-                        }
-                        
-                        // Add MA20
-                        const ma = params.find(p => p.seriesName === 'MA20');
-                        if (ma) {
-                            html += `<div class="flex justify-between gap-4 text-xs mt-1">
-                                <span style="color:${ma.color}">${ma.marker} MA20</span>
-                                <span class="font-mono font-bold">${ma.value}</span>
-                            </div>`;
-                        }
-                        
-                        // Add RSI
-                        const rsiVal = params.find(p => p.seriesName === 'RSI');
-                        if (rsiVal) {
-                            html += `<div class="flex justify-between gap-4 text-xs mt-1">
-                                <span style="color:${rsiVal.color}">${rsiVal.marker} RSI</span>
-                                <span class="font-mono font-bold">${rsiVal.value}</span>
-                            </div>`;
-                        }
+            // Event Listeners
+            if (realTimeTab && historicalTab) {
+                realTimeTab.addEventListener('click', () => {
+                    currentMode = 'realtime';
+                    realTimeTab.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
+                    historicalTab.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    if (datePickerContainer) datePickerContainer.classList.add('hidden');
+                    updateChart();
+                });
 
-                        return html;
-                    }
-                },
-                axisPointer: {
-                    link: { xAxisIndex: 'all' }
-                },
-                grid: [
-                    {
-                        left: '50px',
-                        right: '50px',
-                        height: '65%',
-                        top: '10%'
-                    },
-                    {
-                        left: '50px',
-                        right: '50px',
-                        top: '80%',
-                        height: '15%'
-                    }
-                ],
-                xAxis: [
-                    {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: timestamps,
-                        axisLine: { show: false },
-                        axisTick: { show: false },
-                        axisLabel: { show: false } // Hide label for top chart
-                    },
-                    {
-                        gridIndex: 1,
-                        type: 'category',
-                        boundaryGap: false,
-                        data: timestamps,
-                        axisLine: { show: false },
-                        axisTick: { show: false },
-                        axisLabel: { color: '#9ca3af', margin: 10 }
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value',
-                        scale: true,
-                        splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } }
-                    },
-                    {
-                        gridIndex: 1,
-                        type: 'value',
-                        scale: true,
-                        splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } },
-                        max: 100,
-                        min: 0
-                    }
-                ],
-                series: [
-                    // Confidence 95%
-                    {
-                        name: 'Confidence Base 95',
-                        type: 'line',
-                        stack: 'confidence95',
-                        symbol: 'none',
-                        lineStyle: { opacity: 0 },
-                        areaStyle: { opacity: 0 },
-                        data: confidenceLower95
-                    },
-                    {
-                        name: 'Confidence 95%',
-                        type: 'line',
-                        stack: 'confidence95',
-                        symbol: 'none',
-                        lineStyle: { opacity: 0 },
-                        areaStyle: { color: '#8b5cf6', opacity: 0.1 },
-                        data: confidenceUpper95.map((val, i) => (val - confidenceLower95[i]).toFixed(3))
-                    },
-                    // Confidence 80%
-                    {
-                        name: 'Confidence Base 80',
-                        type: 'line',
-                        stack: 'confidence80',
-                        symbol: 'none',
-                        lineStyle: { opacity: 0 },
-                        areaStyle: { opacity: 0 },
-                        data: confidenceLower80
-                    },
-                    {
-                        name: 'Confidence 80%',
-                        type: 'line',
-                        stack: 'confidence80',
-                        symbol: 'none',
-                        lineStyle: { opacity: 0 },
-                        areaStyle: { color: '#8b5cf6', opacity: 0.2 }, // Slightly darker
-                        data: confidenceUpper80.map((val, i) => (val - confidenceLower80[i]).toFixed(3))
-                    },
-                    // Real-time Price
-                    {
-                        name: 'Real-time Price',
-                        type: 'line',
-                        data: prices,
-                        itemStyle: { color: '#2563eb' },
-                        lineStyle: { width: 2 },
-                        showSymbol: false,
-                        markPoint: {
-                            data: signals,
-                            symbolSize: 40,
-                            label: {
-                                show: true,
-                                formatter: '{c}',
-                                fontSize: 10,
-                                offset: [0, -5],
-                                color: '#fff'
-                            }
-                        }
-                    },
-                    // Prediction
-                    {
-                        name: 'Forecast Price',
-                        type: 'line',
-                        data: predictions,
-                        itemStyle: { color: '#8b5cf6' },
-                        lineStyle: { width: 1, type: 'dashed' },
-                        showSymbol: false
-                    },
-                    // MA20
-                    {
-                        name: 'MA20',
-                        type: 'line',
-                        data: ma20,
-                        itemStyle: { color: '#eab308' },
-                        lineStyle: { width: 1 },
-                        showSymbol: false
-                    },
-                    // RSI
-                    {
-                        name: 'RSI',
-                        type: 'line',
-                        xAxisIndex: 1,
-                        yAxisIndex: 1,
-                        data: rsi,
-                        itemStyle: { color: '#10b981' },
-                        lineStyle: { width: 1 },
-                        showSymbol: false,
-                        markLine: {
-                            data: [
-                                { yAxis: 70, lineStyle: { color: '#ef4444', type: 'dashed' } },
-                                { yAxis: 30, lineStyle: { color: '#10b981', type: 'dashed' } }
-                            ],
-                            symbol: 'none'
-                        }
-                    }
-                ]
-            };
+                historicalTab.addEventListener('click', () => {
+                    currentMode = 'historical';
+                    historicalTab.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
+                    realTimeTab.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    if (datePickerContainer) datePickerContainer.classList.remove('hidden');
+                    updateChart();
+                });
+            }
+
+            if (datePicker) {
+                datePicker.addEventListener('change', updateChart);
+            }
             
-            myChart.setOption(option);
+            // Initial Chart Load
+            updateChart();
             
             // Events
             myChart.on('dblclick', function (params) {
@@ -1553,9 +1550,7 @@ const app = {
                 menu.style.left = e.pageX + 'px';
                 menu.style.top = e.pageY + 'px';
                 menu.innerHTML = `
-                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-700">
-                        <i data-lucide="plus-circle" class="w-3 h-3"></i> Add to Watchlist
-                    </div>
+
                     <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-700">
                         <i data-lucide="bell" class="w-3 h-3"></i> Set Price Alert
                     </div>
@@ -3729,296 +3724,6 @@ const app = {
         }, 3000);
     },
 
-    renderWholesalePrice(container) {
-        // Mock Data Generation
-        const generateData = () => {
-            const now = new Date('2026-01-12T00:00:00');
-            const data = [];
-            for (let i = 0; i < 48; i++) { // 30 min intervals for 24 hours
-                const time = new Date(now.getTime() + i * 30 * 60000);
-                // Base sine wave + noise
-                const base = 50 + Math.sin(i / 8) * 30;
-                
-                data.push({
-                    time: time.toISOString(),
-                    marketForecast: Math.max(0, base + Math.random() * 20 - 10).toFixed(2),
-                    actual: i < 36 ? Math.max(0, base + Math.random() * 30 - 15).toFixed(2) : null, // Actual only up to current time (approx)
-                    algoForecast: Math.max(0, base + Math.random() * 15 - 5).toFixed(2)
-                });
-            }
-            return data;
-        };
-
-        const chartData = generateData();
-        const times = chartData.map(d => {
-            const date = new Date(d.time);
-            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        });
-
-        // View State Management
-        let isChartView = true;
-
-        container.innerHTML = `
-            <div class="flex flex-col h-full space-y-4">
-                <!-- Controls Bar -->
-                <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm gap-4">
-                    <!-- Left: Region & Time -->
-                    <div class="flex items-center gap-6">
-                        <div class="flex bg-gray-100 p-1 rounded-lg">
-                            <button class="px-4 py-1.5 text-sm font-medium bg-white text-manta-primary shadow-sm rounded-md transition-all">QLD</button>
-                            <button class="px-4 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">NSW</button>
-                            <button class="px-4 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">VIC</button>
-                            <button class="px-4 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">SA</button>
-                        </div>
-                        
-                        <div class="h-8 w-px bg-gray-200"></div>
-
-                        <div class="flex items-center gap-2">
-                            <button class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-                            <span class="text-sm font-semibold text-gray-900 min-w-[100px] text-center">12/01/2026</span>
-                            <button class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- Right: Tools -->
-                    <div class="flex items-center gap-3">
-                        <div class="flex bg-gray-100 p-1 rounded-lg">
-                            <button id="view-toggle-chart" class="p-1.5 rounded text-manta-primary bg-white shadow-sm transition-all" title="Chart View">
-                                <i data-lucide="line-chart" class="w-4 h-4"></i>
-                            </button>
-                            <button id="view-toggle-list" class="p-1.5 rounded text-gray-500 hover:text-gray-900 transition-colors" title="List View">
-                                <i data-lucide="list" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-
-                        <div class="w-px h-6 bg-gray-200 mx-1"></div>
-
-                        <div class="flex bg-gray-100 p-1 rounded-lg">
-                            <button class="px-3 py-1 text-xs font-medium bg-white text-manta-primary shadow-sm rounded-md transition-all">5Min</button>
-                            <button class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors">30Min</button>
-                        </div>
-                        <button class="p-2 text-gray-500 hover:text-manta-primary hover:bg-gray-50 rounded-lg transition-colors" title="Refresh Data">
-                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-manta-primary hover:bg-gray-50 rounded-lg transition-colors" title="Export Data">
-                            <i data-lucide="download" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Main Content Area -->
-                <div class="flex-1 bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative flex flex-col min-h-0">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900">Wholesale Price Trend</h3>
-                            <p class="text-sm text-gray-500">Real-time market price vs Forecasts</p>
-                        </div>
-                        <!-- Weather Widget (Mock) -->
-                        <div class="text-right">
-                            <div class="flex items-center justify-end gap-2 text-gray-900">
-                                <span class="text-2xl font-bold">22°</span>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium">Brisbane</p>
-                                    <p class="text-xs text-gray-500">Shower rain</p>
-                                </div>
-                                <i data-lucide="cloud-rain" class="w-8 h-8 text-blue-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Chart View -->
-                    <div id="wholesale-chart-view" class="flex-1 w-full min-h-0">
-                        <div id="wholesale-chart" class="w-full h-full"></div>
-                    </div>
-
-                    <!-- List View -->
-                    <div id="wholesale-list-view" class="flex-1 w-full min-h-0 hidden overflow-hidden flex flex-col">
-                        <div class="overflow-auto flex-1">
-                            <table class="w-full text-sm text-left">
-                                <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
-                                    <tr>
-                                        <th class="px-6 py-3 font-medium">Time</th>
-                                        <th class="px-6 py-3 font-medium">Region</th>
-                                        <th class="px-6 py-3 font-medium text-right">Market Forecast ($)</th>
-                                        <th class="px-6 py-3 font-medium text-right">Actual Price ($)</th>
-                                        <th class="px-6 py-3 font-medium text-right">Algo Forecast ($)</th>
-                                        <th class="px-6 py-3 font-medium text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    ${chartData.map(d => {
-                                        const date = new Date(d.time);
-                                        const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-                                        const variance = d.actual ? Math.abs(d.actual - d.marketForecast) : 0;
-                                        const statusColor = !d.actual ? 'text-gray-400' : variance < 5 ? 'text-green-500' : variance < 15 ? 'text-yellow-500' : 'text-red-500';
-                                        
-                                        return `
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-6 py-3 font-medium text-gray-900">${timeStr}</td>
-                                                <td class="px-6 py-3 text-gray-600">QLD</td>
-                                                <td class="px-6 py-3 text-gray-600 text-right font-mono">${d.marketForecast}</td>
-                                                <td class="px-6 py-3 text-gray-900 text-right font-mono font-medium">${d.actual || '-'}</td>
-                                                <td class="px-6 py-3 text-gray-600 text-right font-mono">${d.algoForecast}</td>
-                                                <td class="px-6 py-3 text-center">
-                                                    <i data-lucide="circle" class="w-3 h-3 ${statusColor} fill-current inline-block"></i>
-                                                </td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Toggle Logic
-        const toggleChartBtn = document.getElementById('view-toggle-chart');
-        const toggleListBtn = document.getElementById('view-toggle-list');
-        const chartView = document.getElementById('wholesale-chart-view');
-        const listView = document.getElementById('wholesale-list-view');
-
-        const updateView = () => {
-            if (isChartView) {
-                chartView.classList.remove('hidden');
-                listView.classList.add('hidden');
-                
-                toggleChartBtn.classList.add('bg-white', 'text-manta-primary', 'shadow-sm');
-                toggleChartBtn.classList.remove('text-gray-500');
-                
-                toggleListBtn.classList.remove('bg-white', 'text-manta-primary', 'shadow-sm');
-                toggleListBtn.classList.add('text-gray-500');
-            } else {
-                chartView.classList.add('hidden');
-                listView.classList.remove('hidden');
-
-                toggleListBtn.classList.add('bg-white', 'text-manta-primary', 'shadow-sm');
-                toggleListBtn.classList.remove('text-gray-500');
-
-                toggleChartBtn.classList.remove('bg-white', 'text-manta-primary', 'shadow-sm');
-                toggleChartBtn.classList.add('text-gray-500');
-            }
-        };
-
-        toggleChartBtn.addEventListener('click', () => {
-            isChartView = true;
-            updateView();
-        });
-
-        toggleListBtn.addEventListener('click', () => {
-            isChartView = false;
-            updateView();
-        });
-
-        // Init Chart
-        setTimeout(() => {
-            const chartDom = document.getElementById('wholesale-chart');
-            if (!chartDom) return;
-
-            const myChart = echarts.init(chartDom);
-            
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: { backgroundColor: '#6a7985' }
-                    }
-                },
-                legend: {
-                    data: ['Market Forecast', 'Actual Price', 'Algo Forecast'],
-                    top: 0
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '10%', // Space for dataZoom
-                    containLabel: true
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                dataZoom: [
-                    {
-                        type: 'inside',
-                        start: 0,
-                        end: 100
-                    },
-                    {
-                        start: 0,
-                        end: 100
-                    }
-                ],
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: times,
-                    axisLine: { lineStyle: { color: '#E5E7EB' } },
-                    axisLabel: { color: '#6B7280' }
-                },
-                yAxis: {
-                    type: 'value',
-                    name: 'Price ($/MWh)',
-                    axisLine: { show: false },
-                    axisTick: { show: false },
-                    splitLine: { lineStyle: { type: 'dashed', color: '#F3F4F6' } },
-                    axisLabel: { color: '#6B7280' }
-                },
-                series: [
-                    {
-                        name: 'Market Forecast',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: { width: 2, color: '#3B82F6' }, // Blue
-                        itemStyle: { color: '#3B82F6' },
-                        showSymbol: false,
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(59, 130, 246, 0.1)' },
-                                { offset: 1, color: 'rgba(59, 130, 246, 0)' }
-                            ])
-                        },
-                        data: chartData.map(d => d.marketForecast)
-                    },
-                    {
-                        name: 'Actual Price',
-                        type: 'line',
-                        smooth: true, // User asked for solid line, usually implies smooth or straight. Smooth looks better.
-                        lineStyle: { width: 2, color: '#10B981' }, // Green (Manta Success)
-                        itemStyle: { color: '#10B981' },
-                        markPoint: {
-                            data: [
-                                { type: 'max', name: 'Max' },
-                                { type: 'min', name: 'Min' }
-                            ]
-                        },
-                        data: chartData.map(d => d.actual)
-                    },
-                    {
-                        name: 'Algo Forecast',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: { width: 2, color: '#F59E0B', type: 'dashed' }, // Orange
-                        itemStyle: { color: '#F59E0B' },
-                        showSymbol: false,
-                        data: chartData.map(d => d.algoForecast)
-                    }
-                ]
-            };
-
-            myChart.setOption(option);
-
-            // Resize Observer
-            const resizeObserver = new ResizeObserver(() => {
-                myChart.resize();
-            });
-            resizeObserver.observe(container);
-        }, 0);
-    },
-
     renderArbitragePoints(container) {
         // Mock Data
         const generateData = () => {
@@ -4047,26 +3752,17 @@ const app = {
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
                 <!-- Top Controls -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-center">
-                    <!-- Region & Type Indicators -->
-                    <div class="flex items-center gap-4 pr-6 border-r border-gray-200 mr-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-manta-primary flex items-center justify-center font-bold border border-blue-100 shadow-sm">SA</div>
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-gray-500">Region</span>
-                                <span class="text-sm font-bold text-gray-900">South Australia</span>
-                            </div>
-                        </div>
-                        <div class="h-8 w-px bg-gray-100"></div>
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 rounded-lg bg-gray-100 text-gray-600">
-                                <i data-lucide="share-2" class="w-4 h-4"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-gray-500">Type</span>
-                                <span class="text-sm font-bold text-gray-900">Shared</span>
-                            </div>
-                        </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-end">
+                    <!-- Pricing Region -->
+                    <div class="min-w-[150px]">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Pricing Region</label>
+                        <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm appearance-none bg-white">
+                            <option>NSW</option>
+                            <option>VIC</option>
+                            <option>QLD</option>
+                            <option>SA</option>
+                            <option>TAS</option>
+                        </select>
                     </div>
 
                     <div class="flex-1 min-w-[200px]">
@@ -4083,9 +3779,9 @@ const app = {
                         <label class="block text-xs font-medium text-gray-500 mb-1">Trigger Price</label>
                         <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm appearance-none bg-white">
                             <option>All</option>
-                            <option>>= 300</option>
+                            <option>&gt;= 300</option>
                             <option>-200 to 300</option>
-                            <option><= -200</option>
+                            <option>&lt;= -200</option>
                         </select>
                     </div>
 
@@ -4698,190 +4394,208 @@ const app = {
             });
 
             container.innerHTML = `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6">
                 <!-- System List -->
-                <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
-                    <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <h2 class="text-xl font-bold text-gray-900 pl-2">Sub-VPPs</h2>
-                            <button onclick="app.toggleSubVPPViewMode('${isCardView ? 'list' : 'card'}')" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all border border-gray-200 shadow-sm" title="${isCardView ? 'Switch to List View' : 'Switch to Card View'}">
-                                <i data-lucide="${isCardView ? 'list' : 'layout-grid'}" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                        <button onclick="app.openCloudBindDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>New</span>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 flex-shrink-0">
+                    <!-- Left: Title & Add -->
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xl font-bold text-gray-900">Sub-VPPs</h2>
+                        <button onclick="app.openCloudBindDrawer()" class="p-1 text-green-500 hover:text-green-600 transition-colors hover:bg-green-50 rounded-full">
+                            <i data-lucide="plus" class="w-6 h-6"></i>
                         </button>
                     </div>
 
-                    <!-- Filter Bar -->
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-end">
-                        <!-- Name Filter -->
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Name</label>
-                            <div class="relative">
-                                <input type="text" 
-                                       id="subvpp-name-filter"
-                                       value="${state.subVppList.name || ''}" 
-                                       placeholder="Search by name..." 
-                                       class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all"
-                                       onkeydown="if(event.key === 'Enter') app.filterSubVPPs()">
-                                <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            </div>
-                        </div>
+                    <!-- Center: Search & Filter Group -->
+                    <div class="flex-1 w-full md:max-w-2xl mx-4">
+                        <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-transparent focus-within:bg-white focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all shadow-sm">
+                             <!-- Search Input -->
+                             <input type="text" id="subvpp-name-filter" 
+                                value="${state.subVppList.name || ''}"
+                                class="bg-transparent border-none focus:ring-0 text-sm w-full p-0 text-gray-700 placeholder-gray-400" 
+                                placeholder="Search by name..."
+                                onkeydown="if(event.key === 'Enter') app.filterSubVPPs()">
+                             
+                             <!-- Divider -->
+                             <div class="w-px h-4 bg-gray-300 mx-3"></div>
+                             
+                             <!-- Type Select -->
+                             <div class="relative flex items-center">
+                                 <select id="subvpp-type-filter" class="bg-transparent border-none focus:ring-0 text-sm text-gray-600 cursor-pointer pr-6 py-0 appearance-none font-medium" onchange="app.filterSubVPPs()">
+                                     <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All Types</option>
+                                     <option value="Cloud" ${state.subVppList.type === 'Cloud' ? 'selected' : ''}>Cloud</option>
+                                     <option value="SCADA" ${state.subVppList.type === 'SCADA' ? 'selected' : ''}>SCADA</option>
+                                     <option value="Edge" ${state.subVppList.type === 'Edge' ? 'selected' : ''}>Edge</option>
+                                 </select>
+                                 <i data-lucide="chevron-down" class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"></i>
+                             </div>
 
-                        <!-- Type Filter -->
-                        <div class="w-[160px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
-                            <select id="subvpp-type-filter" 
-                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all appearance-none cursor-pointer"
-                                    onchange="app.filterSubVPPs()">
-                                <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All Types</option>
-                                <option value="Cloud" ${state.subVppList.type === 'Cloud' ? 'selected' : ''}>Cloud</option>
-                                <option value="SCADA" ${state.subVppList.type === 'SCADA' ? 'selected' : ''}>SCADA</option>
-                                <option value="Edge" ${state.subVppList.type === 'Edge' ? 'selected' : ''}>Edge</option>
-                            </select>
-                        </div>
+                             <!-- Divider -->
+                             <div class="w-px h-4 bg-gray-300 mx-3"></div>
 
-                        <!-- Status Filter -->
-                        <div class="w-[160px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
-                            <select id="subvpp-status-filter" 
-                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-manta-primary/20 focus:border-manta-primary transition-all appearance-none cursor-pointer"
-                                    onchange="app.filterSubVPPs()">
-                                <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All Status</option>
-                                <option value="Establishing" ${state.subVppList.status === 'Establishing' ? 'selected' : ''}>Establishing</option>
-                                <option value="Established" ${state.subVppList.status === 'Established' ? 'selected' : ''}>Established</option>
-                                <option value="Closed" ${state.subVppList.status === 'Closed' ? 'selected' : ''}>Closed</option>
-                                <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
-                                <option value="Failed" ${state.subVppList.status === 'Failed' ? 'selected' : ''}>Failed</option>
-                            </select>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex items-center gap-2">
-                            <button onclick="app.filterSubVPPs()" class="px-4 py-2 bg-manta-primary text-white rounded-lg text-sm font-medium hover:bg-manta-dark transition-colors shadow-sm flex items-center gap-2">
-                                <i data-lucide="filter" class="w-4 h-4"></i>
-                                Filter
-                            </button>
-                            <button onclick="app.resetSubVPPFilters()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-2">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                                Reset
-                            </button>
+                             <!-- Status Select -->
+                             <div class="relative flex items-center">
+                                 <select id="subvpp-status-filter" class="bg-transparent border-none focus:ring-0 text-sm text-gray-600 cursor-pointer pr-6 py-0 appearance-none font-medium" onchange="app.filterSubVPPs()">
+                                     <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All Status</option>
+                                     <option value="Establishing" ${state.subVppList.status === 'Establishing' ? 'selected' : ''}>Establishing</option>
+                                     <option value="Established" ${state.subVppList.status === 'Established' ? 'selected' : ''}>Established</option>
+                                     <option value="Closed" ${state.subVppList.status === 'Closed' ? 'selected' : ''}>Closed</option>
+                                     <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
+                                     <option value="Failed" ${state.subVppList.status === 'Failed' ? 'selected' : ''}>Failed</option>
+                                 </select>
+                                 <i data-lucide="chevron-down" class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"></i>
+                             </div>
+                             
+                             <!-- Search Icon -->
+                             <button onclick="app.filterSubVPPs()" class="ml-2 text-gray-400 hover:text-green-600 transition-colors">
+                                 <i data-lucide="search" class="w-4 h-4"></i>
+                             </button>
                         </div>
                     </div>
+
+                    <!-- Right: View Switcher -->
+                    <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
+                        <button onclick="app.toggleSubVPPViewMode('list')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${!isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
+                            <i data-lucide="list" class="w-3.5 h-3.5"></i>
+                            <span>Form</span>
+                        </button>
+                        <button onclick="app.toggleSubVPPViewMode('card')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
+                            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                            <span>Cards</span>
+                        </button>
+                    </div>
+                </div>
                     
                     ${isCardView ? `
                         <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
                             ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished, onclickAttr, cursorClass }) => `
-                                <div ${onclickAttr} class="group bg-white p-3 rounded-xl ${cursorClass} border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
-                                    <div class="absolute top-3 right-3 z-20">
-                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 ${isEstablished ? 'group-hover:hidden' : ''} transition-all duration-200">
-                                            <span class="flex h-1.5 w-1.5 rounded-full ${statusConfig.color} shrink-0"></span>
-                                            <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${statusConfig.text}</span>
-                                        </div>
-                                        ${isEstablished ? `
-                                        <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="hidden group-hover:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-all duration-200 shadow-sm">
-                                            <i data-lucide="x" class="w-3 h-3"></i>
-                                            <span class="text-[10px] font-medium uppercase tracking-wider">Close</span>
-                                        </button>
-                                        ` : ''}
-                                    </div>
-
+                                <div ${onclickAttr} class="group bg-white rounded-2xl ${cursorClass} border border-gray-200 hover:border-green-500/30 hover:shadow-xl transition-all duration-300 relative h-full flex flex-col p-6">
                                     <!-- Header Section -->
-                                    <div class="flex justify-between items-start mb-3">
-                                        <div>
-                                            <div class="flex items-center gap-1 mb-2 pr-20">
-                                                <h3 class="font-bold text-gray-900 transition-colors truncate min-w-0" title="${sys.name}">${sys.name}</h3>
-                                                <span class="flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap uppercase">
-                                                    <i data-lucide="${sys.type === 'Cloud' ? 'cloud' : sys.type === 'Edge' ? 'server' : 'activity'}" class="w-3 h-3 text-gray-400"></i>
-                                                    ${sys.type}
-                                                </span>
-                                            </div>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div class="flex items-center gap-3">
+                                            
+                                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1" title="${sys.name}">${sys.name}</h3>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400 uppercase tracking-wide">${sys.type}</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${statusConfig.color} text-white uppercase tracking-wide">${statusConfig.text}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            ${isEstablished ? `
+                                            <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Close Connection">
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            ` : ''}
+                                            ${(sys.status || '').toLowerCase() === 'failed' ? `
+                                            <button onclick="event.stopPropagation(); app.openCloudBindDrawer(${sys.id})" class="p-2 text-gray-400 hover:text-blue-500 transition-colors" title="Edit Connection">
+                                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                            </button>
+                                            ` : ''}
                                         </div>
                                     </div>
                                     
-                                    <!-- Stats Grid -->
-                                    <div class="flex flex-col gap-2 text-xs mt-auto">
-                                        <!-- Group 1: Device Status -->
-                                        <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-4 gap-2 group-hover:border-gray-300 transition-colors">
-                                            <!-- DERs Total -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center">
-                                                <span class="text-gray-500 text-[10px] scale-90">DERs</span>
-                                                <span class="font-mono font-medium text-gray-900">${sysDevices.length}</span>
+                                    <!-- Content Grid -->
+                                    <div class="h-full">
+                                        <!-- Left: DERs Stats -->
+                                        <div class="w-full flex flex-col">
+                                            <div class="flex items-center gap-4 mb-4">
+                                                <!-- Diamond Icon -->
+                                                <div class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg transform rotate-45 flex-shrink-0">
+                                                    <i data-lucide="zap" class="w-5 h-5 text-gray-900 transform -rotate-45"></i>
+                                                </div>
+                                                
+                                                <div class="flex flex-col">
+                                                    <div class="flex items-baseline gap-1">
+                                                        <span class="text-4xl font-bold text-gray-900 leading-none">${sysDevices.length}</span>
+                                                        <span class="text-xs font-bold text-gray-500 italic">DERs</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <!-- Online -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                                <span class="text-gray-500 text-[10px] scale-90">Online</span>
-                                                <span class="font-mono font-medium text-green-600">${stats.inv.online + stats.bat.online}</span>
-                                            </div>
-                                            <!-- Offline -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                                <span class="text-gray-500 text-[10px] scale-90">Offline</span>
-                                                <span class="font-mono font-medium text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
-                                            </div>
-                                            <!-- Disconnected -->
-                                            <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                                <span class="text-gray-500 text-[10px] scale-90">Disconnected</span>
-                                                <span class="font-mono font-medium text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                            
+                                            <!-- Separator -->
+                                            <div class="w-8 h-0.5 bg-gray-200 mb-4 ml-1"></div>
+                                            
+                                            <!-- Status List -->
+                                            <div class="space-y-3 text-xs flex-1">
+                                                <div class="flex items-center justify-between group/status">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-1 h-3 bg-green-500 rounded-full"></div>
+                                                        <span class="text-gray-500 font-medium">Online</span>
+                                                    </div>
+                                                    <span class="font-bold text-green-600">${stats.inv.online + stats.bat.online}</span>
+                                                </div>
+                                                <div class="flex items-center justify-between group/status">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-1 h-3 bg-gray-300 rounded-full"></div>
+                                                        <span class="text-gray-500 font-medium">Offline</span>
+                                                    </div>
+                                                    <span class="font-bold text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
+                                                </div>
+                                                <div class="flex items-center justify-between group/status">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-1 h-3 bg-red-500 rounded-full"></div>
+                                                        <span class="text-gray-500 font-medium">Disconnected</span>
+                                                    </div>
+                                                    <span class="font-bold text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                                </div>
                                             </div>
                                         </div>
+
+
                                     </div>
                                 </div>
                             `).join('')}
                         </div>
                     ` : `
-                        <div class="flex-1 overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <div class="flex-1 overflow-hidden flex flex-col">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
-                                    <thead class="bg-gray-50 sticky top-0 z-10">
+                                    <thead class="bg-white sticky top-0 z-10 border-b border-gray-100">
                                         <tr>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Name</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Type</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Status</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Online</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Offline</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Disconnected</th>
-                                            <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Online</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Offline</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Disconnected</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished }) => `
-                                            <tr class="group hover:bg-gray-50 transition-colors">
-                                                <td class="py-3 px-4">
-                                                    <div class="font-medium text-gray-900">${sys.name}</div>
+                                            <tr class="hover:bg-gray-50 transition-colors group">
+                                                <td class="py-4 px-4">
+                                                    <div class="font-bold text-gray-900">${sys.name}</div>
                                                 </td>
-                                                <td class="py-3 px-4">
+                                                <td class="py-4 px-4">
                                                     <div class="text-sm text-gray-500">${sys.type}</div>
                                                 </td>
-                                                <td class="py-3 px-4">
+                                                <td class="py-4 px-4">
                                                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${statusConfig.color} text-white">
                                                         ${statusConfig.text}
                                                     </span>
                                                 </td>
-                                                <td class="py-3 px-4 text-center">
-                                                    <span class="font-medium text-gray-900">${sysDevices.length}</span>
+                                                <td class="py-4 px-4">
+                                                    <span class="font-bold text-gray-900">${sysDevices.length}</span>
                                                 </td>
-                                                <td class="py-3 px-4 text-center">
-                                                    <span class="text-green-600 font-medium">${stats.inv.online + stats.bat.online}</span>
+                                                <td class="py-4 px-4">
+                                                    <span class="text-green-500 font-bold">${stats.inv.online + stats.bat.online}</span>
                                                 </td>
-                                                <td class="py-3 px-4 text-center">
-                                                    <span class="text-gray-400 font-medium">${stats.inv.offline + stats.bat.offline}</span>
+                                                <td class="py-4 px-4">
+                                                    <span class="text-gray-400 font-bold">${stats.inv.offline + stats.bat.offline}</span>
                                                 </td>
-                                                <td class="py-3 px-4 text-center">
-                                                    <span class="text-red-500 font-medium">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                                <td class="py-4 px-4">
+                                                    <span class="text-red-500 font-bold">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                                 </td>
-                                                <td class="py-3 px-4 text-center">
-                                                    <div class="flex items-center justify-center gap-2">
-                                                        <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                                <td class="py-4 px-4 text-right">
+                                                    <div class="flex items-center justify-end gap-3">
+                                                        <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-gray-900 hover:text-gray-600 transition-colors">
                                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                                         </button>
                                                         ${isEstablished ? `
-                                                        <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-gray-400 hover:text-gray-600 transition-colors" title="Close">
+                                                        <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-gray-900 hover:text-gray-600 transition-colors" title="Close">
                                                             <i data-lucide="x" class="w-4 h-4"></i>
                                                         </button>
                                                         ` : (!isDisconnected ? `
-                                                        <button onclick="app.disconnectSystem(${sys.id}, event)" class="text-gray-400 hover:text-red-600 transition-colors">
+                                                        <button onclick="app.disconnectSystem(${sys.id}, event)" class="text-gray-900 hover:text-red-600 transition-colors">
                                                             <i data-lucide="unlink" class="w-4 h-4"></i>
                                                         </button>
                                                         ` : '')}
@@ -4928,7 +4642,18 @@ const app = {
         const onlineDevices = devices.filter(d => d.status === 'online').length;
         const offlineDevices = devices.filter(d => d.status === 'offline').length;
         const disconnectedDevices = devices.filter(d => d.status === 'disconnected').length;
-        const totalCapacity = devices.reduce((sum, d) => sum + (d.capacity || 0), 0);
+
+        const invs = devices.filter(d => d.type === 'Inverter');
+        const bats = devices.filter(d => d.type === 'Battery');
+        
+        const ratedPower = invs.reduce((sum, d) => sum + (d.capacity || 0), 0);
+        const pvCapacity = invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0);
+        
+        const batCap = bats.reduce((sum, d) => sum + (d.capacity || 0), 0);
+        const currentEnergy = bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0);
+        const socPercentage = batCap > 0 ? Math.round((currentEnergy / batCap) * 100) : 0;
+        
+        const todayYield = ratedPower * (2 + Math.random() * 2);
 
         // Summary Section
         // Details Card
@@ -4984,52 +4709,48 @@ const app = {
 
         // Stats Grid
         const statsGrid = document.createElement('div');
-        statsGrid.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 mb-6';
+        statsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6';
         
         statsGrid.innerHTML = `
-            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-manta-primary/10 text-manta-primary">
-                    <i data-lucide="cpu" class="w-6 h-6"></i>
+            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
+                <div class="flex flex-col items-center">
+                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs</span>
+                     <span class="text-xl font-bold text-gray-900">${totalDevices}</span>
                 </div>
-                <div>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">DERs</p>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div class="flex flex-col items-center">
+                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
+                     <span class="text-xl font-bold text-green-600">${onlineDevices}</span>
                 </div>
-                <div class="absolute top-4 right-4">
-                    <p class="text-2xl font-bold text-gray-900">${totalDevices}</p>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div class="flex flex-col items-center">
+                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
+                     <span class="text-xl font-bold text-gray-400">${offlineDevices}</span>
                 </div>
-            </div>
-            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-success/20 text-success">
-                    <i data-lucide="activity" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Online</p>
-                </div>
-                <div class="absolute top-4 right-4">
-                    <span class="text-2xl font-bold text-gray-900">${onlineDevices}</span>
-                </div>
-            </div>
-            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-gray-100 text-gray-400">
-                    <i data-lucide="wifi-off" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Offline</p>
-                </div>
-                <div class="absolute top-4 right-4">
-                    <p class="text-2xl font-bold text-gray-900">${offlineDevices}</p>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div class="flex flex-col items-center">
+                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
+                     <span class="text-xl font-bold text-red-500">${disconnectedDevices}</span>
                 </div>
             </div>
-            <div class="bg-white shadow-sm border border-gray-200 p-4 rounded-xl relative flex items-center gap-4">
-                <div class="p-3 rounded-lg bg-red-50 text-red-500">
-                    <i data-lucide="unlink" class="w-6 h-6"></i>
+            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
+                <span class="text-xl font-bold text-gray-900">${ratedPower.toFixed(1)} kW</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
+                <span class="text-xl font-bold text-gray-900">${pvCapacity.toFixed(1)} kW</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">SOC</span>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-gray-900">${socPercentage}%</div>
+                    <div class="text-[10px] text-gray-500">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</div>
                 </div>
-                <div>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Disconnected</p>
-                </div>
-                <div class="absolute top-4 right-4">
-                    <p class="text-2xl font-bold text-gray-900">${disconnectedDevices}</p>
-                </div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
+                <span class="text-xl font-bold text-gray-900">${todayYield.toFixed(1)} kWh</span>
             </div>
         `;
         container.appendChild(statsGrid);
@@ -5063,6 +4784,10 @@ const app = {
                             <th class="pb-3 font-medium">SN</th>
                             <th class="pb-3 font-medium">Manufacturer</th>
                             <th class="pb-3 font-medium">State</th>
+                            <th class="pb-3 font-medium">Rated Power</th>
+                            <th class="pb-3 font-medium">PV Capacity</th>
+                            <th class="pb-3 font-medium">SOC</th>
+                            <th class="pb-3 font-medium">Today Yield</th>
                             <th class="pb-3 font-medium">Actions</th>
                         </tr>
                     </thead>
@@ -5096,6 +4821,10 @@ const app = {
                                 <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
                                 <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
                                 <td class="py-3 text-gray-500">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
+                                <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
+                                <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
+                                <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
+                                <td class="py-3 text-gray-500 font-mono">${todayYield}</td>
                                 <td class="py-3">
                                     <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
