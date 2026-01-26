@@ -115,19 +115,19 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 py-6 px-0 space-y-1">
-            <a href="#" id="nav-overview" class="nav-item flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group border-r-4 border-transparent" onclick="app.navigate('overview')">
+        <nav class="flex-1 py-6 px-4 space-y-1">
+            <a href="#" id="nav-overview" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group" onclick="app.navigate('overview')">
                 <i data-lucide="activity" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                 <span class="font-medium">Overview</span>
             </a>
             
-            <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group border-r-4 border-transparent" onclick="app.navigate('vpp')">
+            <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group" onclick="app.navigate('vpp')">
                 <i data-lucide="network" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                 <span class="font-medium">VPP Management</span>
             </a>
 
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('der-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('der-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="cpu" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">DER Management</span>
@@ -135,18 +135,18 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="der-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-der_ess" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('der_ess')">
+                <div id="der-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-der_ess" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('der_ess')">
                         <i data-lucide="battery" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">ESS</span>
                     </a>
                     
-                    <a href="#" id="nav-der_pv" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('der_pv')">
+                    <a href="#" id="nav-der_pv" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('der_pv')">
                         <i data-lucide="sun" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">PV</span>
                     </a>
 
-                    <a href="#" id="nav-der_ev" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('der_ev')">
+                    <a href="#" id="nav-der_ev" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('der_ev')">
                         <i data-lucide="car" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">EV</span>
                     </a>
@@ -154,7 +154,7 @@
             </div>
             
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('electricity-market-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('electricity-market-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="zap" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Electricity Market</span>
@@ -162,18 +162,18 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="electricity-market-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-spot_market" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('spot_market')">
+                <div id="electricity-market-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-spot_market" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('spot_market')">
                         <i data-lucide="activity" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Spot Market</span>
                     </a>
                     
-                    <a href="#" id="nav-wholesale_price" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('wholesale_price')">
+                    <a href="#" id="nav-wholesale_price" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('wholesale_price')">
                         <i data-lucide="dollar-sign" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Wholesale Price</span>
                     </a>
                     
-                    <a href="#" id="nav-arbitrage_points" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('arbitrage_points')">
+                    <a href="#" id="nav-arbitrage_points" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('arbitrage_points')">
                         <i data-lucide="trending-up" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Arbitrage Points</span>
                     </a>
@@ -181,7 +181,7 @@
             </div>
 
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('trading-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('trading-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="arrow-left-right" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Trading</span>
@@ -189,13 +189,13 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="trading-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-trading_rules" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('trading_rules')">
+                <div id="trading-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-trading_rules" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('trading_rules')">
                         <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Trading Rules</span>
                     </a>
                     
-                    <a href="#" id="nav-trading_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('trading_events')">
+                    <a href="#" id="nav-trading_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('trading_events')">
                         <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Trading Events</span>
                     </a>
@@ -203,7 +203,7 @@
             </div>
 
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('smart-feed-in-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('smart-feed-in-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="sun" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Smart Feed-in</span>
@@ -211,13 +211,13 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="smart-feed-in-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-smart_feed_in_rules" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('smart_feed_in_rules')">
+                <div id="smart-feed-in-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-smart_feed_in_rules" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('smart_feed_in_rules')">
                         <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Smart Feed-in Rules</span>
                     </a>
                     
-                    <a href="#" id="nav-smart_feed_in_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('smart_feed_in_events')">
+                    <a href="#" id="nav-smart_feed_in_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('smart_feed_in_events')">
                         <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Smart Feed-in Events</span>
                     </a>
@@ -225,7 +225,7 @@
             </div>
 
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('cap-service-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('cap-service-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="shield" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Cap Service</span>
@@ -233,18 +233,18 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="cap-service-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-cap_graph" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('cap_graph')">
+                <div id="cap-service-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-cap_graph" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('cap_graph')">
                         <i data-lucide="bar-chart-2" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Cap Graph</span>
                     </a>
                     
-                    <a href="#" id="nav-cap_rules" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('cap_rules')">
+                    <a href="#" id="nav-cap_rules" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('cap_rules')">
                         <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Cap Rules</span>
                     </a>
 
-                    <a href="#" id="nav-cap_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('cap_events')">
+                    <a href="#" id="nav-cap_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('cap_events')">
                         <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Cap Events</span>
                     </a>
@@ -252,7 +252,7 @@
             </div>
 
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('fcas-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('fcas-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="radio" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">FCAS</span>
@@ -260,13 +260,13 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="fcas-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-fcas_groups" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('fcas_groups')">
+                <div id="fcas-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-fcas_groups" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('fcas_groups')">
                         <i data-lucide="layers" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">FCAS Groups</span>
                     </a>
                     
-                    <a href="#" id="nav-fcas_price_availability" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('fcas_price_availability')">
+                    <a href="#" id="nav-fcas_price_availability" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('fcas_price_availability')">
                         <i data-lucide="dollar-sign" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Price and Availability</span>
                     </a>
@@ -274,7 +274,7 @@
             </div>
 
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('reports-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('reports-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="file-bar-chart" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Reports</span>
@@ -282,28 +282,28 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="reports-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-reports_vpp_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_vpp_events')">
+                <div id="reports-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-reports_vpp_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_vpp_events')">
                         <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">VPP Events</span>
                     </a>
                     
-                    <a href="#" id="nav-reports_der_events" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_der_events')">
+                    <a href="#" id="nav-reports_der_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_der_events')">
                         <i data-lucide="zap" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">DER Events</span>
                     </a>
                     
-                    <a href="#" id="nav-reports_vpp_event_items" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_vpp_event_items')">
+                    <a href="#" id="nav-reports_vpp_event_items" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_vpp_event_items')">
                         <i data-lucide="list" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">VPP Event Items</span>
                     </a>
                     
-                    <a href="#" id="nav-reports_vpp_event_month_summary" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_vpp_event_month_summary')">
+                    <a href="#" id="nav-reports_vpp_event_month_summary" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_vpp_event_month_summary')">
                         <i data-lucide="calendar" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">VPP Event Month Summary</span>
                     </a>
                     
-                    <a href="#" id="nav-reports_terminated" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('reports_terminated')">
+                    <a href="#" id="nav-reports_terminated" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_terminated')">
                         <i data-lucide="x-circle" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Terminated</span>
                     </a>
@@ -311,7 +311,7 @@
             </div>
             
             <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('system-submenu', this)" class="nav-item flex items-center justify-between px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer border-r-4 border-transparent">
+                <a href="#" onclick="app.toggleSubmenu('system-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
                     <div class="flex items-center gap-3">
                         <i data-lucide="settings-2" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">System</span>
@@ -319,13 +319,13 @@
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
                 </a>
                 
-                <div id="system-submenu" class="hidden bg-gray-50/50">
-                    <a href="#" id="nav-device_management" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent" onclick="app.navigate('device_management')">
+                <div id="system-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
+                    <a href="#" id="nav-device_management" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('device_management')">
                     <i data-lucide="cpu" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                     <span class="font-medium">Sub-VPP Management</span>
                 </a>
                     
-                    <a href="#" class="nav-item flex items-center gap-3 pl-14 pr-6 py-2.5 text-sm text-gray-600 hover:text-manta-primary transition-colors border-r-4 border-transparent">
+                    <a href="#" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors">
                         <i data-lucide="settings" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                         <span class="font-medium">Settings</span>
                     </a>
@@ -345,7 +345,7 @@
                     <i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
                     <span class="font-medium">Manta</span>
                 </button>
-                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 mx-1"></i>
+                <span class="mx-2 text-gray-300">·</span>
                 <span id="page-title" class="text-gray-900 font-semibold">Overview</span>
             </div>
 

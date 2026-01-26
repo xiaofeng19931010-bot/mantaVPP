@@ -5418,10 +5418,11 @@ const app = {
             container.className = "flex-1 flex items-center justify-center h-full";
             container.innerHTML = `
                 <div class="text-center">
-                    <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
+                    <div class="bg-gray-50 p-6 rounded-full inline-block mb-4 border border-gray-100">
                         <i data-lucide="server" class="w-12 h-12 text-gray-400 opacity-50"></i>
                     </div>
                     <h2 class="text-xl font-bold text-gray-900 mb-2">No VPPs Created</h2>
+                    <p class="text-gray-500 mb-6 max-w-xs mx-auto">Get started by creating your first Virtual Power Plant to manage devices and trading.</p>
                     <button onclick="app.openVPPDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                         <span>Create</span>
