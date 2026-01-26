@@ -888,13 +888,14 @@ const app = {
             'reports_vpp_event_items': [{label: 'Reports'}, {label: 'VPP Event Items'}],
             'reports_vpp_event_month_summary': [{label: 'Reports'}, {label: 'VPP Event Month Summary'}],
             'reports_terminated': [{label: 'Reports'}, {label: 'Terminated'}],
-            'vpp': [{label: 'VPP Management'}],
+            'vpp': [{label: 'System'}, {label: 'VPP Management'}],
             'der': [{label: 'DER Management'}],
             'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
             'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
             'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'EV'}],
             'device_management': [{label: 'System'}, {label: 'Device Management'}],
             'vpp_details': [
+                {label: 'System'}, 
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'VPP Details'}
             ],
@@ -4770,7 +4771,7 @@ const app = {
                     </div>
                     
                     ${isCardView ? `
-                        <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
+                        <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
                             ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished, onclickAttr, cursorClass }) => `
                                 <div ${onclickAttr} class="group bg-white p-3 rounded-xl ${cursorClass} border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 relative h-full flex flex-col">
                                     <div class="absolute top-3 right-3 z-20">
@@ -5432,7 +5433,7 @@ const app = {
         }
 
         // Layout: Left (VPP List) | Right (Device Discovery)
-        container.className = "flex-1 flex flex-col gap-4 h-full overflow-hidden p-8";
+        container.className = "flex-1 h-full overflow-hidden p-8 bg-gray-50";
         
         // Ensure selectedVppId is valid
         if (!state.vpps.find(v => v.id === state.selectedVppId)) {
@@ -5451,58 +5452,62 @@ const app = {
         });
 
         container.innerHTML = `
-            <!-- VPP List -->
-            <div class="w-full h-full flex flex-col gap-4 slide-up" style="animation-delay: 0.1s;">
-                <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 h-[58px] shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <h2 class="text-xl font-bold text-gray-900 pl-2">VPPs</h2>
-                        <button onclick="app.toggleVPPViewMode('${isCardView ? 'list' : 'card'}')" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all border border-gray-200 shadow-sm" title="${isCardView ? 'Switch to List View' : 'Switch to Card View'}">
-                            <i data-lucide="${isCardView ? 'list' : 'layout-grid'}" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                    <button onclick="app.openVPPDrawer()" class="flex items-center gap-2 bg-manta-primary hover:bg-manta-dark text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>New</span>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6">
+            <!-- Toolbar -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 flex-shrink-0">
+                <!-- Left: Title & Add -->
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-900">VPPs</h2>
+                    <button onclick="app.openVPPDrawer()" class="p-1 text-green-500 hover:text-green-600 transition-colors hover:bg-green-50 rounded-full">
+                        <i data-lucide="plus" class="w-6 h-6"></i>
                     </button>
                 </div>
 
-                <!-- Filter Bar -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap md:flex-nowrap gap-4 items-center mb-4">
-                    <!-- Search Input with Icon -->
-                    <div class="relative flex-1 min-w-[200px]">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                        <input type="text" id="vpp-name-filter" placeholder="Search by VPP Name..." value="${state.vppList.vppName}" 
-                            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:border-manta-primary focus:ring-2 focus:ring-manta-primary/20 transition-all"
+                <!-- Center: Search & Filter Group -->
+                <div class="flex-1 w-full md:max-w-xl mx-4">
+                    <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-transparent focus-within:bg-white focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all shadow-sm">
+                         <!-- Search Input -->
+                         <input type="text" id="vpp-name-filter" 
+                            value="${state.vppList.vppName}"
+                            class="bg-transparent border-none focus:ring-0 text-sm w-full p-0 text-gray-700 placeholder-gray-400" 
+                            placeholder="Search by VPP Name..."
                             onkeydown="if(event.key === 'Enter') app.filterVPPs()">
-                    </div>
-                    
-                    <!-- State Select -->
-                    <div class="relative min-w-[140px]">
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
-                        </div>
-                        <select id="vpp-state-filter" 
-                            class="w-full pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:border-manta-primary focus:ring-2 focus:ring-manta-primary/20 transition-all appearance-none cursor-pointer">
-                            <option value="">All States</option>
-                            ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex gap-2">
-                        <button onclick="app.filterVPPs()" class="bg-manta-primary hover:bg-manta-dark text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow active:scale-95 flex items-center gap-2">
-                            <span>Search</span>
-                        </button>
-                        <button onclick="app.resetVPPFilters()" class="bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm hover:border-gray-300 active:scale-95 flex items-center gap-2" title="Reset Filters">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            <span class="hidden sm:inline">Reset</span>
-                        </button>
+                         
+                         <!-- Divider -->
+                         <div class="w-px h-4 bg-gray-300 mx-3"></div>
+                         
+                         <!-- State Select -->
+                         <div class="relative flex items-center">
+                             <select id="vpp-state-filter" class="bg-transparent border-none focus:ring-0 text-sm text-gray-600 cursor-pointer pr-6 py-0 appearance-none font-medium" onchange="app.filterVPPs()">
+                                 <option value="">All States</option>
+                                 ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
+                             </select>
+                             <i data-lucide="chevron-down" class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"></i>
+                         </div>
+                         
+                         <!-- Search Icon -->
+                         <button onclick="app.filterVPPs()" class="ml-2 text-gray-400 hover:text-green-600 transition-colors">
+                             <i data-lucide="search" class="w-4 h-4"></i>
+                         </button>
                     </div>
                 </div>
+
+                <!-- Right: View Switcher -->
+                <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
+                    <button onclick="app.toggleVPPViewMode('list')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${!isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
+                        <i data-lucide="list" class="w-3.5 h-3.5"></i>
+                        <span>Form</span>
+                    </button>
+                    <button onclick="app.toggleVPPViewMode('card')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
+                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        <span>Cards</span>
+                    </button>
+                </div>
+            </div>
+
                 
                 ${isCardView ? `
-                <div class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
+                <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
                     ${filteredVPPs.map((vpp) => {
                         const isSelected = vpp.id === state.selectedVppId;
                         const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
@@ -5538,73 +5543,100 @@ const app = {
 
                         // VPP Card Template
                         return `
-                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group bg-white p-3 rounded-xl cursor-pointer border-l-4 ${isSelected ? 'border-l-manta-primary bg-gray-50 border-y border-r border-gray-200' : 'border-l-transparent border border-gray-200 hover:border-l-gray-400 hover:bg-gray-50'} transition-all duration-300 relative h-full flex flex-col shadow-sm hover:shadow-md">
+                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group bg-white rounded-2xl cursor-pointer border border-gray-200 hover:border-green-500/30 hover:shadow-xl transition-all duration-300 relative h-full flex flex-col p-6">
                             <!-- Header Section -->
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <h3 class="font-bold text-gray-900 group-hover:text-manta-primary transition-colors line-clamp-1">${vpp.name}</h3>
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap">
-                                            <i data-lucide="map-pin" class="w-3 h-3 text-gray-400"></i>
-                                            ${vpp.state || '-'}
-                                        </span>
-                                    </div>
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1">${vpp.name}</h3>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400 uppercase tracking-wide">${vpp.state || 'NSW'}</span>
                                 </div>
-                                <div class="opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="px-2 py-1 rounded bg-white border border-gray-200 hover:bg-gray-100 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-1">
-                                        <i data-lucide="edit-2" class="w-3 h-3"></i>
-                                        <span>Edit</span>
+                                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="p-2 text-gray-400 hover:text-green-600 transition-colors">
+                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </div>
                             </div>
                             
-                            <!-- Stats Grid -->
-                            <div class="flex flex-col gap-2 text-xs mt-auto">
-                                <!-- Group 1: Device Status -->
-                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-4 gap-2 group-hover:border-gray-300 transition-colors">
-                                    <!-- DERs Total -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
-                                        <span class="text-gray-500 text-[10px] scale-90">DERs</span>
-                                        <span class="font-mono font-medium text-gray-900">${vppDevices.length}</span>
+                            <!-- Content Grid -->
+                            <div class="grid grid-cols-12 gap-6 h-full">
+                                <!-- Left: DERs Stats -->
+                                <div class="col-span-5 flex flex-col">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <!-- Diamond Icon -->
+                                        <div class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg transform rotate-45 flex-shrink-0">
+                                            <i data-lucide="zap" class="w-5 h-5 text-gray-900 transform -rotate-45"></i>
+                                        </div>
+                                        
+                                        <div class="flex flex-col">
+                                            <div class="flex items-baseline gap-1">
+                                                <span class="text-4xl font-bold text-gray-900 leading-none">${vppDevices.length}</span>
+                                                <span class="text-xs font-bold text-gray-500 italic">DERs</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <!-- Online -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                        <span class="text-gray-500 text-[10px] scale-90">Online</span>
-                                        <span class="font-mono font-medium text-green-600">${stats.inv.online + stats.bat.online}</span>
-                                    </div>
-                                    <!-- Offline -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                        <span class="text-gray-500 text-[10px] scale-90">Offline</span>
-                                        <span class="font-mono font-medium text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
-                                    </div>
-                                    <!-- Disconnected -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                        <span class="text-gray-500 text-[10px] scale-90">Disconnected</span>
-                                        <span class="font-mono font-medium text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                    
+                                    <!-- Separator -->
+                                    <div class="w-8 h-0.5 bg-gray-200 mb-4 ml-1"></div>
+                                    
+                                    <!-- Status List -->
+                                    <div class="space-y-3 text-xs flex-1">
+                                        <div class="flex items-center justify-between group/status">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-1 h-3 bg-green-500 rounded-full"></div>
+                                                <span class="text-gray-500 font-medium">Online</span>
+                                            </div>
+                                            <span class="font-bold text-green-600">${stats.inv.online + stats.bat.online}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between group/status">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-1 h-3 bg-gray-300 rounded-full"></div>
+                                                <span class="text-gray-500 font-medium">Offline</span>
+                                            </div>
+                                            <span class="font-bold text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between group/status">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-1 h-3 bg-red-500 rounded-full"></div>
+                                                <span class="text-gray-500 font-medium">Disconnected</span>
+                                            </div>
+                                            <span class="font-bold text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Group 2: Energy Stats -->
-                                <div class="bg-gray-50 rounded-lg p-2 border border-gray-200 grid grid-cols-4 gap-2 group-hover:border-gray-300 transition-colors">
-                                    <!-- Inv Power -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
-                                        <span class="text-gray-500 text-[10px] scale-90">Rated Power</span>
-                                        <span class="font-mono font-medium text-gray-900">${stats.inv.cap} kW</span>
+                                <!-- Right: Energy Details -->
+                                <div class="col-span-7 bg-gray-50 rounded-xl p-5 flex flex-col justify-between text-xs h-full">
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-gray-500 font-medium">Rated Power</span>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="font-bold text-gray-900 text-sm">${stats.inv.cap}</span>
+                                            <span class="text-[10px] text-gray-400 font-bold">kW</span>
+                                        </div>
                                     </div>
-                                    <!-- PV Capacity -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                        <span class="text-gray-500 text-[10px] scale-90">PV Capacity</span>
-                                        <span class="font-mono font-medium text-gray-900">${stats.inv.pvCapacity} kW</span>
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-gray-500 font-medium">PV Capacity</span>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="font-bold text-gray-900 text-sm">${stats.inv.pvCapacity}</span>
+                                            <span class="text-[10px] text-gray-400 font-bold">kW</span>
+                                        </div>
                                     </div>
-                                    <!-- SOC -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                        <span class="text-gray-500 text-[10px] scale-90">SOC</span>
-                                        <span class="font-mono font-medium text-gray-900 text-[10px]">${stats.bat.socPercentage}% (${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)}kWh)</span>
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-gray-500 font-medium">SOC</span>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="font-bold text-gray-900 text-sm">${stats.bat.socPercentage}%</span>
+                                            <span class="text-[10px] text-gray-400 font-bold">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)}) kWh</span>
+                                        </div>
                                     </div>
-                                    <!-- Today Gen -->
-                                    <div class="flex flex-col items-center justify-center gap-1 text-center border-l border-gray-200">
-                                        <span class="text-gray-500 text-[10px] scale-90">Today Yield</span>
-                                        <span class="font-mono font-medium text-gray-900">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</span>
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-gray-500 font-medium">Today Yield</span>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="font-bold text-gray-900 text-sm">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)}</span>
+                                            <span class="text-[10px] text-gray-400 font-bold">kWh</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -5612,23 +5644,22 @@ const app = {
                     `}).join('')}
                 </div>
                 ` : `
-                <div class="flex-1 overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                <div class="flex-1 overflow-hidden flex flex-col">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-gray-50 sticky top-0 z-10">
+                            <thead class="bg-white sticky top-0 z-10 border-b border-gray-100">
                                 <tr>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Name</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">State</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">DERs</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Rated Power</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">PV Capacity</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">SOC</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-right">Today Yield</th>
-                                    <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 text-center">Actions</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">VPP Name</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Rated Power</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">PV Capacity</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">SOC</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Today Yield</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                ${filteredVPPs.map((vpp) => {
+                                ${filteredVPPs.map((vpp, index) => {
                                     const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
                                     
                                     const invs = vppDevices.filter(d => d.type === 'Inverter');
@@ -5639,6 +5670,7 @@ const app = {
                                             total: invs.length,
                                             online: invs.filter(d => d.status === 'online').length,
                                             offline: invs.filter(d => d.status === 'offline').length,
+                                            disconnected: invs.filter(d => d.status === 'disconnected').length,
                                             cap: invs.reduce((sum, d) => sum + (d.capacity || 0), 0),
                                             pvCapacity: invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0).toFixed(1),
                                         },
@@ -5646,53 +5678,52 @@ const app = {
                                             total: bats.length,
                                             online: bats.filter(d => d.status === 'online').length,
                                             offline: bats.filter(d => d.status === 'offline').length,
+                                            disconnected: bats.filter(d => d.status === 'disconnected').length,
                                             cap: bats.reduce((sum, d) => sum + (d.capacity || 0), 0),
                                             currentEnergy: bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0)
                                         }
                                     };
                                     
                                     stats.bat.socPercentage = stats.bat.cap > 0 ? Math.round((stats.bat.currentEnergy / stats.bat.cap) * 100) : 0;
-
+                                    
                                     return `
                                         <tr class="hover:bg-gray-50 transition-colors group">
-                                            <td class="py-3 px-4">
-                                                <div class="font-medium text-gray-900">${vpp.name}</div>
+                                            <td class="py-4 px-4">
+                                                <div class="font-bold text-gray-900">${vpp.name}</div>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-gray-500">
-                                                <div class="flex flex-col">
-                                                    <span>${vpp.state || '-'}</span>
-                                                </div>
+                                            <td class="py-4 px-4">
+                                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400 uppercase tracking-wide">${vpp.state || 'NSW'}</span>
                                             </td>
-                                            <td class="py-3 px-4 text-center">
-                                                <div class="flex flex-col items-center gap-1">
-                                                    <span class="font-medium text-gray-900">${vppDevices.length}</span>
+                                            <td class="py-4 px-4">
+                                                <div class="flex flex-col gap-0.5">
+                                                    <span class="font-bold text-gray-900">${vppDevices.length}</span>
                                                     <div class="flex gap-1 text-[10px]">
-                                                        <span class="text-green-600" title="Online">${stats.inv.online + stats.bat.online}</span>
+                                                        <span class="text-green-500 font-bold">${stats.inv.online + stats.bat.online}</span>
                                                         <span class="text-gray-300">/</span>
-                                                        <span class="text-gray-400" title="Offline">${stats.inv.offline + stats.bat.offline}</span>
+                                                        <span class="text-gray-400 font-bold">${stats.inv.offline + stats.bat.offline}</span>
                                                         <span class="text-gray-300">/</span>
-                                                        <span class="text-red-500" title="Disconnected">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                                        <span class="text-red-500 font-bold">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-3 px-4 text-right font-mono text-sm text-gray-600">${stats.inv.cap} kW</td>
-                                            <td class="py-3 px-4 text-right font-mono text-sm text-gray-600">${stats.inv.pvCapacity} kW</td>
-                                            <td class="py-3 px-4 text-center">
-                                                <div class="flex flex-col items-center">
-                                                    <span class="text-sm font-medium text-gray-900">${stats.bat.socPercentage}%</span>
-                                                    <span class="text-[10px] text-gray-400">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)} kWh)</span>
+                                            <td class="py-4 px-4 text-sm text-gray-600">${stats.inv.cap} kW</td>
+                                            <td class="py-4 px-4 text-sm text-gray-600">${stats.inv.pvCapacity} kW</td>
+                                            <td class="py-4 px-4">
+                                                <div class="flex flex-col">
+                                                    <span class="text-sm font-bold text-gray-900">${stats.bat.socPercentage}%</span>
+                                                    <span class="text-[10px] text-gray-400">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)})</span>
                                                 </div>
                                             </td>
-                                            <td class="py-3 px-4 text-right font-mono text-sm text-gray-600">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
-                                            <td class="py-3 px-4 text-center">
-                                                <div class="flex items-center justify-center gap-1">
-                                                    <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-manta-primary transition-colors" title="View Details">
+                                            <td class="py-4 px-4 text-sm text-gray-600">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
+                                            <td class="py-4 px-4 text-right">
+                                                <div class="flex items-center justify-end gap-3">
+                                                    <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-gray-900 hover:text-gray-600 transition-colors">
                                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                                     </button>
-                                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-manta-primary transition-colors" title="Edit VPP">
+                                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="text-gray-900 hover:text-gray-600 transition-colors">
                                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                                     </button>
-                                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-600 transition-colors" title="Delete VPP">
+                                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="text-gray-900 hover:text-gray-600 transition-colors">
                                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                     </button>
                                                 </div>
