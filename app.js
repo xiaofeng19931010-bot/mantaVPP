@@ -110,9 +110,9 @@ const MOCK_DATA = {
                 price: (20 + Math.random() * 40).toFixed(4) // Random price between 20 and 60
             };
         }).reverse(),
-        chartData: Array.from({ length: 24 * 6 }, (_, i) => { // 10 min interval for smoother chart
-             const hour = Math.floor(i / 6);
-             const minute = (i % 6) * 10;
+        chartData: Array.from({ length: 24 * 12 }, (_, i) => { // 5 min interval for smoother chart
+             const hour = Math.floor(i / 12);
+             const minute = (i % 12) * 5;
              const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
              
              // Simulate solar/battery profile
@@ -181,9 +181,9 @@ const MOCK_DATA = {
             current: { raise60s: 0.200, raise5min: 0.050, raiseAvail: 0.108 },
             forecast: { raise60s: 0.100, raise5min: 0.010, raiseAvail: 0.082 }
         },
-        chartData: Array.from({ length: 24 * 6 }, (_, i) => {
-             const hour = Math.floor(i / 6);
-             const minute = (i % 6) * 10;
+        chartData: Array.from({ length: 24 * 12 }, (_, i) => {
+             const hour = Math.floor(i / 12);
+             const minute = (i % 12) * 5;
              const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
              return { 
                  time, 
@@ -639,6 +639,7 @@ const MOCK_DATA = {
 const titles = {
     overview: 'Overview',
     electricity_market: 'Electricity Market',
+    spot_market: 'Spot Market',
     wholesale_price: 'Wholesale Price',
     arbitrage_points: 'Arbitrage Points',
     trading: 'Trading',
@@ -865,6 +866,7 @@ const app = {
         const breadcrumbPaths = {
             'overview': [{label: 'Overview'}],
             'electricity_market': [{label: 'Electricity Market'}],
+            'spot_market': [{label: 'Electricity Market'}, {label: 'Spot Market'}],
             'wholesale_price': [{label: 'Electricity Market'}, {label: 'Wholesale Price'}],
             'arbitrage_points': [{label: 'Electricity Market'}, {label: 'Arbitrage Points'}],
             'trading': [{label: 'Trading'}],
@@ -950,7 +952,7 @@ const app = {
         if (navItem) navItem.classList.add('active');
 
         // Handle Electricity Market Submenu Expansion
-        const electricityMarketViews = ['wholesale_price', 'arbitrage_points'];
+        const electricityMarketViews = ['spot_market', 'wholesale_price', 'arbitrage_points'];
         const electricityMarketSubmenu = document.getElementById('electricity-market-submenu');
         const electricityMarketToggle = document.querySelector('a[onclick*="electricity-market-submenu"] .chevron-icon');
 
@@ -1087,6 +1089,8 @@ const app = {
             this.renderReportsDerEvents(contentArea);
         } else if (viewName === 'reports_vpp_event_items') {
             this.renderReportsVppEventItems(contentArea);
+        } else if (viewName === 'spot_market') {
+            this.renderSpotMarket(contentArea);
         } else if (['electricity_market', 'trading', 'smart_feed_in', 'cap_service', 'fcas', 'reports', 'reports_vpp_event_month_summary', 'reports_terminated'].includes(viewName)) {
             this.renderPlaceholder(contentArea, titles[viewName]);
         } else if (viewName === 'vpp') {
@@ -1110,6 +1114,463 @@ const app = {
             this.renderSystemDetails(contentArea, params.id);
         }
 
+        lucide.createIcons();
+    },
+
+    renderSpotMarket(container) {
+        // Generate Mock Data for Spot Market
+        const now = new Date();
+        const timestamps = [];
+        const prices = [];
+        const predictions = [];
+        const confidenceUpper95 = [];
+        const confidenceLower95 = [];
+        const confidenceUpper80 = [];
+        const confidenceLower80 = [];
+        const signals = [];
+        const ma20 = [];
+        const rsi = [];
+        
+        let currentPrice = 0.68;
+        let trend = 0;
+        let gains = 0;
+        let losses = 0;
+        
+        for (let i = 0; i < 24 * 60; i += 5) { // 5 min intervals for 24h
+            const t = new Date(now.getTime() - (24 * 60 - i) * 60000);
+            timestamps.push(t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+            
+            // Random walk price
+            trend += (Math.random() - 0.5) * 0.02;
+            currentPrice += trend + (Math.random() - 0.5) * 0.05;
+            if (currentPrice < 0.1) currentPrice = 0.1;
+            
+            prices.push(currentPrice.toFixed(3));
+            
+            // Prediction logic
+            const pred = currentPrice * (1 + (Math.random() - 0.5) * 0.05);
+            predictions.push(pred.toFixed(3));
+            
+            // Confidence Intervals (95% and 80%)
+            confidenceUpper95.push((pred * 1.10).toFixed(3));
+            confidenceLower95.push((pred * 0.90).toFixed(3));
+            confidenceUpper80.push((pred * 1.05).toFixed(3));
+            confidenceLower80.push((pred * 0.95).toFixed(3));
+            
+            // Signals
+            if (i > 50 && Math.random() > 0.985) {
+                const type = Math.random() > 0.5 ? 'buy' : 'sell';
+                signals.push({
+                    coord: [timestamps[timestamps.length - 1], currentPrice],
+                    value: type === 'buy' ? '+12%' : '-8%',
+                    itemStyle: { color: type === 'buy' ? '#10B981' : '#EF4444' },
+                    symbol: type === 'buy' ? 'triangle' : 'triangle',
+                    symbolRotate: type === 'buy' ? 0 : 180,
+                    name: type.toUpperCase()
+                });
+            }
+            
+            // MA20
+            if (prices.length >= 20) {
+                const sum = prices.slice(-20).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                ma20.push((sum / 20).toFixed(3));
+            } else {
+                ma20.push(currentPrice.toFixed(3));
+            }
+
+            // RSI Calculation (Simplified 14-period)
+            if (i > 0) {
+                const change = currentPrice - parseFloat(prices[prices.length - 2]);
+                if (change > 0) {
+                    gains = (gains * 13 + change) / 14;
+                    losses = (losses * 13) / 14;
+                } else {
+                    gains = (gains * 13) / 14;
+                    losses = (losses * 13 - change) / 14;
+                }
+                
+                if (i >= 14 * 5) {
+                    const rs = gains / (losses || 1); // Avoid div by zero
+                    const rsiVal = 100 - (100 / (1 + rs));
+                    rsi.push(rsiVal.toFixed(2));
+                } else {
+                    rsi.push(50);
+                }
+            } else {
+                rsi.push(50);
+            }
+        }
+
+        container.innerHTML = `
+            <div class="h-full flex flex-col bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                <!-- Top Bar -->
+                <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500">Market:</span>
+                            <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                                <option>NSW</option>
+                                <option>VIC</option>
+                                <option>QLD</option>
+                                <option>SA</option>
+                                <option>TAS</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500">Time Range:</span>
+                            <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                                <option>Last 24h</option>
+                                <option>Last 7 Days</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500">Refresh:</span>
+                            <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                                <option>Real-time</option>
+                                <option>5s</option>
+                                <option>30s</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-medium">Market Open</span>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex flex-1 min-h-0">
+                    <!-- Chart Area (80%) -->
+                    <div class="flex-[4] bg-white border-r border-gray-200 relative flex flex-col">
+                        <div id="spot-market-chart" class="w-full h-full"></div>
+                    </div>
+
+                    <!-- Sidebar (20%) -->
+                    <div class="flex-1 bg-white p-4 flex flex-col gap-6 overflow-y-auto">
+                        <!-- Key Metrics -->
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-gray-900 text-lg border-b pb-2">Market Status</h3>
+                            
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Current Price</p>
+                                <div class="flex items-end gap-2">
+                                    <span class="text-2xl font-bold text-gray-900">0.68</span>
+                                    <span class="text-sm text-gray-500 mb-1">$/kWh</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Forecast Avg</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl font-bold text-manta-primary">0.72</span>
+                                    <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Volatility</p>
+                                    <p class="font-medium text-orange-500">12.8% (High)</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Confidence</p>
+                                    <p class="font-medium text-green-600">87%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trading Performance -->
+                        <div class="space-y-4 pt-4 border-t border-gray-100">
+                            <h3 class="font-bold text-gray-900 text-lg border-b pb-2">Today's Performance</h3>
+                            
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
+                                <p class="font-medium">3 times <span class="text-gray-400 text-xs">(2 Captured)</span></p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
+                                <p class="text-lg font-bold text-green-600">+$1,520</p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Realized Profit</p>
+                                <p class="text-lg font-bold text-manta-primary">+$980 <span class="text-xs text-gray-400 font-normal">(Real-time)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Toolbar -->
+                <div class="bg-white border-t border-gray-200 px-4 py-2 flex items-center justify-between">
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export Chart
+                        </button>
+                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="play-circle" class="w-4 h-4"></i> Backtest
+                        </button>
+                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="bell" class="w-4 h-4"></i> Alerts
+                        </button>
+                    </div>
+                    <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
+                        <i data-lucide="maximize" class="w-4 h-4"></i> Fullscreen
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Initialize ECharts
+        setTimeout(() => {
+            const chartDom = document.getElementById('spot-market-chart');
+            if (!chartDom) return;
+            
+            const myChart = echarts.init(chartDom);
+            
+            // Resize handler
+            window.addEventListener('resize', () => myChart.resize());
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' },
+                    formatter: function (params) {
+                        let html = `<div class="font-bold mb-1">${params[0].axisValue}</div>`;
+                        const dataIndex = params[0].dataIndex;
+                        
+                        // Add Price
+                        const price = params.find(p => p.seriesName === 'Real-time Price');
+                        if (price) {
+                            html += `<div class="flex justify-between gap-4 text-xs">
+                                <span style="color:${price.color}">${price.marker} Real-time Price</span>
+                                <span class="font-mono font-bold">${price.value}</span>
+                            </div>`;
+                        }
+                        
+                        // Add Prediction
+                        const pred = params.find(p => p.seriesName === 'Forecast Price');
+                        if (pred) {
+                            html += `<div class="flex justify-between gap-4 text-xs">
+                                <span style="color:${pred.color}">${pred.marker} Forecast Price</span>
+                                <span class="font-mono font-bold">${pred.value}</span>
+                            </div>`;
+                        }
+                        
+                        // Add Confidence Intervals
+                        if (confidenceLower95[dataIndex] && confidenceUpper95[dataIndex]) {
+                            html += `<div class="flex justify-between gap-4 text-xs mt-1">
+                                <span class="text-purple-500">● 95% Confidence Interval</span>
+                                <span class="font-mono text-gray-600">[${confidenceLower95[dataIndex]}, ${confidenceUpper95[dataIndex]}]</span>
+                            </div>`;
+                        }
+                        
+                        // Add MA20
+                        const ma = params.find(p => p.seriesName === 'MA20');
+                        if (ma) {
+                            html += `<div class="flex justify-between gap-4 text-xs mt-1">
+                                <span style="color:${ma.color}">${ma.marker} MA20</span>
+                                <span class="font-mono font-bold">${ma.value}</span>
+                            </div>`;
+                        }
+                        
+                        // Add RSI
+                        const rsiVal = params.find(p => p.seriesName === 'RSI');
+                        if (rsiVal) {
+                            html += `<div class="flex justify-between gap-4 text-xs mt-1">
+                                <span style="color:${rsiVal.color}">${rsiVal.marker} RSI</span>
+                                <span class="font-mono font-bold">${rsiVal.value}</span>
+                            </div>`;
+                        }
+
+                        return html;
+                    }
+                },
+                axisPointer: {
+                    link: { xAxisIndex: 'all' }
+                },
+                grid: [
+                    {
+                        left: '50px',
+                        right: '50px',
+                        height: '65%',
+                        top: '10%'
+                    },
+                    {
+                        left: '50px',
+                        right: '50px',
+                        top: '80%',
+                        height: '15%'
+                    }
+                ],
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: timestamps,
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { show: false } // Hide label for top chart
+                    },
+                    {
+                        gridIndex: 1,
+                        type: 'category',
+                        boundaryGap: false,
+                        data: timestamps,
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#9ca3af', margin: 10 }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        scale: true,
+                        splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } }
+                    },
+                    {
+                        gridIndex: 1,
+                        type: 'value',
+                        scale: true,
+                        splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } },
+                        max: 100,
+                        min: 0
+                    }
+                ],
+                series: [
+                    // Confidence 95%
+                    {
+                        name: 'Confidence Base 95',
+                        type: 'line',
+                        stack: 'confidence95',
+                        symbol: 'none',
+                        lineStyle: { opacity: 0 },
+                        areaStyle: { opacity: 0 },
+                        data: confidenceLower95
+                    },
+                    {
+                        name: 'Confidence 95%',
+                        type: 'line',
+                        stack: 'confidence95',
+                        symbol: 'none',
+                        lineStyle: { opacity: 0 },
+                        areaStyle: { color: '#8b5cf6', opacity: 0.1 },
+                        data: confidenceUpper95.map((val, i) => (val - confidenceLower95[i]).toFixed(3))
+                    },
+                    // Confidence 80%
+                    {
+                        name: 'Confidence Base 80',
+                        type: 'line',
+                        stack: 'confidence80',
+                        symbol: 'none',
+                        lineStyle: { opacity: 0 },
+                        areaStyle: { opacity: 0 },
+                        data: confidenceLower80
+                    },
+                    {
+                        name: 'Confidence 80%',
+                        type: 'line',
+                        stack: 'confidence80',
+                        symbol: 'none',
+                        lineStyle: { opacity: 0 },
+                        areaStyle: { color: '#8b5cf6', opacity: 0.2 }, // Slightly darker
+                        data: confidenceUpper80.map((val, i) => (val - confidenceLower80[i]).toFixed(3))
+                    },
+                    // Real-time Price
+                    {
+                        name: 'Real-time Price',
+                        type: 'line',
+                        data: prices,
+                        itemStyle: { color: '#2563eb' },
+                        lineStyle: { width: 2 },
+                        showSymbol: false,
+                        markPoint: {
+                            data: signals,
+                            symbolSize: 40,
+                            label: {
+                                show: true,
+                                formatter: '{c}',
+                                fontSize: 10,
+                                offset: [0, -5],
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    // Prediction
+                    {
+                        name: 'Forecast Price',
+                        type: 'line',
+                        data: predictions,
+                        itemStyle: { color: '#8b5cf6' },
+                        lineStyle: { width: 1, type: 'dashed' },
+                        showSymbol: false
+                    },
+                    // MA20
+                    {
+                        name: 'MA20',
+                        type: 'line',
+                        data: ma20,
+                        itemStyle: { color: '#eab308' },
+                        lineStyle: { width: 1 },
+                        showSymbol: false
+                    },
+                    // RSI
+                    {
+                        name: 'RSI',
+                        type: 'line',
+                        xAxisIndex: 1,
+                        yAxisIndex: 1,
+                        data: rsi,
+                        itemStyle: { color: '#10b981' },
+                        lineStyle: { width: 1 },
+                        showSymbol: false,
+                        markLine: {
+                            data: [
+                                { yAxis: 70, lineStyle: { color: '#ef4444', type: 'dashed' } },
+                                { yAxis: 30, lineStyle: { color: '#10b981', type: 'dashed' } }
+                            ],
+                            symbol: 'none'
+                        }
+                    }
+                ]
+            };
+            
+            myChart.setOption(option);
+            
+            // Events
+            myChart.on('dblclick', function (params) {
+                if (params.componentType === 'markPoint') {
+                    // Mock jump to strategy
+                    alert(`Jump to Strategy Orchestration: View logic for ${params.name} signal (Price: ${params.data.coord[1]})`);
+                }
+            });
+            
+            chartDom.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                // Custom Context Menu Logic
+                const menu = document.createElement('div');
+                menu.className = 'fixed bg-white shadow-lg rounded-lg border border-gray-200 py-1 z-50 text-sm w-40';
+                menu.style.left = e.pageX + 'px';
+                menu.style.top = e.pageY + 'px';
+                menu.innerHTML = `
+                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-700">
+                        <i data-lucide="plus-circle" class="w-3 h-3"></i> Add to Watchlist
+                    </div>
+                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-700">
+                        <i data-lucide="bell" class="w-3 h-3"></i> Set Price Alert
+                    </div>
+                `;
+                document.body.appendChild(menu);
+                lucide.createIcons();
+                
+                const closeMenu = () => {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                };
+                setTimeout(() => document.addEventListener('click', closeMenu), 0);
+            });
+            
+        }, 100);
+        
         lucide.createIcons();
     },
 
@@ -5146,6 +5607,7 @@ const app = {
                                         <span class="font-mono font-medium text-gray-900">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</span>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                     `}).join('')}
                 </div>
@@ -5460,7 +5922,7 @@ const app = {
                             `}).join('') : `
                                 <tr>
                                     <td colspan="9" class="py-8 text-center text-gray-500">
-                                        当前暂无设备
+                                        No devices available
                                     </td>
                                 </tr>
                             `}
