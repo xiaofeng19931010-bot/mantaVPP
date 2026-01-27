@@ -87,10 +87,10 @@ const MOCK_DATA = {
             state: ['NSW', 'VIC', 'QLD', 'SA'][i % 4],
             triggerType: 'Actual',
             eventType: i % 2 === 0 ? 'Charge' : 'Discharge',
-            price: (Math.random() * 1000).toFixed(2),
+            price: Math.random() * 1000,
             date: '12/01/2026 (+11:00)',
             timeRange: '12:00:00 - 12:30:00',
-            power: (Math.random() * 500).toFixed(2),
+            power: Math.random() * 500,
             status: i % 5 === 0 ? 'Pending' : 'Completed'
         }))
     ],
