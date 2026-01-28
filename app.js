@@ -672,6 +672,7 @@ const state = {
     currentView: 'overview',
     // nodes removed
     vpps: [...MOCK_DATA.vpps],
+    devices: [...MOCK_DATA.devices],
     systems: [], // Initialize systems array
     selectedVppId: null,
     vppDeviceTab: 'assigned', // assigned or discovery
@@ -886,21 +887,25 @@ const app = {
             'reports_vpp_event_items': [{label: 'Reports'}, {label: 'VPP Event Items'}],
             'reports_vpp_event_month_summary': [{label: 'Reports'}, {label: 'VPP Event Month Summary'}],
             'reports_terminated': [{label: 'Reports'}, {label: 'Terminated'}],
-            'vpp': [{label: 'System'}, {label: 'VPP Management'}],
+            'vpp': [{label: 'VPP Management'}],
             'der': [{label: 'DER Management'}],
             'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
             'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
             'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'EV'}],
-            'device_management': [{label: 'System'}, {label: 'Device Management'}],
+            'device_management': [{label: 'Sub-System'}, {label: 'VPP Management'}],
             'vpp_details': [
-                {label: 'System'}, 
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'VPP Details'}
             ],
             'system_details': [
-                {label: 'System'}, 
+                {label: 'Sub-System'},
                 {label: 'VPP Management', view: 'vpp'}, 
-                {label: 'System Details'}
+                {label: 'Details'}
+            ],
+            'device_details': [
+                {label: 'DER Management', view: 'der'},
+                {label: 'ESS', view: 'der_ess'}, 
+                {label: 'Device Details'}
             ],
         };
 
@@ -1035,7 +1040,7 @@ const app = {
         }
 
         // Handle System Submenu Expansion
-        const systemViews = ['vpp', 'device_management', 'vpp_details', 'system_details'];
+        const systemViews = ['device_management'];
         const systemSubmenu = document.getElementById('system-submenu');
         // Find the toggle icon. It's inside the 'System' link which calls toggleSubmenu
         // We can find it by looking for the onclick handler or just generic selection if unique
@@ -1109,13 +1114,19 @@ const app = {
             this.renderDeviceManagement(contentArea);
         } else if (viewName === 'system_details') {
             this.renderSystemDetails(contentArea, params.id);
+        } else if (viewName === 'device_details') {
+            this.renderDeviceDetails(contentArea, params.sn);
         }
 
         lucide.createIcons();
     },
 
     renderSpotMarket(container) {
-
+        // Clear any existing interval when re-rendering
+        if (this.spotMarketInterval) {
+            clearInterval(this.spotMarketInterval);
+            this.spotMarketInterval = null;
+        }
 
         container.innerHTML = `
             <div class="h-full flex flex-col bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
@@ -1303,7 +1314,11 @@ const app = {
 
                     // Dispatch Price (5-min granularity)
                     const dispatchVal = val + (random() - 0.5) * 0.04;
-                    dispatchPrices.push(dispatchVal.toFixed(3));
+                    if (isRealtime && i > currentTimeIndex) {
+                        dispatchPrices.push(null);
+                    } else {
+                        dispatchPrices.push(dispatchVal.toFixed(3));
+                    }
 
                     // Trading Price (30-min granularity)
                     if (i % 6 === 0) {
@@ -1316,7 +1331,11 @@ const app = {
                     // Only display bars at the center of the 30-min interval (index 3 of 0-5)
                     // This allows us to control bar width independently of the time axis granularity
                     if (i % 6 === 3) {
-                        tradingPrices.push(currentTradingPrice.toFixed(3));
+                        if (isRealtime && i > currentTimeIndex) {
+                            tradingPrices.push(null);
+                        } else {
+                            tradingPrices.push(currentTradingPrice.toFixed(3));
+                        }
                         forecastTradingPrices.push(forecastTradingVal.toFixed(3));
                     } else {
                         tradingPrices.push(null);
@@ -1336,7 +1355,7 @@ const app = {
                     }
                     
                     // Random signals
-                    if (i % 50 === 0 && random() > 0.5) {
+                    if (i % 50 === 0 && random() > 0.5 && (!isRealtime || i <= currentTimeIndex)) {
                         signals.push({
                             name: random() > 0.5 ? 'Buy' : 'Sell',
                             coord: [timeStr, val],
@@ -1508,6 +1527,19 @@ const app = {
             // Resize handler
             window.addEventListener('resize', () => myChart.resize());
 
+            // Refresh Interval Helper
+            const startRefreshInterval = () => {
+                if (this.spotMarketInterval) clearInterval(this.spotMarketInterval);
+                this.spotMarketInterval = setInterval(updateChart, 15000);
+            };
+
+            const stopRefreshInterval = () => {
+                if (this.spotMarketInterval) {
+                    clearInterval(this.spotMarketInterval);
+                    this.spotMarketInterval = null;
+                }
+            };
+
             // Event Listeners
             if (realTimeTab && historicalTab) {
                 realTimeTab.addEventListener('click', () => {
@@ -1516,6 +1548,7 @@ const app = {
                     historicalTab.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
                     if (datePickerContainer) datePickerContainer.classList.add('hidden');
                     updateChart();
+                    startRefreshInterval();
                 });
 
                 historicalTab.addEventListener('click', () => {
@@ -1524,6 +1557,7 @@ const app = {
                     realTimeTab.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
                     if (datePickerContainer) datePickerContainer.classList.remove('hidden');
                     updateChart();
+                    stopRefreshInterval();
                 });
             }
 
@@ -1533,6 +1567,9 @@ const app = {
             
             // Initial Chart Load
             updateChart();
+            if (currentMode === 'realtime') {
+                startRefreshInterval();
+            }
             
             // Events
             myChart.on('dblclick', function (params) {
@@ -1668,7 +1705,47 @@ const app = {
                         </div>
                     </div>
                 </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-white border-t border-gray-200 px-8 py-4">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-500">
+                            Last updated: <span class="font-medium text-gray-900">Just now</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="app.openDeviceEditModal('${device.sn}')" class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center gap-2">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                Edit
+                            </button>
+                            <button class="px-4 py-2 bg-manta-primary text-white rounded-lg hover:bg-manta-dark font-medium transition-colors shadow-sm flex items-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Footer -->
+            <div class="bg-white border-t border-gray-200 px-8 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-500">
+                        Last updated: <span class="font-medium text-gray-900">Just now</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="app.openDeviceEditModal('${device.sn}')" class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center gap-2">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            Edit
+                        </button>
+                        <button class="px-4 py-2 bg-manta-primary text-white rounded-lg hover:bg-manta-dark font-medium transition-colors shadow-sm flex items-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         `;
         
         // Initialize Chart
@@ -4709,48 +4786,59 @@ const app = {
 
         // Stats Grid
         const statsGrid = document.createElement('div');
-        statsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6';
+        statsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6';
         
         statsGrid.innerHTML = `
-            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
-                <div class="flex flex-col items-center">
-                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">DERs</span>
-                     <span class="text-xl font-bold text-gray-900">${totalDevices}</span>
-                </div>
-                <div class="w-px h-8 bg-gray-200"></div>
-                <div class="flex flex-col items-center">
-                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
-                     <span class="text-xl font-bold text-green-600">${onlineDevices}</span>
-                </div>
-                <div class="w-px h-8 bg-gray-200"></div>
-                <div class="flex flex-col items-center">
-                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
-                     <span class="text-xl font-bold text-gray-400">${offlineDevices}</span>
-                </div>
-                <div class="w-px h-8 bg-gray-200"></div>
-                <div class="flex flex-col items-center">
-                     <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
-                     <span class="text-xl font-bold text-red-500">${disconnectedDevices}</span>
+            <!-- DERs -->
+            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-200">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">DERs</span>
+                        <span class="text-xl font-bold text-gray-900 leading-none">${totalDevices}</span>
+                    </div>
                 </div>
             </div>
-            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
-                <span class="text-xl font-bold text-gray-900">${ratedPower.toFixed(1)} kW</span>
-            </div>
-            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
-                <span class="text-xl font-bold text-gray-900">${pvCapacity.toFixed(1)} kW</span>
-            </div>
-            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">SOC</span>
-                <div class="text-center">
-                    <div class="text-xl font-bold text-gray-900">${socPercentage}%</div>
-                    <div class="text-[10px] text-gray-500">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</div>
+
+            <!-- Online -->
+            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 rounded-full bg-green-50 text-green-600 group-hover:bg-green-100 group-hover:scale-110 transition-all duration-200">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">Online</span>
+                        <span class="text-xl font-bold text-gray-900 leading-none">${onlineDevices}</span>
+                    </div>
                 </div>
             </div>
-            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
-                <span class="text-xl font-bold text-gray-900">${todayYield.toFixed(1)} kWh</span>
+
+            <!-- Offline -->
+            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 rounded-full bg-gray-100 text-gray-500 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-200">
+                        <i data-lucide="minus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">Offline</span>
+                        <span class="text-xl font-bold text-gray-900 leading-none">${offlineDevices}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disconnected -->
+            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 rounded-full bg-red-50 text-red-600 group-hover:bg-red-100 group-hover:scale-110 transition-all duration-200">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">Disconnected</span>
+                        <span class="text-xl font-bold text-gray-900 leading-none">${disconnectedDevices}</span>
+                    </div>
+                </div>
             </div>
         `;
         container.appendChild(statsGrid);
@@ -4784,32 +4872,11 @@ const app = {
                             <th class="pb-3 font-medium">SN</th>
                             <th class="pb-3 font-medium">Manufacturer</th>
                             <th class="pb-3 font-medium">State</th>
-                            <th class="pb-3 font-medium">Rated Power</th>
-                            <th class="pb-3 font-medium">PV Capacity</th>
-                            <th class="pb-3 font-medium">SOC</th>
-                            <th class="pb-3 font-medium">Today Yield</th>
                             <th class="pb-3 font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         ${devices.length > 0 ? devices.map(dev => {
-                            const capacity = dev.capacity || 5;
-                            const ratedPower = capacity.toFixed(1) + ' kW';
-                            const pvCapacity = dev.type === 'Inverter' ? (capacity * 1.2).toFixed(1) + ' kW' : '-';
-                            let socDisplay = '-';
-                            if (dev.type === 'Battery') {
-                                const socVal = dev.soc !== undefined ? dev.soc : Math.floor(40 + Math.random() * 40);
-                                const totalCap = capacity;
-                                const currentEn = (totalCap * socVal) / 100;
-                                socDisplay = `
-                                    <div>
-                                        <div class="text-gray-900">${socVal}%</div>
-                                        <div class="text-[10px] text-gray-500">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
-                                    </div>
-                                `;
-                            }
-                            const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
-                            
                             return `
                             <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
                                 <td class="py-3">
@@ -4821,10 +4888,6 @@ const app = {
                                 <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
                                 <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
                                 <td class="py-3 text-gray-500">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
-                                <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
-                                <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
-                                <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
-                                <td class="py-3 text-gray-500 font-mono">${todayYield}</td>
                                 <td class="py-3">
                                     <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
@@ -4833,7 +4896,7 @@ const app = {
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="9" class="py-8 text-center text-gray-400">
+                                <td colspan="5" class="py-8 text-center text-gray-400">
                                     No devices found.
                                 </td>
                             </tr>
@@ -4993,7 +5056,7 @@ const app = {
                                 ` : ''}
                                 ${filterType !== 'Inverter' ? '<th class="px-4 py-3 font-medium text-center">SOC</th>' : ''}
                                 ${filterType !== 'EV' ? `<th class="px-4 py-3 font-medium text-right">Today Yield</th>` : ''}
-                                <th class="px-4 py-3 font-medium">VPP Name</th>
+                                <th class="px-4 py-3 font-medium">Assigned VPP</th>
                                 <th class="px-4 py-3 font-medium text-center">Actions</th>
                             </tr>
                         </thead>
@@ -5039,7 +5102,7 @@ const app = {
                                     ${filterType !== 'EV' ? `<td class="px-4 py-3 text-gray-500 font-mono text-right">${todayYield}</td>` : ''}
                                     <td class="px-4 py-3 text-gray-500">${vpp.name || '-'}</td>
                                     <td class="px-4 py-3 text-center">
-                                        <button onclick="app.openDeviceEditModal('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                        <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-gray-400 hover:text-manta-primary transition-colors">
                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                         </button>
                                     </td>
@@ -5058,7 +5121,7 @@ const app = {
     },
 
     openDeviceEditModal(sn) {
-        const device = state.devices.find(d => d.sn === sn);
+        const device = (state.devices || []).find(d => d.sn === sn);
         if (!device) return;
 
         this.updateModalWidth('max-w-lg');
@@ -5139,6 +5202,192 @@ const app = {
             this.closeModal();
             this.showToast('Device updated successfully', 'success');
         }
+    },
+
+    renderDeviceDetails(container, sn) {
+        const device = (state.devices || []).find(d => d.sn === sn);
+        if (!device) {
+            container.innerHTML = '<div class="p-8 text-center text-gray-500">Device not found</div>';
+            return;
+        }
+
+        const vpp = state.vpps.find(v => v.id === device.vppId) || {};
+        
+        container.innerHTML = `
+            <div class="h-full overflow-y-auto bg-gray-50">
+                <!-- Header -->
+                    <div class="bg-white border-b border-gray-200 px-8 py-6 space-y-8">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pl-2">
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">VPP</div>
+                            <div class="text-sm font-semibold text-gray-900">${vpp.name || 'Unassigned'}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">NMI</div>
+                            <div class="text-sm font-semibold text-gray-900 font-mono">${device.nmi || '-'}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">State</div>
+                            <div class="text-sm font-semibold text-gray-900">${vpp.state || '-'}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Grid Status</div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full ${device.status === 'online' ? 'bg-green-500' : 'bg-gray-300'}"></span>
+                                <span class="text-sm font-semibold text-gray-900">${device.status.charAt(0).toUpperCase() + device.status.slice(1)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                        <div class="bg-gray-50 rounded-xl p-6 space-y-6 border border-gray-100">
+                            <!-- KPI Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="text-sm text-gray-500 mb-1">Rated Power</div>
+                            <div class="text-2xl font-bold text-gray-900">${device.capacity} kW</div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="text-sm text-gray-500 mb-1">Current Power</div>
+                            <div class="text-2xl font-bold text-gray-900">${(device.capacity * 0.8).toFixed(1)} kW</div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="text-sm text-gray-500 mb-1">Today Energy</div>
+                            <div class="text-2xl font-bold text-gray-900">${(device.capacity * 4.2).toFixed(1)} kWh</div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="text-sm text-gray-500 mb-1">Efficiency</div>
+                            <div class="text-2xl font-bold text-green-600">98.5%</div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Section -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-gray-900">Power Profile (24h)</h3>
+                            <div class="flex bg-gray-100 rounded-lg p-1">
+                                <button class="px-3 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm rounded-md">Power</button>
+                                <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900">Voltage</button>
+                                <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900">Current</button>
+                            </div>
+                        </div>
+                        <div id="device-detail-chart" class="w-full h-80"></div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Device Information</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Manufacturer</span>
+                                    <span class="font-medium text-gray-900">${device.vendor}</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Model</span>
+                                    <span class="font-medium text-gray-900">${device.model || 'Unknown'}</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Serial Number</span>
+                                    <span class="font-medium text-gray-900 font-mono">${device.sn}</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Firmware Version</span>
+                                    <span class="font-medium text-gray-900">v2.4.1</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Installation Date</span>
+                                    <span class="font-medium text-gray-900">2023-05-12</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Grid Connection</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Assigned VPP</span>
+                                    <span class="font-medium text-manta-primary cursor-pointer hover:underline" onclick="app.navigate('vpp_details', {id: ${vpp.id}})">${vpp.name || 'Unassigned'}</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">NMI</span>
+                                    <span class="font-medium text-gray-900 font-mono">${device.nmi || '-'}</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Phase</span>
+                                    <span class="font-medium text-gray-900">Single Phase</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Export Limit</span>
+                                    <span class="font-medium text-gray-900">5.0 kW</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-500">Grid Voltage</span>
+                                    <span class="font-medium text-gray-900">242.5 V</span>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+            </div>
+        </div>`;
+
+        lucide.createIcons();
+
+        // Initialize Chart
+        setTimeout(() => {
+            const chartDom = document.getElementById('device-detail-chart');
+            if (chartDom) {
+                const myChart = echarts.init(chartDom);
+                const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
+                const data = Array.from({length: 24}, () => Math.random() * device.capacity);
+                
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        textStyle: { color: '#1f2937' }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: hours,
+                        axisLine: { lineStyle: { color: '#e5e7eb' } },
+                        axisLabel: { color: '#6b7280' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        splitLine: { lineStyle: { type: 'dashed', color: '#f3f4f6' } },
+                        axisLabel: { color: '#6b7280' }
+                    },
+                    series: [{
+                        name: 'Power (kW)',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(16, 185, 129, 0.2)' },
+                                { offset: 1, color: 'rgba(16, 185, 129, 0)' }
+                            ])
+                        },
+                        itemStyle: { color: '#10b981' },
+                        data: data
+                    }]
+                };
+                myChart.setOption(option);
+                
+                window.addEventListener('resize', () => myChart.resize());
+            }
+        }, 100);
     },
 
     renderVPP(container) {
@@ -5980,8 +6229,12 @@ const app = {
             xAxisData = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
         }
 
-        // Available devices in the current context (Mocking those in the Details view)
-        const availableDevices = [
+        // Available devices in the current context
+        const availableDevices = (state.devices && state.devices.length > 0) ? state.devices.map(d => ({
+            sn: d.sn,
+            model: d.vendor ? `${d.vendor} ${d.type}` : d.type,
+            type: d.type
+        })) : [
             { sn: 'INV-001', model: 'SG-5K-D', type: 'Inverter' },
             { sn: 'INV-002', model: 'SG-5K-D', type: 'Inverter' }
         ];
@@ -6128,6 +6381,8 @@ const app = {
             };
             myChart.setOption(option);
         }, 100);
+
+        lucide.createIcons();
     },
 
     openVPPDrawer(vppId = null) {
