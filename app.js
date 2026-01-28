@@ -5219,7 +5219,7 @@ const app = {
                     <div class="bg-white border-b border-gray-200 px-8 py-6 space-y-8">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pl-2">
                         <div>
-                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">VPP</div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assigned VPP</div>
                             <div class="text-sm font-semibold text-gray-900">${vpp.name || 'Unassigned'}</div>
                         </div>
                         <div>
@@ -5241,25 +5241,183 @@ const app = {
 
                     <!-- Content -->
                         <div class="bg-gray-50 rounded-xl p-6 space-y-6 border border-gray-100">
-                            <!-- KPI Cards -->
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                            <div class="text-sm text-gray-500 mb-1">Rated Power</div>
-                            <div class="text-2xl font-bold text-gray-900">${device.capacity} kW</div>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                            <div class="text-sm text-gray-500 mb-1">Current Power</div>
-                            <div class="text-2xl font-bold text-gray-900">${(device.capacity * 0.8).toFixed(1)} kW</div>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                            <div class="text-sm text-gray-500 mb-1">Today Energy</div>
-                            <div class="text-2xl font-bold text-gray-900">${(device.capacity * 4.2).toFixed(1)} kWh</div>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                            <div class="text-sm text-gray-500 mb-1">Efficiency</div>
-                            <div class="text-2xl font-bold text-green-600">98.5%</div>
-                        </div>
-                    </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <!-- PV Stats Section -->
+                                <div class="flex flex-col h-full">
+                                    <div class="flex items-center gap-2 mb-4 px-1">
+                                        <i data-lucide="sun" class="w-5 h-5 text-orange-500"></i>
+                                        <h3 class="text-base font-bold text-gray-900">PV</h3>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex-1">
+                                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 h-full">
+                                            <!-- Capacity -->
+                                            <div class="flex flex-col justify-center">
+                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Capacity</span>
+                                                <span class="text-lg font-bold text-gray-900">${device.capacity} kW</span>
+                                            </div>
+                                            
+                                            <!-- Today Yield -->
+                                            <div class="flex flex-col justify-center">
+                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Today Yield</span>
+                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 4.2).toFixed(1)} kWh</span>
+                                            </div>
+
+                                            <!-- Today Full Hours -->
+                                            <div class="flex flex-col justify-center">
+                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Today Full Hours</span>
+                                                <span class="text-lg font-bold text-gray-900">4.2 h</span>
+                                            </div>
+
+                                            <!-- Month Yield -->
+                                            <div class="flex flex-col justify-center">
+                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Month Yield</span>
+                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 120).toFixed(1)} kWh</span>
+                                            </div>
+
+                                            <!-- Annual Yield -->
+                                            <div class="flex flex-col justify-center">
+                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Annual Yield</span>
+                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 1.4).toFixed(2)} MWh</span>
+                                            </div>
+
+                                            <!-- Total Yield -->
+                                            <div class="flex flex-col justify-center">
+                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Total Yield</span>
+                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 5).toFixed(2)} MWh</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Environmental Benefits -->
+                                <div class="flex flex-col h-full">
+                                    <div class="flex items-center gap-2 mb-4 px-1">
+                                        <i data-lucide="leaf" class="w-5 h-5 text-green-500"></i>
+                                        <h3 class="text-base font-bold text-gray-900">Environmental Benefits</h3>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex-1">
+                                        <div class="grid grid-cols-2 gap-6 h-full">
+                                            <!-- CO2 Reduction -->
+                                            <div class="flex flex-col items-center justify-center text-center">
+                                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center text-green-600 shadow-sm ring-1 ring-green-100/50 mb-3">
+                                                    <i data-lucide="cloud-lightning" class="w-8 h-8"></i>
+                                                </div>
+                                                <div class="flex flex-col justify-center">
+                                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">CO₂ Reduction</span>
+                                                    <span class="text-2xl font-bold text-gray-900">${(device.capacity * 3.5).toFixed(1)} t</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Trees Planted -->
+                                            <div class="flex flex-col items-center justify-center text-center">
+                                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center text-green-600 shadow-sm ring-1 ring-green-100/50 mb-3">
+                                                    <i data-lucide="trees" class="w-8 h-8"></i>
+                                                </div>
+                                                <div class="flex flex-col justify-center">
+                                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Trees Planted</span>
+                                                    <span class="text-2xl font-bold text-gray-900">${Math.floor(device.capacity * 15)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inverter Section -->
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2 mb-4 px-1">
+                                    <i data-lucide="zap" class="w-5 h-5 text-yellow-500"></i>
+                                    <h3 class="text-base font-bold text-gray-900">Inverter</h3>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        <!-- SN -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">SN</span>
+                                            <span class="text-sm font-bold text-gray-900 truncate" title="${device.sn}">${device.sn}</span>
+                                        </div>
+                                        <!-- Manufacturer -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Manufacturer</span>
+                                            <span class="text-sm font-bold text-gray-900 truncate" title="${device.vendor}">${device.vendor}</span>
+                                        </div>
+                                        <!-- Model -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Model</span>
+                                            <span class="text-sm font-bold text-gray-900 truncate" title="${device.model || 'Unknown'}">${device.model || 'Unknown'}</span>
+                                        </div>
+                                        <!-- Type -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Type</span>
+                                            <span class="text-sm font-bold text-gray-900">String Inverter</span>
+                                        </div>
+                                        <!-- Rated Power -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Rated Power</span>
+                                            <span class="text-lg font-bold text-gray-900">${device.capacity} kW</span>
+                                        </div>
+                                        <!-- Input Power -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Input Power</span>
+                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 0.85).toFixed(1)} kW</span>
+                                        </div>
+                                        <!-- Output Power -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Output Power</span>
+                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 0.8).toFixed(1)} kW</span>
+                                        </div>
+                                        <!-- Operating mode -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Operating mode</span>
+                                            <span class="text-lg font-bold text-gray-900">Normal</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Battery Section -->
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2 mb-4 px-1">
+                                    <i data-lucide="battery-charging" class="w-5 h-5 text-blue-500"></i>
+                                    <h3 class="text-base font-bold text-gray-900">Battery</h3>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                                        <!-- Model -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Model</span>
+                                            <span class="text-sm font-bold text-gray-900 truncate" title="LFP-200">LFP-200</span>
+                                        </div>
+                                        <!-- Rated Capacity -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Rated Capacity</span>
+                                            <span class="text-lg font-bold text-gray-900">${device.capacity * 2} kWh</span>
+                                        </div>
+                                        <!-- Available charge -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Available charge</span>
+                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</span>
+                                        </div>
+                                        <!-- Available discharge -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Available discharge</span>
+                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</span>
+                                        </div>
+                                        <!-- SOC -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">SOC</span>
+                                            <span class="text-lg font-bold text-gray-900">85%</span>
+                                        </div>
+                                        <!-- SOC floor -->
+                                        <div class="flex flex-col justify-center">
+                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">SOC floor</span>
+                                            <span class="text-lg font-bold text-gray-900">10%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
 
                     <!-- Chart Section -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -5628,6 +5786,7 @@ const app = {
                             <thead class="bg-white sticky top-0 z-10 border-b border-gray-100">
                                 <tr>
                                     <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">VPP Name</th>
+                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">State</th>
                                     <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
                                     <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Rated Power</th>
                                     <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">PV Capacity</th>
