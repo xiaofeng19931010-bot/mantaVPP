@@ -2512,7 +2512,7 @@ const app = {
                     </div>
                 </div>
 
-                <!-- Chart Section -->
+                    <!-- Chart Section -->
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm min-h-[400px] flex flex-col">
                      <div id="fcas-chart" class="w-full flex-1"></div>
                 </div>
@@ -4629,6 +4629,7 @@ const app = {
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">State</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Online</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Offline</th>
@@ -4648,6 +4649,11 @@ const app = {
                                                 <td class="py-4 px-4">
                                                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${statusConfig.color} text-white">
                                                         ${statusConfig.text}
+                                                    </span>
+                                                </td>
+                                                <td class="py-4 px-4">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sys.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} uppercase tracking-wide">
+                                                        ${sys.status || 'offline'}
                                                     </span>
                                                 </td>
                                                 <td class="py-4 px-4">
@@ -5241,6 +5247,166 @@ const app = {
 
                     <!-- Content -->
                         <div class="bg-gray-50 rounded-xl p-6 space-y-6 border border-gray-100">
+                            <div class="flex flex-col mb-6">
+                                <div class="flex items-center gap-2 mb-4 px-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="network" class="w-5 h-5 text-indigo-500"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
+                                    <h3 class="text-base font-bold text-gray-900">System Topology</h3>
+                                </div>
+                                <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                                    <style>
+                                        @keyframes flow-right {
+                                            0% { left: 0; opacity: 0; }
+                                            10% { opacity: 1; }
+                                            90% { opacity: 1; }
+                                            100% { left: 100%; opacity: 0; }
+                                        }
+                                        .animate-flow-right {
+                                            position: absolute;
+                                            top: 50%;
+                                            transform: translateY(-50%);
+                                            animation: flow-right 2s linear infinite;
+                                        }
+                                    </style>
+                                    <div class="flex flex-row items-center justify-center relative z-10 gap-16 py-8 w-full max-w-6xl mx-auto">
+                                        <!-- Left Column: PV & Battery -->
+                                        <div class="flex flex-col gap-16 relative">
+                                            <!-- PV (Line Art Style) -->
+                                            <div class="flex items-center gap-4 group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                                    <div class="flex flex-col items-center transform scale-110">
+                                                        <!-- Sun -->
+                                                        <div class="relative w-5 h-5 mb-1">
+                                                            <div class="absolute inset-0 border-2 border-gray-800 rounded-full"></div>
+                                                            <!-- Rays -->
+                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-gray-800"></div>
+                                                            <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-gray-800"></div>
+                                                            <div class="absolute top-1/2 -left-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-gray-800"></div>
+                                                            <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-gray-800"></div>
+                                                            <div class="absolute top-0.5 right-0.5 w-[1.5px] h-1 bg-gray-800 rotate-45"></div>
+                                                            <div class="absolute bottom-0.5 left-0.5 w-[1.5px] h-1 bg-gray-800 rotate-45"></div>
+                                                            <div class="absolute top-0.5 left-0.5 w-[1.5px] h-1 bg-gray-800 -rotate-45"></div>
+                                                            <div class="absolute bottom-0.5 right-0.5 w-[1.5px] h-1 bg-gray-800 -rotate-45"></div>
+                                                        </div>
+                                                        <!-- Panel -->
+                                                        <div class="w-12 h-8 border-2 border-gray-800 rounded-sm grid grid-cols-4 grid-rows-2 gap-[1px] bg-gray-800">
+                                                            <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
+                                                            <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
+                                                        </div>
+                                                        <!-- Stand -->
+                                                        <div class="w-[2px] h-2 bg-gray-800"></div>
+                                                        <div class="w-6 h-[2px] bg-gray-800 rounded-full"></div>
+                                                    </div>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">PV ARRAY</span>
+                                                </div>
+                                                <!-- Connector -->
+                                                <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
+                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
+                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Battery (Line Art Style) -->
+                                            <div class="flex items-center gap-4 group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                                    <div class="flex flex-col items-center transform scale-110">
+                                                        <div class="w-10 h-14 border-2 border-gray-800 rounded-md flex flex-col justify-end p-1 gap-1 relative">
+                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-800 rounded-t-sm"></div>
+                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px] opacity-30"></div>
+                                                            <div class="absolute top-2 left-1/2 -translate-x-1/2">
+                                                                <i data-lucide="zap" class="w-3 h-3 text-gray-800 fill-gray-800"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">BATTERY</span>
+                                                </div>
+                                                 <!-- Connector -->
+                                                 <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
+                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
+                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                    <i data-lucide="arrow-left" class="w-3 h-3 text-gray-800 absolute -left-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Center Column: Inverter (Line Art Style) -->
+                                        <div class="flex flex-col items-center justify-center relative">
+                                            <div class="flex flex-col items-center justify-center w-40 h-40 bg-white border-2 border-gray-800 rounded-xl relative z-20 transition-transform hover:scale-105 shadow-[6px_6px_0px_0px_rgba(31,41,55,1)]">
+                                                <div class="absolute -top-3 bg-gray-800 text-white text-[10px] px-3 py-0.5 rounded-full font-bold tracking-wider shadow-sm border-2 border-white">HYBRID</div>
+                                                <div class="flex flex-col items-center transform scale-125">
+                                                    <div class="w-16 h-16 border-2 border-gray-800 rounded-lg flex items-center justify-center relative overflow-hidden bg-white">
+                                                         <div class="flex flex-col items-center gap-1">
+                                                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" class="text-gray-800 stroke-2">
+                                                                <path d="M2 6C2 6 5 2 8 2C11 2 14 10 17 10C20 10 22 6 22 6" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
+                                                            <div class="flex gap-1">
+                                                                <div class="w-5 h-[2px] bg-gray-800 rounded-full"></div>
+                                                                <div class="w-5 h-[2px] bg-gray-800 rounded-full"></div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <span class="absolute -bottom-8 text-base font-bold text-gray-800 tracking-wider">INVERTER</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column: Grid & Home -->
+                                        <div class="flex flex-col gap-16 relative">
+                                            <!-- Grid (Line Art Style) -->
+                                            <div class="flex items-center gap-4 flex-row-reverse group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                                    <div class="flex flex-col items-center transform scale-110">
+                                                        <div class="flex flex-col items-center relative">
+                                                             <div class="w-12 h-[2px] bg-gray-800 rounded-full mb-1.5"></div>
+                                                             <div class="w-16 h-[2px] bg-gray-800 rounded-full mb-1"></div>
+                                                             <div class="relative w-10 h-12">
+                                                                <div class="absolute inset-x-0 top-0 bottom-0 border-l-2 border-r-2 border-gray-800 transform scale-x-75 origin-bottom"></div>
+                                                                <div class="absolute top-1/2 inset-x-0 h-[2px] bg-gray-800"></div>
+                                                                <div class="absolute top-1/4 inset-x-1 h-[2px] bg-gray-800"></div>
+                                                                <div class="absolute bottom-0 inset-x-0 h-[2px] bg-gray-800"></div>
+                                                             </div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">GRID</span>
+                                                </div>
+                                                 <!-- Connector -->
+                                                 <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
+                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
+                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                    <i data-lucide="arrow-left" class="w-3 h-3 text-gray-800 absolute -left-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Home (Line Art Style) -->
+                                            <div class="flex items-center gap-4 flex-row-reverse group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                                    <div class="flex flex-col items-center transform scale-110">
+                                                        <div class="flex flex-col items-center">
+                                                            <!-- Roof -->
+                                                            <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[16px] border-b-gray-800 mb-[1px]"></div>
+                                                            <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[12px] border-b-white -mt-[14px] mb-[3px]"></div>
+                                                            <!-- Body -->
+                                                            <div class="w-8 h-6 border-2 border-gray-800 border-t-0 flex justify-center items-end bg-white">
+                                                                <div class="w-3 h-4 border-2 border-gray-800 border-b-0 rounded-t-[1px]"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">HOME</span>
+                                                </div>
+                                                 <!-- Connector -->
+                                                 <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
+                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
+                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+                                </div>
+                            </div>
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <!-- PV Stats Section -->
                                 <div class="flex flex-col h-full">
