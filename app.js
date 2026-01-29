@@ -1320,17 +1320,12 @@ const app = {
                         dispatchPrices.push(dispatchVal.toFixed(3));
                     }
 
-                    // Trading Price (30-min granularity)
+                    // Trading Price & Forecast Trading Price (30-min granularity)
                     if (i % 6 === 0) {
                         currentTradingPrice = basePrice + trend + (random() - 0.5) * 0.08;
-                    }
-                    
-                    // Forecast Trading Price
-                    const forecastTradingVal = currentTradingPrice + (random() - 0.5) * 0.05;
+                        const forecastTradingVal = currentTradingPrice + (random() - 0.5) * 0.05;
 
-                    // Only display bars at the center of the 30-min interval (index 3 of 0-5)
-                    // This allows us to control bar width independently of the time axis granularity
-                    if (i % 6 === 3) {
+                        // Display bars only at 30-min intervals
                         if (isRealtime && i > currentTimeIndex) {
                             tradingPrices.push(null);
                         } else {
@@ -1489,24 +1484,26 @@ const app = {
                             lineStyle: { width: 1.5 },
                             showSymbol: false
                         },
-                        // Trading Price
+                        // Forecast Trading Price (Stack Base)
+                        {
+                            name: 'Forecast Trading Price',
+                            type: 'bar',
+                            stack: 'analysis',
+                            data: currentData.forecastTradingPrices,
+                            itemStyle: { color: '#059669' }, // Darker Emerald
+                            barWidth: 12,
+                            z: 2,
+                            showSymbol: false
+                        },
+                        // Trading Price (Background)
                         {
                             name: 'Trading Price',
                             type: 'bar',
                             data: currentData.tradingPrices,
-                            itemStyle: { color: '#10B981', opacity: 0.6 }, // Emerald
-                            barWidth: 16, // Fixed width for 30-min block representation
-                            showSymbol: false
-                        },
-                        // Forecast Trading Price
-                        {
-                            name: 'Forecast Trading Price',
-                            type: 'bar',
-                            data: currentData.forecastTradingPrices,
-                            itemStyle: { color: '#059669' }, // Darker Emerald
-                            barWidth: 6, // Narrower width
-                            barGap: '-100%', // Superimpose on Trading Price
-                            z: 10, // Ensure it renders on top
+                            itemStyle: { color: '#E5E7EB' }, // Background gray style
+                            barWidth: 20, // 30-min visual width
+                            barGap: '-133.33%', // Align center: -(12+20)/2 / 12 = -1.33
+                            z: 1,
                             showSymbol: false
                         },
                         // Prediction
@@ -4629,7 +4626,6 @@ const app = {
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">State</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Online</th>
                                             <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Offline</th>
@@ -4649,11 +4645,6 @@ const app = {
                                                 <td class="py-4 px-4">
                                                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${statusConfig.color} text-white">
                                                         ${statusConfig.text}
-                                                    </span>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sys.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} uppercase tracking-wide">
-                                                        ${sys.status || 'offline'}
                                                     </span>
                                                 </td>
                                                 <td class="py-4 px-4">
@@ -5210,6 +5201,486 @@ const app = {
         }
     },
 
+    // Operation Card Methods
+    setOperationTab(tab) {
+        state.operationTab = tab;
+        
+        // Update Tab UI
+        const statusTab = document.getElementById('tab-status');
+        const generationTab = document.getElementById('tab-generation');
+        const consumptionTab = document.getElementById('tab-consumption');
+        
+        if (statusTab && generationTab && consumptionTab) {
+            // Reset all to default style
+            const defaultStyle = 'px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all';
+            const activeStyle = 'px-3 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm rounded-md transition-all';
+            
+            statusTab.className = defaultStyle;
+            generationTab.className = defaultStyle;
+            consumptionTab.className = defaultStyle;
+
+            if (tab === 'status') {
+                statusTab.className = activeStyle;
+            } else if (tab === 'generation') {
+                generationTab.className = activeStyle;
+            } else if (tab === 'consumption') {
+                consumptionTab.className = activeStyle;
+            }
+        }
+        
+        this.updateOperationChart();
+    },
+
+    handleGranularityChange(granularity) {
+        state.operationGranularity = granularity;
+        
+        // Handle Date Input Type and Visibility
+        const dateInput = document.getElementById('operation-date');
+        const yearSelect = document.getElementById('operation-year-select');
+        const prevBtn = document.getElementById('operation-date-prev');
+        const nextBtn = document.getElementById('operation-date-next');
+        const separator = document.getElementById('operation-separator');
+        
+        if (dateInput) {
+            // Determine visibility of controls
+            const showControls = granularity !== 'total';
+            const isYear = granularity === 'year';
+
+            // Toggle Input vs Select
+            dateInput.style.display = (showControls && !isYear) ? 'block' : 'none';
+            if (yearSelect) yearSelect.style.display = (showControls && isYear) ? 'block' : 'none';
+            
+            // Toggle Buttons and Separator
+            if (prevBtn) prevBtn.style.display = showControls ? 'block' : 'none';
+            if (nextBtn) nextBtn.style.display = showControls ? 'block' : 'none';
+            if (separator) separator.style.display = showControls ? 'inline' : 'none';
+
+            if (granularity === 'day') {
+                dateInput.type = 'date';
+                dateInput.value = new Date().toISOString().split('T')[0];
+            } else if (granularity === 'month') {
+                dateInput.type = 'month';
+                dateInput.value = new Date().toISOString().slice(0, 7);
+            } else if (isYear) {
+                // Populate Year Select if needed
+                if (yearSelect && yearSelect.options.length === 0) {
+                     const currentYear = new Date().getFullYear();
+                     // Range: -10 to +10 years from now
+                     for(let y = currentYear + 10; y >= currentYear - 10; y--) {
+                         const opt = document.createElement('option');
+                         opt.value = y;
+                         opt.text = y;
+                         yearSelect.add(opt);
+                     }
+                }
+                // Sync value
+                const currentVal = dateInput.value.substring(0, 4);
+                if (yearSelect) yearSelect.value = currentVal || new Date().getFullYear();
+                // Ensure input has year value for chart logic
+                dateInput.value = yearSelect ? yearSelect.value : new Date().getFullYear();
+            }
+        }
+        
+        // Handle Status Tab Visibility
+        const statusTab = document.getElementById('tab-status');
+        if (statusTab) {
+            if (granularity !== 'day') {
+                statusTab.style.display = 'none';
+                // If currently on status tab, switch to generation
+                if (state.operationTab === 'status') {
+                    this.setOperationTab('generation');
+                }
+            } else {
+                statusTab.style.display = 'block';
+            }
+        }
+        
+        this.updateOperationChart();
+    },
+
+    adjustDate(delta) {
+        const granularity = state.operationGranularity || 'day';
+        const dateInput = document.getElementById('operation-date');
+        const yearSelect = document.getElementById('operation-year-select');
+        if (!dateInput) return;
+
+        if (granularity === 'year') {
+            let year = parseInt(dateInput.value) || new Date().getFullYear();
+            year += delta;
+            dateInput.value = year;
+            if (yearSelect) yearSelect.value = year;
+        } else {
+            let date = new Date(dateInput.value);
+            // If invalid date (e.g. empty), use today
+            if (isNaN(date.getTime())) date = new Date();
+
+            if (granularity === 'day') {
+                date.setDate(date.getDate() + delta);
+                dateInput.value = date.toISOString().split('T')[0];
+            } else if (granularity === 'month') {
+                date.setMonth(date.getMonth() + delta);
+                dateInput.value = date.toISOString().slice(0, 7);
+            }
+        }
+        
+        this.updateOperationChart();
+    },
+
+    updateOperationChart() {
+        const dateInput = document.getElementById('operation-date');
+        const chartDom = document.getElementById('operation-chart');
+        
+        if (!chartDom || typeof echarts === 'undefined') return;
+        
+        const myChart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
+        
+        // Calculate max bar width based on Year view (12 data points)
+        const chartWidth = chartDom.clientWidth || 1000;
+        const gridWidth = chartWidth * 0.93; 
+        const yearDataCount = 12;
+        const maxBarWidthStack = (gridWidth / yearDataCount) * 0.25;
+        const maxBarWidthGen = (gridWidth / yearDataCount) * 0.40;
+
+        // Determine granularity and date
+        const granularity = state.operationGranularity || 'day';
+        const selectedDate = dateInput ? new Date(dateInput.value) : new Date();
+        
+        let xAxisData = [];
+        let dataLength = 0;
+
+        // Generate Axis Data based on Granularity
+        if (granularity === 'day') {
+            xAxisData = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+            dataLength = 24;
+        } else if (granularity === 'month') {
+            const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+            xAxisData = Array.from({length: daysInMonth}, (_, i) => `${i + 1}`);
+            dataLength = daysInMonth;
+        } else if (granularity === 'year') {
+            xAxisData = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            dataLength = 12;
+        } else if (granularity === 'total') {
+            const currentYear = new Date().getFullYear();
+            xAxisData = Array.from({length: 5}, (_, i) => (currentYear - 4 + i).toString());
+            dataLength = 5;
+        }
+
+        let option;
+        
+        const isDay = granularity === 'day';
+        const dataScale = isDay ? 1000 : 1;
+        
+        if (state.operationTab === 'generation') {
+            // Mock Data for Generation
+            // Generation = Grid + Battery + Consumed
+            const powerToGrid = Array.from({length: dataLength}, () => parseFloat((Math.random() * 5 * dataScale).toFixed(2)));
+            const powerToBattery = Array.from({length: dataLength}, () => parseFloat((Math.random() * 3 * dataScale).toFixed(2)));
+            const consumed = Array.from({length: dataLength}, () => parseFloat((Math.random() * 4 * dataScale).toFixed(2)));
+            const generation = powerToGrid.map((val, i) => parseFloat((val + powerToBattery[i] + consumed[i]).toFixed(2)));
+            
+            // Calculate Self consumption = (To Battery + Direct Consumption) / Generation
+            const selfConsumption = generation.map((gen, i) => {
+                if (gen === 0) return 0;
+                const val = ((powerToBattery[i] + consumed[i]) / gen) * 100;
+                return parseFloat(val.toFixed(2));
+            });
+            
+            option = {
+                title: {
+                    text: isDay ? 'Generation Series' : 'Generation',
+                    left: '2%',
+                    top: '2%'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: isDay ? 'line' : 'shadow' }
+                },
+                legend: {
+                    data: ['To Grid', 'To Battery', 'Direct consumption', 'Self consumption'],
+                    top: '6%',
+                    textStyle: { padding: [0, 0, 0, 4] },
+                    itemGap: 24
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    top: '120',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: xAxisData,
+                    axisLine: { lineStyle: { color: '#e5e7eb' } },
+                    axisLabel: { color: '#6b7280' },
+                    boundaryGap: !isDay
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: isDay ? 'Power (W)' : 'Energy (kWh)',
+                        splitLine: { lineStyle: { type: 'dashed' } }
+                    },
+                    {
+                        type: 'value',
+                        name: 'Self Consumption (%)',
+                        min: 0,
+                        max: 100,
+                        axisLabel: { formatter: '{value}' },
+                        splitLine: { show: false }
+                    }
+                ],
+                color: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'],
+                series: [
+                    {
+                        name: 'To Grid',
+                        type: isDay ? 'line' : 'bar',
+                        stack: 'total',
+                        ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
+                        emphasis: { focus: 'series' },
+                        data: powerToGrid
+                    },
+                    {
+                        name: 'To Battery',
+                        type: isDay ? 'line' : 'bar',
+                        stack: 'total',
+                        ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
+                        emphasis: { focus: 'series' },
+                        data: powerToBattery
+                    },
+                    {
+                        name: 'Direct consumption',
+                        type: isDay ? 'line' : 'bar',
+                        stack: 'total',
+                        ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
+                        emphasis: { focus: 'series' },
+                        data: consumed
+                    },
+                    {
+                        name: 'Generation',
+                        type: isDay ? 'line' : 'bar',
+                        ...(isDay ? { smooth: true, showSymbol: false, lineStyle: { width: 2, color: '#E5E7EB' }, areaStyle: { color: '#E5E7EB', opacity: 0.3 }, itemStyle: { color: '#E5E7EB' }, z: 1 } : { barWidth: '40%', barMaxWidth: maxBarWidthGen, barGap: '-130%', itemStyle: { color: '#E5E7EB' }, z: 1 }),
+                        data: generation
+                    },
+                    {
+                        name: 'Self consumption',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        smooth: true,
+                        showSymbol: true,
+                        lineStyle: { width: 2 },
+                        itemStyle: { color: '#8B5CF6' },
+                        tooltip: {
+                            valueFormatter: (value) => value + ' %'
+                        },
+                        data: selfConsumption
+                    }
+                ]
+            };
+        } else if (state.operationTab === 'consumption') {
+            // Mock Data for Consumption
+            // Consumption = From grid + From battery + Direct consumption
+            const fromGrid = Array.from({length: dataLength}, () => parseFloat((Math.random() * 5 * dataScale).toFixed(2)));
+            const fromBattery = Array.from({length: dataLength}, () => parseFloat((Math.random() * 3 * dataScale).toFixed(2)));
+            const directConsumption = Array.from({length: dataLength}, () => parseFloat((Math.random() * 4 * dataScale).toFixed(2)));
+            const consumption = fromGrid.map((val, i) => parseFloat((val + fromBattery[i] + directConsumption[i]).toFixed(2)));
+            
+            // Calculate Self Sufficiency = (From Battery + Direct Consumption) / Consumption * 100
+            const selfSufficiency = consumption.map((con, i) => {
+                if (con === 0) return 0;
+                const val = ((fromBattery[i] + directConsumption[i]) / con) * 100;
+                return parseFloat(val.toFixed(2));
+            });
+            
+            option = {
+                title: {
+                    text: isDay ? 'Consumption Series' : 'Consumption',
+                    left: '2%',
+                    top: '2%'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: isDay ? 'line' : 'shadow' }
+                },
+                legend: {
+                    data: ['From grid', 'From battery', 'Direct consumption', 'Self Sufficiency'],
+                    top: '6%',
+                    textStyle: { padding: [0, 0, 0, 4] },
+                    itemGap: 24
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    top: '120',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: xAxisData,
+                    axisLine: { lineStyle: { color: '#e5e7eb' } },
+                    axisLabel: { color: '#6b7280' },
+                    boundaryGap: !isDay
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: isDay ? 'Power (W)' : 'Energy (kWh)',
+                        splitLine: { lineStyle: { type: 'dashed' } }
+                    },
+                    {
+                        type: 'value',
+                        name: 'Self Sufficiency (%)',
+                        min: 0,
+                        max: 100,
+                        axisLabel: { formatter: '{value}' },
+                        splitLine: { show: false }
+                    }
+                ],
+                color: ['#6366F1', '#EC4899', '#F59E0B', '#E5E7EB', '#8B5CF6'],
+                series: [
+                    {
+                        name: 'From grid',
+                        type: isDay ? 'line' : 'bar',
+                        stack: 'total',
+                        ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
+                        emphasis: { focus: 'series' },
+                        data: fromGrid
+                    },
+                    {
+                        name: 'From battery',
+                        type: isDay ? 'line' : 'bar',
+                        stack: 'total',
+                        ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
+                        emphasis: { focus: 'series' },
+                        data: fromBattery
+                    },
+                    {
+                        name: 'Direct consumption',
+                        type: isDay ? 'line' : 'bar',
+                        stack: 'total',
+                        ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
+                        emphasis: { focus: 'series' },
+                        data: directConsumption
+                    },
+                    {
+                        name: 'Consumption',
+                        type: isDay ? 'line' : 'bar',
+                        ...(isDay ? { smooth: true, showSymbol: false, lineStyle: { width: 2, color: '#E5E7EB' }, areaStyle: { color: '#E5E7EB', opacity: 0.3 }, itemStyle: { color: '#E5E7EB' }, z: 1 } : { barWidth: '40%', barMaxWidth: maxBarWidthGen, barGap: '-130%', itemStyle: { color: '#E5E7EB' }, z: 1 }),
+                        data: consumption
+                    },
+                    {
+                        name: 'Self Sufficiency',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        smooth: true,
+                        showSymbol: true,
+                        lineStyle: { width: 2 },
+                        itemStyle: { color: '#8B5CF6' },
+                        tooltip: {
+                            valueFormatter: (value) => value + ' %'
+                        },
+                        data: selfSufficiency
+                    }
+                ]
+            };
+        } else {
+            // Mock Data for Status
+            // Status: 1=Online, 0=Offline, -1=No communication
+            const statusData = Array.from({length: dataLength}, () => {
+                const rand = Math.random();
+                if (rand > 0.9) return 'No communication'; 
+                if (rand > 0.8) return 'Offline'; 
+                return 'Online'; 
+            });
+            
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (params) {
+                        const status = params[0].value;
+                        const color = status === 'Online' ? '#10B981' : (status === 'Offline' ? '#EF4444' : '#9CA3AF');
+                        return `${params[0].axisValue}<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>${status}`;
+                    }
+                },
+                legend: {
+                    show: false,
+                    data: ['Status'],
+                    top: '6%',
+                    textStyle: { padding: [0, 0, 0, 4] },
+                    itemGap: 24
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    top: '120',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: xAxisData,
+                    axisLine: { lineStyle: { color: '#e5e7eb' } },
+                    axisLabel: { color: '#6b7280' }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['Offline', 'Online', 'Disconnected'],
+                    splitLine: { show: true, lineStyle: { type: 'dashed' } }
+                },
+                series: [
+                    {
+                        name: 'Status',
+                        type: 'line',
+                        step: 'start',
+                        data: statusData,
+                        itemStyle: {
+                            color: function(params) {
+                                const status = params.value;
+                                if (status === 'Online') return '#10B981';
+                                if (status === 'Offline') return '#EF4444';
+                                return '#9CA3AF';
+                            }
+                        },
+                        lineStyle: {
+                            color: '#6366F1',
+                            width: 2
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                              { offset: 0, color: 'rgba(99, 102, 241, 0.2)' },
+                              { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+        }
+        
+        myChart.setOption(option, true);
+        
+        // Handle resize
+        if (!chartDom.hasAttribute('data-resize-attached')) {
+            window.addEventListener('resize', () => myChart.resize());
+            chartDom.setAttribute('data-resize-attached', 'true');
+        }
+    },
+
+    initOperationChart() {
+        state.operationTab = 'status'; // Default
+        state.operationGranularity = 'day'; // Default granularity
+        
+        const attemptInit = (count = 0) => {
+            const chartDom = document.getElementById('operation-chart');
+            if (chartDom) {
+                this.updateOperationChart();
+            } else if (count < 10) {
+                setTimeout(() => attemptInit(count + 1), 200);
+            }
+        };
+        attemptInit();
+    },
+
     renderDeviceDetails(container, sn) {
         const device = (state.devices || []).find(d => d.sn === sn);
         if (!device) {
@@ -5250,7 +5721,7 @@ const app = {
                             <div class="flex flex-col mb-6">
                                 <div class="flex items-center gap-2 mb-4 px-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="network" class="w-5 h-5 text-indigo-500"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
-                                    <h3 class="text-base font-bold text-gray-900">System Topology</h3>
+                                    <h3 class="text-base font-bold text-gray-900">Topology</h3>
                                 </div>
                                 <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
                                     <style>
@@ -5260,145 +5731,353 @@ const app = {
                                             90% { opacity: 1; }
                                             100% { left: 100%; opacity: 0; }
                                         }
+                                        @keyframes flow-left {
+                                            0% { left: 100%; opacity: 0; }
+                                            10% { opacity: 1; }
+                                            90% { opacity: 1; }
+                                            100% { left: 0%; opacity: 0; }
+                                        }
                                         .animate-flow-right {
                                             position: absolute;
                                             top: 50%;
                                             transform: translateY(-50%);
                                             animation: flow-right 2s linear infinite;
                                         }
+                                        .animate-flow-left {
+                                            position: absolute;
+                                            top: 50%;
+                                            transform: translateY(-50%);
+                                            animation: flow-left 2s linear infinite;
+                                        }
                                     </style>
-                                    <div class="flex flex-row items-center justify-center relative z-10 gap-16 py-8 w-full max-w-6xl mx-auto">
+                                    <div class="flex flex-row items-center justify-center relative z-10 gap-0 py-8 w-full max-w-6xl mx-auto">
                                         <!-- Left Column: PV & Battery -->
                                         <div class="flex flex-col gap-16 relative">
                                             <!-- PV (Line Art Style) -->
-                                            <div class="flex items-center gap-4 group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                            <div class="flex items-center gap-0 group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-emerald-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#064e3b]">
                                                     <div class="flex flex-col items-center transform scale-110">
                                                         <!-- Sun -->
                                                         <div class="relative w-5 h-5 mb-1">
-                                                            <div class="absolute inset-0 border-2 border-gray-800 rounded-full"></div>
+                                                            <div class="absolute inset-0 border-2 border-emerald-500 rounded-full"></div>
                                                             <!-- Rays -->
-                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-gray-800"></div>
-                                                            <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-gray-800"></div>
-                                                            <div class="absolute top-1/2 -left-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-gray-800"></div>
-                                                            <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-gray-800"></div>
-                                                            <div class="absolute top-0.5 right-0.5 w-[1.5px] h-1 bg-gray-800 rotate-45"></div>
-                                                            <div class="absolute bottom-0.5 left-0.5 w-[1.5px] h-1 bg-gray-800 rotate-45"></div>
-                                                            <div class="absolute top-0.5 left-0.5 w-[1.5px] h-1 bg-gray-800 -rotate-45"></div>
-                                                            <div class="absolute bottom-0.5 right-0.5 w-[1.5px] h-1 bg-gray-800 -rotate-45"></div>
+                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-emerald-500"></div>
+                                                            <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-emerald-500"></div>
+                                                            <div class="absolute top-1/2 -left-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-emerald-500"></div>
+                                                            <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-emerald-500"></div>
+                                                            <div class="absolute top-0.5 right-0.5 w-[1.5px] h-1 bg-emerald-500 rotate-45"></div>
+                                                            <div class="absolute bottom-0.5 left-0.5 w-[1.5px] h-1 bg-emerald-500 rotate-45"></div>
+                                                            <div class="absolute top-0.5 left-0.5 w-[1.5px] h-1 bg-emerald-500 -rotate-45"></div>
+                                                            <div class="absolute bottom-0.5 right-0.5 w-[1.5px] h-1 bg-emerald-500 -rotate-45"></div>
                                                         </div>
                                                         <!-- Panel -->
-                                                        <div class="w-12 h-8 border-2 border-gray-800 rounded-sm grid grid-cols-4 grid-rows-2 gap-[1px] bg-gray-800">
+                                                        <div class="w-12 h-8 border-2 border-emerald-500 rounded-sm grid grid-cols-4 grid-rows-2 gap-[1px] bg-emerald-500">
                                                             <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
                                                             <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
                                                         </div>
                                                         <!-- Stand -->
-                                                        <div class="w-[2px] h-2 bg-gray-800"></div>
-                                                        <div class="w-6 h-[2px] bg-gray-800 rounded-full"></div>
+                                                        <div class="w-[2px] h-2 bg-emerald-500"></div>
+                                                        <div class="w-6 h-[2px] bg-emerald-500 rounded-full"></div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">PV ARRAY</span>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-emerald-600 tracking-wider">PV ARRAY</span>
                                                 </div>
                                                 <!-- Connector -->
-                                                <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
-                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
-                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                <div class="w-52 h-8 relative flex items-center justify-center">
+                                                    <style>
+                                                        @keyframes flowLine {
+                                                            0% { stroke-dashoffset: 24; }
+                                                            100% { stroke-dashoffset: 0; }
+                                                        }
+                                                        .animate-flow-line {
+                                                            animation: flowLine 1s linear infinite;
+                                                        }
+                                                    </style>
+                                                    <!-- DC Label -->
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-emerald-600 tracking-widest block leading-none">DC</span>
+                                                    </div>
+
+                                                    <!-- Line SVG -->
+                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
+                                                        <defs>
+                                                            <path id="arrow-head-right" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </defs>
+                                                        <!-- Background Track -->
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#D1FAE5" stroke-width="2" />
+                                                        <!-- Flowing Current -->
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#10B981" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line" />
+                                                        
+                                                        <!-- Moving Arrows -->
+                                                        <g class="text-emerald-500">
+                                                            <path id="path-pv-inv" d="M0 12 L208 12" fill="none" stroke="none" />
+                                                            <use href="#arrow-head-right">
+                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-pv-inv" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-right">
+                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-pv-inv" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-right">
+                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-pv-inv" />
+                                                                </animateMotion>
+                                                            </use>
+                                                        </g>
+                                                    </svg>
+
+                                                    <!-- Arrow -->
+                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-emerald-100 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-emerald-600 block"></i>
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Battery (Line Art Style) -->
-                                            <div class="flex items-center gap-4 group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                            <div class="flex items-center gap-0 group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-emerald-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#064e3b]">
                                                     <div class="flex flex-col items-center transform scale-110">
-                                                        <div class="w-10 h-14 border-2 border-gray-800 rounded-md flex flex-col justify-end p-1 gap-1 relative">
-                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-1.5 bg-gray-800 rounded-t-sm"></div>
-                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-gray-800 rounded-[1px] opacity-30"></div>
+                                                        <div class="w-10 h-14 border-2 border-emerald-500 rounded-md flex flex-col justify-end p-1 gap-1 relative">
+                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-1.5 bg-emerald-500 rounded-t-sm"></div>
+                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px] opacity-30"></div>
                                                             <div class="absolute top-2 left-1/2 -translate-x-1/2">
-                                                                <i data-lucide="zap" class="w-3 h-3 text-gray-800 fill-gray-800"></i>
+                                                                <i data-lucide="zap" class="w-3 h-3 text-emerald-500 fill-emerald-500"></i>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">BATTERY</span>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-emerald-600 tracking-wider">BATTERY</span>
                                                 </div>
                                                  <!-- Connector -->
-                                                 <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
-                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
-                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
-                                                    <i data-lucide="arrow-left" class="w-3 h-3 text-gray-800 absolute -left-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                 <div class="w-52 h-8 relative flex items-center justify-center">
+                                                    <style>
+                                                        @keyframes flowLineLeft {
+                                                            0% { stroke-dashoffset: 24; }
+                                                            100% { stroke-dashoffset: 0; }
+                                                        }
+                                                        .animate-flow-line-left {
+                                                            animation: flowLineLeft 1s linear infinite;
+                                                        }
+                                                    </style>
+                                                    <!-- DC Label -->
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-emerald-600 tracking-widest block leading-none">DC</span>
+                                                    </div>
+
+                                                    <!-- Line SVG -->
+                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
+                                                        <defs>
+                                                            <path id="arrow-head-bat" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </defs>
+                                                        <!-- Background Track -->
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#D1FAE5" stroke-width="2" />
+                                                        <!-- Flowing Current -->
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#10B981" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line-left" />
+                                                        
+                                                        <!-- Moving Arrows -->
+                                                        <g class="text-emerald-500">
+                                                            <path id="path-inv-bat" d="M208 12 L0 12" fill="none" stroke="none" />
+                                                            <use href="#arrow-head-bat">
+                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-bat" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-bat">
+                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-bat" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-bat">
+                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-bat" />
+                                                                </animateMotion>
+                                                            </use>
+                                                        </g>
+                                                    </svg>
+
+                                                    <!-- Arrow -->
+                                                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-emerald-100 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-left" class="w-3 h-3 text-emerald-600 block"></i>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Center Column: Inverter (Line Art Style) -->
                                         <div class="flex flex-col items-center justify-center relative">
-                                            <div class="flex flex-col items-center justify-center w-40 h-40 bg-white border-2 border-gray-800 rounded-xl relative z-20 transition-transform hover:scale-105 shadow-[6px_6px_0px_0px_rgba(31,41,55,1)]">
-                                                <div class="absolute -top-3 bg-gray-800 text-white text-[10px] px-3 py-0.5 rounded-full font-bold tracking-wider shadow-sm border-2 border-white">HYBRID</div>
-                                                <div class="flex flex-col items-center transform scale-125">
-                                                    <div class="w-16 h-16 border-2 border-gray-800 rounded-lg flex items-center justify-center relative overflow-hidden bg-white">
+                                            <div class="flex flex-col items-center justify-center w-52 h-52 bg-white border-2 border-cyan-500 rounded-xl relative z-20 transition-transform hover:scale-105 shadow-[6px_6px_0px_0px_#0e7490]">
+                                                <div class="absolute -top-3 bg-cyan-600 text-white text-[10px] px-3 py-0.5 rounded-full font-bold tracking-wider shadow-sm border-2 border-white">HYBRID</div>
+                                                <div class="flex flex-col items-center transform scale-150">
+                                                    <div class="w-16 h-16 border-2 border-cyan-500 rounded-lg flex items-center justify-center relative overflow-hidden bg-white">
                                                          <div class="flex flex-col items-center gap-1">
-                                                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" class="text-gray-800 stroke-2">
+                                                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" class="text-cyan-500 stroke-2">
                                                                 <path d="M2 6C2 6 5 2 8 2C11 2 14 10 17 10C20 10 22 6 22 6" stroke-linecap="round" stroke-linejoin="round"/>
                                                             </svg>
                                                             <div class="flex gap-1">
-                                                                <div class="w-5 h-[2px] bg-gray-800 rounded-full"></div>
-                                                                <div class="w-5 h-[2px] bg-gray-800 rounded-full"></div>
+                                                                <div class="w-5 h-[2px] bg-cyan-500 rounded-full"></div>
+                                                                <div class="w-5 h-[2px] bg-cyan-500 rounded-full"></div>
                                                             </div>
                                                          </div>
                                                     </div>
                                                 </div>
-                                                <span class="absolute -bottom-8 text-base font-bold text-gray-800 tracking-wider">INVERTER</span>
+                                                <span class="absolute -bottom-8 text-base font-bold text-cyan-700 tracking-wider">INVERTER</span>
                                             </div>
                                         </div>
 
                                         <!-- Right Column: Grid & Home -->
                                         <div class="flex flex-col gap-16 relative">
                                             <!-- Grid (Line Art Style) -->
-                                            <div class="flex items-center gap-4 flex-row-reverse group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                            <div class="flex items-center gap-0 flex-row-reverse group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-blue-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#1e3a8a]">
                                                     <div class="flex flex-col items-center transform scale-110">
                                                         <div class="flex flex-col items-center relative">
-                                                             <div class="w-12 h-[2px] bg-gray-800 rounded-full mb-1.5"></div>
-                                                             <div class="w-16 h-[2px] bg-gray-800 rounded-full mb-1"></div>
+                                                             <div class="w-12 h-[2px] bg-blue-500 rounded-full mb-1.5"></div>
+                                                             <div class="w-16 h-[2px] bg-blue-500 rounded-full mb-1"></div>
                                                              <div class="relative w-10 h-12">
-                                                                <div class="absolute inset-x-0 top-0 bottom-0 border-l-2 border-r-2 border-gray-800 transform scale-x-75 origin-bottom"></div>
-                                                                <div class="absolute top-1/2 inset-x-0 h-[2px] bg-gray-800"></div>
-                                                                <div class="absolute top-1/4 inset-x-1 h-[2px] bg-gray-800"></div>
-                                                                <div class="absolute bottom-0 inset-x-0 h-[2px] bg-gray-800"></div>
+                                                                <div class="absolute inset-x-0 top-0 bottom-0 border-l-2 border-r-2 border-blue-500 transform scale-x-75 origin-bottom"></div>
+                                                                <div class="absolute top-1/2 inset-x-0 h-[2px] bg-blue-500"></div>
+                                                                <div class="absolute top-1/4 inset-x-1 h-[2px] bg-blue-500"></div>
+                                                                <div class="absolute bottom-0 inset-x-0 h-[2px] bg-blue-500"></div>
                                                              </div>
                                                         </div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">GRID</span>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-blue-600 tracking-wider">GRID</span>
                                                 </div>
                                                  <!-- Connector -->
-                                                 <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
-                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
-                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
-                                                    <i data-lucide="arrow-left" class="w-3 h-3 text-gray-800 absolute -left-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                 <div class="w-52 h-8 relative flex items-center justify-center">
+                                                    <style>
+                                                        @keyframes flowWave {
+                                                            0% { stroke-dashoffset: 24; }
+                                                            100% { stroke-dashoffset: 0; }
+                                                        }
+                                                        .animate-flow-wave {
+                                                            animation: flowWave 1s linear infinite;
+                                                        }
+                                                    </style>
+                                                    <!-- AC Label -->
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-blue-100 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-blue-600 tracking-widest block leading-none">AC</span>
+                                                    </div>
+
+                                                    <!-- Wave SVG -->
+                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
+                                                        <defs>
+                                                            <path id="arrow-head-grid" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </defs>
+                                                        <!-- Background Track -->
+                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
+                                                              stroke="#DBEAFE" stroke-width="2" fill="none" />
+                                                        
+                                                        <!-- Flowing Current -->
+                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
+                                                              stroke="#3B82F6" stroke-width="2" fill="none"
+                                                              stroke-dasharray="12 12" 
+                                                              class="animate-flow-wave" />
+
+                                                        <!-- Moving Arrows -->
+                                                        <g class="text-blue-500">
+                                                            <path id="path-inv-grid" d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" fill="none" stroke="none" />
+                                                            <use href="#arrow-head-grid">
+                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-grid" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-grid">
+                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-grid" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-grid">
+                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-grid" />
+                                                                </animateMotion>
+                                                            </use>
+                                                        </g>
+                                                    </svg>
+
+                                                    <!-- Arrow -->
+                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-blue-100 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-blue-600 block"></i>
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Home (Line Art Style) -->
-                                            <div class="flex items-center gap-4 flex-row-reverse group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-gray-800 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_rgba(31,41,55,1)]">
+                                            <div class="flex items-center gap-0 flex-row-reverse group">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-blue-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#1e3a8a]">
                                                     <div class="flex flex-col items-center transform scale-110">
                                                         <div class="flex flex-col items-center">
                                                             <!-- Roof -->
-                                                            <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[16px] border-b-gray-800 mb-[1px]"></div>
+                                                            <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[16px] border-b-blue-500 mb-[1px]"></div>
                                                             <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[12px] border-b-white -mt-[14px] mb-[3px]"></div>
                                                             <!-- Body -->
-                                                            <div class="w-8 h-6 border-2 border-gray-800 border-t-0 flex justify-center items-end bg-white">
-                                                                <div class="w-3 h-4 border-2 border-gray-800 border-b-0 rounded-t-[1px]"></div>
+                                                            <div class="w-8 h-6 border-2 border-blue-500 border-t-0 flex justify-center items-end bg-white">
+                                                                <div class="w-3 h-4 border-2 border-blue-500 border-b-0 rounded-t-[1px]"></div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-gray-800 tracking-wider">HOME</span>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-blue-600 tracking-wider">HOME</span>
                                                 </div>
                                                  <!-- Connector -->
-                                                 <div class="w-32 h-[2px] bg-gray-200 relative overflow-hidden">
-                                                    <div class="w-2 h-2 bg-gray-800 rounded-full absolute top-1/2 -translate-y-1/2 animate-flow-right"></div>
-                                                    <i data-lucide="arrow-right" class="w-3 h-3 text-gray-800 absolute -right-1 -top-1.5 bg-white rounded-full border border-gray-200 p-0.5"></i>
+                                                 <div class="w-52 h-8 relative flex items-center justify-center">
+                                                    <style>
+                                                        @keyframes flowWave {
+                                                            0% { stroke-dashoffset: 24; }
+                                                            100% { stroke-dashoffset: 0; }
+                                                        }
+                                                        .animate-flow-wave {
+                                                            animation: flowWave 1s linear infinite;
+                                                        }
+                                                    </style>
+                                                    <!-- AC Label -->
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-blue-100 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-blue-600 tracking-widest block leading-none">AC</span>
+                                                    </div>
+
+                                                    <!-- Wave SVG -->
+                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
+                                                        <defs>
+                                                            <path id="arrow-head-home" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </defs>
+                                                        <!-- Background Track -->
+                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
+                                                              stroke="#DBEAFE" stroke-width="2" fill="none" />
+                                                        
+                                                        <!-- Flowing Current -->
+                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
+                                                              stroke="#3B82F6" stroke-width="2" fill="none"
+                                                              stroke-dasharray="12 12" 
+                                                              class="animate-flow-wave" />
+
+                                                        <!-- Moving Arrows -->
+                                                        <g class="text-blue-500">
+                                                            <path id="path-inv-home" d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" fill="none" stroke="none" />
+                                                            <use href="#arrow-head-home">
+                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-home" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-home">
+                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-home" />
+                                                                </animateMotion>
+                                                            </use>
+                                                            <use href="#arrow-head-home">
+                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
+                                                                    <mpath href="#path-inv-home" />
+                                                                </animateMotion>
+                                                            </use>
+                                                        </g>
+                                                    </svg>
+
+                                                    <!-- Arrow -->
+                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-blue-100 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-blue-600 block"></i>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -5407,6 +6086,8 @@ const app = {
                                     <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
                                 </div>
                             </div>
+
+
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <!-- PV Stats Section -->
                                 <div class="flex flex-col h-full">
@@ -5583,20 +6264,47 @@ const app = {
                                 </div>
                             </div>
 
-
-
-                    <!-- Chart Section -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-gray-900">Power Profile (24h)</h3>
-                            <div class="flex bg-gray-100 rounded-lg p-1">
-                                <button class="px-3 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm rounded-md">Power</button>
-                                <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900">Voltage</button>
-                                <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900">Current</button>
+                            <!-- Operation Section -->
+                            <div class="flex flex-col mb-6">
+                                <div class="flex items-center justify-between mb-4 px-1">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="activity" class="w-5 h-5 text-indigo-500"></i>
+                                        <h3 class="text-base font-bold text-gray-900">Operation</h3>
+                                    </div>
+                                    <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm px-1 w-[260px] justify-between">
+                                        <select id="operation-granularity" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 cursor-pointer h-7 outline-none flex-shrink-0" onchange="app.handleGranularityChange(this.value)">
+                                            <option value="day">Day</option>
+                                            <option value="month">Month</option>
+                                            <option value="year">Year</option>
+                                            <option value="total">Total</option>
+                                        </select>
+                                        <span id="operation-separator" class="text-gray-300 mx-1 flex-shrink-0">|</span>
+                                        <div class="flex items-center flex-1 justify-center">
+                                            <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors flex-shrink-0">
+                                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                            </button>
+                                            <input type="date" id="operation-date" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer flex-1 w-full" value="${new Date().toISOString().split('T')[0]}" onchange="app.updateOperationChart()" onclick="try{this.showPicker()}catch(e){}">
+                                            <select id="operation-year-select" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer appearance-none flex-1 w-full" style="display:none" onchange="document.getElementById('operation-date').value=this.value; app.updateOperationChart()">
+                                            </select>
+                                            <button id="operation-date-next" onclick="app.adjustDate(1)" class="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors flex-shrink-0">
+                                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative">
+                                    <div class="absolute top-6 left-6 z-10 flex bg-gray-100 rounded-lg p-1">
+                                        <button onclick="app.setOperationTab('status')" id="tab-status" class="px-3 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm rounded-md transition-all">Status</button>
+                                        <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all">Generation</button>
+                                        <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all">Consumption</button>
+                                    </div>
+                                    <div id="operation-chart" class="w-full h-80"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div id="device-detail-chart" class="w-full h-80"></div>
-                    </div>
+
+
+
+
 
                     <!-- Details Grid -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -5660,57 +6368,8 @@ const app = {
 
         // Initialize Chart
         setTimeout(() => {
-            const chartDom = document.getElementById('device-detail-chart');
-            if (chartDom) {
-                const myChart = echarts.init(chartDom);
-                const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
-                const data = Array.from({length: 24}, () => Math.random() * device.capacity);
-                
-                const option = {
-                    tooltip: {
-                        trigger: 'axis',
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        borderColor: '#e5e7eb',
-                        borderWidth: 1,
-                        textStyle: { color: '#1f2937' }
-                    },
-                    grid: {
-                        left: '3%',
-                        right: '4%',
-                        bottom: '3%',
-                        containLabel: true
-                    },
-                    xAxis: {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: hours,
-                        axisLine: { lineStyle: { color: '#e5e7eb' } },
-                        axisLabel: { color: '#6b7280' }
-                    },
-                    yAxis: {
-                        type: 'value',
-                        splitLine: { lineStyle: { type: 'dashed', color: '#f3f4f6' } },
-                        axisLabel: { color: '#6b7280' }
-                    },
-                    series: [{
-                        name: 'Power (kW)',
-                        type: 'line',
-                        smooth: true,
-                        symbol: 'none',
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(16, 185, 129, 0.2)' },
-                                { offset: 1, color: 'rgba(16, 185, 129, 0)' }
-                            ])
-                        },
-                        itemStyle: { color: '#10b981' },
-                        data: data
-                    }]
-                };
-                myChart.setOption(option);
-                
-                window.addEventListener('resize', () => myChart.resize());
-            }
+            this.initOperationChart();
+
         }, 100);
     },
 
