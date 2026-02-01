@@ -6711,7 +6711,7 @@ const app = {
 
     renderVPPDetails(container, vppId) {
         container.innerHTML = '';
-        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.className = "w-full h-full flex flex-col gap-[8px] bg-[#f8f9fb] p-[8px]";
         const vpp = state.vpps.find(v => v.id == vppId);
         if (!vpp) return this.navigate('vpp');
         
@@ -6748,207 +6748,210 @@ const app = {
                        (d.address && d.address.toLowerCase().includes(q));
             });
 
-        // Header
-        const header = document.createElement('div');
-        header.className = 'flex gap-[16px] h-[40px] items-center px-[8px] w-full mb-[24px]';
-        header.innerHTML = `
-            <div class="flex flex-[1_0_0] gap-[4px] items-center min-h-px min-w-px relative">
-                <button onclick="app.navigate('vpp')" class="flex gap-[4px] items-center justify-center p-[8px] relative rounded-[4px] shrink-0 hover:bg-gray-100 transition-colors">
-                    <div class="relative shrink-0 size-[24px]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#5f646e]"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-                    </div>
-                </button>
-                <div class="flex gap-[16px] items-center relative shrink-0">
-                    <p class="font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[#313949] text-center">
-                        ${vpp.name}
-                    </p>
-                </div>
-            </div>
-
-        `;
-        container.appendChild(header);
-
         // Content
         const content = document.createElement('div');
-        content.className = 'flex-1 flex flex-col gap-[24px] slide-up px-[8px]';
-        content.style.height = 'calc(100% - 64px)'; // Adjust for header
+        content.className = 'flex-1 flex flex-col gap-[24px] slide-up';
         
         content.innerHTML = `
-            <!-- Summary Section (Figma Frame1 Layout) -->
-            <div class="flex flex-col lg:flex-row gap-[40px] items-center py-[8px] w-full">
-                <!-- Left Group: Company Info & DERs Status -->
-                <div class="flex flex-col gap-[24px] items-start justify-center relative shrink-0 w-full lg:w-auto">
-                    <!-- Company Info -->
-                    <div class="flex gap-[15px] items-center relative shrink-0 w-full">
-                        <div class="flex items-center justify-center relative rounded-[16px] shrink-0 size-[80px] bg-gray-100 overflow-hidden">
-                             <i data-lucide="building-2" class="w-8 h-8 text-gray-400"></i>
-                        </div>
-                        <div class="flex flex-col gap-[8px] items-start py-[4px]">
-                             <p class="font-semibold leading-[1.4] text-[20px] text-[#313949]">
-                                ${vpp.company || 'Unknown Company'}
-                             </p>
-                             <div class="bg-[#f3f3f6] flex gap-[4px] items-center justify-center px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#5f646e]">
-                                <p>${vpp.state || '-'}</p>
-                                <p>•</p>
-                                <p>${vpp.country || '-'}</p>
-                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- DERs & Status -->
-                    <div class="flex flex-wrap gap-[40px] items-start px-[16px] py-[4px]">
-                        <!-- Total DERs -->
-                        <div class="flex gap-[16px] items-center">
-                            <div class="relative size-[32px]">
-                                <img src="assets/icons/system.svg" class="w-full h-full" onerror="this.style.display='none'">
-                            </div>
-                            <div class="flex gap-[4px] items-end text-[#313949]">
-                                <p class="font-extrabold leading-[1.33] text-[24px]">${totalDevices}</p>
-                                <p class="font-semibold italic leading-[1.42] text-[16px] mb-[3px]">DERs</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Status Breakdown -->
-                        <div class="flex gap-[24px] items-start">
-                             <!-- Online -->
-                             <div class="flex gap-[24px] h-[32px] items-center">
-                                 <div class="flex gap-[8px] items-center">
-                                     <div class="bg-[#8cda2f] h-[12px] rounded-[2px] w-[4px]"></div>
-                                     <p class="text-[14px] text-[#5f646e]">Online</p>
-                                 </div>
-                                 <p class="font-medium text-[14px] text-[#8cda2f] text-right">${onlineDevices}</p>
-                             </div>
-                             <!-- Offline -->
-                             <div class="flex gap-[24px] h-[32px] items-center">
-                                 <div class="flex gap-[8px] items-center">
-                                     <div class="bg-[#b5bcc8] h-[12px] rounded-[2px] w-[4px]"></div>
-                                     <p class="text-[14px] text-[#5f646e]">Offline</p>
-                                 </div>
-                                 <p class="font-medium text-[14px] text-[#b5bcc8] text-right">${offlineDevices}</p>
-                             </div>
-                             <!-- Disconnected -->
-                             <div class="flex gap-[24px] h-[32px] items-center">
-                                 <div class="flex gap-[8px] items-center">
-                                     <div class="bg-[#ff3434] h-[12px] rounded-[2px] w-[4px]"></div>
-                                     <p class="text-[14px] text-[#5f646e]">Disconnected</p>
-                                 </div>
-                                 <p class="font-medium text-[14px] text-[#ff3434] text-right">${disconnectedDevices}</p>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Group: Metrics (Gray Box) -->
-                <div class="flex-1 bg-[#f3f3f6] flex flex-col gap-[0px] px-[16px] py-[8px] rounded-[8px] min-w-[300px] h-full justify-center">
-                    <!-- Row 1 -->
-                    <div class="flex gap-[40px] items-center w-full flex-1">
-                        <!-- Rated Power -->
-                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
-                             <div class="flex gap-[4px] items-center">
-                                 <div class="size-[24px] flex items-center justify-center">
-                                    <i data-lucide="zap" class="w-5 h-5 text-[#5f646e]"></i>
-                                 </div>
-                                 <p class="text-[14px] text-[#5f646e]">Rated Power</p>
-                             </div>
-                             <div class="flex gap-[8px] items-center">
-                                 <p class="font-semibold text-[18px] text-[#313949]">${ratedPower.toFixed(1)}</p>
-                                 <p class="text-[14px] text-[#b5bcc8]">kW</p>
-                             </div>
-                        </div>
-                        <!-- PV Capacity -->
-                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
-                             <div class="flex gap-[4px] items-center">
-                                 <div class="size-[24px] flex items-center justify-center">
-                                    <i data-lucide="sun" class="w-5 h-5 text-[#5f646e]"></i>
-                                 </div>
-                                 <p class="text-[14px] text-[#5f646e]">PV Capacity</p>
-                             </div>
-                             <div class="flex gap-[8px] items-center">
-                                 <p class="font-semibold text-[18px] text-[#313949]">${pvCapacity.toFixed(1)}</p>
-                                 <p class="text-[14px] text-[#b5bcc8]">kW</p>
-                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Row 2 -->
-                    <div class="flex gap-[40px] items-center w-full flex-1">
-                        <!-- SOC -->
-                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
-                             <div class="flex gap-[4px] items-center">
-                                 <div class="size-[24px] flex items-center justify-center">
-                                    <i data-lucide="battery" class="w-5 h-5 text-[#5f646e]"></i>
-                                 </div>
-                                 <p class="text-[14px] text-[#5f646e]">SOC</p>
-                             </div>
-                             <div class="flex flex-col items-end">
-                                 <p class="font-semibold text-[18px] text-[#313949]">${socPercentage}%</p>
-                                 <p class="text-[12px] text-[#5f646e]">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</p>
-                             </div>
-                        </div>
-                         <!-- Today Yield -->
-                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
-                             <div class="flex gap-[4px] items-center">
-                                 <div class="size-[24px] flex items-center justify-center">
-                                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-[#5f646e]"></i>
-                                 </div>
-                                 <p class="text-[14px] text-[#5f646e]">Today Yield</p>
-                             </div>
-                             <div class="flex gap-[8px] items-center">
-                                 <p class="font-semibold text-[18px] text-[#313949]">${todayYield.toFixed(1)}</p>
-                                 <p class="text-[14px] text-[#b5bcc8]">kWh</p>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Unified Panel -->
             <div class="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <!-- Header -->
-                <div class="flex justify-between items-center px-6 pt-4 border-b border-gray-200 bg-gray-50">
-                     <div class="flex gap-6">
-                        <button onclick="app.setVPPDetailsTab('der-list')" class="pb-4 text-sm font-medium border-b-2 transition-colors ${state.vppDetailsTab === 'der-list' ? 'border-manta-primary text-manta-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}">
-                            DERs
-                        </button>
-                        <button onclick="app.setVPPDetailsTab('event-list')" class="pb-4 text-sm font-medium border-b-2 transition-colors ${state.vppDetailsTab === 'event-list' ? 'border-manta-primary text-manta-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}">
-                            Events
-                        </button>
-                     </div>
-                     <div class="flex gap-2 pb-4">
-                        ${(state.vppDetailsTab === 'der-list') ? `
-                        <div class="relative">
-                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input 
-                                type="text" 
-                                id="assigned-search-input"
-                                placeholder="Search" 
-                                value="${state.assignedSearchQuery || ''}"
-                                oninput="app.setAssignedSearch(this.value)"
-                                class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary focus:ring-1 focus:ring-manta-primary w-64 transition-colors"
-                            >
+                <!-- Merged Header, Summary, and Tabs -->
+                <div class="flex flex-col w-full">
+                    <!-- Header -->
+                    <div class="flex gap-[16px] items-center px-[24px] py-[16px] w-full">
+                        <div class="flex flex-[1_0_0] gap-[4px] items-center min-h-px min-w-px relative">
+                            <button onclick="app.navigate('vpp')" class="flex gap-[4px] items-center justify-center p-[8px] relative rounded-[4px] shrink-0 hover:bg-gray-100 transition-colors">
+                                <div class="relative shrink-0 size-[24px]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#5f646e]"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                                </div>
+                            </button>
+                            <div class="flex gap-[16px] items-center relative shrink-0">
+                                <p class="font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[#313949] text-center">
+                                    ${vpp.name}
+                                </p>
+                            </div>
                         </div>
-                        ` : ''}
-                     </div>
+                    </div>
+
+                    <!-- Summary Section -->
+                    <div class="flex flex-col lg:flex-row gap-[40px] items-center px-[24px] py-[24px] w-full">
+                        <!-- Left Group: Company Info & DERs Status -->
+                        <div class="flex flex-col gap-[24px] items-start justify-center relative shrink-0 w-full lg:w-auto">
+                            <!-- Company Info -->
+                            <div class="flex gap-[15px] items-center relative shrink-0 w-full">
+                                <div class="flex items-center justify-center relative rounded-[16px] shrink-0 size-[80px] bg-gray-100 overflow-hidden">
+                                     <i data-lucide="building-2" class="w-8 h-8 text-gray-400"></i>
+                                </div>
+                                <div class="flex flex-col gap-[8px] items-start py-[4px]">
+                                     <p class="font-semibold leading-[1.4] text-[20px] text-[#313949]">
+                                        ${vpp.company || 'Unknown Company'}
+                                     </p>
+                                     <div class="bg-[#f3f3f6] flex gap-[4px] items-center justify-center px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#5f646e]">
+                                        <p>${vpp.state || '-'}</p>
+                                        <p>•</p>
+                                        <p>${vpp.country || '-'}</p>
+                                     </div>
+                                </div>
+                            </div>
+                            
+                            <!-- DERs & Status -->
+                            <div class="flex flex-wrap gap-[40px] items-start px-[16px] py-[4px]">
+                                <!-- Total DERs -->
+                                <div class="flex gap-[16px] items-center">
+                                    <div class="relative size-[32px]">
+                                        <img src="assets/icons/system.svg" class="w-full h-full" onerror="this.style.display='none'">
+                                    </div>
+                                    <div class="flex gap-[4px] items-end text-[#313949]">
+                                        <p class="font-extrabold leading-[1.33] text-[24px]">${totalDevices}</p>
+                                        <p class="font-semibold italic leading-[1.42] text-[16px] mb-[3px]">DERs</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Status Breakdown -->
+                                <div class="flex gap-[24px] items-start">
+                                     <!-- Online -->
+                                     <div class="flex gap-[24px] h-[32px] items-center">
+                                         <div class="flex gap-[8px] items-center">
+                                             <div class="bg-[#8cda2f] h-[12px] rounded-[2px] w-[4px]"></div>
+                                             <p class="text-[14px] text-[#5f646e]">Online</p>
+                                         </div>
+                                         <p class="font-medium text-[14px] text-[#8cda2f] text-right">${onlineDevices}</p>
+                                     </div>
+                                     <!-- Offline -->
+                                     <div class="flex gap-[24px] h-[32px] items-center">
+                                         <div class="flex gap-[8px] items-center">
+                                             <div class="bg-[#b5bcc8] h-[12px] rounded-[2px] w-[4px]"></div>
+                                             <p class="text-[14px] text-[#5f646e]">Offline</p>
+                                         </div>
+                                         <p class="font-medium text-[14px] text-[#b5bcc8] text-right">${offlineDevices}</p>
+                                     </div>
+                                     <!-- Disconnected -->
+                                     <div class="flex gap-[24px] h-[32px] items-center">
+                                         <div class="flex gap-[8px] items-center">
+                                             <div class="bg-[#ff3434] h-[12px] rounded-[2px] w-[4px]"></div>
+                                             <p class="text-[14px] text-[#5f646e]">Disconnected</p>
+                                         </div>
+                                         <p class="font-medium text-[14px] text-[#ff3434] text-right">${disconnectedDevices}</p>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Group: Metrics (Gray Box) -->
+                        <div class="flex-1 bg-[#f3f3f6] flex flex-col gap-[0px] px-[16px] py-[8px] rounded-[8px] min-w-[300px] h-full justify-center">
+                            <!-- Row 1 -->
+                            <div class="flex gap-[40px] items-center w-full flex-1">
+                                <!-- Rated Power -->
+                                <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
+                                     <div class="flex gap-[4px] items-center">
+                                         <div class="size-[24px] flex items-center justify-center">
+                                            <i data-lucide="zap" class="w-5 h-5 text-[#5f646e]"></i>
+                                         </div>
+                                         <p class="text-[14px] text-[#5f646e]">Rated Power</p>
+                                     </div>
+                                     <div class="flex gap-[8px] items-center">
+                                         <p class="font-semibold text-[18px] text-[#313949]">${ratedPower.toFixed(1)}</p>
+                                         <p class="text-[14px] text-[#b5bcc8]">kW</p>
+                                     </div>
+                                </div>
+                                <!-- PV Capacity -->
+                                <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
+                                     <div class="flex gap-[4px] items-center">
+                                         <div class="size-[24px] flex items-center justify-center">
+                                            <i data-lucide="sun" class="w-5 h-5 text-[#5f646e]"></i>
+                                         </div>
+                                         <p class="text-[14px] text-[#5f646e]">PV Capacity</p>
+                                     </div>
+                                     <div class="flex gap-[8px] items-center">
+                                         <p class="font-semibold text-[18px] text-[#313949]">${pvCapacity.toFixed(1)}</p>
+                                         <p class="text-[14px] text-[#b5bcc8]">kW</p>
+                                     </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Row 2 -->
+                            <div class="flex gap-[40px] items-center w-full flex-1">
+                                <!-- SOC -->
+                                <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
+                                     <div class="flex gap-[4px] items-center">
+                                         <div class="size-[24px] flex items-center justify-center">
+                                            <i data-lucide="battery" class="w-5 h-5 text-[#5f646e]"></i>
+                                         </div>
+                                         <p class="text-[14px] text-[#5f646e]">SOC</p>
+                                     </div>
+                                     <div class="flex flex-col items-end">
+                                         <p class="font-semibold text-[18px] text-[#313949]">${socPercentage}%</p>
+                                         <p class="text-[12px] text-[#5f646e]">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</p>
+                                     </div>
+                                </div>
+                                 <!-- Today Yield -->
+                                <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
+                                     <div class="flex gap-[4px] items-center">
+                                         <div class="size-[24px] flex items-center justify-center">
+                                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-[#5f646e]"></i>
+                                         </div>
+                                         <p class="text-[14px] text-[#5f646e]">Today Yield</p>
+                                     </div>
+                                     <div class="flex gap-[8px] items-center">
+                                         <p class="font-semibold text-[18px] text-[#313949]">${todayYield.toFixed(1)}</p>
+                                         <p class="text-[14px] text-[#b5bcc8]">kWh</p>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Header (Figma 168-2975) -->
+                    <div class="flex justify-between items-center px-[24px] py-[16px] bg-white">
+                         <!-- Tab Group -->
+                         <div class="bg-[#f3f3f6] p-[4px] rounded-[4px] flex items-center">
+                            <button onclick="app.setVPPDetailsTab('der-list')" class="min-w-[80px] h-[32px] flex items-center justify-center rounded-[4px] px-[16px] text-[14px] transition-all ${state.vppDetailsTab === 'der-list' ? 'bg-white font-semibold text-[#313949] shadow-sm' : 'font-normal text-[#313949] hover:bg-gray-100'}">
+                                DERs
+                            </button>
+                            <button onclick="app.setVPPDetailsTab('event-list')" class="min-w-[80px] h-[32px] flex items-center justify-center rounded-[4px] px-[16px] text-[14px] transition-all ${state.vppDetailsTab === 'event-list' ? 'bg-white font-semibold text-[#313949] shadow-sm' : 'font-normal text-[#313949] hover:bg-gray-100'}">
+                                Events
+                            </button>
+                         </div>
+
+                         <!-- Search Bar -->
+                         <div class="flex gap-2">
+                            ${(state.vppDetailsTab === 'der-list') ? `
+                            <div class="bg-[#f3f3f6] rounded-[4px] flex items-center w-[240px] h-[32px] px-[8px] gap-[8px]">
+                                <input 
+                                    type="text" 
+                                    id="assigned-search-input"
+                                    placeholder="Search" 
+                                    value="${state.assignedSearchQuery || ''}"
+                                    oninput="app.setAssignedSearch(this.value)"
+                                    class="bg-transparent border-none focus:outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] w-full h-full p-0"
+                                >
+                                <div class="flex items-center justify-center size-[24px] shrink-0">
+                                    <i data-lucide="search" class="w-[18px] h-[18px] text-[#b5bcc8]"></i>
+                                </div>
+                            </div>
+                            ` : ''}
+                         </div>
+                    </div>
                 </div>
 
                 <!-- Content -->
-                <div class="flex-1 overflow-y-auto p-6">
+                <div class="flex-1 overflow-y-auto px-[24px]">
                     ${(state.vppDetailsTab === 'der-list') ? `
                     <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-xs text-gray-500 border-b border-gray-200">
-                                <th class="pb-3 font-medium">Status</th>
-                                <th class="pb-3 font-medium">SN</th>
-                                <th class="pb-3 font-medium">Manufacturer</th>
-                                <th class="pb-3 font-medium">State</th>
-                                <th class="pb-3 font-medium">Rated Power</th>
-                                <th class="pb-3 font-medium">PV Capacity</th>
-                                <th class="pb-3 font-medium">SOC</th>
-                                <th class="pb-3 font-medium">Today Yield</th>
-                                <th class="pb-3 font-medium">Actions</th>
+                        <thead class="sticky top-0 bg-white z-10">
+                            <tr class="h-[48px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
+                                <th class="px-[16px] font-medium">Status</th>
+                                <th class="px-[16px] font-medium">SN</th>
+                                <th class="px-[16px] font-medium">Manufacturer</th>
+                                <th class="px-[16px] font-medium">State</th>
+                                <th class="px-[16px] font-medium">Rated Power</th>
+                                <th class="px-[16px] font-medium">PV Capacity</th>
+                                <th class="px-[16px] font-medium">SOC</th>
+                                <th class="px-[16px] font-medium">Today Yield</th>
+                                <th class="px-[16px] font-medium">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="text-sm">
+                        <tbody class="text-[14px] text-[#313949]">
                             ${assignedDevices.length > 0 ? assignedDevices.map(dev => {
                                 const capacity = dev.capacity || 5;
                                 const ratedPower = capacity.toFixed(1) + ' kW';
@@ -6959,38 +6962,38 @@ const app = {
                                     const totalCap = capacity;
                                     const currentEn = (totalCap * socVal) / 100;
                                     socDisplay = `
-                                        <div>
-                                            <div class="text-gray-900">${socVal}%</div>
-                                            <div class="text-[10px] text-gray-500">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[#313949]">${socVal}%</span>
+                                            <span class="text-[10px] text-[#5f646e]">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</span>
                                         </div>
                                     `;
                                 }
                                 const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
                                 
                                 return `
-                                <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                    <td class="py-3">
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
-                                            <span class="w-1 h-1 rounded-full bg-current"></span>
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
+                                    <td class="px-[16px] py-[12px]">
+                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${dev.status === 'online' ? 'bg-[#e6f4d0] text-[#4b7b0f]' : 'bg-[#e6e8ee] text-[#5f646e]'}">
+                                            <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
                                             ${dev.status}
                                         </span>
                                     </td>
-                                    <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
-                                    <td class="py-3 text-gray-500">${dev.vendor}</td>
-                                    <td class="py-3 text-gray-500">${vpp.state || '-'}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${ratedPower}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${pvCapacity}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${socDisplay}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${todayYield}</td>
-                                    <td class="py-3">
-                                        <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
-                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                    <td class="px-[16px] py-[12px] font-mono text-[#313949]">${dev.sn}</td>
+                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${dev.vendor}</td>
+                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${vpp.state || '-'}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${ratedPower}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${pvCapacity}</td>
+                                    <td class="px-[16px] py-[12px] font-mono">${socDisplay}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${todayYield}</td>
+                                    <td class="px-[16px] py-[12px]">
+                                        <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#313949] transition-colors">
+                                            <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                         </button>
                                     </td>
                                 </tr>
                             `}).join('') : `
                                 <tr>
-                                    <td colspan="9" class="py-8 text-center text-gray-500">
+                                    <td colspan="9" class="py-[32px] text-center text-[#5f646e]">
                                         No devices available
                                     </td>
                                 </tr>
@@ -6999,40 +7002,40 @@ const app = {
                     </table>
                     ` : state.vppDetailsTab === 'event-list' ? `
                     <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-xs text-gray-500 border-b border-gray-200">
-                                <th class="pb-3 font-medium">Date</th>
-                                <th class="pb-3 font-medium">Start Time - End Time</th>
-                                <th class="pb-3 font-medium">Event Type</th>
-                                <th class="pb-3 font-medium">Power</th>
-                                <th class="pb-3 font-medium">Spot Price</th>
-                                <th class="pb-3 font-medium">Volume</th>
-                                <th class="pb-3 font-medium">VPP Income</th>
-                                <th class="pb-3 font-medium">Status</th>
-                                <th class="pb-3 font-medium">Notes</th>
-                                <th class="pb-3 font-medium">Actions</th>
+                        <thead class="sticky top-0 bg-white z-10">
+                            <tr class="h-[48px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
+                                <th class="px-[16px] font-medium">Date</th>
+                                <th class="px-[16px] font-medium">Start Time - End Time</th>
+                                <th class="px-[16px] font-medium">Event Type</th>
+                                <th class="px-[16px] font-medium">Power</th>
+                                <th class="px-[16px] font-medium">Spot Price</th>
+                                <th class="px-[16px] font-medium">Volume</th>
+                                <th class="px-[16px] font-medium">VPP Income</th>
+                                <th class="px-[16px] font-medium">Status</th>
+                                <th class="px-[16px] font-medium">Notes</th>
+                                <th class="px-[16px] font-medium">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="text-sm">
+                        <tbody class="text-[14px] text-[#313949]">
                             ${MOCK_DATA.tradingEvents.map(event => `
-                                <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                    <td class="py-3 text-gray-700">${event.date.split(' ')[0]}</td>
-                                    <td class="py-3 text-gray-500">${event.timeRange}</td>
-                                    <td class="py-3 text-gray-700">${event.eventType}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${event.power}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${event.spotPrice}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${event.volume}</td>
-                                    <td class="py-3 text-gray-500 font-mono">${event.vppIncome}</td>
-                                    <td class="py-3">
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${event.status === 'Success' ? 'bg-green-100 text-green-700' : event.status === 'Partially Success' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}">
-                                            <span class="w-1 h-1 rounded-full bg-current"></span>
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
+                                    <td class="px-[16px] py-[12px] text-[#313949]">${event.date.split(' ')[0]}</td>
+                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${event.timeRange}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949]">${event.eventType}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.power}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.spotPrice}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.volume}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.vppIncome}</td>
+                                    <td class="px-[16px] py-[12px]">
+                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${event.status === 'Success' ? 'bg-[#e6f4d0] text-[#4b7b0f]' : event.status === 'Partially Success' ? 'bg-[#fff7ed] text-[#c2410c]' : 'bg-[#e6e8ee] text-[#5f646e]'}">
+                                            <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
                                             ${event.status}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-gray-500 max-w-xs truncate" title="${event.notes}">${event.notes || '-'}</td>
-                                    <td class="py-3">
-                                        <button class="text-gray-400 hover:text-manta-primary transition-colors">
-                                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <td class="px-[16px] py-[12px] text-[#5f646e] max-w-xs truncate" title="${event.notes}">${event.notes || '-'}</td>
+                                    <td class="px-[16px] py-[12px]">
+                                        <button class="text-[#b5bcc8] hover:text-[#313949] transition-colors">
+                                            <i data-lucide="external-link" class="w-[16px] h-[16px]"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -7040,9 +7043,9 @@ const app = {
                         </tbody>
                     </table>
                     ` : `
-                    <div class="flex flex-col items-center justify-center h-full text-gray-500">
-                        <i data-lucide="calendar-off" class="w-12 h-12 mb-4 text-gray-300"></i>
-                        <p class="text-sm">No events found</p>
+                    <div class="flex flex-col items-center justify-center h-full text-[#5f646e]">
+                        <i data-lucide="calendar-off" class="w-[48px] h-[48px] mb-[16px] text-[#e6e8ee]"></i>
+                        <p class="text-[14px]">No events found</p>
                     </div>
                     `}
                 </div>
