@@ -6775,7 +6775,7 @@ const app = {
         
         content.innerHTML = `
             <!-- Summary Section (Figma Frame1 Layout) -->
-            <div class="flex flex-col lg:flex-row gap-[40px] items-start w-full">
+            <div class="flex flex-col lg:flex-row gap-[40px] items-center py-[8px] w-full">
                 <!-- Left Group: Company Info & DERs Status -->
                 <div class="flex flex-col gap-[24px] items-start justify-center relative shrink-0 w-full lg:w-auto">
                     <!-- Company Info -->
@@ -6816,7 +6816,7 @@ const app = {
                                      <div class="bg-[#8cda2f] h-[12px] rounded-[2px] w-[4px]"></div>
                                      <p class="text-[14px] text-[#5f646e]">Online</p>
                                  </div>
-                                 <p class="font-medium text-[14px] text-[#8cda2f]">${onlineDevices}</p>
+                                 <p class="font-medium text-[14px] text-[#8cda2f] text-right">${onlineDevices}</p>
                              </div>
                              <!-- Offline -->
                              <div class="flex gap-[24px] h-[32px] items-center">
@@ -6824,7 +6824,7 @@ const app = {
                                      <div class="bg-[#b5bcc8] h-[12px] rounded-[2px] w-[4px]"></div>
                                      <p class="text-[14px] text-[#5f646e]">Offline</p>
                                  </div>
-                                 <p class="font-medium text-[14px] text-[#b5bcc8]">${offlineDevices}</p>
+                                 <p class="font-medium text-[14px] text-[#b5bcc8] text-right">${offlineDevices}</p>
                              </div>
                              <!-- Disconnected -->
                              <div class="flex gap-[24px] h-[32px] items-center">
@@ -6832,18 +6832,18 @@ const app = {
                                      <div class="bg-[#ff3434] h-[12px] rounded-[2px] w-[4px]"></div>
                                      <p class="text-[14px] text-[#5f646e]">Disconnected</p>
                                  </div>
-                                 <p class="font-medium text-[14px] text-[#ff3434]">${disconnectedDevices}</p>
+                                 <p class="font-medium text-[14px] text-[#ff3434] text-right">${disconnectedDevices}</p>
                              </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Group: Metrics (Gray Box) -->
-                <div class="flex-1 bg-[#f3f3f6] flex flex-col gap-[16px] px-[16px] py-[16px] rounded-[8px] min-w-[300px]">
+                <div class="flex-1 bg-[#f3f3f6] flex flex-col gap-[0px] px-[16px] py-[8px] rounded-[8px] min-w-[300px] h-full justify-center">
                     <!-- Row 1 -->
-                    <div class="flex gap-[40px] items-center w-full">
+                    <div class="flex gap-[40px] items-center w-full flex-1">
                         <!-- Rated Power -->
-                        <div class="flex-1 flex justify-between items-center min-w-[140px]">
+                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
                              <div class="flex gap-[4px] items-center">
                                  <div class="size-[24px] flex items-center justify-center">
                                     <i data-lucide="zap" class="w-5 h-5 text-[#5f646e]"></i>
@@ -6856,7 +6856,7 @@ const app = {
                              </div>
                         </div>
                         <!-- PV Capacity -->
-                        <div class="flex-1 flex justify-between items-center min-w-[140px]">
+                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
                              <div class="flex gap-[4px] items-center">
                                  <div class="size-[24px] flex items-center justify-center">
                                     <i data-lucide="sun" class="w-5 h-5 text-[#5f646e]"></i>
@@ -6871,9 +6871,9 @@ const app = {
                     </div>
                     
                     <!-- Row 2 -->
-                    <div class="flex gap-[40px] items-center w-full">
+                    <div class="flex gap-[40px] items-center w-full flex-1">
                         <!-- SOC -->
-                        <div class="flex-1 flex justify-between items-center min-w-[140px]">
+                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
                              <div class="flex gap-[4px] items-center">
                                  <div class="size-[24px] flex items-center justify-center">
                                     <i data-lucide="battery" class="w-5 h-5 text-[#5f646e]"></i>
@@ -6882,11 +6882,11 @@ const app = {
                              </div>
                              <div class="flex flex-col items-end">
                                  <p class="font-semibold text-[18px] text-[#313949]">${socPercentage}%</p>
-                                 <p class="text-[10px] text-[#b5bcc8]">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</p>
+                                 <p class="text-[12px] text-[#5f646e]">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</p>
                              </div>
                         </div>
                          <!-- Today Yield -->
-                        <div class="flex-1 flex justify-between items-center min-w-[140px]">
+                        <div class="flex-1 flex justify-between items-center min-w-[160px] h-full px-[16px]">
                              <div class="flex gap-[4px] items-center">
                                  <div class="size-[24px] flex items-center justify-center">
                                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-[#5f646e]"></i>
