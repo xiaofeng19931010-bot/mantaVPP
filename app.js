@@ -850,12 +850,47 @@ const app = {
         const submenu = document.getElementById(id);
         const icon = element.querySelector('.chevron-icon');
         
-        if (submenu.classList.contains('hidden')) {
-            submenu.classList.remove('hidden');
+        if (submenu.classList.contains('max-h-0')) {
+            submenu.classList.remove('max-h-0', 'opacity-0');
+            submenu.classList.add('max-h-[1000px]', 'opacity-100');
             if (icon) icon.style.transform = 'rotate(180deg)';
+            if (element) element.setAttribute('aria-expanded', 'true');
         } else {
-            submenu.classList.add('hidden');
+            submenu.classList.remove('max-h-[1000px]', 'opacity-100');
+            submenu.classList.add('max-h-0', 'opacity-0');
             if (icon) icon.style.transform = 'rotate(0deg)';
+            if (element) element.setAttribute('aria-expanded', 'false');
+        }
+    },
+
+    expandSubmenu(id) {
+        const submenu = document.getElementById(id);
+        const toggleBtn = document.querySelector(`[onclick*="${id}"]`);
+        const icon = toggleBtn ? toggleBtn.querySelector('.chevron-icon') : null;
+
+        if (submenu && submenu.classList.contains('max-h-0')) {
+            submenu.classList.remove('max-h-0', 'opacity-0');
+            submenu.classList.add('max-h-[1000px]', 'opacity-100');
+            if (icon) icon.style.transform = 'rotate(180deg)';
+            if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+        }
+    },
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('main-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        if (sidebar && overlay) {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
         }
     },
 
@@ -892,13 +927,13 @@ const app = {
             'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
             'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
             'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'EV'}],
-            'device_management': [{label: 'Sub-System'}, {label: 'VPP Management'}],
+            'device_management': [{label: 'System'}, {label: 'VPP Management'}],
             'vpp_details': [
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'VPP Details'}
             ],
             'system_details': [
-                {label: 'Sub-System'},
+                {label: 'System'},
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'Details'}
             ],
@@ -916,24 +951,23 @@ const app = {
         
         path.forEach((item, index) => {
             if (index > 0) {
-                html += `<i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 mx-1"></i>`;
+                html += `<i data-lucide="chevron-right" class="w-3 h-3 text-[#b5bcc8] mx-1"></i>`;
             }
             
             const isLast = index === path.length - 1;
-            const isRoot = index === 0; // Manta
+            // const isRoot = index === 0; // Manta - Removed icon logic for design match
             
             if (item.view && !isLast) {
                  const paramsStr = item.params ? `, ${JSON.stringify(item.params).replace(/"/g, "'")}` : '';
                  html += `
-                    <button onclick="app.navigate('${item.view}'${paramsStr})" class="flex items-center gap-1.5 text-gray-500 hover:text-manta-primary transition-colors group">
-                        ${isRoot ? '<i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>' : ''}
-                        <span class="font-medium">${item.label}</span>
+                    <button onclick="app.navigate('${item.view}'${paramsStr})" class="flex items-center gap-1.5 text-[#b5bcc8] hover:text-manta-primary transition-colors group">
+                        <span class="font-normal">${item.label}</span>
                     </button>
                 `;
             } else if (isLast) {
-                 html += `<span class="text-gray-900 font-semibold">${item.label}</span>`;
+                 html += `<span class="text-[#1c2128] font-normal">${item.label}</span>`;
             } else {
-                 html += `<span class="text-gray-500 font-medium">${item.label}</span>`;
+                 html += `<span class="text-[#9ca3af] font-normal">${item.label}</span>`;
             }
         });
         
@@ -956,101 +990,43 @@ const app = {
         if (navItem) navItem.classList.add('active');
 
         // Handle Electricity Market Submenu Expansion
-        const electricityMarketViews = ['spot_market', 'arbitrage_points'];
-        const electricityMarketSubmenu = document.getElementById('electricity-market-submenu');
-        const electricityMarketToggle = document.querySelector('a[onclick*="electricity-market-submenu"] .chevron-icon');
-
-        if (electricityMarketViews.includes(viewName)) {
-            if (electricityMarketSubmenu && electricityMarketSubmenu.classList.contains('hidden')) {
-                electricityMarketSubmenu.classList.remove('hidden');
-                if (electricityMarketToggle) electricityMarketToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['spot_market', 'arbitrage_points'].includes(viewName)) {
+            this.expandSubmenu('electricity-market-submenu');
         }
 
         // Handle Trading Submenu Expansion
-        const tradingViews = ['trading_rules', 'trading_events'];
-        const tradingSubmenu = document.getElementById('trading-submenu');
-        const tradingToggle = document.querySelector('a[onclick*="trading-submenu"] .chevron-icon');
-
-        if (tradingViews.includes(viewName)) {
-            if (tradingSubmenu && tradingSubmenu.classList.contains('hidden')) {
-                tradingSubmenu.classList.remove('hidden');
-                if (tradingToggle) tradingToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['trading_rules', 'trading_events'].includes(viewName)) {
+            this.expandSubmenu('trading-submenu');
         }
 
         // Handle Smart Feed-in Submenu Expansion
-        const smartFeedInViews = ['smart_feed_in_rules', 'smart_feed_in_events'];
-        const smartFeedInSubmenu = document.getElementById('smart-feed-in-submenu');
-        const smartFeedInToggle = document.querySelector('a[onclick*="smart-feed-in-submenu"] .chevron-icon');
-
-        if (smartFeedInViews.includes(viewName)) {
-            if (smartFeedInSubmenu && smartFeedInSubmenu.classList.contains('hidden')) {
-                smartFeedInSubmenu.classList.remove('hidden');
-                if (smartFeedInToggle) smartFeedInToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['smart_feed_in_rules', 'smart_feed_in_events'].includes(viewName)) {
+            this.expandSubmenu('smart-feed-in-submenu');
         }
 
         // Handle Cap Service Submenu Expansion
-        const capServiceViews = ['cap_graph', 'cap_rules', 'cap_events'];
-        const capServiceSubmenu = document.getElementById('cap-service-submenu');
-        const capServiceToggle = document.querySelector('a[onclick*="cap-service-submenu"] .chevron-icon');
-
-        if (capServiceViews.includes(viewName)) {
-            if (capServiceSubmenu && capServiceSubmenu.classList.contains('hidden')) {
-                capServiceSubmenu.classList.remove('hidden');
-                if (capServiceToggle) capServiceToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['cap_graph', 'cap_rules', 'cap_events'].includes(viewName)) {
+            this.expandSubmenu('cap-service-submenu');
         }
 
         // Handle FCAS Submenu Expansion
-        const fcasViews = ['fcas_groups', 'fcas_price_availability'];
-        const fcasSubmenu = document.getElementById('fcas-submenu');
-        const fcasToggle = document.querySelector('a[onclick*="fcas-submenu"] .chevron-icon');
-
-        if (fcasViews.includes(viewName)) {
-            if (fcasSubmenu && fcasSubmenu.classList.contains('hidden')) {
-                fcasSubmenu.classList.remove('hidden');
-                if (fcasToggle) fcasToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['fcas_groups', 'fcas_price_availability'].includes(viewName)) {
+            this.expandSubmenu('fcas-submenu');
         }
 
         // Handle DER Management Submenu Expansion
-        const derViews = ['der_ess', 'der_pv', 'der_ev'];
-        const derSubmenu = document.getElementById('der-submenu');
-        const derToggle = document.querySelector('a[onclick*="der-submenu"] .chevron-icon');
-
-        if (derViews.includes(viewName)) {
-            if (derSubmenu && derSubmenu.classList.contains('hidden')) {
-                derSubmenu.classList.remove('hidden');
-                if (derToggle) derToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['der_ess', 'der_pv', 'der_ev'].includes(viewName)) {
+            this.expandSubmenu('der-submenu');
         }
 
         // Handle Reports Submenu Expansion
-        const reportsViews = ['reports_vpp_events', 'reports_der_events', 'reports_vpp_event_items', 'reports_vpp_event_month_summary', 'reports_terminated'];
-        const reportsSubmenu = document.getElementById('reports-submenu');
-        const reportsToggle = document.querySelector('a[onclick*="reports-submenu"] .chevron-icon');
-
-        if (reportsViews.includes(viewName)) {
-            if (reportsSubmenu && reportsSubmenu.classList.contains('hidden')) {
-                reportsSubmenu.classList.remove('hidden');
-                if (reportsToggle) reportsToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['reports_vpp_events', 'reports_der_events', 'reports_vpp_event_items', 'reports_vpp_event_month_summary', 'reports_terminated'].includes(viewName)) {
+            this.expandSubmenu('reports-submenu');
         }
 
         // Handle System Submenu Expansion
-        const systemViews = ['device_management'];
-        const systemSubmenu = document.getElementById('system-submenu');
-        // Find the toggle icon. It's inside the 'System' link which calls toggleSubmenu
-        // We can find it by looking for the onclick handler or just generic selection if unique
-        const systemToggle = document.querySelector('a[onclick*="system-submenu"] .chevron-icon');
-        
-        if (systemViews.includes(viewName)) {
-            if (systemSubmenu && systemSubmenu.classList.contains('hidden')) {
-                systemSubmenu.classList.remove('hidden');
-                if (systemToggle) systemToggle.style.transform = 'rotate(180deg)';
-            }
+        if (['device_management'].includes(viewName)) {
+            this.expandSubmenu('system-submenu');
         }
 
         // Update Header & Breadcrumbs
@@ -1128,8 +1104,9 @@ const app = {
             this.spotMarketInterval = null;
         }
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
-            <div class="h-full flex flex-col bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+            <div class="h-full flex flex-col bg-white rounded-[4px] overflow-hidden border border-gray-200 shadow-sm">
                 <!-- Top Bar -->
                 <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
                     <div class="flex items-center gap-4">
@@ -1610,6 +1587,7 @@ const app = {
         const forecasts = MOCK_DATA.capGraph.forecasts;
         const chartData = MOCK_DATA.capGraph.chartData;
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="space-y-6 h-full flex flex-col">
                 <!-- Header Controls -->
@@ -1801,6 +1779,7 @@ const app = {
         const startIdx = (currentPage - 1) * 10;
         const rules = filteredRules.slice(startIdx, startIdx + 10);
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full">
                 <!-- Search & Filter -->
@@ -1938,6 +1917,7 @@ const app = {
         const startIdx = (currentPage - 1) * 10;
         const events = filteredEvents.slice(startIdx, startIdx + 10);
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full">
                 <!-- Search & Filter -->
@@ -2109,6 +2089,7 @@ const app = {
         const startIdx = (currentPage - 1) * 10;
         const events = filteredEvents.slice(startIdx, startIdx + 10);
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
                 <!-- Filters Section -->
@@ -2260,6 +2241,7 @@ const app = {
         const startIdx = (currentPage - 1) * 10;
         const groups = filteredGroups.slice(startIdx, startIdx + 10);
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full">
                 <!-- Search & Filter -->
@@ -2440,6 +2422,7 @@ const app = {
         const startIdx = (bidsState.currentPage - 1) * 10;
         const currentBids = filteredBids.slice(startIdx, startIdx + 10);
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
                 <!-- Header Controls -->
@@ -3487,6 +3470,7 @@ const app = {
     renderSmartFeedInEvents(container) {
         const events = MOCK_DATA.smartFeedInEvents;
         
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
                 <!-- Battery Safety Monitor Section -->
@@ -3823,6 +3807,7 @@ const app = {
 
         const data = generateData();
 
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
                 <!-- Top Controls -->
@@ -4098,8 +4083,9 @@ const app = {
     renderOverview(container) {
         const data = MOCK_DATA.overview;
         
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
-            <div class="flex flex-col gap-6 w-full h-full">
+            <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
                 <!-- Top Row: Region Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                     ${data.regions.map(region => `
@@ -4350,23 +4336,25 @@ const app = {
     renderDeviceManagement(container) {
         if (!state.cloudBound) {
             // Empty State - Bind Cloud Platform
-            container.className = 'flex-1 flex items-center justify-center h-full fade-in';
+            container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
             container.innerHTML = `
-                <div class="text-center">
-                    <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
-                        <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
+                <div class="bg-white w-full h-full rounded-[4px] p-[16px] flex flex-col items-center justify-center relative">
+                    <div class="text-center">
+                        <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
+                            <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">No Sub-VPP Connected</h2>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a sub-VPP to synchronize and manage your devices.</p>
+                        <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
+                            <i data-lucide="link" class="w-5 h-5"></i>
+                            <span>Create</span>
+                        </button>
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-2">No Sub-VPP Connected</h2>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a sub-VPP to synchronize and manage your devices.</p>
-                    <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
-                        <i data-lucide="link" class="w-5 h-5"></i>
-                        <span>Create</span>
-                    </button>
                 </div>
             `;
         } else {
             // System List
-            container.className = "flex-1 flex flex-col gap-4 h-full overflow-hidden p-8";
+            container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
             
             const systems = state.systems || [];
 
@@ -4691,7 +4679,7 @@ const app = {
         const system = state.systems.find(s => s.id == systemId);
         if (!system) return this.navigate('device_management');
 
-        container.className = 'flex-1 flex flex-col h-full fade-in space-y-6 px-8 py-8'; // Added padding
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
 
         // Header with Back Button
         const header = document.createElement('div');
@@ -4917,7 +4905,7 @@ const app = {
     },
 
     renderDERManagement(container, filterType = 'All') {
-        container.className = 'flex-1 flex flex-col h-full fade-in p-8 gap-4';
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         
         let filteredDevices = [...(state.devices || [])];
         if (filterType !== 'All') {
@@ -6377,24 +6365,35 @@ const app = {
         container.innerHTML = ''; 
 
         if (state.vpps.length === 0) {
-            container.className = "flex-1 flex items-center justify-center h-full";
+            // Outer Main Container (Page Background & Padding)
+            container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+            
             container.innerHTML = `
-                <div class="text-center">
-                    <div class="inline-block mb-4">
-                        <i data-lucide="app-window" class="w-16 h-16 text-gray-200"></i>
+                <!-- White Card (Node 35:305) -->
+                <div class="bg-white w-full h-full rounded-[4px] p-[16px] flex flex-col relative">
+                    <!-- Inner Grey Box (Node 39:459) -->
+                    <div class="bg-[#f3f3f6] flex flex-1 flex-col gap-[8px] items-center justify-center rounded-[4px] w-full relative">
+                        <div class="relative w-[80px] h-[80px]">
+                            <img src="assets/icons/empty-state.svg" alt="Empty State" class="w-full h-full block">
+                        </div>
+                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949] text-center">
+                            No VPPs Created
+                        </p>
+                        <button onclick="app.openVPPDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[4px] h-[40px] px-[24px] py-[4px] rounded-[4px] text-white transition-colors min-w-[80px]">
+                            <div class="w-[24px] h-[24px] flex items-center justify-center">
+                                 <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
+                            </div>
+                            <span class="font-['Roboto'] font-semibold text-[16px] leading-[1.42]">Create</span>
+                        </button>
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-6">No VPPs Created</h2>
-                    <button onclick="app.openVPPDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
-                        <i data-lucide="plus" class="w-5 h-5"></i>
-                        <span>Create</span>
-                    </button>
                 </div>
             `;
+            lucide.createIcons();
             return;
         }
 
         // Layout: Left (VPP List) | Right (Device Discovery)
-        container.className = "flex-1 h-full overflow-hidden p-8 bg-gray-50";
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         
         // Ensure selectedVppId is valid
         if (!state.vpps.find(v => v.id === state.selectedVppId)) {
@@ -6425,43 +6424,51 @@ const app = {
                 </div>
 
                 <!-- Center: Search & Filter Group -->
-                <div class="flex-1 w-full md:max-w-xl mx-4">
-                    <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-transparent focus-within:bg-white focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all shadow-sm">
+                <div class="flex-1 w-full md:max-w-xl mx-4 flex justify-end">
+                    <div class="bg-[#f3f3f6] flex gap-[16px] items-center pl-[8px] pr-0 py-0 relative rounded-[4px] shrink-0 w-[320px] h-[32px]">
                          <!-- Search Input -->
                          <input type="text" id="vpp-name-filter" 
                             value="${state.vppList.vppName}"
-                            class="bg-transparent border-none focus:ring-0 text-sm w-full p-0 text-gray-700 placeholder-gray-400" 
+                            class="flex-1 bg-transparent border-none focus:ring-0 p-0 text-[14px] font-normal text-[#1c2026] placeholder-[#b5bcc8] leading-normal" 
                             placeholder="Search by VPP Name..."
                             onkeydown="if(event.key === 'Enter') app.filterVPPs()">
                          
-                         <!-- Divider -->
-                         <div class="w-px h-4 bg-gray-300 mx-3"></div>
-                         
-                         <!-- State Select -->
-                         <div class="relative flex items-center">
-                             <select id="vpp-state-filter" class="bg-transparent border-none focus:ring-0 text-sm text-gray-600 cursor-pointer pr-6 py-0 appearance-none font-medium" onchange="app.filterVPPs()">
-                                 <option value="">All States</option>
-                                 ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
-                             </select>
-                             <i data-lucide="chevron-down" class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"></i>
+                         <div class="flex gap-0 items-center px-[4px] relative shrink-0">
+                             <!-- State Select -->
+                             <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer">
+                                 <select id="vpp-state-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterVPPs()">
+                                     <option value="">All States</option>
+                                     ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
+                                 </select>
+                                 <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[16px] h-[16px] flex items-center justify-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                                 </div>
+                             </div>
+                             
+                             <!-- Search Icon -->
+                             <button onclick="app.filterVPPs()" class="relative rounded-[2px] shrink-0 w-[32px] h-[32px] flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                 <i data-lucide="search" class="w-[18px] h-[18px] text-[#313949]"></i>
+                             </button>
                          </div>
-                         
-                         <!-- Search Icon -->
-                         <button onclick="app.filterVPPs()" class="ml-2 text-gray-400 hover:text-green-600 transition-colors">
-                             <i data-lucide="search" class="w-4 h-4"></i>
-                         </button>
                     </div>
                 </div>
 
                 <!-- Right: View Switcher -->
-                <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
-                    <button onclick="app.toggleVPPViewMode('list')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${!isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
-                        <i data-lucide="list" class="w-3.5 h-3.5"></i>
-                        <span>Form</span>
+                <div class="flex bg-[#f3f3f6] p-[4px] rounded-[4px] items-center">
+                    <button onclick="app.toggleVPPViewMode('list')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${!isCardView ? 'bg-white shadow-sm' : ''}">
+                        <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
+                            <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                            <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                            <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                        </div>
+                        <span class="text-[14px] leading-normal ${!isCardView ? 'font-semibold text-[#313949]' : 'font-normal text-[#b5bcc8]'}">Form</span>
                     </button>
-                    <button onclick="app.toggleVPPViewMode('card')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
-                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-                        <span>Cards</span>
+                    <button onclick="app.toggleVPPViewMode('card')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${isCardView ? 'bg-white shadow-sm' : ''}">
+                        <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
+                            <div class="h-[20px] shrink-0 w-[4px] ${isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                            <div class="h-[20px] shrink-0 w-[14px] ${isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                        </div>
+                        <span class="text-[14px] leading-normal ${isCardView ? 'font-semibold text-[#313949]' : 'font-normal text-[#b5bcc8]'}">Cards</span>
                     </button>
                 </div>
             </div>
@@ -6504,99 +6511,98 @@ const app = {
 
                         // VPP Card Template
                         return `
-                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group bg-white rounded-2xl cursor-pointer border border-gray-200 hover:border-green-500/30 hover:shadow-xl transition-all duration-300 relative h-full flex flex-col p-6">
+                        <div onclick="app.navigate('vpp_details', { id: ${vpp.id} })" class="group bg-white rounded-[4px] cursor-pointer shadow-[0px_4px_12px_0px_rgba(0,0,0,0.2)] hover:shadow-[0px_6px_16px_0px_rgba(0,0,0,0.25)] transition-all duration-300 relative h-full flex flex-col p-[16px] gap-[16px]">
                             <!-- Header Section -->
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1">${vpp.name}</h3>
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400 uppercase tracking-wide">${vpp.state || 'NSW'}</span>
+                            <div class="flex justify-between items-center w-full h-[32px]">
+                                <div class="flex items-center gap-[8px]">
+                                    <div class="w-[8px] h-[8px] rounded-full bg-[#313949]"></div> <!-- BlueGrey Dot -->
+                                    <h3 class="font-['Roboto'] font-semibold text-[20px] leading-[1.4] text-[#313949] line-clamp-1">${vpp.name}</h3>
+                                    <div class="bg-[#f3f3f6] px-[8px] py-[4px] rounded-[12px] flex items-center justify-center min-w-[48px]">
+                                        <span class="font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#5f646e] text-center">${vpp.state || 'NSW'}</span>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="p-2 text-gray-400 hover:text-green-600 transition-colors">
-                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                <div class="flex items-center gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="w-[32px] h-[32px] bg-[#f3f3f6] rounded-[16px] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors">
+                                        <i data-lucide="edit-2" class="w-[14px] h-[14px] text-[#5f646e]"></i>
                                     </button>
-                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="w-[32px] h-[32px] bg-[rgba(255,52,52,0.1)] rounded-[16px] flex items-center justify-center hover:bg-[rgba(255,52,52,0.2)] transition-colors">
+                                        <i data-lucide="trash-2" class="w-[14px] h-[14px] text-[#ff3434]"></i>
                                     </button>
                                 </div>
                             </div>
                             
                             <!-- Content Grid -->
-                            <div class="grid grid-cols-12 gap-6 h-full">
+                            <div class="flex gap-[40px] h-full w-full items-center">
                                 <!-- Left: DERs Stats -->
-                                <div class="col-span-5 flex flex-col">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <!-- Diamond Icon -->
-                                        <div class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg transform rotate-45 flex-shrink-0">
-                                            <i data-lucide="zap" class="w-5 h-5 text-gray-900 transform -rotate-45"></i>
+                                <div class="flex flex-col w-[160px] shrink-0 gap-[8px]">
+                                    <!-- Header -->
+                                    <div class="flex items-center gap-[8px] py-[12px]">
+                                        <!-- Icon -->
+                                        <div class="w-[32px] h-[32px] flex items-center justify-center shrink-0">
+                                            <i data-lucide="zap" class="w-[24px] h-[24px] text-[#313949] fill-[#313949]"></i>
                                         </div>
                                         
-                                        <div class="flex flex-col">
-                                            <div class="flex items-baseline gap-1">
-                                                <span class="text-4xl font-bold text-gray-900 leading-none">${vppDevices.length}</span>
-                                                <span class="text-xs font-bold text-gray-500 italic">DERs</span>
-                                            </div>
+                                        <div class="flex items-end gap-[4px] text-[#313949]">
+                                            <span class="font-['Roboto'] font-extrabold text-[24px] leading-[1.33]">${vppDevices.length}</span>
+                                            <span class="font-['Roboto'] font-semibold italic text-[16px] leading-[1.42] mb-[2px]">DERs</span>
                                         </div>
                                     </div>
                                     
                                     <!-- Separator -->
-                                    <div class="w-8 h-0.5 bg-gray-200 mb-4 ml-1"></div>
+                                    <div class="w-[56px] h-px bg-[#e0e0e0]"></div>
                                     
                                     <!-- Status List -->
-                                    <div class="space-y-3 text-xs flex-1">
-                                        <div class="flex items-center justify-between group/status">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-1 h-3 bg-green-500 rounded-full"></div>
-                                                <span class="text-gray-500 font-medium">Online</span>
+                                    <div class="flex flex-col gap-[4px] w-full">
+                                        <!-- Online -->
+                                        <div class="flex items-center justify-between h-[32px] py-[4px] pr-[8px]">
+                                            <div class="flex items-center gap-[8px]">
+                                                <div class="w-[4px] h-[12px] bg-[#8cda2f] rounded-[2px]"></div>
+                                                <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">Online</span>
                                             </div>
-                                            <span class="font-bold text-green-600">${stats.inv.online + stats.bat.online}</span>
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#8cda2f]">${stats.inv.online + stats.bat.online}</span>
                                         </div>
-                                        <div class="flex items-center justify-between group/status">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-1 h-3 bg-gray-300 rounded-full"></div>
-                                                <span class="text-gray-500 font-medium">Offline</span>
+                                        
+                                        <!-- Offline -->
+                                        <div class="flex items-center justify-between h-[32px] py-[4px] pr-[8px]">
+                                            <div class="flex items-center gap-[8px]">
+                                                <div class="w-[4px] h-[12px] bg-[#b5bcc8] rounded-[2px]"></div>
+                                                <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">Offline</span>
                                             </div>
-                                            <span class="font-bold text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#b5bcc8]">${stats.inv.offline + stats.bat.offline}</span>
                                         </div>
-                                        <div class="flex items-center justify-between group/status">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-1 h-3 bg-red-500 rounded-full"></div>
-                                                <span class="text-gray-500 font-medium">Disconnected</span>
+                                        
+                                        <!-- Disconnected -->
+                                        <div class="flex items-center justify-between h-[32px] py-[4px] pr-[8px]">
+                                            <div class="flex items-center gap-[8px]">
+                                                <div class="w-[4px] h-[12px] bg-[#ff3434] rounded-[2px]"></div>
+                                                <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">Disconnected</span>
                                             </div>
-                                            <span class="font-bold text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#ff3434]">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Right: Energy Details -->
-                                <div class="col-span-7 bg-gray-50 rounded-xl p-5 flex flex-col justify-between text-xs h-full">
-                                    <div class="flex justify-between items-center py-1">
-                                        <span class="text-gray-500 font-medium">Rated Power</span>
-                                        <div class="flex items-baseline gap-1">
-                                            <span class="font-bold text-gray-900 text-sm">${stats.inv.cap}</span>
-                                            <span class="text-[10px] text-gray-400 font-bold">kW</span>
+                                <div class="bg-[#f8f9fb] flex flex-1 flex-col justify-center px-[24px] py-[12px] rounded-[8px] gap-[8px]">
+                                    <div class="flex justify-between items-center h-[32px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">Rated Power</span>
+                                        <div class="flex items-center gap-[8px]">
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#313949]">${stats.inv.cap}</span>
+                                            <span class="font-['Roboto'] font-normal text-[14px] text-[#b5bcc8]">kW</span>
                                         </div>
                                     </div>
-                                    <div class="flex justify-between items-center py-1">
-                                        <span class="text-gray-500 font-medium">PV Capacity</span>
-                                        <div class="flex items-baseline gap-1">
-                                            <span class="font-bold text-gray-900 text-sm">${stats.inv.pvCapacity}</span>
-                                            <span class="text-[10px] text-gray-400 font-bold">kW</span>
+                                    <div class="flex justify-between items-center h-[32px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">PV Capacity</span>
+                                        <div class="flex items-center gap-[8px]">
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#313949]">${stats.inv.pvCapacity}</span>
+                                            <span class="font-['Roboto'] font-normal text-[14px] text-[#b5bcc8]">kW</span>
                                         </div>
                                     </div>
-                                    <div class="flex justify-between items-center py-1">
-                                        <span class="text-gray-500 font-medium">SOC</span>
-                                        <div class="flex items-baseline gap-1">
-                                            <span class="font-bold text-gray-900 text-sm">${stats.bat.socPercentage}%</span>
-                                            <span class="text-[10px] text-gray-400 font-bold">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)}) kWh</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between items-center py-1">
-                                        <span class="text-gray-500 font-medium">Today Yield</span>
-                                        <div class="flex items-baseline gap-1">
-                                            <span class="font-bold text-gray-900 text-sm">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)}</span>
-                                            <span class="text-[10px] text-gray-400 font-bold">kWh</span>
+                                    <div class="flex justify-between items-center h-[32px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">SOC</span>
+                                        <div class="flex items-center gap-[8px]">
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#313949]">${stats.bat.socPercentage}% (${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)})</span>
+                                            <span class="font-['Roboto'] font-normal text-[14px] text-[#b5bcc8]">kWh</span>
                                         </div>
                                     </div>
                                 </div>
@@ -6605,22 +6611,22 @@ const app = {
                     `}).join('')}
                 </div>
                 ` : `
-                <div class="flex-1 overflow-hidden flex flex-col">
+                <div class="flex-1 overflow-hidden flex flex-col bg-white rounded-[4px]">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-white sticky top-0 z-10 border-b border-gray-100">
+                            <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">VPP Name</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">State</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Rated Power</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">PV Capacity</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">SOC</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Today Yield</th>
-                                    <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">VPP Name</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">State</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Power</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SOC</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Today Yield</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right min-w-[140px]">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="">
                                 ${filteredVPPs.map((vpp, index) => {
                                     const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
                                     
@@ -6649,16 +6655,16 @@ const app = {
                                     stats.bat.socPercentage = stats.bat.cap > 0 ? Math.round((stats.bat.currentEnergy / stats.bat.cap) * 100) : 0;
                                     
                                     return `
-                                        <tr class="hover:bg-gray-50 transition-colors group">
-                                            <td class="py-4 px-4">
-                                                <div class="font-bold text-gray-900">${vpp.name}</div>
+                                        <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
+                                            <td class="px-[8px]">
+                                                <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${vpp.name}</div>
                                             </td>
-                                            <td class="py-4 px-4">
-                                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400 uppercase tracking-wide">${vpp.state || 'NSW'}</span>
+                                            <td class="px-[8px]">
+                                                <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${vpp.state || 'NSW'}</div>
                                             </td>
-                                            <td class="py-4 px-4">
+                                            <td class="px-[8px]">
                                                 <div class="flex flex-col gap-0.5">
-                                                    <span class="font-bold text-gray-900">${vppDevices.length}</span>
+                                                    <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${vppDevices.length}</span>
                                                     <div class="flex gap-1 text-[10px]">
                                                         <span class="text-green-500 font-bold">${stats.inv.online + stats.bat.online}</span>
                                                         <span class="text-gray-300">/</span>
@@ -6668,25 +6674,25 @@ const app = {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-4 px-4 text-sm text-gray-600">${stats.inv.cap} kW</td>
-                                            <td class="py-4 px-4 text-sm text-gray-600">${stats.inv.pvCapacity} kW</td>
-                                            <td class="py-4 px-4">
+                                            <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.inv.cap} kW</td>
+                                            <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.inv.pvCapacity} kW</td>
+                                            <td class="px-[8px]">
                                                 <div class="flex flex-col">
-                                                    <span class="text-sm font-bold text-gray-900">${stats.bat.socPercentage}%</span>
-                                                    <span class="text-[10px] text-gray-400">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)})</span>
+                                                    <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.bat.socPercentage}%</span>
+                                                    <span class="text-[10px] text-[#b5bcc8] font-['Roboto']">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)})</span>
                                                 </div>
                                             </td>
-                                            <td class="py-4 px-4 text-sm text-gray-600">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
-                                            <td class="py-4 px-4 text-right">
-                                                <div class="flex items-center justify-end gap-3">
-                                                    <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-gray-900 hover:text-gray-600 transition-colors">
-                                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                            <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
+                                            <td class="px-[8px] text-right">
+                                                <div class="flex items-center justify-end gap-[12px]">
+                                                    <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
+                                                        <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                                     </button>
-                                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="text-gray-900 hover:text-gray-600 transition-colors">
-                                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                                    <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
+                                                        <i data-lucide="edit-2" class="w-[16px] h-[16px]"></i>
                                                     </button>
-                                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="text-gray-900 hover:text-gray-600 transition-colors">
-                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
+                                                        <i data-lucide="trash-2" class="w-[16px] h-[16px]"></i>
                                                     </button>
                                                 </div>
                                             </td>
@@ -6705,6 +6711,7 @@ const app = {
 
     renderVPPDetails(container, vppId) {
         container.innerHTML = '';
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         const vpp = state.vpps.find(v => v.id == vppId);
         if (!vpp) return this.navigate('vpp');
         
@@ -7376,60 +7383,116 @@ const app = {
         
         const drawerContent = document.getElementById('drawer-content');
         drawerContent.innerHTML = `
-            <div class="p-6 h-full flex flex-col">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-bold text-gray-900">${title}</h3>
-                    <button onclick="app.closeDrawer()" class="text-gray-400 hover:text-gray-900 transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <!-- Header -->
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-bold text-[20px] leading-normal text-[#313949]">${title}</p>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
+                        <img src="assets/icons/close-drawer.svg" class="w-full h-full block" alt="Close">
                     </button>
                 </div>
 
-                <form onsubmit="app.handleVPPSubmit(event, ${vppId})" class="space-y-6 flex-1">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">VPP Name</label>
-                        <input type="text" name="name" value="${isEdit ? vpp.name : ''}" required class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Virtual Power Plant X">
+                <!-- Form Content -->
+                <form onsubmit="app.handleVPPSubmit(event, ${vppId})" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
+                    <!-- VPP Name -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">VPP Name</span>
+                         </div>
+                         <div class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <input type="text" name="name" value="${isEdit ? vpp.name : ''}" required 
+                                 class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" 
+                                 placeholder="e.g. Virtual Power Plant X">
+                         </div>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">Company</label>
-                        <input type="text" name="company" value="${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Acme Corp">
+                    <!-- Company (Readonly) -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal">Company</span>
+                         </div>
+                         <div class="w-full h-[32px] px-[8px] bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] flex items-center">
+                             <span class="text-[14px] text-[#b5bcc8] font-normal leading-normal truncate">${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}</span>
+                         </div>
+                         <input type="hidden" name="company" value="${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">Country</label>
-                            <input type="text" name="country" value="${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Australia">
+                    <!-- Country & ABN Row -->
+                    <div class="flex gap-[16px] w-full shrink-0">
+                        <!-- Country -->
+                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
+                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal">Country</span>
+                             </div>
+                             <div class="w-full h-[32px] px-[8px] bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] flex items-center">
+                                 <span class="text-[14px] text-[#b5bcc8] font-normal leading-normal truncate">${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}</span>
+                             </div>
+                             <input type="hidden" name="country" value="${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}">
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">ABN/VAT</label>
-                            <input type="text" name="abn" value="${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. 12 345 678 901">
+                        <!-- ABN -->
+                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
+                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal">ABN/VAT</span>
+                             </div>
+                             <div class="w-full h-[32px] px-[8px] bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] flex items-center">
+                                 <span class="text-[14px] text-[#b5bcc8] font-normal leading-normal truncate">${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}</span>
+                             </div>
+                             <input type="hidden" name="abn" value="${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">State</label>
-                            <input type="text" name="state" value="${isEdit ? (vpp.state || '') : ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. NSW">
+                    <!-- State & DNSP Row -->
+                    <div class="flex gap-[16px] w-full shrink-0">
+                        <!-- State -->
+                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
+                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                                 <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">State</span>
+                             </div>
+                             <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                     <option value="" disabled ${!isEdit && !vpp?.state ? 'selected' : ''}>Select State</option>
+                                     ${['NSW', 'VIC', 'QLD', 'SA'].map(s => `<option value="${s}" ${vpp?.state === s ? 'selected' : ''} class="text-[#313949]">${s}</option>`).join('')}
+                                 </select>
+                                 <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                     <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                                 </div>
+                             </div>
                         </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">DNSP</label>
-                            <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400" placeholder="e.g. Energy Provider Name">
+                        <!-- DNSP -->
+                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
+                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                                 <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">DNSP</span>
+                             </div>
+                             <div class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" required
+                                     class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" 
+                                     placeholder="e.g. Energy Provider Name">
+                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500">Description</label>
-                        <textarea name="description" rows="4" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all resize-none placeholder:text-gray-400" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                    <!-- Description -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Description</span>
+                         </div>
+                         <div class="w-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] py-[8px] flex items-start transition-colors focus-within:border-[#3ec064]">
+                             <textarea name="description" required rows="4" class="w-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] resize-none font-normal leading-normal" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                         </div>
                     </div>
-
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-900 font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                            Cancel
-                        </button>
-                        <button type="submit" id="vpp-submit-btn" class="flex-1 bg-manta-primary hover:bg-manta-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-manta-primary/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                            <span>Submit</span>
-                        </button>
+                    
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
+                         <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                             Cancel
+                         </button>
+                         <button type="submit" id="vpp-submit-btn" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                             Submit
+                         </button>
                     </div>
                 </form>
             </div>

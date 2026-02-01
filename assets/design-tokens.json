@@ -1,0 +1,28 @@
+{
+  "color": {
+    "brandPrimary": "#2E9F58",
+    "brandAccent": "#3EC064",
+    "textPrimary": "#313949",
+    "textSecondary": "#64748B",
+    "surface": "#FFFFFF",
+    "surfaceAlt": "#F9FAFB",
+    "surfaceCanvas": "#F3F3F6",
+    "border": "#E6E8EE",
+    "breadcrumbLevel1": "#B5BCC8",
+    "breadcrumbLevel2": "#9CA3AF",
+    "breadcrumbActive": "#1C2128",
+    "notificationDot": "#FF3434",
+    "gradientPrimary": ["#00E944", "#0066FF"]
+  },
+  "typography": {
+    "label": { "fontFamily": "Roboto", "fontWeight": 600, "fontSize": 16, "lineHeight": 24 },
+    "item": { "fontFamily": "Inter", "fontWeight": 500, "fontSize": 14, "lineHeight": 20 }
+  },
+  "spacing": {
+    "navItemY": 10,
+    "navItemX": 16,
+    "submenuIndent": 48
+  },
+  "radii": { "navItem": 8, "pill": 999 },
+  "shadows": { "hover": "0 1px 2px rgba(0,0,0,0.08)", "focus": "0 0 0 2px rgba(46,159,88,0.35)" }
+}

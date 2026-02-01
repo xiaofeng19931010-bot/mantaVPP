@@ -1,0 +1,5 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Union">
+<path d="M0 0H20V20H0V0ZM2 2V18H18V2H2ZM7 4V5H9V4H11V5H13V4H15V5H16V7H15V9H16V11H15V13H16V15H15V16H13V15H11V16H9V15H7V16H5L5 15H4V13H5V11H4V9H5V7H4V5H5V4H7ZM7 7V9H9V7H7ZM11 7V9H13V7H11ZM13 11H11V13H13L13 11ZM9 13V11H7L7 13H9Z" fill="var(--fill-0, #313949)"/>
+</g>
+</svg>

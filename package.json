@@ -1,11 +1,16 @@
 {
-  "name": "mantaMGT",
+  "name": "manta-web",
   "version": "1.0.0",
   "description": "Manta VPP Management Web Interface",
   "scripts": {
-    "start": "python3 -m http.server 3000"
+    "start": "python3 -m http.server 3000",
+    "test:visual": "backstop test",
+    "test:visual:approve": "backstop approve"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "backstopjs": "^6.3.23"
+  },
+  "dependencies": {
+    "eventsource": "^4.1.0"
+  }
 }

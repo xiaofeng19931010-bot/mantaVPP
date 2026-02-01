@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -56,44 +56,52 @@
             color: #1F2937; /* Gray 800 */
         }
         
-        .sidebar-active {
-            background-color: #F0FDF4; /* Green 50 */
-            color: #2E9F58; /* Manta Primary */
-            border-right: 3px solid #2E9F58;
+        /* Navigation Item Active State - Figma Styled */
+        .nav-item.active {
+            background-color: #FFFFFF; /* White */
+            color: #3ec064; /* Figma Green */
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item.active span {
+            color: #3ec064;
+        }
+
+        .nav-item.active i, 
+        .nav-item.active svg {
+            color: #3ec064;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #F1F5F9; 
+            background: transparent; 
         }
         ::-webkit-scrollbar-thumb {
             background: #CBD5E1; 
-            border-radius: 4px;
+            border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #94A3B8; 
         }
 
         .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-        
-        .slide-up {
-            animation: slideUp 0.4s ease-out forwards;
+            animation: fadeIn 0.3s ease-out forwards;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
         }
     </style>
     
@@ -104,224 +112,326 @@
 </head>
 <body class="antialiased overflow-hidden h-screen w-screen flex text-sm font-sans">
 
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay" onclick="app.toggleSidebar()" class="fixed inset-0 z-20 hidden sidebar-overlay transition-opacity duration-300 opacity-0"></div>
+
     <!-- Sidebar -->
-    <aside class="w-64 h-full flex flex-col z-20 transition-all duration-300 bg-white border-r border-gray-200 shadow-sm">
+    <aside id="main-sidebar" class="fixed inset-y-0 left-0 z-30 w-64 h-full flex flex-col bg-white border-r border-gray-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] transform transition-transform duration-300 -translate-x-full md:translate-x-0 md:static">
         <!-- Logo -->
-        <div class="h-16 shrink-0 flex items-center px-6 border-b border-gray-200 shadow-sm bg-white relative z-10">
-            <div class="flex items-center gap-2 text-manta-primary font-bold text-xl tracking-tight">
-                <span>Manta VPP</span>
+        <div class="shrink-0 flex items-center px-6 pt-4 pb-2 bg-white relative z-10">
+            <div class="flex items-end gap-1">
+                <div class="relative w-24 h-16 shrink-0">
+                    <div class="absolute inset-y-0 left-0 w-[56.67%]">
+                        <svg viewBox="0 0 54.4 64" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="paint0_linear_logo" x1="0" y1="32" x2="54.4" y2="32" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#00E944"/>
+                                    <stop offset="1" stop-color="#0066FF"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M52.1159 11.0476C53.5637 13.392 54.4 16.1553 54.4 19.1145C54.4 22.2345 53.4699 25.1363 51.8741 27.5594C46.5717 27.526 41.5481 26.3191 37.0463 24.1873C43.7312 22.1409 49.2028 17.3119 52.1159 11.0476Z" fill="url(#paint0_linear_logo)"/>
+                            <path d="M16.1222 0C18.5046 11.1342 25.9071 20.4017 35.8417 25.3106H35.8432C35.9009 25.3391 35.959 25.3671 36.0169 25.3953C36.2932 25.53 36.5715 25.661 36.8516 25.789C37.042 25.8759 37.233 25.9616 37.4251 26.0454C41.5286 27.8349 46.0209 28.8979 50.7406 29.0696C50.477 29.3793 50.2025 29.6794 49.9156 29.9671C48.8636 29.8997 47.8028 29.8644 46.7338 29.8644C44.6568 29.8644 42.61 29.9937 40.6009 30.2446C39.9815 30.3219 39.3659 30.4113 38.7539 30.5115C30.1601 31.9195 22.3178 35.5643 15.8407 40.8288C8.51952 46.7793 2.94268 54.799 0 64C1.79791 54.1144 6.5496 45.2615 13.3043 38.3895C9.28851 33.589 6.86962 27.4031 6.86962 20.6502C6.86962 12.438 10.4456 5.06296 16.1222 0Z" fill="url(#paint0_linear_logo)"/>
+                        </svg>
+                    </div>
+                    <div class="absolute bottom-[20%] right-0 w-[71.67%] h-[17.5%]">
+                         <svg viewBox="0 0 68.8 11.2" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="paint1_linear_logo" x1="0" y1="5.6" x2="68.8" y2="5.6" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#00E944"/>
+                                    <stop offset="1" stop-color="#0066FF"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M7.2 4.8L11.2 0H14.4V11.2H11.2V4L8 8H6.4L3.2 4V11.2H0V0H3.2L7.2 4.8Z" fill="url(#paint1_linear_logo)"/>
+                            <path d="M30.4 11.2H27.2L23.2 4L21.4219 7.2H23.2L24.8 9.6H20.0891L19.2 11.2H16L22.4 0H24L30.4 11.2Z" fill="url(#paint1_linear_logo)"/>
+                            <path d="M40 6.71953V0H43.2V11.2H40L35.2 4.47969V11.2H32V0H35.2L40 6.71953Z" fill="url(#paint1_linear_logo)"/>
+                            <path d="M56 2.4H52V11.2H48.8V2.4H44.8V0H56V2.4Z" fill="url(#paint1_linear_logo)"/>
+                            <path d="M68.8 11.2H65.6L61.6 4L59.8219 7.2H61.6L63.2 9.6H58.4891L57.6 11.2H54.4L60.8 0H62.4L68.8 11.2Z" fill="url(#paint1_linear_logo)"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="h-[36px] flex items-center justify-center shrink-0">
+                     <p class="italic text-sm text-[#313949] leading-[1.4]" style="font-family: 'Roboto', sans-serif;">VPP</p>
+                </div>
             </div>
+            <button onclick="app.toggleSidebar()" class="md:hidden absolute right-4 text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 py-6 px-4 space-y-1">
-            <a href="#" id="nav-overview" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group" onclick="app.navigate('overview')">
-                <i data-lucide="activity" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                <span class="font-medium">Overview</span>
-            </a>
-            
-            <a href="#" id="nav-vpp" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors group" onclick="app.navigate('vpp')">
-                <i data-lucide="network" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                <span class="font-medium">VPP Management</span>
-            </a>
-
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('der-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="cpu" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">DER Management</span>
+        <nav class="flex-1 px-0 py-2 space-y-0 overflow-y-auto custom-scrollbar flex flex-col items-start w-full">
+            <!-- Overview -->
+            <div class="w-full px-0 py-2 h-[64px] flex items-center">
+                <a href="#" id="nav-overview" class="w-full flex items-center gap-1 px-4 py-2 relative group hover:bg-gray-50 transition-colors" onclick="app.navigate('overview')">
+                    <!-- Complex Overview Icon from Figma -->
+                    <div class="relative shrink-0 w-[24px] h-[24px]">
+                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[18px] h-[18px] border-2 border-[#313949] rounded-[2px]"></div>
+                        <div class="absolute left-[calc(50%-4px)] top-[calc(50%+1px)] w-0 h-[8px] -translate-x-1/2 -translate-y-1/2">
+                            <div class="absolute inset-[0_-1px]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/overview-part1.svg" />
+                            </div>
+                        </div>
+                        <div class="absolute left-1/2 top-1/2 w-0 h-[10px] -translate-x-1/2 -translate-y-1/2">
+                            <div class="absolute inset-[0_-1px]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/overview-part2.svg" />
+                            </div>
+                        </div>
+                        <div class="absolute left-[calc(50%+4px)] top-[calc(50%+2px)] w-0 h-[6px] -translate-x-1/2 -translate-y-1/2">
+                            <div class="absolute inset-[0_-1px]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/overview-part3.svg" />
+                            </div>
+                        </div>
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                    <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Overview</span>
                 </a>
-                
-                <div id="der-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-der_ess" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('der_ess')">
-                        <i data-lucide="battery" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">ESS</span>
-                    </a>
-                    
-                    <a href="#" id="nav-der_pv" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('der_pv')">
-                        <i data-lucide="sun" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">PV</span>
-                    </a>
-
-                    <a href="#" id="nav-der_ev" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('der_ev')">
-                        <i data-lucide="car" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">EV</span>
-                    </a>
-                </div>
             </div>
             
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('electricity-market-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="zap" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Electricity Market</span>
+            <!-- VPP Management -->
+            <div class="w-full px-0 py-2 h-[64px] flex items-center">
+                <a href="#" id="nav-vpp" class="w-full flex items-center gap-1 px-4 py-2 group hover:bg-gray-50 transition-colors" onclick="app.navigate('vpp')">
+                    <div class="relative shrink-0 w-[24px] h-[24px]">
+                        <img alt="" class="block max-w-none w-full h-full" src="assets/icons/vpp-management.svg" />
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
+                    <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">VPP Management</span>
                 </a>
-                
-                <div id="electricity-market-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-spot_market" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('spot_market')">
-                        <i data-lucide="activity" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Spot Market</span>
-                    </a>
-                    
-                    <a href="#" id="nav-arbitrage_points" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('arbitrage_points')">
-                        <i data-lucide="trending-up" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Arbitrage Points</span>
-                    </a>
-                </div>
             </div>
 
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('trading-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="arrow-left-right" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Trading</span>
+            <!-- DER Management -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('der-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="der-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('der-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px] flex items-center justify-center">
+                            <!-- Using Lucide CPU but styled like Figma icons -->
+                            <i data-lucide="cpu" class="w-5 h-5 text-[#313949]"></i>
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">DER Management</span>
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
-                </a>
-                
-                <div id="trading-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-trading_rules" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('trading_rules')">
-                        <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Trading Rules</span>
-                    </a>
-                    
-                    <a href="#" id="nav-trading_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('trading_events')">
-                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Trading Events</span>
-                    </a>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('smart-feed-in-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="sun" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Smart Feed-in</span>
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
-                </a>
                 
-                <div id="smart-feed-in-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-smart_feed_in_rules" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('smart_feed_in_rules')">
-                        <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Smart Feed-in Rules</span>
+                <div id="der-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-der_ess" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('der_ess')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">ESS</span>
                     </a>
-                    
-                    <a href="#" id="nav-smart_feed_in_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('smart_feed_in_events')">
-                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Smart Feed-in Events</span>
+                    <a href="#" id="nav-der_pv" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('der_pv')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">PV</span>
                     </a>
-                </div>
-            </div>
-
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('cap-service-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="shield" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Cap Service</span>
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
-                </a>
-                
-                <div id="cap-service-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-cap_graph" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('cap_graph')">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Cap Graph</span>
-                    </a>
-                    
-                    <a href="#" id="nav-cap_rules" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('cap_rules')">
-                        <i data-lucide="book-open" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Cap Rules</span>
-                    </a>
-
-                    <a href="#" id="nav-cap_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('cap_events')">
-                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Cap Events</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('fcas-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="radio" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">FCAS</span>
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
-                </a>
-                
-                <div id="fcas-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-fcas_groups" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('fcas_groups')">
-                        <i data-lucide="layers" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">FCAS Groups</span>
-                    </a>
-                    
-                    <a href="#" id="nav-fcas_price_availability" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('fcas_price_availability')">
-                        <i data-lucide="dollar-sign" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Price and Availability</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('reports-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="file-bar-chart" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Reports</span>
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
-                </a>
-                
-                <div id="reports-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-reports_vpp_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_vpp_events')">
-                        <i data-lucide="calendar-days" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">VPP Events</span>
-                    </a>
-                    
-                    <a href="#" id="nav-reports_der_events" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_der_events')">
-                        <i data-lucide="zap" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">DER Events</span>
-                    </a>
-                    
-                    <a href="#" id="nav-reports_vpp_event_items" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_vpp_event_items')">
-                        <i data-lucide="list" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">VPP Event Items</span>
-                    </a>
-                    
-                    <a href="#" id="nav-reports_vpp_event_month_summary" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_vpp_event_month_summary')">
-                        <i data-lucide="calendar" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">VPP Event Month Summary</span>
-                    </a>
-                    
-                    <a href="#" id="nav-reports_terminated" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('reports_terminated')">
-                        <i data-lucide="x-circle" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Terminated</span>
+                    <a href="#" id="nav-der_ev" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('der_ev')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">EV</span>
                     </a>
                 </div>
             </div>
             
-            <div class="group">
-                <a href="#" onclick="app.toggleSubmenu('system-submenu', this)" class="nav-item flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-manta-primary transition-colors cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="settings-2" class="w-5 h-5 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">System</span>
+            <!-- Electricity Market -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('electricity-market-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="electricity-market-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('electricity-market-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/electricity-market.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Electricity Market</span>
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 chevron-icon"></i>
-                </a>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div id="system-submenu" class="hidden bg-gray-50/50 mt-1 space-y-0.5">
-                    <a href="#" id="nav-device_management" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors" onclick="app.navigate('device_management')">
-                    <i data-lucide="cpu" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                    <span class="font-medium">Sub-VPP Management</span>
-                </a>
-                    
-                    <a href="#" class="nav-item flex items-center gap-3 pl-12 pr-4 py-2 rounded-lg text-sm text-gray-600 hover:text-manta-primary hover:bg-gray-100/50 transition-colors">
-                        <i data-lucide="settings" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                        <span class="font-medium">Settings</span>
+                <div id="electricity-market-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-spot_market" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('spot_market')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Spot Market</span>
+                    </a>
+                    <a href="#" id="nav-arbitrage_points" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('arbitrage_points')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Arbitrage Points</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Trading -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('trading-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="trading-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('trading-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/trading.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Trading</span>
+                    </div>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="trading-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-trading_rules" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('trading_rules')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Trading Rules</span>
+                    </a>
+                    <a href="#" id="nav-trading_events" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('trading_events')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Trading Events</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Smart Feed-in -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('smart-feed-in-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="smart-feed-in-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('smart-feed-in-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/smart-feed-in.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Smart Feed-in</span>
+                    </div>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="smart-feed-in-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-smart_feed_in_rules" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('smart_feed_in_rules')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Smart Feed-in Rules</span>
+                    </a>
+                    <a href="#" id="nav-smart_feed_in_events" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('smart_feed_in_events')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Smart Feed-in Events</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cap Service -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('cap-service-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="cap-service-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('cap-service-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/cap-service.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Cap Service</span>
+                    </div>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="cap-service-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-cap_graph" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('cap_graph')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Cap Graph</span>
+                    </a>
+                    <a href="#" id="nav-cap_rules" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('cap_rules')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Cap Rules</span>
+                    </a>
+                    <a href="#" id="nav-cap_events" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('cap_events')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Cap Events</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- FCAS -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('fcas-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="fcas-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('fcas-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/fcas.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">FCAS</span>
+                    </div>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="fcas-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-fcas_groups" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('fcas_groups')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">FCAS Groups</span>
+                    </a>
+                    <a href="#" id="nav-fcas_price_availability" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('fcas_price_availability')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Price and Availability</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('reports-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="reports-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('reports-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/reports.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Reports</span>
+                    </div>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reports-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-reports_vpp_events" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('reports_vpp_events')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">VPP Events</span>
+                    </a>
+                    <a href="#" id="nav-reports_der_events" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('reports_der_events')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">DER Events</span>
+                    </a>
+                    <a href="#" id="nav-reports_vpp_event_items" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('reports_vpp_event_items')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">VPP Event Items</span>
+                    </a>
+                    <a href="#" id="nav-reports_vpp_event_month_summary" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('reports_vpp_event_month_summary')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">VPP Event Month Summary</span>
+                    </a>
+                    <a href="#" id="nav-reports_terminated" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('reports_terminated')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Terminated</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- System -->
+            <div class="w-full py-2">
+                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('system-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="system-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('system-submenu', this); }">
+                    <div class="flex items-center gap-1 px-4">
+                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/system.svg" />
+                        </div>
+                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">System</span>
+                    </div>
+                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
+                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
+                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="system-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
+                    <a href="#" id="nav-device_management" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('device_management')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Sub-VPP Management</span>
+                    </a>
+                    <a href="#" id="nav-settings" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('settings')">
+                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Settings</span>
                     </a>
                 </div>
             </div>
@@ -332,41 +442,47 @@
     <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
         
         <!-- Header -->
-        <header class="h-16 shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-10 shadow-sm relative">
-            <!-- Breadcrumbs -->
-            <div id="breadcrumbs" class="flex items-center text-sm">
-                <button onclick="app.navigate('overview')" class="flex items-center gap-1.5 text-gray-500 hover:text-manta-primary transition-colors group">
-                    <i data-lucide="layout-grid" class="w-4 h-4 group-hover:text-manta-primary transition-colors"></i>
-                    <span class="font-medium">Manta</span>
+        <header class="h-16 shrink-0 bg-white border-b border-[#00e944] flex items-center justify-between px-[16px] z-10 shadow-sm relative">
+            <div class="flex items-center gap-4">
+                <!-- Mobile Toggle -->
+                <button onclick="app.toggleSidebar()" class="md:hidden p-2 -ml-2 text-gray-500 hover:text-manta-primary transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
-                <span class="mx-2 text-gray-300">·</span>
-                <span id="page-title" class="text-gray-900 font-semibold">Overview</span>
+
+                <!-- Breadcrumbs -->
+                <div id="breadcrumbs" class="flex items-center text-[12px] font-['Roboto']">
+                    <!-- Injected by app.js -->
+                </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center gap-4">
-                <button class="p-2 text-gray-400 hover:text-manta-primary transition-colors relative">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                </button>
-                <div class="h-6 w-px bg-gray-200"></div>
-                <button class="flex items-center gap-2 text-gray-500 hover:text-manta-primary transition-colors">
+            <div class="flex items-center gap-[16px]">
+                <!-- Notifications -->
+                <div class="relative w-[24px] h-[24px] flex items-center justify-center cursor-pointer">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                         <!-- Using a placeholder icon or code connect snippet if available, otherwise keeping standard bell but styling it -->
+                         <!-- Design uses a specific icon, I'll stick to Lucide bell for consistency but style it -->
+                         <i data-lucide="bell" class="w-5 h-5 text-gray-400 hover:text-manta-primary transition-colors"></i>
+                    </div>
+                    <div class="absolute top-[6px] right-[6px] w-[6px] h-[6px] bg-red-500 rounded-full border border-white"></div>
+                </div>
+                
+                <!-- Help Center -->
+                <button class="w-[24px] h-[24px] flex items-center justify-center text-gray-400 hover:text-manta-primary transition-colors" title="Support">
                     <i data-lucide="help-circle" class="w-5 h-5"></i>
-                    <span>Support</span>
                 </button>
                 
-                <div class="h-6 w-px bg-gray-200"></div>
-                
-                <!-- User Profile -->
-                <div onclick="app.handleLogout()" class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-lg transition-colors" title="Click to Logout">
-                    <div id="user-initials" class="w-8 h-8 rounded-full bg-manta-primary/10 flex items-center justify-center text-manta-primary font-bold text-xs">
+                <!-- User Profile (Avatar Only) -->
+                <div onclick="app.handleLogout()" class="relative w-[36px] h-[36px] rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" title="Click to Logout">
+                    <!-- Using initials styled as avatar background since we don't have a real image asset -->
+                    <div id="user-initials" class="w-full h-full bg-manta-primary/10 flex items-center justify-center text-manta-primary font-bold text-xs">
                         AD
                     </div>
-                    <div class="hidden md:block text-right">
-                        <p id="user-name" class="text-sm font-medium text-gray-900 truncate leading-none">Admin User</p>
-                        <p id="user-email" class="text-xs text-gray-500 truncate leading-none mt-1">admin@manta.energy</p>
+                    <!-- Hidden details for logic preservation -->
+                    <div class="hidden">
+                        <p id="user-name">Admin User</p>
+                        <p id="user-email">admin@manta.energy</p>
                     </div>
-                    <i data-lucide="log-out" class="w-4 h-4 text-gray-400"></i>
                 </div>
             </div>
         </header>
@@ -392,9 +508,9 @@
     </div>
 
     <!-- VPP Drawer Container -->
-    <div id="drawer-container" class="fixed inset-0 z-40 hidden pointer-events-none">
+    <div id="drawer-container" class="fixed inset-0 z-40 hidden pointer-events-none" role="dialog" aria-modal="true">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-0 pointer-events-auto" id="drawer-backdrop"></div>
-        <div class="absolute inset-y-0 right-0 max-w-md w-full bg-surface border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 pointer-events-auto flex flex-col" id="drawer-content">
+        <div class="absolute inset-y-0 right-0 w-full md:w-[400px] bg-surface border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 pointer-events-auto flex flex-col" id="drawer-content">
             <!-- Drawer content injected here -->
         </div>
     </div>
