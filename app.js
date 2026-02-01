@@ -6764,14 +6764,7 @@ const app = {
                     </p>
                 </div>
             </div>
-            <div class="flex gap-[8px] items-center ml-auto">
-                <button onclick="app.openVPPDrawer('${vpp.id}')" class="flex items-center justify-center p-[8px] rounded-[4px] hover:bg-gray-100 transition-colors text-[#5f646e]" title="Edit VPP">
-                    <i data-lucide="edit-2" class="w-5 h-5"></i>
-                </button>
-                <button onclick="app.confirmDeleteVPP('${vpp.id}')" class="flex items-center justify-center p-[8px] rounded-[4px] hover:bg-red-50 transition-colors text-red-500" title="Delete VPP">
-                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                </button>
-            </div>
+
         `;
         container.appendChild(header);
 
