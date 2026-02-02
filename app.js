@@ -1155,17 +1155,25 @@ const app = {
                         <!-- Market Status Group -->
                         <div class="flex items-center gap-8">
                             <div>
-                                <p class="text-sm text-gray-500 mb-1">Current Dispatch Price</p>
+                                <p class="text-sm text-gray-500 mb-1">Spot</p>
                                 <div class="flex items-end gap-2">
-                                    <span class="text-2xl font-bold text-gray-900">0.68</span>
+                                    <span id="stat-spot-price" class="text-2xl font-bold text-gray-900">0.55</span>
                                     <span class="text-sm text-gray-500 mb-1">$/MWh</span>
                                 </div>
                             </div>
                             <div class="h-8 w-px bg-gray-200"></div>
                             <div>
-                                <p class="text-sm text-gray-500 mb-1">Next Trading Price</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xl font-bold text-manta-primary">0.72</span>
+                                <p class="text-sm text-gray-500 mb-1">Pre-Dispatch</p>
+                                <div class="flex items-end gap-2">
+                                    <span id="stat-predispatch-price" class="text-2xl font-bold text-gray-900">0.68</span>
+                                    <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                                </div>
+                            </div>
+                            <div class="h-8 w-px bg-gray-200"></div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Forecast Spot</p>
+                                <div class="flex items-end gap-2">
+                                    <span id="stat-forecast-spot-price" class="text-xl font-bold text-manta-primary">0.72</span>
                                     <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
                                 </div>
                             </div>
@@ -1331,32 +1339,26 @@ const app = {
 
                     // Dispatch Price (5-min granularity)
                     const dispatchVal = val + (random() - 0.5) * 0.04;
-                    if (isRealtime && i > currentTimeIndex) {
+                    if (isRealtime && i > currentTimeIndex + 1) {
                         dispatchPrices.push(null);
                     } else {
                         dispatchPrices.push(dispatchVal.toFixed(3));
                     }
 
-                    // Trading Price & Forecast Trading Price (30-min granularity)
-                    if (i % 6 === 0) {
-                        currentTradingPrice = val + (random() - 0.5) * 0.08;
-                        const forecastTradingVal = currentTradingPrice + (random() - 0.5) * 0.05;
+                    // Spot & Forecast Spot (5-min granularity)
+                    currentTradingPrice = val + (random() - 0.5) * 0.08;
+                    const forecastTradingVal = currentTradingPrice + (random() - 0.5) * 0.05;
 
-                        // Display bars only at 30-min intervals
-                        if (isRealtime && i > currentTimeIndex) {
-                            tradingPrices.push(null);
-                        } else {
-                            tradingPrices.push(currentTradingPrice.toFixed(3));
-                        }
-
-                        if (isRealtime && i > currentTimeIndex + 6) {
-                            forecastTradingPrices.push(null);
-                        } else {
-                            forecastTradingPrices.push(forecastTradingVal.toFixed(3));
-                        }
-                    } else {
+                    if (isRealtime && i > currentTimeIndex) {
                         tradingPrices.push(null);
+                    } else {
+                        tradingPrices.push(currentTradingPrice.toFixed(3));
+                    }
+
+                    if (isRealtime && i > currentTimeIndex + 1) {
                         forecastTradingPrices.push(null);
+                    } else {
+                        forecastTradingPrices.push(forecastTradingVal.toFixed(3));
                     }
                     
                     // Real-time price logic
@@ -1392,6 +1394,26 @@ const app = {
                 
                 currentData = generateData(dateStr, currentMode === 'realtime');
                 
+                // Update Market Status Stats
+                if (currentMode === 'realtime') {
+                    const now = new Date();
+                    const currentHour = now.getHours();
+                    const currentMinute = now.getMinutes();
+                    const currentTimeIndex = (currentHour * 12) + Math.floor(currentMinute / 5);
+                    
+                    const spotVal = currentData.tradingPrices[currentTimeIndex];
+                    const preDispatchVal = currentData.dispatchPrices[currentTimeIndex];
+                    const forecastVal = currentData.forecastTradingPrices[currentTimeIndex + 1];
+
+                    const spotEl = document.getElementById('stat-spot-price');
+                    const preDispatchEl = document.getElementById('stat-predispatch-price');
+                    const forecastEl = document.getElementById('stat-forecast-spot-price');
+
+                    if (spotEl) spotEl.textContent = spotVal || '-';
+                    if (preDispatchEl) preDispatchEl.textContent = preDispatchVal || '-';
+                    if (forecastEl) forecastEl.textContent = forecastVal || '-';
+                }
+
                 const option = {
                     tooltip: {
                         trigger: 'axis',
@@ -1400,48 +1422,30 @@ const app = {
                             let html = `<div class="font-bold mb-1">${params[0].axisValue}</div>`;
                             const dataIndex = params[0].dataIndex;
                             
-                            // Add Price
-                            const price = params.find(p => p.seriesName === 'Real-time Price');
-                            if (price && price.value !== undefined && price.value !== null) {
-                                html += `<div class="flex justify-between gap-4 text-xs">
-                                    <span style="color:${price.color}">${price.marker} Real-time Price</span>
-                                    <span class="font-mono font-bold">${price.value}</span>
-                                </div>`;
-                            }
-
-                            // Add Dispatch Price
-                            const dispatch = params.find(p => p.seriesName === 'Dispatch Price');
+                            // Add Pre-Dispatch
+                            const dispatch = params.find(p => p.seriesName === 'Pre-Dispatch');
                             if (dispatch && dispatch.value !== undefined && dispatch.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
-                                    <span style="color:${dispatch.color}">${dispatch.marker} Dispatch Price</span>
+                                    <span style="color:${dispatch.color}">${dispatch.marker} Pre-Dispatch</span>
                                     <span class="font-mono font-bold">${dispatch.value}</span>
                                 </div>`;
                             }
 
-                            // Add Trading Price
-                            const trading = params.find(p => p.seriesName === 'Trading Price');
+                            // Add Spot
+                            const trading = params.find(p => p.seriesName === 'Spot');
                             if (trading && trading.value !== undefined && trading.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
-                                    <span style="color:${trading.color}">${trading.marker} Trading Price</span>
+                                    <span style="color:${trading.color}">${trading.marker} Spot</span>
                                     <span class="font-mono font-bold">${trading.value}</span>
                                 </div>`;
                             }
 
-                            // Add Forecast Trading Price
-                            const forecastTrading = params.find(p => p.seriesName === 'Forecast Trading Price');
+                            // Add Forecast Spot
+                            const forecastTrading = params.find(p => p.seriesName === 'Forecast Spot');
                             if (forecastTrading && forecastTrading.value !== undefined && forecastTrading.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
-                                    <span style="color:${forecastTrading.color}">${forecastTrading.marker} Forecast Trading Price</span>
+                                    <span style="color:${forecastTrading.color}">${forecastTrading.marker} Forecast Spot</span>
                                     <span class="font-mono font-bold">${forecastTrading.value}</span>
-                                </div>`;
-                            }
-                            
-                            // Add Prediction
-                            const pred = params.find(p => p.seriesName === 'Forecast Price');
-                            if (pred && pred.value !== undefined && pred.value !== null) {
-                                html += `<div class="flex justify-between gap-4 text-xs">
-                                    <span style="color:${pred.color}">${pred.marker} Forecast Price</span>
-                                    <span class="font-mono font-bold">${pred.value}</span>
                                 </div>`;
                             }
                             
@@ -1477,64 +1481,35 @@ const app = {
                         }
                     ],
                     series: [
-                        // Real-time Price
+                        // Pre-Dispatch
                         {
-                            name: 'Real-time Price',
-                            type: 'line',
-                            data: currentData.prices,
-                            itemStyle: { color: '#2563eb' },
-                            lineStyle: { width: 2 },
-                            showSymbol: false,
-                            markPoint: {
-                                data: currentData.signals,
-                                symbolSize: 40,
-                                label: {
-                                    show: true,
-                                    formatter: '{c}',
-                                    fontSize: 10,
-                                    offset: [0, -5],
-                                    color: '#fff'
-                                }
-                            }
-                        },
-                        // Dispatch Price
-                        {
-                            name: 'Dispatch Price',
+                            name: 'Pre-Dispatch',
                             type: 'line',
                             data: currentData.dispatchPrices,
-                            itemStyle: { color: '#F59E0B' }, // Amber
+                            itemStyle: { color: '#2563eb' }, // Blue
                             lineStyle: { width: 1.5 },
                             showSymbol: false
                         },
-                        // Forecast Trading Price (Stack Base)
+                        // Forecast Spot (Stack Base)
                         {
-                            name: 'Forecast Trading Price',
+                            name: 'Forecast Spot',
                             type: 'bar',
                             stack: 'analysis',
                             data: currentData.forecastTradingPrices,
                             itemStyle: { color: '#059669' }, // Darker Emerald
-                            barWidth: 12,
+                            barWidth: '30%',
                             z: 2,
                             showSymbol: false
                         },
-                        // Trading Price (Background)
+                        // Spot (Background)
                         {
-                            name: 'Trading Price',
+                            name: 'Spot',
                             type: 'bar',
                             data: currentData.tradingPrices,
-                            itemStyle: { color: 'rgba(182, 184, 188, 0.75)' }, // Background gray style with 25% opacity
-                            barWidth: 20, // 30-min visual width
-                            barGap: '-133.33%', // Align center: -(12+20)/2 / 12 = -1.33
+                            itemStyle: { color: 'rgba(200, 202, 207, 1)' }, // Background gray style with 25% opacity
+                            barWidth: '75%',
+                            barGap: '-175%', // -100% - (75-30)/2/30 * 100% = -175%
                             z: 1,
-                            showSymbol: false
-                        },
-                        // Prediction
-                        {
-                            name: 'Forecast Price',
-                            type: 'line',
-                            data: currentData.predictions,
-                            itemStyle: { color: '#8b5cf6' },
-                            lineStyle: { width: 1, type: 'dashed' },
                             showSymbol: false
                         },
                     ]
@@ -3832,19 +3807,26 @@ const app = {
         const generateData = () => {
             const data = [];
             const now = new Date('2026-01-13T13:40:00');
+            const signalTypes = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
             
             for (let i = 0; i < 15; i++) {
                 const settlementTime = new Date(now.getTime() - i * 5 * 60000);
                 const forecasts = [];
                 for (let j = 1; j <= 4; j++) {
-                    forecasts.push(new Date(settlementTime.getTime() + j * 5 * 60000));
+                    forecasts.push({
+                        time: new Date(settlementTime.getTime() + j * 5 * 60000),
+                        price: (Math.random() * 200 - 50).toFixed(2)
+                    });
                 }
 
                 data.push({
                     settlementTime: settlementTime,
                     forecasts: forecasts,
                     forecastStatus: Math.random() > 0.2, // true = success/green
-                    actualStatus: Math.random() > 0.1
+                    forecastSignalType: signalTypes[Math.floor(Math.random() * signalTypes.length)],
+                    actualStatus: Math.random() > 0.1,
+                    signalType: signalTypes[Math.floor(Math.random() * signalTypes.length)],
+                    spotPrice: (Math.random() * 200 - 50).toFixed(2) // Random price between -50 and 150
                 });
             }
             return data;
@@ -3855,77 +3837,100 @@ const app = {
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
-                <!-- Top Controls -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap gap-4 items-end">
-                    <!-- Pricing Region -->
-                    <div class="min-w-[150px]">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Pricing Region</label>
-                        <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm appearance-none bg-white">
-                            <option>NSW</option>
-                            <option>VIC</option>
-                            <option>QLD</option>
-                            <option>SA</option>
-                            <option>TAS</option>
-                        </select>
-                    </div>
+                <!-- Combined Overview and Table Section -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden">
+                    <!-- Top Controls -->
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-medium text-gray-500">Pricing Region:</span>
+                                    <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                                        <option>NSW</option>
+                                        <option>VIC</option>
+                                        <option>QLD</option>
+                                        <option>SA</option>
+                                        <option>TAS</option>
+                                    </select>
+                                </div>
+                                <!-- Tab Switcher -->
+                                <div class="flex p-1 bg-gray-100 rounded-lg">
+                                    <button id="arbitrage-tab-realtime" class="px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all">Real-time</button>
+                                    <button id="arbitrage-tab-historical" class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Historical</button>
+                                </div>
 
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Time Range</label>
-                        <div class="relative">
-                            <input type="text" placeholder="-" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                                <!-- Date Picker (Hidden by default) -->
+                                <div id="arbitrage-date-picker-container" class="hidden animate-in fade-in slide-in-from-left-2 flex items-center gap-2">
+                                    <span class="text-sm font-medium text-gray-500">Time:</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative">
+                                             <input id="arbitrage-date-start" type="date" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                                        </div>
+                                        <span class="text-gray-400">-</span>
+                                        <div class="relative">
+                                             <input id="arbitrage-date-end" type="date" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Signal Filters -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 p-4 bg-gray-50/30">
+                        <div id="filter-discharge" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
+                            <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 shadow-sm border border-green-100 group-hover:bg-green-100 transition-colors">
+                                <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-green-700 transition-colors">Discharge</span>
+                        </div>
+                        <div id="filter-normal" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
+                            <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 shadow-sm border border-gray-200 group-hover:bg-gray-100 transition-colors">
+                                <i data-lucide="minus" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Normal</span>
+                        </div>
+                        <div id="filter-charge" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 group-hover:bg-blue-100 transition-colors">
+                                <i data-lucide="battery-charging" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">Charge</span>
+                        </div>
+                        <div id="filter-fcas" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
+                            <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shadow-sm border border-purple-100 group-hover:bg-purple-100 transition-colors">
+                                <i data-lucide="shield" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-purple-700 transition-colors">FCAS</span>
+                        </div>
+                        <div id="filter-abnormal" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
+                            <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 shadow-sm border border-red-100 group-hover:bg-red-100 transition-colors">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-red-700 transition-colors">Abnormal</span>
+                        </div>
+                    </div>
                     
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Trigger Price</label>
-                        <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm appearance-none bg-white">
-                            <option>All</option>
-                            <option>&gt;= 300</option>
-                            <option>-200 to 300</option>
-                            <option>&lt;= -200</option>
-                        </select>
+                    <!-- Table -->
+                    <div class="flex-1 p-6 min-h-0 overflow-hidden">
+                        <div class="h-full overflow-auto bg-white">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 z-10 bg-white">
+                                    <tr>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap min-w-[140px]">Time / Spot ($/MW)</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Time / Forecast Spot ($/MW)</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center whitespace-nowrap">Signal By Forecast</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center whitespace-nowrap">Signal By Spot</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="arbitrage-tbody" class="">
+                                    <!-- Content rendered by JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <button class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-manta-primary">
-                        Search
-                    </button>
-                </div>
-
-                <!-- Legend Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
-                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 shadow-sm border border-red-100">
-                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Price ($/MWh) ≥ 300</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
-                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-500 shadow-sm border border-green-100">
-                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">-200 < Price < 300</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shadow-sm border border-blue-100">
-                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Price ≤ -200</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-shadow hover:shadow-md">
-                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 shadow-sm border border-orange-100">
-                            <i data-lucide="lightbulb" class="w-5 h-5 fill-current"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Multi Condition</span>
-                    </div>
-                </div>
-
-                <!-- Table Section -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden">
                     <!-- Pagination Header -->
-                    <div class="px-6 py-3 border-b border-gray-200 flex flex-wrap justify-end items-center gap-4 text-sm text-gray-600 bg-gray-50/50">
+                    <div class="px-6 py-3 border-t border-gray-200 flex flex-wrap justify-end items-center gap-4 text-sm text-gray-600 bg-gray-50/50">
                         <span class="text-gray-500">Total 285</span>
                         <div class="flex items-center gap-1">
                             <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
@@ -3941,67 +3946,156 @@ const app = {
                             <input type="text" value="1" class="w-12 text-center border border-gray-300 rounded px-1 py-0.5 focus:ring-manta-primary focus:border-manta-primary">
                         </div>
                     </div>
-                    
-                    <!-- Table -->
-                    <div class="overflow-auto flex-1">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-gray-50 text-gray-900 font-semibold border-b border-gray-200 sticky top-0 z-10">
-                                <tr>
-                                    <th class="px-6 py-4 whitespace-nowrap bg-gray-50">Settlement Time</th>
-                                    <th class="px-6 py-4 bg-gray-50">Forecast Start Time - Forecast End Time</th>
-                                    <th class="px-6 py-4 text-center whitespace-nowrap bg-gray-50">Forecast Status</th>
-                                    <th class="px-6 py-4 text-center whitespace-nowrap bg-gray-50">Actual Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 bg-white">
-                                ${data.map((row, idx) => {
-                                    const timeStr = `${row.settlementTime.getHours()}:${row.settlementTime.getMinutes().toString().padStart(2, '0')}`;
-                                    const dateStr = '13/01/2026 (+10:00)';
-                                    
-                                    const forecastHtml = row.forecasts.map(f => {
-                                        const fTime = `${f.getHours()}:${f.getMinutes().toString().padStart(2, '0')}`;
-                                        return `
-                                            <div class="flex flex-col min-w-[140px]">
-                                                <span class="font-medium text-gray-900">${fTime}</span>
-                                                <span class="text-xs text-gray-500">${dateStr}</span>
-                                            </div>
-                                        `;
-                                    }).join('');
-
-                                    const statusClass = (status) => status ? 
-                                        'bg-green-100 text-green-500 border-green-200' : 
-                                        'bg-red-100 text-red-500 border-red-200';
-                                    
-                                    return `
-                                        <tr class="hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="font-bold text-gray-900">${timeStr}</div>
-                                                <div class="text-xs text-gray-500 mt-0.5">${dateStr}</div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex gap-8 overflow-x-auto pb-1 no-scrollbar">
-                                                    ${forecastHtml}
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-center">
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center mx-auto border ${statusClass(row.forecastStatus)}">
-                                                    <i data-lucide="lightbulb" class="w-4 h-4 fill-current"></i>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-center">
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center mx-auto border ${statusClass(row.actualStatus)}">
-                                                    <i data-lucide="lightbulb" class="w-4 h-4 fill-current"></i>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         `;
+
+        // Tab Switching Logic
+        const tabRealtime = document.getElementById('arbitrage-tab-realtime');
+        const tabHistorical = document.getElementById('arbitrage-tab-historical');
+        const datePickerContainer = document.getElementById('arbitrage-date-picker-container');
+
+        if (tabRealtime && tabHistorical && datePickerContainer) {
+            const updateTabs = (isRealtime) => {
+                if (isRealtime) {
+                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
+                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    datePickerContainer.classList.add('hidden');
+                } else {
+                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
+                    datePickerContainer.classList.remove('hidden');
+                }
+            };
+
+            tabRealtime.addEventListener('click', () => updateTabs(true));
+            tabHistorical.addEventListener('click', () => updateTabs(false));
+
+            // Initialize Dates (Yesterday)
+            const dateStart = document.getElementById('arbitrage-date-start');
+            const dateEnd = document.getElementById('arbitrage-date-end');
+            if (dateStart && dateEnd) {
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                
+                // Set max date to today
+                dateStart.max = todayStr;
+                dateEnd.max = todayStr;
+
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const dateStr = yesterday.toISOString().split('T')[0];
+                dateStart.value = dateStr;
+                dateEnd.value = dateStr;
+            }
+        }
+
+        // Table Rendering & Filtering Logic
+        const renderTableBody = (filteredData) => {
+            const tbody = document.getElementById('arbitrage-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = filteredData.map((row, idx) => {
+                const timeStr = `${row.settlementTime.getHours()}:${row.settlementTime.getMinutes().toString().padStart(2, '0')}`;
+                const dateStr = '13/01/2026 (+10:00)';
+                
+                const forecastHtml = row.forecasts.map(f => {
+                    const fTime = `${f.time.getHours()}:${f.time.getMinutes().toString().padStart(2, '0')}`;
+                    return `
+                        <div class="flex flex-col min-w-[140px] justify-center h-full py-1">
+                            <span class="text-[14px] font-medium text-gray-900 leading-tight">${fTime}</span>
+                            <span class="text-[12px] text-gray-500 leading-tight mt-0.5">${f.price}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                const statusClass = (status) => status ? 
+                    'bg-green-100 text-green-500 border-green-200' : 
+                    'bg-red-100 text-red-500 border-red-200';
+                
+                const signalColors = {
+                    'Discharge': 'bg-green-100 text-green-700 border-green-200',
+                    'Normal': 'bg-gray-100 text-gray-700 border-gray-200',
+                    'Charge': 'bg-blue-100 text-blue-700 border-blue-200',
+                    'FCAS': 'bg-purple-100 text-purple-700 border-purple-200',
+                    'Abnormal': 'bg-red-100 text-red-700 border-red-200'
+                };
+                
+                return `
+                    <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] animate-in fade-in slide-in-from-bottom-1 duration-300">
+                        <td class="px-[8px] whitespace-nowrap">
+                            <div class="flex flex-col justify-center h-full py-1">
+                                <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto'] leading-tight">${timeStr}</div>
+                                <div class="text-[12px] text-gray-500 font-['Roboto'] leading-tight mt-0.5">${row.spotPrice}</div>
+                            </div>
+                        </td>
+                        <td class="px-[8px]">
+                            <div class="flex gap-8 overflow-x-auto pb-1 no-scrollbar">
+                                ${forecastHtml}
+                            </div>
+                        </td>
+                        <td class="px-[8px] text-center">
+                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.forecastSignalType]}">
+                                ${row.forecastSignalType}
+                            </span>
+                        </td>
+                        <td class="px-[8px] text-center">
+                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
+                                ${row.signalType}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Re-initialize Lucide icons for new content
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        // Initial Render
+        renderTableBody(data);
+
+        // Add Filter Listeners
+        const filters = ['discharge', 'normal', 'charge', 'fcas', 'abnormal'];
+        let activeFilter = null;
+
+        filters.forEach(filter => {
+            const btn = document.getElementById(`filter-${filter}`);
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    const filterName = filter.charAt(0).toUpperCase() + filter.slice(1);
+                    
+                    if (activeFilter === filterName) {
+                        // Clear Filter
+                        activeFilter = null;
+                        renderTableBody(data);
+                        // Reset styles
+                        filters.forEach(f => {
+                             const el = document.getElementById(`filter-${f}`);
+                             el.classList.remove('ring-2', 'ring-manta-primary', 'bg-gray-50');
+                             el.classList.add('bg-white');
+                        });
+                    } else {
+                        // Apply Filter
+                        activeFilter = filterName;
+                        const filtered = data.filter(d => d.signalType === filterName);
+                        renderTableBody(filtered);
+                        
+                        // Update styles
+                        filters.forEach(f => {
+                             const el = document.getElementById(`filter-${f}`);
+                             if (f === filter) {
+                                 el.classList.add('ring-2', 'ring-manta-primary', 'bg-gray-50');
+                                 el.classList.remove('bg-white');
+                             } else {
+                                 el.classList.remove('ring-2', 'ring-manta-primary', 'bg-gray-50');
+                                 el.classList.add('bg-white');
+                             }
+                        });
+                    }
+                });
+            }
+        });
     },
 
     renderTradingRules(container) {
@@ -4434,11 +4528,18 @@ const app = {
 
             // Status Filter
             if (state.subVppList && state.subVppList.status && state.subVppList.status !== 'All') {
-                filteredSystems = filteredSystems.filter(sys => {
-                    const sysStatus = (sys.status || 'disconnected').toLowerCase();
-                    const filterStatus = state.subVppList.status.toLowerCase();
-                    return sysStatus === filterStatus;
-                });
+                if (state.subVppList.status === 'Opened') {
+                    const openedStatuses = ['establishing', 'established', 'disconnected', 'failed'];
+                    filteredSystems = filteredSystems.filter(sys => {
+                        const sysStatus = (sys.status || 'disconnected').toLowerCase();
+                        return openedStatuses.includes(sysStatus);
+                    });
+                } else if (state.subVppList.status === 'Closed') {
+                    filteredSystems = filteredSystems.filter(sys => {
+                        const sysStatus = (sys.status || 'disconnected').toLowerCase();
+                        return sysStatus === 'closed';
+                    });
+                }
             }
 
             // Pre-calculate stats for all systems
@@ -4535,7 +4636,7 @@ const app = {
                                          <!-- Type Filter -->
                                          <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer px-2">
                                             <select id="subvpp-type-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterSubVPPs()">
-                                                <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All Types</option>
+                                                <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All</option>
                                                 <option value="Cloud" ${state.subVppList.type === 'Cloud' ? 'selected' : ''}>Cloud</option>
                                                 <option value="SCADA" ${state.subVppList.type === 'SCADA' ? 'selected' : ''}>SCADA</option>
                                                 <option value="Edge" ${state.subVppList.type === 'Edge' ? 'selected' : ''}>Edge</option>
@@ -4548,12 +4649,9 @@ const app = {
                                          <!-- Status Filter -->
                                          <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer px-2 border-l border-gray-200">
                                             <select id="subvpp-status-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterSubVPPs()">
-                                                <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All States</option>
-                                                <option value="Establishing" ${state.subVppList.status === 'Establishing' ? 'selected' : ''}>Establishing</option>
-                                                <option value="Established" ${state.subVppList.status === 'Established' ? 'selected' : ''}>Established</option>
+                                                <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All</option>
+                                                <option value="Opened" ${state.subVppList.status === 'Opened' ? 'selected' : ''}>Opened</option>
                                                 <option value="Closed" ${state.subVppList.status === 'Closed' ? 'selected' : ''}>Closed</option>
-                                                <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
-                                                <option value="Failed" ${state.subVppList.status === 'Failed' ? 'selected' : ''}>Failed</option>
                                             </select>
                                             <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[16px] h-[16px] flex items-center justify-center pointer-events-none">
                                                 <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
@@ -4663,14 +4761,7 @@ const app = {
                                                      </div>
                                                      <p class="text-[14px] font-medium text-[#b5bcc8] text-right">${stats.inv.offline + stats.bat.offline}</p>
                                                  </div>
-                                                 <!-- Disconnected -->
-                                                 <div class="flex items-center gap-[12px] xl:gap-[24px]">
-                                                     <div class="flex gap-[8px] items-center h-[32px]">
-                                                         <div class="bg-[#ff3434] h-[12px] w-[4px] rounded-[2px]"></div>
-                                                         <p class="text-[14px] text-[#5f646e]">Disconnected</p>
-                                                     </div>
-                                                     <p class="text-[14px] font-medium text-[#ff3434] text-right">${stats.inv.disconnected + stats.bat.disconnected}</p>
-                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
