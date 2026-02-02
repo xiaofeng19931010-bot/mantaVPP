@@ -1522,7 +1522,7 @@ const app = {
                             name: 'Trading Price',
                             type: 'bar',
                             data: currentData.tradingPrices,
-                            itemStyle: { color: '#E5E7EB' }, // Background gray style
+                            itemStyle: { color: 'rgba(182, 184, 188, 0.75)' }, // Background gray style with 25% opacity
                             barWidth: 20, // 30-min visual width
                             barGap: '-133.33%', // Align center: -(12+20)/2 / 12 = -1.33
                             z: 1,
@@ -4619,7 +4619,7 @@ const app = {
                                             <!-- Actions -->
                                             <div class="flex items-center gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                                 ${isEstablished ? `
-                                                <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#ff3434] transition-all" title="Disconnect">
+                                                <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#ff3434] transition-all" title="Close">
                                                     <i data-lucide="link-2-off" class="w-[24px] h-[24px]"></i>
                                                 </button>
                                                 ` : ''}
@@ -4735,7 +4735,7 @@ const app = {
                                                             </button>
                                                             ` : ''}
                                                             ${isEstablished ? `
-                                                            <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="Disconnect">
+                                                            <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="Close">
                                                                 <i data-lucide="link-2-off" class="w-[16px] h-[16px]"></i>
                                                             </button>
                                                             ` : ''}
