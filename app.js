@@ -1323,7 +1323,11 @@ const app = {
                     const val = Math.max(-0.1, baseVal + noise + spike); // Allow slightly negative prices
                     
                     const predVal = val + (random() - 0.5) * 0.02; // Forecast slightly different
-                    predictions.push(predVal.toFixed(3));
+                    if (isRealtime && i > currentTimeIndex + 6) {
+                        predictions.push(null);
+                    } else {
+                        predictions.push(predVal.toFixed(3));
+                    }
 
                     // Dispatch Price (5-min granularity)
                     const dispatchVal = val + (random() - 0.5) * 0.04;
@@ -1344,7 +1348,12 @@ const app = {
                         } else {
                             tradingPrices.push(currentTradingPrice.toFixed(3));
                         }
-                        forecastTradingPrices.push(forecastTradingVal.toFixed(3));
+
+                        if (isRealtime && i > currentTimeIndex + 6) {
+                            forecastTradingPrices.push(null);
+                        } else {
+                            forecastTradingPrices.push(forecastTradingVal.toFixed(3));
+                        }
                     } else {
                         tradingPrices.push(null);
                         forecastTradingPrices.push(null);
@@ -1402,7 +1411,7 @@ const app = {
 
                             // Add Dispatch Price
                             const dispatch = params.find(p => p.seriesName === 'Dispatch Price');
-                            if (dispatch) {
+                            if (dispatch && dispatch.value !== undefined && dispatch.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
                                     <span style="color:${dispatch.color}">${dispatch.marker} Dispatch Price</span>
                                     <span class="font-mono font-bold">${dispatch.value}</span>
@@ -1411,7 +1420,7 @@ const app = {
 
                             // Add Trading Price
                             const trading = params.find(p => p.seriesName === 'Trading Price');
-                            if (trading) {
+                            if (trading && trading.value !== undefined && trading.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
                                     <span style="color:${trading.color}">${trading.marker} Trading Price</span>
                                     <span class="font-mono font-bold">${trading.value}</span>
@@ -1420,7 +1429,7 @@ const app = {
 
                             // Add Forecast Trading Price
                             const forecastTrading = params.find(p => p.seriesName === 'Forecast Trading Price');
-                            if (forecastTrading) {
+                            if (forecastTrading && forecastTrading.value !== undefined && forecastTrading.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
                                     <span style="color:${forecastTrading.color}">${forecastTrading.marker} Forecast Trading Price</span>
                                     <span class="font-mono font-bold">${forecastTrading.value}</span>
@@ -1429,7 +1438,7 @@ const app = {
                             
                             // Add Prediction
                             const pred = params.find(p => p.seriesName === 'Forecast Price');
-                            if (pred) {
+                            if (pred && pred.value !== undefined && pred.value !== null) {
                                 html += `<div class="flex justify-between gap-4 text-xs">
                                     <span style="color:${pred.color}">${pred.marker} Forecast Price</span>
                                     <span class="font-mono font-bold">${pred.value}</span>
