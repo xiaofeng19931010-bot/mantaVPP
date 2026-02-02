@@ -1,0 +1,52 @@
+{
+  "id": "manta-web-nav",
+  "viewports": [
+    { "label": "desktop", "width": 1280, "height": 800 }
+  ],
+  "onReadyScript": "setTheme.js",
+  "scenarios": [
+    {
+      "label": "Sidebar Navigation - Light",
+      "url": "http://localhost:3000/index.html",
+      "selectors": ["aside"],
+      "misMatchThreshold": 0.0,
+      "requireSameDimensions": true
+    },
+    {
+      "label": "Sidebar Navigation - Dark",
+      "url": "http://localhost:3000/index.html",
+      "selectors": ["aside"],
+      "misMatchThreshold": 0.0,
+      "requireSameDimensions": true
+    },
+    {
+      "label": "Create VPP Drawer - Light",
+      "url": "http://localhost:3000/index.html",
+      "onReadyScript": "openVPPDrawer.js",
+      "selectors": ["#drawer-content"],
+      "misMatchThreshold": 0.0,
+      "requireSameDimensions": true
+    },
+    {
+      "label": "Create VPP Drawer - Dark",
+      "url": "http://localhost:3000/index.html",
+      "onReadyScript": "openVPPDrawer.js",
+      "selectors": ["#drawer-content"],
+      "misMatchThreshold": 0.0,
+      "requireSameDimensions": true
+    }
+  ],
+  "paths": {
+    "bitmaps_reference": "tests/backstop_data/bitmaps_reference",
+    "bitmaps_test": "tests/backstop_data/bitmaps_test",
+    "engine_scripts": "tests/backstop_data/engine_scripts",
+    "html_report": "tests/backstop_data/html_report",
+    "ci_report": "tests/backstop_data/ci_report"
+  },
+  "report": ["browser"],
+  "engine": "puppeteer",
+  "asyncCaptureLimit": 5,
+  "asyncCompareLimit": 50,
+  "debug": true,
+  "debugWindow": true
+}

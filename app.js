@@ -4338,20 +4338,27 @@ const app = {
             // Empty State - Bind Cloud Platform
             container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
             container.innerHTML = `
-                <div class="bg-white w-full h-full rounded-[4px] p-[16px] flex flex-col items-center justify-center relative">
-                    <div class="text-center">
-                        <div class="bg-gray-100 p-6 rounded-full inline-block mb-4 border border-gray-200">
-                            <i data-lucide="cloud-off" class="w-12 h-12 text-gray-400 opacity-50"></i>
+                <div class="bg-white w-full h-full rounded-[4px] p-[16px] flex flex-col relative">
+                    <div class="bg-[#f3f3f6] flex flex-1 flex-col gap-[8px] items-center justify-center rounded-[4px] w-full relative">
+                        <div class="relative w-[80px] h-[80px]">
+                            <img src="assets/icons/empty-state.svg" alt="Empty State" class="w-full h-full block">
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900 mb-2">No Sub-VPP Connected</h2>
-                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Connect a sub-VPP to synchronize and manage your devices.</p>
-                        <button onclick="app.openCloudBindDrawer()" class="bg-manta-primary hover:bg-manta-dark text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center gap-2 mx-auto">
-                            <i data-lucide="link" class="w-5 h-5"></i>
-                            <span>Create</span>
+                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949] text-center">
+                            No Sub-VPP Connected
+                        </p>
+                        <p class="font-['Roboto'] font-normal text-[12px] leading-[20px] text-[#5f646e] text-center">
+                            Connect a sub-VPP to synchronize and manage your devices.
+                        </p>
+                        <button onclick="app.openCloudBindDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[4px] h-[40px] px-[24px] py-[8px] rounded-[4px] text-white transition-colors min-w-[80px]">
+                            <div class="w-[24px] h-[24px] flex items-center justify-center">
+                                <i data-lucide="link" class="w-[16px] h-[16px]"></i>
+                            </div>
+                            <span class="font-['Roboto'] font-semibold text-[16px] leading-[1.42]">Create</span>
                         </button>
                     </div>
                 </div>
             `;
+            lucide.createIcons();
         } else {
             // System List
             container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
@@ -4456,220 +4463,247 @@ const app = {
             });
 
             container.innerHTML = `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6">
-                <!-- System List -->
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 flex-shrink-0">
-                    <!-- Left: Title & Add -->
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-xl font-bold text-gray-900">Sub-VPPs</h2>
-                        <button onclick="app.openCloudBindDrawer()" class="p-1 text-green-500 hover:text-green-600 transition-colors hover:bg-green-50 rounded-full">
-                            <i data-lucide="plus" class="w-6 h-6"></i>
-                        </button>
-                    </div>
-
-                    <!-- Center: Search & Filter Group -->
-                    <div class="flex-1 w-full md:max-w-2xl mx-4">
-                        <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-transparent focus-within:bg-white focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all shadow-sm">
-                             <!-- Search Input -->
-                             <input type="text" id="subvpp-name-filter" 
-                                value="${state.subVppList.name || ''}"
-                                class="bg-transparent border-none focus:ring-0 text-sm w-full p-0 text-gray-700 placeholder-gray-400" 
-                                placeholder="Search by name..."
-                                onkeydown="if(event.key === 'Enter') app.filterSubVPPs()">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6 font-['Roboto']">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 flex-shrink-0">
+                         <div class="flex items-center gap-2">
+                             <!-- Title -->
+                             <h2 class="text-xl font-bold text-gray-900">Sub-VPP List</h2>
                              
-                             <!-- Divider -->
-                             <div class="w-px h-4 bg-gray-300 mx-3"></div>
-                             
-                             <!-- Type Select -->
-                             <div class="relative flex items-center">
-                                 <select id="subvpp-type-filter" class="bg-transparent border-none focus:ring-0 text-sm text-gray-600 cursor-pointer pr-6 py-0 appearance-none font-medium" onchange="app.filterSubVPPs()">
-                                     <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All Types</option>
-                                     <option value="Cloud" ${state.subVppList.type === 'Cloud' ? 'selected' : ''}>Cloud</option>
-                                     <option value="SCADA" ${state.subVppList.type === 'SCADA' ? 'selected' : ''}>SCADA</option>
-                                     <option value="Edge" ${state.subVppList.type === 'Edge' ? 'selected' : ''}>Edge</option>
-                                 </select>
-                                 <i data-lucide="chevron-down" class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"></i>
-                             </div>
-
-                             <!-- Divider -->
-                             <div class="w-px h-4 bg-gray-300 mx-3"></div>
-
-                             <!-- Status Select -->
-                             <div class="relative flex items-center">
-                                 <select id="subvpp-status-filter" class="bg-transparent border-none focus:ring-0 text-sm text-gray-600 cursor-pointer pr-6 py-0 appearance-none font-medium" onchange="app.filterSubVPPs()">
-                                     <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All Status</option>
-                                     <option value="Establishing" ${state.subVppList.status === 'Establishing' ? 'selected' : ''}>Establishing</option>
-                                     <option value="Established" ${state.subVppList.status === 'Established' ? 'selected' : ''}>Established</option>
-                                     <option value="Closed" ${state.subVppList.status === 'Closed' ? 'selected' : ''}>Closed</option>
-                                     <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
-                                     <option value="Failed" ${state.subVppList.status === 'Failed' ? 'selected' : ''}>Failed</option>
-                                 </select>
-                                 <i data-lucide="chevron-down" class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"></i>
-                             </div>
-                             
-                             <!-- Search Icon -->
-                             <button onclick="app.filterSubVPPs()" class="ml-2 text-gray-400 hover:text-green-600 transition-colors">
-                                 <i data-lucide="search" class="w-4 h-4"></i>
+                             <!-- Add Button -->
+                             <button onclick="app.openCloudBindDrawer()" class="p-1 text-green-500 hover:text-green-600 transition-colors hover:bg-green-50 rounded-full">
+                                 <i data-lucide="plus" class="w-6 h-6"></i>
                              </button>
-                        </div>
-                    </div>
-
-                    <!-- Right: View Switcher -->
-                    <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
-                        <button onclick="app.toggleSubVPPViewMode('list')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${!isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
-                            <i data-lucide="list" class="w-3.5 h-3.5"></i>
-                            <span>Form</span>
-                        </button>
-                        <button onclick="app.toggleSubVPPViewMode('card')" class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${isCardView ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}">
-                            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-                            <span>Cards</span>
-                        </button>
-                    </div>
-                </div>
-                    
-                    ${isCardView ? `
-                        <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
-                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished, onclickAttr, cursorClass }) => `
-                                <div ${onclickAttr} class="group bg-white rounded-2xl ${cursorClass} border border-gray-200 hover:border-green-500/30 hover:shadow-xl transition-all duration-300 relative h-full flex flex-col p-6">
-                                    <!-- Header Section -->
-                                    <div class="flex justify-between items-start mb-6">
-                                        <div class="flex items-center gap-3">
-                                            
-                                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1" title="${sys.name}">${sys.name}</h3>
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400 uppercase tracking-wide">${sys.type}</span>
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${statusConfig.color} text-white uppercase tracking-wide">${statusConfig.text}</span>
-                                        </div>
-                                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            ${isEstablished ? `
-                                            <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Close Connection">
-                                                <i data-lucide="x" class="w-4 h-4"></i>
-                                            </button>
-                                            ` : ''}
-                                            ${(sys.status || '').toLowerCase() === 'failed' ? `
-                                            <button onclick="event.stopPropagation(); app.openCloudBindDrawer(${sys.id})" class="p-2 text-gray-400 hover:text-blue-500 transition-colors" title="Edit Connection">
-                                                <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                            </button>
-                                            ` : ''}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Content Grid -->
-                                    <div class="h-full">
-                                        <!-- Left: DERs Stats -->
-                                        <div class="w-full flex flex-col">
-                                            <div class="flex items-center gap-4 mb-4">
-                                                <!-- Diamond Icon -->
-                                                <div class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg transform rotate-45 flex-shrink-0">
-                                                    <i data-lucide="zap" class="w-5 h-5 text-gray-900 transform -rotate-45"></i>
-                                                </div>
-                                                
-                                                <div class="flex flex-col">
-                                                    <div class="flex items-baseline gap-1">
-                                                        <span class="text-4xl font-bold text-gray-900 leading-none">${sysDevices.length}</span>
-                                                        <span class="text-xs font-bold text-gray-500 italic">DERs</span>
-                                                    </div>
-                                                </div>
+                         </div>
+                             
+                             <!-- Center: Search & Filter Group -->
+                             <div class="flex-1 w-full md:max-w-xl mx-4 flex justify-end">
+                                 <div class="bg-[#f3f3f6] flex gap-[16px] items-center pl-[8px] pr-0 py-0 relative rounded-[4px] shrink-0 w-auto h-[32px]">
+                                     <!-- Search Input -->
+                                     <input type="text" id="subvpp-name-filter"
+                                         value="${state.subVppList.name || ''}"
+                                         class="flex-1 bg-transparent border-none focus:ring-0 p-0 text-[14px] font-normal text-[#1c2026] placeholder-[#b5bcc8] leading-normal min-w-[200px]"
+                                         placeholder="Search by VPP Name..."
+                                         onkeydown="if(event.key === 'Enter') app.filterSubVPPs()">
+                                     
+                                     <div class="flex gap-0 items-center px-[4px] relative shrink-0 border-l border-gray-200">
+                                         <!-- Type Filter -->
+                                         <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer px-2">
+                                            <select id="subvpp-type-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterSubVPPs()">
+                                                <option value="All" ${state.subVppList.type === 'All' ? 'selected' : ''}>All Types</option>
+                                                <option value="Cloud" ${state.subVppList.type === 'Cloud' ? 'selected' : ''}>Cloud</option>
+                                                <option value="SCADA" ${state.subVppList.type === 'SCADA' ? 'selected' : ''}>SCADA</option>
+                                                <option value="Edge" ${state.subVppList.type === 'Edge' ? 'selected' : ''}>Edge</option>
+                                            </select>
+                                            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[16px] h-[16px] flex items-center justify-center pointer-events-none">
+                                                <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
                                             </div>
-                                            
-                                            <!-- Separator -->
-                                            <div class="w-8 h-0.5 bg-gray-200 mb-4 ml-1"></div>
-                                            
-                                            <!-- Status List -->
-                                            <div class="space-y-3 text-xs flex-1">
-                                                <div class="flex items-center justify-between group/status">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-1 h-3 bg-green-500 rounded-full"></div>
-                                                        <span class="text-gray-500 font-medium">Online</span>
-                                                    </div>
-                                                    <span class="font-bold text-green-600">${stats.inv.online + stats.bat.online}</span>
-                                                </div>
-                                                <div class="flex items-center justify-between group/status">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-1 h-3 bg-gray-300 rounded-full"></div>
-                                                        <span class="text-gray-500 font-medium">Offline</span>
-                                                    </div>
-                                                    <span class="font-bold text-gray-400">${stats.inv.offline + stats.bat.offline}</span>
-                                                </div>
-                                                <div class="flex items-center justify-between group/status">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-1 h-3 bg-red-500 rounded-full"></div>
-                                                        <span class="text-gray-500 font-medium">Disconnected</span>
-                                                    </div>
-                                                    <span class="font-bold text-red-500">${stats.inv.disconnected + stats.bat.disconnected}</span>
-                                                </div>
+                                         </div>
+
+                                         <!-- Status Filter -->
+                                         <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer px-2 border-l border-gray-200">
+                                            <select id="subvpp-status-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterSubVPPs()">
+                                                <option value="All" ${state.subVppList.status === 'All' ? 'selected' : ''}>All States</option>
+                                                <option value="Establishing" ${state.subVppList.status === 'Establishing' ? 'selected' : ''}>Establishing</option>
+                                                <option value="Established" ${state.subVppList.status === 'Established' ? 'selected' : ''}>Established</option>
+                                                <option value="Closed" ${state.subVppList.status === 'Closed' ? 'selected' : ''}>Closed</option>
+                                                <option value="Disconnected" ${state.subVppList.status === 'Disconnected' ? 'selected' : ''}>Disconnected</option>
+                                                <option value="Failed" ${state.subVppList.status === 'Failed' ? 'selected' : ''}>Failed</option>
+                                            </select>
+                                            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[16px] h-[16px] flex items-center justify-center pointer-events-none">
+                                                <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
                                             </div>
-                                        </div>
-
-
-                                    </div>
+                                         </div>
+                                         
+                                         <!-- Search Icon -->
+                                         <button onclick="app.filterSubVPPs()" class="relative rounded-[2px] shrink-0 w-[32px] h-[32px] flex items-center justify-center hover:bg-gray-200 transition-colors ml-1">
+                                             <i data-lucide="search" class="w-[18px] h-[18px] text-[#313949]"></i>
+                                         </button>
+                                     </div>
                                 </div>
-                            `).join('')}
-                        </div>
-                    ` : `
-                        <div class="flex-1 overflow-hidden flex flex-col">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead class="bg-white sticky top-0 z-10 border-b border-gray-100">
-                                        <tr>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">DERs</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Online</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Offline</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Disconnected</th>
-                                            <th class="py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished }) => `
-                                            <tr class="hover:bg-gray-50 transition-colors group">
-                                                <td class="py-4 px-4">
-                                                    <div class="font-bold text-gray-900">${sys.name}</div>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <div class="text-sm text-gray-500">${sys.type}</div>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${statusConfig.color} text-white">
-                                                        ${statusConfig.text}
-                                                    </span>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <span class="font-bold text-gray-900">${sysDevices.length}</span>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <span class="text-green-500 font-bold">${stats.inv.online + stats.bat.online}</span>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <span class="text-gray-400 font-bold">${stats.inv.offline + stats.bat.offline}</span>
-                                                </td>
-                                                <td class="py-4 px-4">
-                                                    <span class="text-red-500 font-bold">${stats.inv.disconnected + stats.bat.disconnected}</span>
-                                                </td>
-                                                <td class="py-4 px-4 text-right">
-                                                    <div class="flex items-center justify-end gap-3">
-                                                        <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-gray-900 hover:text-gray-600 transition-colors">
-                                                            <i data-lucide="eye" class="w-4 h-4"></i>
-                                                        </button>
-                                                        ${isEstablished ? `
-                                                        <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-gray-900 hover:text-gray-600 transition-colors" title="Close">
-                                                            <i data-lucide="x" class="w-4 h-4"></i>
-                                                        </button>
-                                                        ` : (!isDisconnected ? `
-                                                        <button onclick="app.disconnectSystem(${sys.id}, event)" class="text-gray-900 hover:text-red-600 transition-colors">
-                                                            <i data-lucide="unlink" class="w-4 h-4"></i>
-                                                        </button>
-                                                        ` : '')}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                             </div>
+                         
+                         <!-- View Switcher -->
+                         <div class="flex bg-[#f3f3f6] p-[4px] rounded-[4px] items-center">
+                             <button onclick="app.toggleSubVPPViewMode('list')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${!isCardView ? 'bg-white shadow-sm' : ''}">
+                                 <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
+                                     <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                                     <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                                     <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                                 </div>
+                                 <span class="text-[14px] leading-normal ${!isCardView ? 'font-semibold text-[#313949]' : 'font-normal text-[#b5bcc8]'}">Form</span>
+                             </button>
+                             <button onclick="app.toggleSubVPPViewMode('card')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${isCardView ? 'bg-white shadow-sm' : ''}">
+                                 <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
+                                     <div class="h-[20px] shrink-0 w-[4px] ${isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                                     <div class="h-[20px] shrink-0 w-[14px] ${isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
+                                 </div>
+                                 <span class="text-[14px] leading-normal ${isCardView ? 'font-semibold text-[#313949]' : 'font-normal text-[#b5bcc8]'}">Cards</span>
+                             </button>
+                         </div>
+                    </div>
+
+                    <!-- Content Area -->
+                    ${isCardView ? `
+                        <div class="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-4 border border-gray-100 w-full">
+                            <div class="flex flex-wrap gap-[8px] content-start">
+                                ${systemsWithStats.map(({ sys, sysDevices, stats, isDisconnected, isEstablished, onclickAttr, cursorClass }) => {
+                                    const s = (sys.status || '').toLowerCase();
+                                    let st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', dot: 'bg-[#b5bcc8]', label: (sys.status || 'Unknown').toUpperCase() };
+                                    if (s === 'established' || s === 'connected' || s === 'online') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', dot: 'bg-[#8cda2f]', label: 'ESTABLISHED' };
+                                    else if (s === 'establishing') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ec981c]', dot: 'bg-[#ec981c]', label: 'ESTABLISHING' };
+                                    else if (s === 'disconnected') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ff3434]', dot: 'bg-[#ff3434]', label: 'DISCONNECTED' };
+                                    else if (s === 'closed') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', dot: 'bg-[#b5bcc8]', label: 'CLOSED' };
+                                    else if (s === 'failed') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ff3434]', dot: 'bg-[#ff3434]', label: 'FAILED' };
+                                    
+                                    return `
+                                    <div ${onclickAttr} class="bg-white p-[16px] rounded-[4px] ${cursorClass} flex flex-col gap-[16px] w-full md:w-[calc(50%-4px)] lg:w-[calc(33.333%-6px)] xl:w-[calc(25%-6px)] relative group hover:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.1)] transition-shadow">
+                                        <!-- Card Header -->
+                                        <div class="flex items-center gap-[8px] w-full">
+                                            <div class="w-[32px] h-[32px] shrink-0 flex items-center justify-center bg-gray-50 rounded-full text-gray-400">
+                                                <i data-lucide="cloud" class="w-[20px] h-[20px]"></i>
+                                            </div>
+                                            <p class="text-[18px] font-semibold text-[#313949] leading-[1.55] line-clamp-1 flex-1" title="${sys.name}">${sys.name}</p>
+                                            
+                                            <!-- Status Chip -->
+                                            <div class="${st.bg} flex items-center justify-center px-[8px] py-[4px] rounded-[12px] gap-[4px] shrink-0">
+                                                 <div class="w-[8px] h-[8px] rounded-full ${st.dot}"></div>
+                                                 <p class="text-[12px] ${st.text} font-normal leading-[1.33]">${st.label}</p>
+                                            </div>
+                                            
+                                            <!-- Actions -->
+                                            <div class="flex items-center gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                                ${isEstablished ? `
+                                                <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#ff3434] transition-all" title="Disconnect">
+                                                    <i data-lucide="link-2-off" class="w-[24px] h-[24px]"></i>
+                                                </button>
+                                                ` : ''}
+                                                ${s === 'failed' ? `
+                                                <button onclick="event.stopPropagation(); app.openCloudBindDrawer(${sys.id})" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#313949] transition-all" title="Edit Connection">
+                                                    <i data-lucide="edit-2" class="w-[24px] h-[24px]"></i>
+                                                </button>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+
+                                        <!-- Stats -->
+                                        <div class="flex flex-col gap-[8px] w-full">
+                                            <!-- Main Number -->
+                                            <div class="flex gap-[16px] items-center">
+                                                <div class="w-[32px] h-[32px] flex items-center justify-center">
+                                                    <img src="assets/icon-ders.svg" onerror="this.src='';this.nextElementSibling.style.display='block';this.style.display='none'" class="w-full h-full object-contain">
+                                                    <i data-lucide="zap" class="w-[24px] h-[24px] text-[#313949] hidden"></i>
+                                                </div>
+                                                <div class="flex items-end gap-[4px] text-[#313949]">
+                                                    <p class="text-[24px] font-extrabold leading-[1.33]">${sysDevices.length}</p>
+                                                    <p class="text-[16px] font-semibold italic leading-[1.42]">DERs</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Breakdown -->
+                                            <div class="flex flex-wrap items-center justify-between pl-[14px] w-full mt-[8px] gap-y-[8px]">
+                                                 <!-- Online -->
+                                                 <div class="flex items-center gap-[12px] xl:gap-[24px]">
+                                                     <div class="flex gap-[8px] items-center h-[32px]">
+                                                         <div class="bg-[#8cda2f] h-[12px] w-[4px] rounded-[2px]"></div>
+                                                         <p class="text-[14px] text-[#5f646e]">Online</p>
+                                                     </div>
+                                                     <p class="text-[14px] font-medium text-[#8cda2f] text-right">${stats.inv.online + stats.bat.online}</p>
+                                                 </div>
+                                                 <!-- Offline -->
+                                                 <div class="flex items-center gap-[12px] xl:gap-[24px]">
+                                                     <div class="flex gap-[8px] items-center h-[32px]">
+                                                         <div class="bg-[#b5bcc8] h-[12px] w-[4px] rounded-[2px]"></div>
+                                                         <p class="text-[14px] text-[#5f646e]">Offline</p>
+                                                     </div>
+                                                     <p class="text-[14px] font-medium text-[#b5bcc8] text-right">${stats.inv.offline + stats.bat.offline}</p>
+                                                 </div>
+                                                 <!-- Disconnected -->
+                                                 <div class="flex items-center gap-[12px] xl:gap-[24px]">
+                                                     <div class="flex gap-[8px] items-center h-[32px]">
+                                                         <div class="bg-[#ff3434] h-[12px] w-[4px] rounded-[2px]"></div>
+                                                         <p class="text-[14px] text-[#5f646e]">Disconnected</p>
+                                                     </div>
+                                                     <p class="text-[14px] font-medium text-[#ff3434] text-right">${stats.inv.disconnected + stats.bat.disconnected}</p>
+                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
-                    `}
+                        ` : `
+                            <div class="flex-1 overflow-hidden flex flex-col bg-white rounded-[4px]">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="sticky top-0 z-10 bg-white">
+                                            <tr>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Name</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Type</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Online</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Offline</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Disconnected</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right min-w-[140px]">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="">
+                                            ${systemsWithStats.map(({ sys, sysDevices, stats, isDisconnected, isEstablished }) => {
+                                                const s = (sys.status || '').toLowerCase();
+                                                let st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', label: (sys.status || 'Unknown').toUpperCase() };
+                                                if (s === 'established' || s === 'connected' || s === 'online') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', label: 'ESTABLISHED' };
+                                                else if (s === 'establishing') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ec981c]', label: 'ESTABLISHING' };
+                                                else if (s === 'disconnected') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ff3434]', label: 'DISCONNECTED' };
+                                                
+                                                return `
+                                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
+                                                    <td class="px-[8px]">
+                                                        <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${sys.name}</div>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${sys.type}</div>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${st.bg} ${st.text} font-['Roboto']">
+                                                            ${st.label}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${sysDevices.length}</span>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        <span class="text-[14px] font-normal text-green-500 font-['Roboto']">${stats.inv.online + stats.bat.online}</span>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        <span class="text-[14px] font-normal text-gray-400 font-['Roboto']">${stats.inv.offline + stats.bat.offline}</span>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        <span class="text-[14px] font-normal text-red-500 font-['Roboto']">${stats.inv.disconnected + stats.bat.disconnected}</span>
+                                                    </td>
+                                                    <td class="px-[8px] text-right">
+                                                        <div class="flex items-center justify-end gap-[12px]">
+                                                            ${s !== 'establishing' ? `
+                                                            <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="View">
+                                                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                                            </button>
+                                                            ` : ''}
+                                                            ${isEstablished ? `
+                                                            <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="Disconnect">
+                                                                <i data-lucide="link-2-off" class="w-[16px] h-[16px]"></i>
+                                                            </button>
+                                                            ` : ''}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `}
                 </div>
             `;
         }
@@ -5684,7 +5718,7 @@ const app = {
         const vpp = state.vpps.find(v => v.id === device.vppId) || {};
         
         container.innerHTML = `
-            <div class="h-full overflow-y-auto bg-gray-50">
+            <div class="h-full overflow-y-auto bg-gray-50 pb-24">
                 <!-- Header -->
                     <div class="bg-white border-b border-gray-200 px-8 py-6 space-y-8">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pl-2">
@@ -6291,71 +6325,12 @@ const app = {
                                         <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all">Generation</button>
                                         <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all">Consumption</button>
                                     </div>
-                                    <div id="operation-chart" class="w-full h-80"></div>
+                                    <div id="operation-chart" class="w-full h-96"></div>
                                 </div>
                             </div>
-
-
-
-
-
-                    <!-- Details Grid -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Device Information</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Manufacturer</span>
-                                    <span class="font-medium text-gray-900">${device.vendor}</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Model</span>
-                                    <span class="font-medium text-gray-900">${device.model || 'Unknown'}</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Serial Number</span>
-                                    <span class="font-medium text-gray-900 font-mono">${device.sn}</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Firmware Version</span>
-                                    <span class="font-medium text-gray-900">v2.4.1</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Installation Date</span>
-                                    <span class="font-medium text-gray-900">2023-05-12</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Grid Connection</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Assigned VPP</span>
-                                    <span class="font-medium text-manta-primary cursor-pointer hover:underline" onclick="app.navigate('vpp_details', {id: ${vpp.id}})">${vpp.name || 'Unassigned'}</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">NMI</span>
-                                    <span class="font-medium text-gray-900 font-mono">${device.nmi || '-'}</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Phase</span>
-                                    <span class="font-medium text-gray-900">Single Phase</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Export Limit</span>
-                                    <span class="font-medium text-gray-900">5.0 kW</span>
-                                </div>
-                                <div class="flex justify-between py-2 border-b border-gray-100">
-                                    <span class="text-gray-500">Grid Voltage</span>
-                                    <span class="font-medium text-gray-900">242.5 V</span>
-                                </div>
-                            </div>
-                        </div>
                         </div>
                     </div>
-            </div>
-        </div>`;
+            </div>`;
 
         lucide.createIcons();
 
@@ -6419,7 +6394,7 @@ const app = {
         container.innerHTML = `
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6">
             <!-- Toolbar -->
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 flex-shrink-0">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-[8px] mb-[8px] flex-shrink-0">
                 <!-- Left: Title & Add -->
                 <div class="flex items-center gap-2">
                     <h2 class="text-xl font-bold text-gray-900">VPPs</h2>
@@ -7655,116 +7630,155 @@ const app = {
         const manufacturers = allManufacturers.filter(m => !connectedSystemNames.includes(m));
 
         drawerContent.innerHTML = `
-            <div class="p-6 h-full flex flex-col">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-bold text-gray-900">${title}</h3>
-                    <button onclick="app.closeDrawer()" class="text-gray-400 hover:text-gray-900 transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+            <div class="bg-white h-full flex flex-col font-['Roboto']">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-[16px] border-b border-[#e6e8ee] shrink-0">
+                    <h3 class="font-bold text-[20px] text-[#313949] leading-normal">${title}</h3>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center text-[#313949] hover:text-gray-600 transition-colors">
+                        <i data-lucide="x" class="w-[24px] h-[24px]"></i>
                     </button>
                 </div>
 
-                <form onsubmit="app.handleCloudBindSubmit(event)" class="space-y-6 flex-1">
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- System Type -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">Type</label>
-                            <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
-                                <option value="cloud">Manufacturer Cloud</option>
-                            </select>
-                        </div>
-
-                        <!-- Country Selection (Read-only) -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">Country (Company Region)</label>
-                            <input type="text" name="country" value="${country}" readonly class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-500 outline-none cursor-not-allowed">
-                        </div>
-                    </div>
-
-                    <!-- Cloud: Manufacturers (Single-select with Mode) -->
-                    <div id="section-cloud" class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-gray-500">Manufacturer Cloud</label>
-                            <select name="manufacturers" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none">
-                                ${manufacturers.length > 0 ? manufacturers.map(m => `
-                                    <option value="${m}">${m}</option>
-                                `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
-                            </select>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="connectionMode" value="create" onchange="app.toggleConnectionMode('create')" class="text-manta-primary focus:ring-manta-primary">
-                                <span class="text-xs font-medium text-gray-700">Create New</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="connectionMode" value="add" checked onchange="app.toggleConnectionMode('add')" class="text-manta-primary focus:ring-manta-primary">
-                                <span class="text-xs font-medium text-gray-700">Add Existing</span>
-                            </label>
-                        </div>
-
-                        <!-- Credentials Inputs -->
-                        <div id="cloud-credentials" class="space-y-4 border-t border-gray-100 pt-4">
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-gray-500">AppKey</label>
-                                <div class="relative group">
-                                    <input type="password" name="appKey" id="input-app-key" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400 font-mono text-sm" placeholder="Enter AppKey">
-                                    <button type="button" onclick="app.copyToClipboard('input-app-key')" class="absolute right-10 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md" title="Copy">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </button>
-                                    <button type="button" onclick="app.togglePasswordVisibility('input-app-key')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors bg-white rounded-md">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
+                <!-- Form Content -->
+                <form onsubmit="app.handleCloudBindSubmit(event)" class="flex-1 overflow-y-auto px-[24px] py-[16px] flex flex-col gap-[16px]">
+                    <!-- Row 1: Type & Country -->
+                    <div class="flex gap-[16px]">
+                        <!-- Type -->
+                        <div class="flex-1 flex flex-col gap-[4px]">
+                            <div class="flex items-center gap-[4px] h-[16px]">
+                                <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                <span class="text-[#5f646e] text-[12px] leading-normal">Type</span>
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-gray-500">AppSecret</label>
-                                <div class="relative group">
-                                    <input type="password" name="appSecret" id="input-app-secret" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all placeholder:text-gray-400 font-mono text-sm" placeholder="Enter AppSecret">
-                                    <button type="button" onclick="app.copyToClipboard('input-app-secret')" class="absolute right-10 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md" title="Copy">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </button>
-                                    <button type="button" onclick="app.togglePasswordVisibility('input-app-secret')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors bg-white rounded-md">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
+                            <div class="h-[32px]">
+                                <select name="systemType" onchange="app.handleSystemTypeChange(this.value)" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] text-[14px] text-[#313949] focus:border-[#3ec064] outline-none appearance-none transition-colors">
+                                    <option value="cloud">Manufacturer Cloud</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Country -->
+                        <div class="flex-1 flex flex-col gap-[4px]">
+                            <div class="flex items-center gap-[4px] h-[16px]">
+                                <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                <span class="text-[#5f646e] text-[12px] leading-normal">Country (Company Region)</span>
+                            </div>
+                            <div class="h-[32px]">
+                                <input type="text" name="country" value="${country}" readonly class="w-full h-full bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] px-[8px] text-[14px] text-[#b5bcc8] outline-none cursor-not-allowed">
                             </div>
                         </div>
                     </div>
 
-                    <!-- SCADA: System Selection -->
-                    <div id="section-scada" class="space-y-1.5 hidden">
-                        <label class="text-xs font-semibold text-gray-500">SCADA</label>
-                        <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                    <!-- Cloud Section -->
+                    <div id="section-cloud" class="flex flex-col gap-[16px]">
+                        <!-- Manufacturer Cloud -->
+                        <div class="flex flex-col gap-[4px]">
+                            <div class="flex items-center gap-[4px] h-[16px]">
+                                <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                <span class="text-[#5f646e] text-[12px] leading-normal">Manufacturer Cloud</span>
+                            </div>
+                            <div class="h-[32px]">
+                                <select name="manufacturers" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] text-[14px] text-[#313949] focus:border-[#3ec064] outline-none appearance-none transition-colors">
+                                    ${manufacturers.length > 0 ? manufacturers.map(m => `
+                                        <option value="${m}">${m}</option>
+                                    `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Connection Mode Radio -->
+                        <div class="flex items-center gap-[10px] h-[24px]">
+                            <label class="flex items-center gap-[4px] cursor-pointer group">
+                                <div class="relative w-[24px] h-[24px] flex items-center justify-center">
+                                    <input type="radio" name="connectionMode" value="create" onchange="app.toggleConnectionMode('create')" class="peer appearance-none w-[16px] h-[16px] rounded-full border border-[#cacfd8] checked:border-[#3ec064] checked:border-[5px] transition-all bg-white">
+                                </div>
+                                <span class="text-[14px] text-[#313949] leading-normal group-hover:text-[#3ec064] transition-colors">Create New</span>
+                            </label>
+                            <label class="flex items-center gap-[4px] cursor-pointer group">
+                                <div class="relative w-[24px] h-[24px] flex items-center justify-center">
+                                    <input type="radio" name="connectionMode" value="add" checked onchange="app.toggleConnectionMode('add')" class="peer appearance-none w-[16px] h-[16px] rounded-full border border-[#cacfd8] checked:border-[#3ec064] checked:border-[5px] transition-all bg-white">
+                                </div>
+                                <span class="text-[14px] text-[#313949] leading-normal group-hover:text-[#3ec064] transition-colors">Add Existing</span>
+                            </label>
+                        </div>
+
+                        <!-- Credentials -->
+                        <div id="cloud-credentials" class="flex flex-col gap-[16px] pt-[4px]">
+                            <!-- AppKey -->
+                            <div class="flex flex-col gap-[4px]">
+                                <div class="flex items-center h-[16px] pl-[4px]">
+                                    <span class="text-[#5f646e] text-[12px] leading-normal">AppKey</span>
+                                </div>
+                                <div class="relative h-[32px]">
+                                    <input type="password" name="appKey" id="input-app-key" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] pl-[8px] pr-[60px] text-[14px] text-[#313949] placeholder-[#b5bcc8] focus:border-[#3ec064] outline-none transition-colors" placeholder="Enter AppKey">
+                                    <div class="absolute right-[8px] top-1/2 -translate-y-1/2 flex items-center gap-[4px]">
+                                        <button type="button" onclick="app.copyToClipboard('input-app-key')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5" title="Copy">
+                                            <i data-lucide="copy" class="w-[14px] h-[14px]"></i>
+                                        </button>
+                                        <button type="button" onclick="app.togglePasswordVisibility('input-app-key')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5">
+                                            <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AppSecret -->
+                            <div class="flex flex-col gap-[4px]">
+                                <div class="flex items-center h-[16px] pl-[4px]">
+                                    <span class="text-[#5f646e] text-[12px] leading-normal">AppSecret</span>
+                                </div>
+                                <div class="relative h-[32px]">
+                                    <input type="password" name="appSecret" id="input-app-secret" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] pl-[8px] pr-[60px] text-[14px] text-[#313949] placeholder-[#b5bcc8] focus:border-[#3ec064] outline-none transition-colors" placeholder="Enter AppSecret">
+                                    <div class="absolute right-[8px] top-1/2 -translate-y-1/2 flex items-center gap-[4px]">
+                                        <button type="button" onclick="app.copyToClipboard('input-app-secret')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5" title="Copy">
+                                            <i data-lucide="copy" class="w-[14px] h-[14px]"></i>
+                                        </button>
+                                        <button type="button" onclick="app.togglePasswordVisibility('input-app-secret')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5">
+                                            <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SCADA Section (Hidden by default) -->
+                    <div id="section-scada" class="flex flex-col gap-[4px] hidden">
+                         <div class="flex items-center gap-[4px] h-[16px]">
+                            <span class="text-[#5f646e] text-[12px] leading-normal">SCADA</span>
+                         </div>
+                         <div class="bg-white border border-[#cacfd8] rounded-[4px] p-[8px] max-h-48 overflow-y-auto">
                             ${scadaOptions.length > 0 ? scadaOptions.map(s => `
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                                    <span class="text-sm text-gray-900">${s}</span>
+                                <label class="flex items-center gap-[8px] p-[4px] hover:bg-[#f3f3f6] rounded-[2px] cursor-pointer transition-colors">
+                                    <input type="checkbox" name="scada" value="${s}" class="w-[14px] h-[14px] rounded border-[#cacfd8] text-[#3ec064] focus:ring-[#3ec064]">
+                                    <span class="text-[14px] text-[#313949]">${s}</span>
                                 </label>
-                            `).join('') : '<div class="p-2 text-sm text-gray-500">No SCADA systems found for your company.</div>'}
-                        </div>
+                            `).join('') : '<div class="text-[12px] text-[#5f646e]">No SCADA systems found for your company.</div>'}
+                         </div>
                     </div>
 
-                    <!-- Edge: Device Selection -->
-                    <div id="section-edge" class="space-y-1.5 hidden">
-                        <label class="text-xs font-semibold text-gray-500">Edge</label>
-                        <div class="bg-white border border-gray-300 rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                    <!-- Edge Section (Hidden by default) -->
+                    <div id="section-edge" class="flex flex-col gap-[4px] hidden">
+                         <div class="flex items-center gap-[4px] h-[16px]">
+                            <span class="text-[#5f646e] text-[12px] leading-normal">Edge</span>
+                         </div>
+                         <div class="bg-white border border-[#cacfd8] rounded-[4px] p-[8px] max-h-48 overflow-y-auto">
                             ${edgeOptions.length > 0 ? edgeOptions.map(e => `
-                                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                                    <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                                    <span class="text-sm text-gray-900">${e}</span>
+                                <label class="flex items-center gap-[8px] p-[4px] hover:bg-[#f3f3f6] rounded-[2px] cursor-pointer transition-colors">
+                                    <input type="checkbox" name="edge" value="${e}" class="w-[14px] h-[14px] rounded border-[#cacfd8] text-[#3ec064] focus:ring-[#3ec064]">
+                                    <span class="text-[14px] text-[#313949]">${e}</span>
                                 </label>
-                            `).join('') : '<div class="p-2 text-sm text-gray-500">No edge nodes found for your company.</div>'}
-                        </div>
+                            `).join('') : '<div class="text-[12px] text-[#5f646e]">No edge nodes found for your company.</div>'}
+                         </div>
                     </div>
 
-
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="app.closeDrawer()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-900 font-bold py-3 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                            Cancel
-                        </button>
-                        <button type="submit" id="cloud-submit-btn" class="flex-1 bg-manta-primary hover:bg-manta-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-manta-primary/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                            <span>${isEdit ? 'Update' : 'Submit'}</span>
-                        </button>
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto">
+                         <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors leading-[1.42]">
+                             Cancel
+                         </button>
+                         <button type="submit" id="cloud-submit-btn" class="flex-1 h-[32px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors leading-[1.42]">
+                             ${isEdit ? 'Update' : 'Submit'}
+                         </button>
                     </div>
                 </form>
             </div>
@@ -7790,11 +7804,11 @@ const app = {
         if (cloudContainer) {
             const options = getOptions('CLOUD');
             cloudContainer.innerHTML = options.length ? options.map(m => `
-                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                    <input type="radio" name="manufacturers" value="${m}" class="w-4 h-4 border-gray-300 text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                    <span class="text-sm text-gray-900">${m}</span>
+                <label class="flex items-center gap-[8px] p-[4px] hover:bg-[#f3f3f6] rounded-[2px] cursor-pointer transition-colors">
+                    <input type="radio" name="manufacturers" value="${m}" class="w-[14px] h-[14px] rounded-full border-[#cacfd8] text-[#3ec064] focus:ring-[#3ec064]">
+                    <span class="text-[14px] text-[#313949]">${m}</span>
                 </label>
-            `).join('') : '<div class="p-2 text-sm text-gray-500">No cloud nodes found for your company.</div>';
+            `).join('') : '<div class="text-[12px] text-[#5f646e]">No cloud nodes found for your company.</div>';
         }
 
         // Update SCADA Options
@@ -7802,11 +7816,11 @@ const app = {
         if (scadaContainer) {
             const options = getOptions('SCADA');
             scadaContainer.innerHTML = options.length ? options.map(s => `
-                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                    <input type="checkbox" name="scada" value="${s}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                    <span class="text-sm text-gray-900">${s}</span>
+                <label class="flex items-center gap-[8px] p-[4px] hover:bg-[#f3f3f6] rounded-[2px] cursor-pointer transition-colors">
+                    <input type="checkbox" name="scada" value="${s}" class="w-[14px] h-[14px] rounded border-[#cacfd8] text-[#3ec064] focus:ring-[#3ec064]">
+                    <span class="text-[14px] text-[#313949]">${s}</span>
                 </label>
-            `).join('') : '<div class="p-2 text-sm text-gray-500">No SCADA systems found for your company.</div>';
+            `).join('') : '<div class="text-[12px] text-[#5f646e]">No SCADA systems found for your company.</div>';
         }
 
         // Update Edge Options
@@ -7814,11 +7828,11 @@ const app = {
         if (edgeContainer) {
             const options = getOptions('EDGE');
             edgeContainer.innerHTML = options.length ? options.map(e => `
-                <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                    <input type="checkbox" name="edge" value="${e}" class="w-4 h-4 rounded border-gray-300 bg-white text-manta-primary focus:ring-manta-primary focus:ring-offset-0">
-                    <span class="text-sm text-gray-900">${e}</span>
+                <label class="flex items-center gap-[8px] p-[4px] hover:bg-[#f3f3f6] rounded-[2px] cursor-pointer transition-colors">
+                    <input type="checkbox" name="edge" value="${e}" class="w-[14px] h-[14px] rounded border-[#cacfd8] text-[#3ec064] focus:ring-[#3ec064]">
+                    <span class="text-[14px] text-[#313949]">${e}</span>
                 </label>
-            `).join('') : '<div class="p-2 text-sm text-gray-500">No edge devices found for your company.</div>';
+            `).join('') : '<div class="text-[12px] text-[#5f646e]">No edge devices found for your company.</div>';
         }
     },
 

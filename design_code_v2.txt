@@ -1,0 +1,1122 @@
+const imgEllipse5 = "http://localhost:3845/assets/455105526675c00f6bcc7da9d87fc4aaaf1a15a1.svg";
+const img = "http://localhost:3845/assets/503fa634ed5c4cc8e7143ab7e73170206a972f29.svg";
+const imgVector928 = "http://localhost:3845/assets/0e069727e5f1e30a4c763996c37f428863e751f3.svg";
+const imgVector929 = "http://localhost:3845/assets/bff1419d9e454854faed361d30beb6ffd6d662df.svg";
+const imgVector995 = "http://localhost:3845/assets/ca86ffd6fbb5fca00106b1fe6b66b2ecfd2c1992.svg";
+const imgVector996 = "http://localhost:3845/assets/0624f355ab43c772f341bca4bb800428aa2de1a7.svg";
+const imgVector997 = "http://localhost:3845/assets/70edcded9eaedd4b4da8f470ea30e8d4fba2e4ae.svg";
+const imgVector998 = "http://localhost:3845/assets/d2e34cc92b7ed6b20702bd56d90a31bda5ab9205.svg";
+const imgFrame1000003564 = "http://localhost:3845/assets/777082bbfe4fbbb90f93cdf92c616a6a7abbbc5b.svg";
+const imgVector1005 = "http://localhost:3845/assets/3f18e2b1ff893be8d9790a84fe9a26e008c861c1.svg";
+const img1 = "http://localhost:3845/assets/3821d634ede4bd9bd0eeb864cd8201ff3aa1e265.svg";
+const img2 = "http://localhost:3845/assets/3957fc08a9774727fc136c39a1404b9024701ddd.svg";
+const img3 = "http://localhost:3845/assets/f71a1ad9c974a60e77382da43ec7554ee2489b09.svg";
+const img4 = "http://localhost:3845/assets/b9f7484fd568b8f235c4401796e87861b89e07bd.svg";
+const img5 = "http://localhost:3845/assets/26fc7ab119886d87d57749b2d4b4bc50945eb73b.svg";
+const img6 = "http://localhost:3845/assets/e9a5fc8867582a48588255bdd9853aeae8c049a4.svg";
+const img7 = "http://localhost:3845/assets/b32567228073bb765840eadafbd08e815e354fa8.svg";
+
+function Frame2({ className }: { className?: string }) {
+  return (
+    <div className={className || "bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.2)] w-[572px]"} data-node-id="121:1027">
+      <div className="content-stretch flex h-[32px] items-center justify-between p-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" data-node-id="99:2428">
+        <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-node-id="99:2429">
+          <div className="content-stretch flex gap-[8px] items-center relative shrink-0" data-node-id="99:2430">
+            <div className="relative shrink-0 size-[8px]" data-node-id="118:1120">
+              <img alt="" className="block max-w-none size-full" src={imgEllipse5} />
+            </div>
+            <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="99:2435" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Jax Lawrenson
+            </p>
+            <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center justify-center min-w-[48px] px-[var(--spacing\/spacing8,8px)] py-[var(--spacing\/spacing4,4px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0" data-node-id="123:9656">
+              <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[1.33] min-h-px min-w-px relative text-[12px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)] text-center whitespace-pre-wrap" data-node-id="123:9649" style={{ fontVariationSettings: "'wdth' 100" }}>
+                NSW
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="99:2443">
+          <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] relative rounded-[var(--spacing\/spacing16,16px)] shrink-0 size-[32px]" data-name="编辑- default" data-node-id="99:2444">
+            <div className="absolute left-[2px] overflow-clip size-[32px] top-[17px]" data-name="Cursor" data-node-id="121:1618">
+              <div className="absolute bottom-[21.43%] left-1/4 right-1/4 top-[21.43%]" data-node-id="I121:1618;468:3169">
+                <div className="absolute inset-[-16.41%_-31.25%_-38.28%_-31.25%]">
+                  <img alt="" className="block max-w-none size-full" src={img} />
+                </div>
+              </div>
+            </div>
+            <div className="-translate-x-1/2 -translate-y-1/2 absolute left-1/2 size-[8px] top-[calc(50%-2px)]" data-node-id="99:2445">
+              <div className="absolute inset-[-8.84%]">
+                <img alt="" className="block max-w-none size-full" src={imgVector928} />
+              </div>
+            </div>
+            <div className="-translate-x-1/2 -translate-y-1/2 absolute h-0 left-1/2 top-[calc(50%+5px)] w-[12px]" data-node-id="99:2446">
+              <div className="absolute inset-[-1px_0]">
+                <img alt="" className="block max-w-none size-full" src={imgVector929} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-[rgba(255,52,52,0.1)] relative rounded-[var(--spacing\/spacing16,16px)] shrink-0 size-[32px]" data-name="删除- default" data-node-id="99:2452">
+            <div className="absolute left-[2px] overflow-clip size-[32px] top-[17px]" data-name="Cursor" data-node-id="99:2464">
+              <div className="absolute bottom-[21.43%] left-1/4 right-1/4 top-[21.43%]" data-node-id="I99:2464;468:3169">
+                <div className="absolute inset-[-16.41%_-31.25%_-38.28%_-31.25%]">
+                  <img alt="" className="block max-w-none size-full" src={img} />
+                </div>
+              </div>
+            </div>
+            <div className="-translate-x-1/2 -translate-y-1/2 absolute h-0 left-1/2 top-[calc(50%-6px)] w-[4px]" data-node-id="99:2453">
+              <div className="absolute inset-[-1px_0]">
+                <img alt="" className="block max-w-none size-full" src={imgVector995} />
+              </div>
+            </div>
+            <div className="-translate-x-1/2 -translate-y-1/2 absolute h-0 left-1/2 top-[calc(50%-3px)] w-[14px]" data-node-id="99:2454">
+              <div className="absolute inset-[-1px_0]">
+                <img alt="" className="block max-w-none size-full" src={imgVector996} />
+              </div>
+            </div>
+            <div className="-translate-x-1/2 -translate-y-1/2 absolute h-[7px] left-1/2 top-[calc(50%+2.5px)] w-[8px]" data-node-id="99:2455">
+              <div className="absolute inset-[0_-12.5%_-14.29%_-12.5%]">
+                <img alt="" className="block max-w-none size-full" src={imgVector997} />
+              </div>
+            </div>
+            <div className="-translate-x-1/2 -translate-y-1/2 absolute h-[4px] left-1/2 top-[calc(50%+1px)] w-0" data-node-id="99:2456">
+              <div className="absolute inset-[0_-1px]">
+                <img alt="" className="block max-w-none size-full" src={imgVector998} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="content-stretch flex gap-[var(--spacing\/spacing40,40px)] items-center relative shrink-0 w-full" data-node-id="100:2777">
+        <div className="flex flex-row items-center self-stretch">
+          <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing8,8px)] h-full items-start justify-center px-[var(--spacing\/spacing0,0px)] relative shrink-0" data-node-id="100:2744">
+            <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center py-[var(--spacing\/spacing12,12px)] relative shrink-0 w-full" data-node-id="118:1116">
+              <div className="relative shrink-0 size-[32px]" data-node-id="118:1136">
+                <img alt="" className="block max-w-none size-full" src={imgFrame1000003564} />
+              </div>
+              <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-end relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="118:1134">
+                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[1.33] relative shrink-0 text-[24px]" data-node-id="100:2759" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  888
+                </p>
+                <p className="font-['Roboto:SemiBold_Italic',sans-serif] font-semibold h-[25px] italic leading-[1.42] relative shrink-0 text-[16px] w-[37px] whitespace-pre-wrap" data-node-id="100:2758" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  DERs
+                </p>
+              </div>
+            </div>
+            <div className="h-0 relative shrink-0 w-[56px]" data-node-id="118:1118">
+              <div className="absolute inset-[-0.5px_0]">
+                <img alt="" className="block max-w-none size-full" src={imgVector1005} />
+              </div>
+            </div>
+            <div className="content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing0,0px)] items-start min-h-px min-w-px py-[var(--spacing\/spacing8,8px)] relative w-[160px]" data-node-id="100:2761">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="100:2762">
+                <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="118:1030">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="121:2461">
+                    <div className="bg-[var(--color\/semantic\/positive,#8cda2f)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="121:2455" />
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="100:2763" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Online
+                    </p>
+                  </div>
+                  <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/positive,#8cda2f)]" data-node-id="118:1028" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    666
+                  </p>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="100:2771">
+                <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="118:1034">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="121:2496">
+                    <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="121:2497" />
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="121:2498" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Offline
+                    </p>
+                  </div>
+                  <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="118:1036" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    222
+                  </p>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="123:9724">
+                <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="123:9728">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="123:9729">
+                    <div className="bg-[var(--color\/semantic\/warning-\&-notification,#ff3434)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="123:9730" />
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="123:9731" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Disconnected
+                    </p>
+                  </div>
+                  <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/warning-\&-notification,#ff3434)]" data-node-id="123:9732" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    0
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing8,8px)] items-start justify-center min-h-px min-w-px px-[var(--spacing\/spacing24,24px)] py-[var(--spacing\/spacing12,12px)] relative rounded-[var(--spacing\/spacing8,8px)]" data-node-id="99:2466">
+          <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="99:2481">
+            <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="99:2482">
+              <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[176px]" data-node-id="182:2313">
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="99:2485" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  Rated Power
+                </p>
+              </div>
+              <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="118:1103">
+                <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="99:2489" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  250
+                </p>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="118:1101" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  kW
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="118:1087">
+            <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="118:1088">
+              <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[168px]" data-node-id="182:2353">
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="118:1089" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  PV Capacity
+                </p>
+              </div>
+              <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="118:1104">
+                <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="118:1105" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  300.0
+                </p>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="118:1106" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  kW
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="118:1092">
+            <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="118:1093">
+              <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[115.5px]" data-node-id="182:2410">
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="118:1094" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  SOC
+                </p>
+              </div>
+              <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="118:1108">
+                <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="118:1109" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  51% (154/300)
+                </p>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="118:1110" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  kWh
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="118:1096">
+            <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="118:1097">
+              <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0" data-node-id="182:2459">
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="118:1098" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  Today Yield
+                </p>
+              </div>
+              <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="118:1112">
+                <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="118:1113" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  748.7
+                </p>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="118:1114" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  kWh
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Frame({ className }: { className?: string }) {
+  return (
+    <div className={className || "content-stretch flex gap-[var(--spacing\/spacing16,16px)] items-center px-[var(--spacing-\&-radius\/8px,8px)] py-[var(--spacing\/spacing0,0px)] relative w-[1168px]"} data-node-id="69:3114">
+      <div className="content-stretch flex flex-[1_0_0] gap-[var(--spacing\/spacing4,4px)] items-center min-h-px min-w-px relative" data-node-id="69:3109">
+        <div className="content-stretch flex gap-[16px] items-center relative shrink-0" data-node-id="166:2535">
+          <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)] text-center" data-node-id="47:6337" style={{ fontVariationSettings: "'wdth' 100" }}>
+            VPP List
+          </p>
+          <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-center justify-center px-[var(--spacing\/spacing8,8px)] py-[4px] relative rounded-[var(--spacing-\&-radius\/4px,4px)] shrink-0" data-name="按钮 Button" data-node-id="166:2454">
+            <div className="relative shrink-0 size-[24px]" data-name="Size=Medium" data-node-id="I166:2454;429:842">
+              <div className="-translate-x-1/2 -translate-y-1/2 absolute left-1/2 size-[14px] top-1/2" data-name="Union" data-node-id="I166:2454;429:842;483:907">
+                <img alt="" className="block max-w-none size-full" src={img1} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[16px] items-center pl-[var(--spacing-\&-radius\/8px,8px)] pr-[var(--spacing\/spacing0,0px)] py-[var(--spacing-\&-radius\/0px,0px)] relative rounded-[var(--spacing\/spacing4,4px)] shrink-0 w-[320px]" data-node-id="133:2311">
+            <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[normal] min-h-px min-w-px relative text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] whitespace-pre-wrap" data-node-id="133:2312" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Search by VPP Name...
+            </p>
+            <div className="content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center px-[var(--spacing\/spacing4,4px)] relative shrink-0" data-node-id="133:2313">
+              <div className="content-stretch flex gap-[var(--spacing-\&-radius\/4px,4px)] items-center relative shrink-0" data-name="下拉框 Dropdown" data-node-id="133:2314">
+                <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-center relative shrink-0" data-node-id="133:2315">
+                  <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[normal] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="133:2317" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    All States
+                  </p>
+                </div>
+                <div className="overflow-clip relative shrink-0 size-[16px]" data-name="Page Arrow" data-node-id="133:2318">
+                  <div className="absolute inset-[39.58%_31.25%_41.67%_31.25%]" data-node-id="I133:2318;638:532">
+                    <div className="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
+                      <img alt="" className="block max-w-none size-full" src={img2} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="relative rounded-[2px] shrink-0 size-[32px]" data-name="Search" data-node-id="133:2319">
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute left-1/2 size-[18px] top-1/2" data-name="Vector" data-node-id="I133:2319;530:655">
+                  <img alt="" className="block max-w-none size-full" src={img3} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="content-stretch flex gap-[var(--spacing\/spacing16,16px)] items-center relative shrink-0" data-node-id="69:2669">
+        <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center overflow-clip p-[var(--spacing-\&-radius\/4px,4px)] relative rounded-[var(--spacing-\&-radius\/4px,4px)] shrink-0" data-node-id="69:2636">
+          <div className="content-stretch flex items-center overflow-clip relative shrink-0" data-node-id="69:2637">
+            <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] h-[32px] items-center justify-center min-w-[80px] px-[var(--spacing\/spacing12,12px)] py-[var(--spacing-\&-radius\/4px,4px)] relative rounded-[var(--spacing\/spacing4,4px)] shrink-0" data-node-id="69:2638">
+              <div className="content-stretch flex gap-[2px] items-center justify-center relative shrink-0 size-[24px]" data-node-id="69:2639">
+                <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[20px] shrink-0 w-[4px]" data-node-id="69:2640" />
+                <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[20px] shrink-0 w-[4px]" data-node-id="69:2641" />
+                <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[20px] shrink-0 w-[4px]" data-node-id="69:2642" />
+              </div>
+              <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[normal] min-h-px min-w-px relative text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] text-center whitespace-pre-wrap" data-node-id="69:2643" style={{ fontVariationSettings: "'wdth' 100" }}>
+                Form
+              </p>
+            </div>
+            <div className="bg-[var(--color\/neutal\/white,white)] content-stretch flex gap-[var(--spacing\/spacing4,4px)] h-[32px] items-center justify-center min-w-[80px] px-[var(--spacing\/spacing12,12px)] py-[var(--spacing-\&-radius\/4px,4px)] relative rounded-[var(--spacing-\&-radius\/4px,4px)] shrink-0" data-node-id="69:2644">
+              <div className="content-stretch flex gap-[2px] items-center justify-center relative shrink-0 size-[24px]" data-node-id="69:2645">
+                <div className="bg-[var(--color\/neutal\/bluegrey,#313949)] h-[20px] shrink-0 w-[4px]" data-node-id="69:2646" />
+                <div className="bg-[var(--color\/neutal\/bluegrey,#313949)] h-[20px] shrink-0 w-[14px]" data-node-id="69:2647" />
+              </div>
+              <p className="flex-[1_0_0] font-['Roboto:SemiBold',sans-serif] font-semibold leading-[normal] min-h-px min-w-px relative text-[14px] text-[color:var(--color\/neutal\/bluegrey,#313949)] text-center whitespace-pre-wrap" data-node-id="69:2648" style={{ fontVariationSettings: "'wdth' 100" }}>
+                Cards
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Frame1() {
+  return (
+    <div className="bg-white content-stretch flex flex-col gap-[8px] items-start p-[var(--spacing-\&-radius\/16px,16px)] relative rounded-[var(--spacing-\&-radius\/4px,4px)] size-full" data-node-id="47:6332">
+      <Frame className="content-stretch flex gap-[var(--spacing\/spacing16,16px)] items-center px-[var(--spacing-\&-radius\/8px,8px)] py-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" />
+      <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-start flex flex-wrap gap-[var(--spacing\/spacing8,8px)] items-start p-[var(--spacing\/spacing8,8px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0 w-full" data-node-id="95:1688">
+        <Frame2 className="bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.2)] shrink-0 w-[572px]" />
+        <div className="bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shrink-0 w-[572px]" data-node-id="121:1028">
+          <div className="content-stretch flex h-[32px] items-center justify-between p-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" data-node-id="I121:1028;99:2428">
+            <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-node-id="I121:1028;99:2429">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0" data-node-id="I121:1028;99:2430">
+                <div className="relative shrink-0 size-[8px]" data-node-id="I121:1028;118:1120">
+                  <img alt="" className="block max-w-none size-full" src={imgEllipse5} />
+                </div>
+                <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1028;99:2435" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  BasèD.Studio
+                </p>
+                <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center justify-center min-w-[48px] px-[var(--spacing\/spacing8,8px)] py-[var(--spacing\/spacing4,4px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0" data-node-id="I121:1028;123:9656">
+                  <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[1.33] min-h-px min-w-px relative text-[12px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)] text-center whitespace-pre-wrap" data-node-id="I121:1028;123:9649" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    NSW
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex gap-[var(--spacing\/spacing40,40px)] items-center relative shrink-0 w-full" data-node-id="I121:1028;100:2777">
+            <div className="flex flex-row items-center self-stretch">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing8,8px)] h-full items-start justify-center px-[var(--spacing\/spacing0,0px)] relative shrink-0" data-node-id="I121:1028;100:2744">
+                <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center py-[var(--spacing\/spacing12,12px)] relative shrink-0 w-full" data-node-id="I121:1028;118:1116">
+                  <div className="relative shrink-0 size-[32px]" data-node-id="I121:1028;118:1136">
+                    <img alt="" className="block max-w-none size-full" src={imgFrame1000003564} />
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-end relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1028;118:1134">
+                    <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[1.33] relative shrink-0 text-[24px]" data-node-id="I121:1028;100:2759" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      123456
+                    </p>
+                    <p className="font-['Roboto:SemiBold_Italic',sans-serif] font-semibold h-[25px] italic leading-[1.42] relative shrink-0 text-[16px] w-[37px] whitespace-pre-wrap" data-node-id="I121:1028;100:2758" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      DERs
+                    </p>
+                  </div>
+                </div>
+                <div className="h-0 relative shrink-0 w-[56px]" data-node-id="I121:1028;118:1118">
+                  <div className="absolute inset-[-0.5px_0]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector1005} />
+                  </div>
+                </div>
+                <div className="content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing0,0px)] items-start min-h-px min-w-px py-[var(--spacing\/spacing8,8px)] relative w-[160px]" data-node-id="I121:1028;100:2761">
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1028;100:2762">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1028;118:1030">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1028;121:2461">
+                        <div className="bg-[var(--color\/semantic\/positive,#8cda2f)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1028;121:2455" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;100:2763" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Online
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/positive,#8cda2f)]" data-node-id="I121:1028;118:1028" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        120000
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1028;100:2771">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1028;118:1034">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1028;121:2496">
+                        <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1028;121:2497" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;121:2498" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Offline
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1028;118:1036" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        3456
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1028;123:9724">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1028;123:9728">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1028;123:9729">
+                        <div className="bg-[var(--color\/semantic\/warning-\&-notification,#ff3434)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1028;123:9730" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;123:9731" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Disconnected
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/warning-\&-notification,#ff3434)]" data-node-id="I121:1028;123:9732" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        0
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing8,8px)] items-start justify-center min-h-px min-w-px px-[var(--spacing\/spacing24,24px)] py-[var(--spacing\/spacing12,12px)] relative rounded-[var(--spacing\/spacing8,8px)]" data-node-id="I121:1028;99:2466">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1028;99:2481">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1028;99:2482">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[176px]" data-node-id="I121:1028;182:2313">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;99:2485" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Rated Power
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1028;118:1103">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1028;99:2489" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      250
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1028;118:1101" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1028;118:1087">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1028;118:1088">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[168px]" data-node-id="I121:1028;182:2353">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;118:1089" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      PV Capacity
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1028;118:1104">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1028;118:1105" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      300.0
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1028;118:1106" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1028;118:1092">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1028;118:1093">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[115.5px]" data-node-id="I121:1028;182:2410">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;118:1094" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      SOC
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1028;118:1108">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1028;118:1109" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      51% (154/300)
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1028;118:1110" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1028;118:1096">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1028;118:1097">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0" data-node-id="I121:1028;182:2459">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1028;118:1098" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Today Yield
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1028;118:1112">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1028;118:1113" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      748.7
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1028;118:1114" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.2)] shrink-0 w-[572px]" data-node-id="121:1164">
+          <div className="content-stretch flex h-[32px] items-center justify-between p-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" data-node-id="I121:1164;99:2428">
+            <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-node-id="I121:1164;99:2429">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0" data-node-id="I121:1164;99:2430">
+                <div className="relative shrink-0 size-[8px]" data-node-id="I121:1164;118:1120">
+                  <img alt="" className="block max-w-none size-full" src={imgEllipse5} />
+                </div>
+                <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1164;99:2435" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  Manta VPP
+                </p>
+                <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center justify-center min-w-[48px] px-[var(--spacing\/spacing8,8px)] py-[var(--spacing\/spacing4,4px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0" data-node-id="I121:1164;123:9656">
+                  <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[1.33] min-h-px min-w-px relative text-[12px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)] text-center whitespace-pre-wrap" data-node-id="I121:1164;123:9649" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    NSW
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1164;99:2443">
+              <div className="relative rounded-[var(--spacing\/spacing16,16px)] shrink-0 size-[32px]" data-name="编辑- default" data-node-id="I121:1164;99:2444">
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute left-1/2 size-[8px] top-[calc(50%-2px)]" data-node-id="I121:1164;99:2445">
+                  <div className="absolute inset-[-8.84%]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector928} />
+                  </div>
+                </div>
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute h-0 left-1/2 top-[calc(50%+5px)] w-[12px]" data-node-id="I121:1164;99:2446">
+                  <div className="absolute inset-[-1px_0]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector929} />
+                  </div>
+                </div>
+              </div>
+              <div className="relative rounded-[var(--spacing\/spacing16,16px)] shrink-0 size-[32px]" data-name="删除- default" data-node-id="I121:1164;99:2452">
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute h-0 left-1/2 top-[calc(50%-6px)] w-[4px]" data-node-id="I121:1164;99:2453">
+                  <div className="absolute inset-[-1px_0]">
+                    <img alt="" className="block max-w-none size-full" src={img4} />
+                  </div>
+                </div>
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute h-0 left-1/2 top-[calc(50%-3px)] w-[14px]" data-node-id="I121:1164;99:2454">
+                  <div className="absolute inset-[-1px_0]">
+                    <img alt="" className="block max-w-none size-full" src={img5} />
+                  </div>
+                </div>
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute h-[7px] left-1/2 top-[calc(50%+2.5px)] w-[8px]" data-node-id="I121:1164;99:2455">
+                  <div className="absolute inset-[0_-12.5%_-14.29%_-12.5%]">
+                    <img alt="" className="block max-w-none size-full" src={img6} />
+                  </div>
+                </div>
+                <div className="-translate-x-1/2 -translate-y-1/2 absolute h-[4px] left-1/2 top-[calc(50%+1px)] w-0" data-node-id="I121:1164;99:2456">
+                  <div className="absolute inset-[0_-1px]">
+                    <img alt="" className="block max-w-none size-full" src={img7} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex gap-[var(--spacing\/spacing40,40px)] items-center relative shrink-0 w-full" data-node-id="I121:1164;100:2777">
+            <div className="flex flex-row items-center self-stretch">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing8,8px)] h-full items-start justify-center px-[var(--spacing\/spacing0,0px)] relative shrink-0" data-node-id="I121:1164;100:2744">
+                <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center py-[var(--spacing\/spacing12,12px)] relative shrink-0 w-full" data-node-id="I121:1164;118:1116">
+                  <div className="relative shrink-0 size-[32px]" data-node-id="I121:1164;118:1136">
+                    <img alt="" className="block max-w-none size-full" src={imgFrame1000003564} />
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-end relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1164;118:1134">
+                    <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[1.33] relative shrink-0 text-[24px]" data-node-id="I121:1164;100:2759" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      12345
+                    </p>
+                    <p className="font-['Roboto:SemiBold_Italic',sans-serif] font-semibold h-[25px] italic leading-[1.42] relative shrink-0 text-[16px] w-[37px] whitespace-pre-wrap" data-node-id="I121:1164;100:2758" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      DERs
+                    </p>
+                  </div>
+                </div>
+                <div className="h-0 relative shrink-0 w-[56px]" data-node-id="I121:1164;118:1118">
+                  <div className="absolute inset-[-0.5px_0]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector1005} />
+                  </div>
+                </div>
+                <div className="content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing0,0px)] items-start min-h-px min-w-px py-[var(--spacing\/spacing8,8px)] relative w-[160px]" data-node-id="I121:1164;100:2761">
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1164;100:2762">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1164;118:1030">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1164;121:2461">
+                        <div className="bg-[var(--color\/semantic\/positive,#8cda2f)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1164;121:2455" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;100:2763" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Online
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/positive,#8cda2f)]" data-node-id="I121:1164;118:1028" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        12000
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1164;100:2771">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1164;118:1034">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1164;121:2496">
+                        <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1164;121:2497" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;121:2498" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Offline
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1164;118:1036" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        345
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1164;123:9724">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1164;123:9728">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1164;123:9729">
+                        <div className="bg-[var(--color\/semantic\/warning-\&-notification,#ff3434)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1164;123:9730" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;123:9731" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Disconnected
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/warning-\&-notification,#ff3434)]" data-node-id="I121:1164;123:9732" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        0
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing8,8px)] items-start justify-center min-h-px min-w-px px-[var(--spacing\/spacing24,24px)] py-[var(--spacing\/spacing12,12px)] relative rounded-[var(--spacing\/spacing8,8px)]" data-node-id="I121:1164;99:2466">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1164;99:2481">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1164;99:2482">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[176px]" data-node-id="I121:1164;182:2313">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;99:2485" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Rated Power
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1164;118:1103">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1164;99:2489" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      250
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1164;118:1101" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1164;118:1087">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1164;118:1088">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[168px]" data-node-id="I121:1164;182:2353">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;118:1089" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      PV Capacity
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1164;118:1104">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1164;118:1105" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      300.0
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1164;118:1106" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1164;118:1092">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1164;118:1093">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[115.5px]" data-node-id="I121:1164;182:2410">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;118:1094" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      SOC
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1164;118:1108">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1164;118:1109" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      51% (154/300)
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1164;118:1110" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1164;118:1096">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1164;118:1097">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0" data-node-id="I121:1164;182:2459">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1164;118:1098" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Today Yield
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1164;118:1112">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1164;118:1113" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      748.7
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1164;118:1114" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute left-[280px] overflow-clip size-[32px] top-[26px]" data-name="Cursor" data-node-id="I121:1164;121:1256">
+            <div className="absolute bottom-[21.43%] left-1/4 right-1/4 top-[21.43%]" data-node-id="I121:1164;121:1256;468:3169">
+              <div className="absolute inset-[-16.41%_-31.25%_-38.28%_-31.25%]">
+                <img alt="" className="block max-w-none size-full" src={img} />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shrink-0 w-[572px]" data-node-id="121:1343">
+          <div className="content-stretch flex h-[32px] items-center justify-between p-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" data-node-id="I121:1343;99:2428">
+            <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-node-id="I121:1343;99:2429">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0" data-node-id="I121:1343;99:2430">
+                <div className="relative shrink-0 size-[8px]" data-node-id="I121:1343;118:1120">
+                  <img alt="" className="block max-w-none size-full" src={imgEllipse5} />
+                </div>
+                <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1343;99:2435" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  OSW
+                </p>
+                <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center justify-center min-w-[48px] px-[var(--spacing\/spacing8,8px)] py-[var(--spacing\/spacing4,4px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0" data-node-id="I121:1343;123:9656">
+                  <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[1.33] min-h-px min-w-px relative text-[12px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)] text-center whitespace-pre-wrap" data-node-id="I121:1343;123:9649" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    NSW
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex gap-[var(--spacing\/spacing40,40px)] items-center relative shrink-0 w-full" data-node-id="I121:1343;100:2777">
+            <div className="flex flex-row items-center self-stretch">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing8,8px)] h-full items-start justify-center px-[var(--spacing\/spacing0,0px)] relative shrink-0" data-node-id="I121:1343;100:2744">
+                <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center py-[var(--spacing\/spacing12,12px)] relative shrink-0 w-full" data-node-id="I121:1343;118:1116">
+                  <div className="relative shrink-0 size-[32px]" data-node-id="I121:1343;118:1136">
+                    <img alt="" className="block max-w-none size-full" src={imgFrame1000003564} />
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-end relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1343;118:1134">
+                    <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[1.33] relative shrink-0 text-[24px]" data-node-id="I121:1343;100:2759" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      1234
+                    </p>
+                    <p className="font-['Roboto:SemiBold_Italic',sans-serif] font-semibold h-[25px] italic leading-[1.42] relative shrink-0 text-[16px] w-[37px] whitespace-pre-wrap" data-node-id="I121:1343;100:2758" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      DERs
+                    </p>
+                  </div>
+                </div>
+                <div className="h-0 relative shrink-0 w-[56px]" data-node-id="I121:1343;118:1118">
+                  <div className="absolute inset-[-0.5px_0]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector1005} />
+                  </div>
+                </div>
+                <div className="content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing0,0px)] items-start min-h-px min-w-px py-[var(--spacing\/spacing8,8px)] relative w-[160px]" data-node-id="I121:1343;100:2761">
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1343;100:2762">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1343;118:1030">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1343;121:2461">
+                        <div className="bg-[var(--color\/semantic\/positive,#8cda2f)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1343;121:2455" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;100:2763" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Online
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/positive,#8cda2f)]" data-node-id="I121:1343;118:1028" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        1200
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1343;100:2771">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1343;118:1034">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1343;121:2496">
+                        <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1343;121:2497" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;121:2498" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Offline
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1343;118:1036" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        34
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1343;123:9724">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1343;123:9728">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1343;123:9729">
+                        <div className="bg-[var(--color\/semantic\/warning-\&-notification,#ff3434)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1343;123:9730" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;123:9731" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Disconnected
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/warning-\&-notification,#ff3434)]" data-node-id="I121:1343;123:9732" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        0
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing8,8px)] items-start justify-center min-h-px min-w-px px-[var(--spacing\/spacing24,24px)] py-[var(--spacing\/spacing12,12px)] relative rounded-[var(--spacing\/spacing8,8px)]" data-node-id="I121:1343;99:2466">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1343;99:2481">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1343;99:2482">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[176px]" data-node-id="I121:1343;182:2313">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;99:2485" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Rated Power
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1343;118:1103">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1343;99:2489" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      250
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1343;118:1101" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1343;118:1087">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1343;118:1088">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[168px]" data-node-id="I121:1343;182:2353">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;118:1089" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      PV Capacity
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1343;118:1104">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1343;118:1105" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      300.0
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1343;118:1106" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1343;118:1092">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1343;118:1093">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[115.5px]" data-node-id="I121:1343;182:2410">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;118:1094" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      SOC
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1343;118:1108">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1343;118:1109" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      51% (154/300)
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1343;118:1110" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1343;118:1096">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1343;118:1097">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0" data-node-id="I121:1343;182:2459">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1343;118:1098" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Today Yield
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1343;118:1112">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1343;118:1113" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      748.7
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1343;118:1114" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shrink-0 w-[572px]" data-node-id="121:1451">
+          <div className="content-stretch flex h-[32px] items-center justify-between p-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" data-node-id="I121:1451;99:2428">
+            <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-node-id="I121:1451;99:2429">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0" data-node-id="I121:1451;99:2430">
+                <div className="relative shrink-0 size-[8px]" data-node-id="I121:1451;118:1120">
+                  <img alt="" className="block max-w-none size-full" src={imgEllipse5} />
+                </div>
+                <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1451;99:2435" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  123456789012345678901234567890123456789
+                </p>
+                <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center justify-center min-w-[48px] px-[var(--spacing\/spacing8,8px)] py-[var(--spacing\/spacing4,4px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0" data-node-id="I121:1451;123:9656">
+                  <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[1.33] min-h-px min-w-px relative text-[12px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)] text-center whitespace-pre-wrap" data-node-id="I121:1451;123:9649" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    NSW
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex gap-[var(--spacing\/spacing40,40px)] items-center relative shrink-0 w-full" data-node-id="I121:1451;100:2777">
+            <div className="flex flex-row items-center self-stretch">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing8,8px)] h-full items-start justify-center px-[var(--spacing\/spacing0,0px)] relative shrink-0" data-node-id="I121:1451;100:2744">
+                <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center py-[var(--spacing\/spacing12,12px)] relative shrink-0 w-full" data-node-id="I121:1451;118:1116">
+                  <div className="relative shrink-0 size-[32px]" data-node-id="I121:1451;118:1136">
+                    <img alt="" className="block max-w-none size-full" src={imgFrame1000003564} />
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-end relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1451;118:1134">
+                    <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[1.33] relative shrink-0 text-[24px]" data-node-id="I121:1451;100:2759" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      123
+                    </p>
+                    <p className="font-['Roboto:SemiBold_Italic',sans-serif] font-semibold h-[25px] italic leading-[1.42] relative shrink-0 text-[16px] w-[37px] whitespace-pre-wrap" data-node-id="I121:1451;100:2758" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      DERs
+                    </p>
+                  </div>
+                </div>
+                <div className="h-0 relative shrink-0 w-[56px]" data-node-id="I121:1451;118:1118">
+                  <div className="absolute inset-[-0.5px_0]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector1005} />
+                  </div>
+                </div>
+                <div className="content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing0,0px)] items-start min-h-px min-w-px py-[var(--spacing\/spacing8,8px)] relative w-[160px]" data-node-id="I121:1451;100:2761">
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1451;100:2762">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1451;118:1030">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1451;121:2461">
+                        <div className="bg-[var(--color\/semantic\/positive,#8cda2f)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1451;121:2455" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;100:2763" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Online
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/positive,#8cda2f)]" data-node-id="I121:1451;118:1028" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        120
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1451;100:2771">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1451;118:1034">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1451;121:2496">
+                        <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1451;121:2497" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;121:2498" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Offline
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1451;118:1036" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        3
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1451;123:9724">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1451;123:9728">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1451;123:9729">
+                        <div className="bg-[var(--color\/semantic\/warning-\&-notification,#ff3434)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1451;123:9730" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;123:9731" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Disconnected
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/warning-\&-notification,#ff3434)]" data-node-id="I121:1451;123:9732" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        0
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing8,8px)] items-start justify-center min-h-px min-w-px px-[var(--spacing\/spacing24,24px)] py-[var(--spacing\/spacing12,12px)] relative rounded-[var(--spacing\/spacing8,8px)]" data-node-id="I121:1451;99:2466">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1451;99:2481">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1451;99:2482">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[176px]" data-node-id="I121:1451;182:2313">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;99:2485" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Rated Power
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1451;118:1103">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1451;99:2489" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      250
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1451;118:1101" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1451;118:1087">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1451;118:1088">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[168px]" data-node-id="I121:1451;182:2353">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;118:1089" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      PV Capacity
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1451;118:1104">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1451;118:1105" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      300.0
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1451;118:1106" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1451;118:1092">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1451;118:1093">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[115.5px]" data-node-id="I121:1451;182:2410">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;118:1094" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      SOC
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1451;118:1108">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1451;118:1109" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      51% (154/300)
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1451;118:1110" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1451;118:1096">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1451;118:1097">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0" data-node-id="I121:1451;182:2459">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1451;118:1098" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Today Yield
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1451;118:1112">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1451;118:1113" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      748.7
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1451;118:1114" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-[var(--color\/neutal\/white,white)] content-stretch flex flex-col gap-[var(--spacing\/spacing16,16px)] items-start p-[var(--spacing\/spacing16,16px)] relative rounded-[var(--spacing\/spacing4,4px)] shrink-0 w-[572px]" data-node-id="121:1526">
+          <div className="content-stretch flex h-[32px] items-center justify-between p-[var(--spacing\/spacing0,0px)] relative shrink-0 w-full" data-node-id="I121:1526;99:2428">
+            <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-node-id="I121:1526;99:2429">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0" data-node-id="I121:1526;99:2430">
+                <div className="relative shrink-0 size-[8px]" data-node-id="I121:1526;118:1120">
+                  <img alt="" className="block max-w-none size-full" src={imgEllipse5} />
+                </div>
+                <p className="font-['Roboto:SemiBold',sans-serif] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1526;99:2435" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  12345678901234567890123456789012345678...
+                </p>
+                <div className="bg-[var(--color\/neutal\/thingrey,#f3f3f6)] content-stretch flex gap-[var(--spacing\/spacing0,0px)] items-center justify-center min-w-[48px] px-[var(--spacing\/spacing8,8px)] py-[var(--spacing\/spacing4,4px)] relative rounded-[var(--spacing\/spacing12,12px)] shrink-0" data-node-id="I121:1526;123:9656">
+                  <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[1.33] min-h-px min-w-px relative text-[12px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)] text-center whitespace-pre-wrap" data-node-id="I121:1526;123:9649" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    NSW
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="content-stretch flex gap-[var(--spacing\/spacing40,40px)] items-center relative shrink-0 w-full" data-node-id="I121:1526;100:2777">
+            <div className="flex flex-row items-center self-stretch">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing8,8px)] h-full items-start justify-center px-[var(--spacing\/spacing0,0px)] relative shrink-0" data-node-id="I121:1526;100:2744">
+                <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center py-[var(--spacing\/spacing12,12px)] relative shrink-0 w-full" data-node-id="I121:1526;118:1116">
+                  <div className="relative shrink-0 size-[32px]" data-node-id="I121:1526;118:1136">
+                    <img alt="" className="block max-w-none size-full" src={imgFrame1000003564} />
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,4px)] items-end relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1526;118:1134">
+                    <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[1.33] relative shrink-0 text-[24px]" data-node-id="I121:1526;100:2759" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      12
+                    </p>
+                    <p className="font-['Roboto:SemiBold_Italic',sans-serif] font-semibold h-[25px] italic leading-[1.42] relative shrink-0 text-[16px] w-[37px] whitespace-pre-wrap" data-node-id="I121:1526;100:2758" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      DERs
+                    </p>
+                  </div>
+                </div>
+                <div className="h-0 relative shrink-0 w-[56px]" data-node-id="I121:1526;118:1118">
+                  <div className="absolute inset-[-0.5px_0]">
+                    <img alt="" className="block max-w-none size-full" src={imgVector1005} />
+                  </div>
+                </div>
+                <div className="content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing0,0px)] items-start min-h-px min-w-px py-[var(--spacing\/spacing8,8px)] relative w-[160px]" data-node-id="I121:1526;100:2761">
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1526;100:2762">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1526;118:1030">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1526;121:2461">
+                        <div className="bg-[var(--color\/semantic\/positive,#8cda2f)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1526;121:2455" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;100:2763" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Online
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/positive,#8cda2f)]" data-node-id="I121:1526;118:1028" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        12
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1526;100:2771">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1526;118:1034">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1526;121:2496">
+                        <div className="bg-[var(--color\/neutal\/lightgrey,#b5bcc8)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1526;121:2497" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;121:2498" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Offline
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1526;118:1036" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        0
+                      </p>
+                    </div>
+                  </div>
+                  <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing0,0px)] h-[32px] items-start py-[var(--spacing\/spacing4,4px)] relative shrink-0 w-full" data-node-id="I121:1526;123:9724">
+                    <div className="content-stretch flex items-start justify-between pr-[var(--spacing\/spacing8,8px)] relative shrink-0 w-full" data-node-id="I121:1526;123:9728">
+                      <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center relative shrink-0" data-node-id="I121:1526;123:9729">
+                        <div className="bg-[var(--color\/semantic\/warning-\&-notification,#ff3434)] h-[12px] rounded-[2px] shrink-0 w-[4px]" data-node-id="I121:1526;123:9730" />
+                        <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;123:9731" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          Disconnected
+                        </p>
+                      </div>
+                      <p className="font-['Roboto:Medium',sans-serif] font-medium leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/semantic\/warning-\&-notification,#ff3434)]" data-node-id="I121:1526;123:9732" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        0
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--color\/neutal\/background,#f8f9fb)] content-stretch flex flex-[1_0_0] flex-col gap-[var(--spacing\/spacing8,8px)] items-start justify-center min-h-px min-w-px px-[var(--spacing\/spacing24,24px)] py-[var(--spacing\/spacing12,12px)] relative rounded-[var(--spacing\/spacing8,8px)]" data-node-id="I121:1526;99:2466">
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1526;99:2481">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1526;99:2482">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[176px]" data-node-id="I121:1526;182:2313">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;99:2485" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Rated Power
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1526;118:1103">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1526;99:2489" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      250
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1526;118:1101" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1526;118:1087">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1526;118:1088">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[168px]" data-node-id="I121:1526;182:2353">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;118:1089" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      PV Capacity
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1526;118:1104">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1526;118:1105" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      300.0
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)] w-[28px] whitespace-pre-wrap" data-node-id="I121:1526;118:1106" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kW
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1526;118:1092">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1526;118:1093">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0 w-[115.5px]" data-node-id="I121:1526;182:2410">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;118:1094" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      SOC
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1526;118:1108">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1526;118:1109" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      51% (154/300)
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1526;118:1110" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="content-stretch flex flex-col gap-[var(--spacing\/spacing4,0px)] h-[32px] items-start justify-center relative shrink-0 w-full" data-node-id="I121:1526;118:1096">
+                <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-node-id="I121:1526;118:1097">
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing4,0px)] items-center relative shrink-0" data-node-id="I121:1526;182:2459">
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[color:var(--color\/neutal\/darkgrey,#5f646e)]" data-node-id="I121:1526;118:1098" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Today Yield
+                    </p>
+                  </div>
+                  <div className="content-stretch flex gap-[var(--spacing\/spacing8,8px)] items-center leading-[1.42] relative shrink-0 text-[14px]" data-node-id="I121:1526;118:1112">
+                    <p className="font-['Roboto:Medium',sans-serif] font-medium relative shrink-0 text-[color:var(--color\/neutal\/bluegrey,#313949)]" data-node-id="I121:1526;118:1113" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      748.7
+                    </p>
+                    <p className="font-['Roboto:Regular',sans-serif] font-normal relative shrink-0 text-[color:var(--color\/neutal\/lightgrey,#b5bcc8)]" data-node-id="I121:1526;118:1114" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      kWh
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

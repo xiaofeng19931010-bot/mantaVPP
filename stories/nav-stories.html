@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nav Stories</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --color-text:#313949; --color-text-secondary:#64748B; --color-surface:#FFFFFF; --color-border:#E6E8EE; --color-brand:#2E9F58; --color-accent:#3EC064; --gradient-primary: linear-gradient(90deg, rgba(0,233,68,1) 0%, rgba(0,102,255,1) 100%); --radius-nav:8px; --shadow-hover:0 1px 2px rgba(0,0,0,.08); --focus-ring:0 0 0 2px rgba(46,159,88,.35);} 
+    .nav-item { color: var(--color-text-secondary); border-radius: var(--radius-nav);} 
+    .nav-item:hover { background-color: rgba(46,159,88,0.06); color: var(--color-brand); box-shadow: var(--shadow-hover);} 
+    .nav-item:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; box-shadow: var(--focus-ring);} 
+    .nav-item.active { background: rgba(62,192,100,0.10); color: var(--color-brand); position: relative;} 
+    .nav-item.active i { color: var(--color-brand);} 
+    .nav-item.active::before { content:''; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background: var(--gradient-primary);} 
+    .nav-item.is-disabled { opacity:.5; pointer-events:none;} 
+    .nav-item.is-error { border:1px solid #EF4444;} 
+    .nav-item.is-loading { position:relative;} 
+    .nav-item.is-loading::after { content:''; position:absolute; right:12px; width:16px; height:16px; border:2px solid var(--color-border); border-top-color: var(--color-brand); border-radius:50%; animation: spin .8s linear infinite;} 
+    @keyframes spin { to { transform: rotate(360deg);} }
+  </style>
+</head>
+<body class="bg-[var(--color-surface)] text-[var(--color-text)]">
+  <div class="max-w-md mx-auto p-6">
+    <h1 class="text-xl font-semibold mb-4">Sidebar Nav States</h1>
+    <nav class="space-y-1">
+      <a class="nav-item flex items-center gap-3 px-4 py-2.5" href="#"><span class="font-medium">默认 Default</span></a>
+      <a class="nav-item active flex items-center gap-3 px-4 py-2.5" href="#"><span class="font-medium">激活 Active</span></a>
+      <a class="nav-item is-disabled flex items-center gap-3 px-4 py-2.5" href="#"><span class="font-medium">禁用 Disabled</span></a>
+      <a class="nav-item is-error flex items-center gap-3 px-4 py-2.5" href="#"><span class="font-medium">错误 Error</span></a>
+      <a class="nav-item is-loading flex items-center gap-3 px-4 py-2.5" href="#"><span class="font-medium">加载 Loading</span></a>
+    </nav>
+  </div>
+</body>
+</html>
