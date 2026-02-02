@@ -1264,8 +1264,36 @@ const app = {
                     return x - Math.floor(x);
                 };
 
-                const basePrice = 0.5 + (random() * 0.2);
-                let currentTradingPrice = basePrice;
+                // Australian Market Price Profile (Duck Curve)
+                // Key points: Time (h) -> Price (normalized 0-1 approx)
+                const keyPoints = [
+                    { h: 0, p: 0.35 },   // Overnight stable
+                    { h: 5, p: 0.40 },   // Pre-dawn
+                    { h: 7, p: 0.85 },   // Morning Peak
+                    { h: 9, p: 0.40 },   // Solar ramp up
+                    { h: 12, p: 0.05 },  // Solar Peak / Price Trough
+                    { h: 14, p: 0.15 },  // Solar fading
+                    { h: 17, p: 0.60 },  // Evening ramp
+                    { h: 18.5, p: 0.95 }, // Evening Peak
+                    { h: 21, p: 0.55 },  // Demand drop
+                    { h: 24, p: 0.35 }   // Overnight return
+                ];
+
+                const getBasePrice = (h) => {
+                    for (let k = 0; k < keyPoints.length - 1; k++) {
+                        if (h >= keyPoints[k].h && h <= keyPoints[k+1].h) {
+                            const t = (h - keyPoints[k].h) / (keyPoints[k+1].h - keyPoints[k].h);
+                            // Cubic interpolation for smoother curve
+                            const t2 = t * t;
+                            const t3 = t2 * t;
+                            const ease = 3 * t2 - 2 * t3; 
+                            return keyPoints[k].p + ease * (keyPoints[k+1].p - keyPoints[k].p);
+                        }
+                    }
+                    return 0.35;
+                };
+
+                let currentTradingPrice = 0.5;
                 
                 // 24 hours * 12 intervals (5 mins) = 288 points
                 const points = 288;
@@ -1278,13 +1306,21 @@ const app = {
                 for (let i = 0; i < points; i++) {
                     const hour = Math.floor(i / 12);
                     const minute = (i % 12) * 5;
+                    const timeVal = hour + minute / 60;
                     const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                     timestamps.push(timeStr);
                     
-                    // Simulate price curve
-                    const trend = Math.sin(i / 30) * 0.1 + Math.cos(i / 10) * 0.05;
-                    const noise = (random() - 0.5) * 0.05;
-                    const val = basePrice + trend + noise;
+                    // Simulate price curve with AU market characteristics
+                    const baseVal = getBasePrice(timeVal);
+                    const noise = (random() - 0.5) * 0.15; // Increased volatility
+                    
+                    // Add occasional price spikes (characteristic of NEM)
+                    let spike = 0;
+                    if (random() > 0.97) {
+                        spike = random() * 0.4; // Occasional upward spike
+                    }
+                    
+                    const val = Math.max(-0.1, baseVal + noise + spike); // Allow slightly negative prices
                     
                     const predVal = val + (random() - 0.5) * 0.02; // Forecast slightly different
                     predictions.push(predVal.toFixed(3));
@@ -1299,7 +1335,7 @@ const app = {
 
                     // Trading Price & Forecast Trading Price (30-min granularity)
                     if (i % 6 === 0) {
-                        currentTradingPrice = basePrice + trend + (random() - 0.5) * 0.08;
+                        currentTradingPrice = val + (random() - 0.5) * 0.08;
                         const forecastTradingVal = currentTradingPrice + (random() - 0.5) * 0.05;
 
                         // Display bars only at 30-min intervals
