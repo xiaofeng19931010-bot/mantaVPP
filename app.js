@@ -5338,8 +5338,13 @@ const app = {
 
         // Generate Axis Data based on Granularity
         if (granularity === 'day') {
-            xAxisData = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
-            dataLength = 24;
+            xAxisData = [];
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 5) {
+                    xAxisData.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                }
+            }
+            dataLength = xAxisData.length;
         } else if (granularity === 'month') {
             const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
             xAxisData = Array.from({length: daysInMonth}, (_, i) => `${i + 1}`);
@@ -5574,10 +5579,10 @@ const app = {
             };
         } else {
             // Mock Data for Status
-            // Status: 1=Online, 0=Offline, -1=No communication
+            // Status: 1=Online, 0=Offline, -1=Disconnected
             const statusData = Array.from({length: dataLength}, () => {
                 const rand = Math.random();
-                if (rand > 0.9) return 'No communication'; 
+                if (rand > 0.9) return 'Disconnected'; 
                 if (rand > 0.8) return 'Offline'; 
                 return 'Online'; 
             });

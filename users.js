@@ -20,6 +20,13 @@ const MOCK_USERS = [
     { id: 18, userName: "Tony Stark", email: "tony.stark@tokyoelectric.com", company: "Tokyo Electric", mobile: "0433222111", status: "Active", loginCount: 100, lastLoginTime: "2026-05-12 09:00:00", lastLoginIp: "10.0.0.99", currentLoginIp: "10.0.0.99", created: "2026-04-21" },
     { id: 19, userName: "Steve Rogers", email: "steve.rogers@nordicwind.com", company: "Nordic Wind", mobile: "0477888999", status: "Active", loginCount: 50, lastLoginTime: "2026-05-11 08:30:00", lastLoginIp: "172.16.0.50", currentLoginIp: "172.16.0.50", created: "2026-04-22" },
     { id: 20, userName: "Bruce Banner", email: "bruce.banner@greenenergy.com", company: "Green Energy Co", mobile: "0422111333", status: "Active", loginCount: 5, lastLoginTime: "2026-05-10 15:45:00", lastLoginIp: "192.168.1.50", currentLoginIp: "192.168.1.50", created: "2026-04-23" },
+    // New Users Added
+    { id: 21, userName: "Beth Corcoran", email: "beth.corcoran@discoverenergy.com.au", company: "OSW", mobile: "0400000001", status: "Active", loginCount: 0, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2026-02-02" },
+    { id: 22, userName: "Billy Yan", email: "billy.yan@client.com.au", company: "OSW", mobile: "0400000002", status: "Active", loginCount: 0, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2026-02-02" },
+    { id: 23, userName: "Scott", email: "scott@greendeal.com.au", company: "OSW", mobile: "0400000003", status: "Active", loginCount: 0, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2026-02-02" },
+    { id: 24, userName: "Jo Lin", email: "jo.lin@osw.energy", company: "OSW", mobile: "0400000004", status: "Active", loginCount: 0, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2026-02-02" },
+    { id: 25, userName: "Dimitri P", email: "dimitri.p@greendeal.com.au", company: "OSW", mobile: "0400000005", status: "Active", loginCount: 0, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2026-02-02" },
+    { id: 26, userName: "Liam Liu", email: "liam.liu@client.com.au", company: "OSW", mobile: "0400000006", status: "Active", loginCount: 0, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2026-02-02" },
     // Adding admin fallback
     { id: 999, userName: "Admin User", email: "admin@manta.energy", company: "Manta Energy", mobile: "0000000000", status: "Active", loginCount: 999, lastLoginTime: "", lastLoginIp: "", currentLoginIp: "", created: "2024-01-01" }
 ];
@@ -38,6 +45,7 @@ const MOCK_COMPANIES = [
     { id: 11, companyName: "Future Energy Startups", industry: "Technology", nation: "Australia", status: "Pending", abn: "12312312", address: "100 STARTUP WAY, MELBOURNE VIC 3000", accounts: 1, created: "2026-04-01" },
     { id: 12, companyName: "New Wave Solar", industry: "Energy Retailer", nation: "Australia", status: "Pending", abn: "32132132", address: "200 BEACH RD, PERTH WA 6000", accounts: 0, created: "2026-04-02" },
     { id: 13, companyName: "Eco Friendly Solutions", industry: "Commercial & Industrial", nation: "Canada", status: "Pending", abn: "45645645", address: "YONGE ST, TORONTO", accounts: 1, created: "2026-04-03" },
+    { id: 14, companyName: "OSW", industry: "Technology", nation: "Australia", status: "Active", abn: "11223344", address: "888 George St, Sydney", accounts: 6, created: "2026-02-02" },
     { id: 99, companyName: "Manta Energy", industry: "Technology", nation: "Australia", status: "Active", abn: "11111111", address: "100 Miller St, North Sydney", accounts: 999, created: "2024-01-01" }
 ];
 
