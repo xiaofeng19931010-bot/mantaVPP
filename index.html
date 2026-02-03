@@ -250,42 +250,14 @@
                     <a href="#" id="nav-spot_market" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('spot_market')">
                         <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Spot Market</span>
                     </a>
-                    <a href="#" id="nav-trading" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('trading')">
-                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Trading</span>
-                    </a>
+<!-- Trading Menu Removed -->
                     <a href="#" id="nav-arbitrage_points" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('arbitrage_points')">
                         <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Arbitrage Points</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Trading -->
-            <div class="w-full py-2">
-                <div class="w-full h-[64px] flex items-center justify-between px-0 cursor-pointer focus:outline-none focus:bg-gray-50 hover:bg-gray-50 transition-colors" onclick="app.toggleSubmenu('trading-submenu', this)" role="button" tabindex="0" aria-expanded="false" aria-controls="trading-submenu" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); app.toggleSubmenu('trading-submenu', this); }">
-                    <div class="flex items-center gap-1 px-4">
-                        <div class="relative shrink-0 w-[24px] h-[24px]">
-                            <img alt="" class="block max-w-none w-full h-full" src="assets/icons/trading.svg" />
-                        </div>
-                        <span class="font-['Roboto'] font-semibold text-[16px] text-[#313949] text-center ml-1">Trading</span>
-                    </div>
-                    <div class="relative shrink-0 w-[32px] h-[32px] mr-2 chevron-icon transition-transform duration-300">
-                        <div class="absolute inset-[41.67%_31.25%_39.58%_31.25%]">
-                            <div class="absolute inset-[-11.79%_-5.89%_-23.57%_-5.89%]">
-                                <img alt="" class="block max-w-none w-full h-full" src="assets/icons/chevron-down.svg" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="trading-submenu" class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out bg-[#f3f3f6] mx-2 rounded-[4px] flex flex-col gap-1 p-1">
-                    <a href="#" id="nav-trading_rules" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('trading_rules')">
-                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Trading Rules</span>
-                    </a>
-                    <a href="#" id="nav-trading_events" class="nav-item flex items-center gap-2 px-4 py-3 rounded-[4px] hover:bg-white group transition-colors" onclick="app.navigate('trading_events')">
-                        <span class="flex-1 font-['Roboto'] font-medium text-[14px] text-[#313949] group-hover:text-[#3ec064]">Trading Events</span>
-                    </a>
-                </div>
-            </div>
+            <!-- Trading Section Removed -->
 
             <!-- Smart Feed-in -->
             <div class="w-full py-2">
