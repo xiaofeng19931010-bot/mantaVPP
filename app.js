@@ -901,7 +901,7 @@ const app = {
         const breadcrumbPaths = {
             'overview': [{label: 'Overview'}],
             'electricity_market': [{label: 'Electricity Market'}],
-            'spot_market': [{label: 'Electricity Market'}, {label: 'Spot Market'}],
+            'spot_market': [{label: 'Electricity Market'}],
             'arbitrage_points': [{label: 'Electricity Market'}, {label: 'Arbitrage Points'}],
             'trading': [{label: 'Trading'}],
             'trading_rules': [{label: 'Trading'}, {label: 'Trading Rules'}],
@@ -927,14 +927,14 @@ const app = {
             'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
             'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
             'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'EV'}],
-            'device_management': [{label: 'System'}, {label: 'VPP Management'}],
+            'device_management': [{label: 'System'}, {label: 'Sub-VPP Management'}],
             'vpp_details': [
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'VPP Details'}
             ],
             'system_details': [
                 {label: 'System'},
-                {label: 'VPP Management', view: 'vpp'}, 
+                {label: 'Sub-VPP Management', view: 'device_management'}, 
                 {label: 'Details'}
             ],
             'device_details': [
@@ -1132,17 +1132,79 @@ const app = {
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
-                            <i data-lucide="download" class="w-4 h-4"></i> Export Chart
-                        </button>
-                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
-                            <i data-lucide="play-circle" class="w-4 h-4"></i> Backtest
-                        </button>
-                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
-                            <i data-lucide="bell" class="w-4 h-4"></i> Alerts
-                        </button>
-                        <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
-                            <i data-lucide="maximize" class="w-4 h-4"></i> Fullscreen
+                        <!-- Chart Settings -->
+                        <div class="relative">
+                            <button id="chart-settings-btn" title="Settings" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
+                                <i data-lucide="settings" class="w-4 h-4"></i>
+                            </button>
+                            <!-- Settings Menu -->
+                            <div id="chart-settings-menu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-2">
+                                <div class="space-y-1">
+                                    <!-- Weather -->
+                                    <label class="block cursor-pointer select-none">
+                                        <input type="checkbox" id="setting-weather" class="peer sr-only">
+                                        <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                            </div>
+                                            <span class="text-sm">Weather</span>
+                                        </div>
+                                    </label>
+                                    
+                                    <!-- Arbitrage Point -->
+                                    <div class="relative group">
+                                        <label class="block cursor-pointer select-none">
+                                            <input type="checkbox" id="setting-arbitrage" class="peer sr-only">
+                                            <div class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                                    </div>
+                                                    <span class="text-sm">Arbitrage Point</span>
+                                                </div>
+                                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                                            </div>
+                                        </label>
+                                        
+                                        <!-- Sub Menu for Arbitrage Point -->
+                                         <div id="setting-arbitrage-submenu" class="hidden absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+                                            <label class="block cursor-pointer select-none">
+                                                <input type="radio" name="arbitrage-signal" value="forecast" class="peer sr-only" checked>
+                                                <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                                    </div>
+                                                    <span class="text-sm">Signal by Forecast</span>
+                                                </div>
+                                            </label>
+                                            <label class="block cursor-pointer select-none">
+                                                <input type="radio" name="arbitrage-signal" value="spot" class="peer sr-only">
+                                                <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                                    </div>
+                                                    <span class="text-sm">Signal by Spot</span>
+                                                </div>
+                                            </label>
+                                         </div>
+                                    </div>
+
+                                    <!-- Price Alert -->
+                                    <label class="block cursor-pointer select-none">
+                                        <input type="checkbox" id="setting-price-alert" class="peer sr-only">
+                                        <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                            </div>
+                                            <span class="text-sm">Price Alert</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button title="Fullscreen" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
+                            <i data-lucide="maximize" class="w-4 h-4"></i>
                         </button>
                     </div>
 
@@ -1535,6 +1597,34 @@ const app = {
             };
 
             // Event Listeners
+            const settingsBtn = document.getElementById('chart-settings-btn');
+            const settingsMenu = document.getElementById('chart-settings-menu');
+            const arbitrageCheckbox = document.getElementById('setting-arbitrage');
+            const arbitrageSubmenu = document.getElementById('setting-arbitrage-submenu');
+
+            if (settingsBtn && settingsMenu) {
+                settingsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    settingsMenu.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) {
+                        settingsMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            if (arbitrageCheckbox && arbitrageSubmenu) {
+                arbitrageCheckbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        arbitrageSubmenu.classList.remove('hidden');
+                    } else {
+                        arbitrageSubmenu.classList.add('hidden');
+                    }
+                });
+            }
+
             if (realTimeTab && historicalTab) {
                 realTimeTab.addEventListener('click', () => {
                     currentMode = 'realtime';
@@ -3806,10 +3896,13 @@ const app = {
         // Mock Data
         const generateData = () => {
             const data = [];
-            const now = new Date('2026-01-13T13:40:00');
+            // Generate data for the last 3 days to cover "Yesterday" and "Today" scenarios
+            const now = new Date();
             const signalTypes = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
             
-            for (let i = 0; i < 15; i++) {
+            // Generate 3 days worth of data points (every 5 minutes)
+            // 3 days * 24 hours * 12 intervals = 864 points
+            for (let i = 0; i < 864; i++) {
                 const settlementTime = new Date(now.getTime() - i * 5 * 60000);
                 const forecasts = [];
                 for (let j = 1; j <= 4; j++) {
@@ -3819,20 +3912,36 @@ const app = {
                     });
                 }
 
+                // Determine signal based on time of day
+                const hour = settlementTime.getHours();
+                let baseSignal = 'Normal';
+                
+                if (hour >= 11 && hour <= 14) {
+                    baseSignal = 'Charge';
+                } else if (hour >= 20 && hour <= 22) {
+                    baseSignal = 'Discharge';
+                }
+
+                // 100% follow the base signal to ensure strict continuity
+                const finalSignal = baseSignal; 
+
                 data.push({
                     settlementTime: settlementTime,
                     forecasts: forecasts,
                     forecastStatus: Math.random() > 0.2, // true = success/green
-                    forecastSignalType: signalTypes[Math.floor(Math.random() * signalTypes.length)],
+                    forecastSignalType: finalSignal, // Forecast matches signal for now
                     actualStatus: Math.random() > 0.1,
-                    signalType: signalTypes[Math.floor(Math.random() * signalTypes.length)],
+                    signalType: finalSignal,
                     spotPrice: (Math.random() * 200 - 50).toFixed(2) // Random price between -50 and 150
                 });
             }
             return data;
         };
 
-        const data = generateData();
+        const allData = generateData();
+        // Initial filter state
+        let currentMode = 'realtime'; // 'realtime' or 'historical'
+        let dateRange = { start: null, end: null };
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -3950,45 +4059,8 @@ const app = {
             </div>
         `;
 
-        // Tab Switching Logic
-        const tabRealtime = document.getElementById('arbitrage-tab-realtime');
-        const tabHistorical = document.getElementById('arbitrage-tab-historical');
-        const datePickerContainer = document.getElementById('arbitrage-date-picker-container');
+        // Tab Switching Logic moved below renderTableBody
 
-        if (tabRealtime && tabHistorical && datePickerContainer) {
-            const updateTabs = (isRealtime) => {
-                if (isRealtime) {
-                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
-                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
-                    datePickerContainer.classList.add('hidden');
-                } else {
-                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
-                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
-                    datePickerContainer.classList.remove('hidden');
-                }
-            };
-
-            tabRealtime.addEventListener('click', () => updateTabs(true));
-            tabHistorical.addEventListener('click', () => updateTabs(false));
-
-            // Initialize Dates (Yesterday)
-            const dateStart = document.getElementById('arbitrage-date-start');
-            const dateEnd = document.getElementById('arbitrage-date-end');
-            if (dateStart && dateEnd) {
-                const today = new Date();
-                const todayStr = today.toISOString().split('T')[0];
-                
-                // Set max date to today
-                dateStart.max = todayStr;
-                dateEnd.max = todayStr;
-
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const dateStr = yesterday.toISOString().split('T')[0];
-                dateStart.value = dateStr;
-                dateEnd.value = dateStr;
-            }
-        }
 
         // Table Rendering & Filtering Logic
         const renderTableBody = (filteredData) => {
@@ -3997,7 +4069,8 @@ const app = {
             
             tbody.innerHTML = filteredData.map((row, idx) => {
                 const timeStr = `${row.settlementTime.getHours()}:${row.settlementTime.getMinutes().toString().padStart(2, '0')}`;
-                const dateStr = '13/01/2026 (+10:00)';
+                // const dateStr = '13/01/2026 (+10:00)'; // Removed hardcoded date
+
                 
                 const forecastHtml = row.forecasts.map(f => {
                     const fTime = `${f.time.getHours()}:${f.time.getMinutes().toString().padStart(2, '0')}`;
@@ -4052,13 +4125,99 @@ const app = {
             if (window.lucide) window.lucide.createIcons();
         };
 
-        // Initial Render
-        renderTableBody(data);
-
-        // Add Filter Listeners
-        const filters = ['discharge', 'normal', 'charge', 'fcas', 'abnormal'];
+        // Filter & Tab Logic
         let activeFilter = null;
 
+        const applyFilters = () => {
+            let filtered = [];
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            if (currentMode === 'realtime') {
+                filtered = allData.filter(d => d.settlementTime >= todayStart && d.settlementTime <= now);
+            } else {
+                // Historical
+                const start = dateRange.start ? new Date(dateRange.start) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                const end = dateRange.end ? new Date(dateRange.end) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                
+                // Set times to cover full days
+                start.setHours(0, 0, 0, 0);
+                end.setHours(23, 59, 59, 999);
+
+                filtered = allData.filter(d => d.settlementTime >= start && d.settlementTime <= end);
+            }
+            
+            // Apply Signal Filter
+            if (activeFilter) {
+                filtered = filtered.filter(d => d.signalType === activeFilter);
+            }
+
+            // Sort by time descending
+            filtered.sort((a, b) => b.settlementTime - a.settlementTime);
+
+            renderTableBody(filtered);
+        };
+
+        // Tab Switching Logic
+        const tabRealtime = document.getElementById('arbitrage-tab-realtime');
+        const tabHistorical = document.getElementById('arbitrage-tab-historical');
+        const datePickerContainer = document.getElementById('arbitrage-date-picker-container');
+        const dateStartInput = document.getElementById('arbitrage-date-start');
+        const dateEndInput = document.getElementById('arbitrage-date-end');
+
+        if (tabRealtime && tabHistorical && datePickerContainer) {
+            const updateTabs = (isRealtime) => {
+                currentMode = isRealtime ? 'realtime' : 'historical';
+                
+                if (isRealtime) {
+                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
+                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    datePickerContainer.classList.add('hidden');
+                } else {
+                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
+                    datePickerContainer.classList.remove('hidden');
+                    
+                    // Initialize default dates if needed (Yesterday)
+                    if (!dateRange.start) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yStr = yesterday.toISOString().split('T')[0];
+                        
+                        if (dateStartInput) dateStartInput.value = yStr;
+                        if (dateEndInput) dateEndInput.value = yStr;
+                        
+                        dateRange.start = yStr;
+                        dateRange.end = yStr;
+                        
+                        // Set max to today
+                        const todayStr = new Date().toISOString().split('T')[0];
+                        if (dateStartInput) dateStartInput.max = todayStr;
+                        if (dateEndInput) dateEndInput.max = todayStr;
+                    }
+                }
+                applyFilters();
+            };
+
+            tabRealtime.addEventListener('click', () => updateTabs(true));
+            tabHistorical.addEventListener('click', () => updateTabs(false));
+            
+            // Date Picker Listeners
+            if (dateStartInput && dateEndInput) {
+                dateStartInput.addEventListener('change', (e) => {
+                    dateRange.start = e.target.value;
+                    applyFilters();
+                });
+                dateEndInput.addEventListener('change', (e) => {
+                    dateRange.end = e.target.value;
+                    applyFilters();
+                });
+            }
+        }
+
+        // Add Signal Filter Listeners
+        const filters = ['discharge', 'normal', 'charge', 'fcas', 'abnormal'];
+        
         filters.forEach(filter => {
             const btn = document.getElementById(`filter-${filter}`);
             if (btn) {
@@ -4068,7 +4227,6 @@ const app = {
                     if (activeFilter === filterName) {
                         // Clear Filter
                         activeFilter = null;
-                        renderTableBody(data);
                         // Reset styles
                         filters.forEach(f => {
                              const el = document.getElementById(`filter-${f}`);
@@ -4078,9 +4236,6 @@ const app = {
                     } else {
                         // Apply Filter
                         activeFilter = filterName;
-                        const filtered = data.filter(d => d.signalType === filterName);
-                        renderTableBody(filtered);
-                        
                         // Update styles
                         filters.forEach(f => {
                              const el = document.getElementById(`filter-${f}`);
@@ -4093,9 +4248,13 @@ const app = {
                              }
                         });
                     }
+                    applyFilters();
                 });
             }
         });
+
+        // Initial Render
+        applyFilters();
     },
 
     renderTradingRules(container) {
@@ -4781,17 +4940,16 @@ const app = {
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Online</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Offline</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Disconnected</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right min-w-[140px]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="">
-                                            ${systemsWithStats.map(({ sys, sysDevices, stats, isDisconnected, isEstablished }) => {
+                                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished }) => {
                                                 const s = (sys.status || '').toLowerCase();
-                                                let st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', label: (sys.status || 'Unknown').toUpperCase() };
-                                                if (s === 'established' || s === 'connected' || s === 'online') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#5f646e]', label: 'ESTABLISHED' };
-                                                else if (s === 'establishing') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ec981c]', label: 'ESTABLISHING' };
-                                                else if (s === 'disconnected') st = { bg: 'bg-[#f3f3f6]', text: 'text-[#ff3434]', label: 'DISCONNECTED' };
+                                                let label = (sys.status || 'Unknown').toUpperCase();
+                                                if (s === 'established' || s === 'connected' || s === 'online') label = 'ESTABLISHED';
+                                                else if (s === 'establishing') label = 'ESTABLISHING';
+                                                else if (s === 'disconnected') label = 'DISCONNECTED';
                                                 
                                                 return `
                                                 <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
@@ -4802,8 +4960,8 @@ const app = {
                                                         <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${sys.type}</div>
                                                     </td>
                                                     <td class="px-[8px]">
-                                                        <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${st.bg} ${st.text} font-['Roboto']">
-                                                            ${st.label}
+                                                        <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${statusConfig.color} text-white font-['Roboto']">
+                                                            ${label}
                                                         </span>
                                                     </td>
                                                     <td class="px-[8px]">
@@ -4814,9 +4972,6 @@ const app = {
                                                     </td>
                                                     <td class="px-[8px]">
                                                         <span class="text-[14px] font-normal text-gray-400 font-['Roboto']">${stats.inv.offline + stats.bat.offline}</span>
-                                                    </td>
-                                                    <td class="px-[8px]">
-                                                        <span class="text-[14px] font-normal text-red-500 font-['Roboto']">${stats.inv.disconnected + stats.bat.disconnected}</span>
                                                     </td>
                                                     <td class="px-[8px] text-right">
                                                         <div class="flex items-center justify-end gap-[12px]">
@@ -4849,209 +5004,229 @@ const app = {
         const system = state.systems.find(s => s.id == systemId);
         if (!system) return this.navigate('device_management');
 
-        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.className = "w-full h-full bg-[#f3f3f6] p-[8px] flex flex-col";
 
-        // Header with Back Button
-        const header = document.createElement('div');
-        header.className = 'flex items-center gap-4';
-        header.innerHTML = `
-            <button onclick="app.navigate('device_management')" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900" aria-label="Back to Platform List">
-                <i data-lucide="arrow-left" class="w-6 h-6"></i>
-            </button>
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-                    ${system.name}
-                </h1>
-            </div>
-        `;
-        container.appendChild(header);
-
-        // Mock devices for this system (using existing state.devices as pool)
-        const devices = state.devices || [];
-        
         // Calculate Metrics
+        const devices = state.devices || [];
         const totalDevices = devices.length;
         const onlineDevices = devices.filter(d => d.status === 'online').length;
-        const offlineDevices = devices.filter(d => d.status === 'offline').length;
-        const disconnectedDevices = devices.filter(d => d.status === 'disconnected').length;
-
-        const invs = devices.filter(d => d.type === 'Inverter');
-        const bats = devices.filter(d => d.type === 'Battery');
+        const offlineCount = totalDevices - onlineDevices;
         
-        const ratedPower = invs.reduce((sum, d) => sum + (d.capacity || 0), 0);
-        const pvCapacity = invs.reduce((sum, d) => sum + ((d.capacity || 0) * 1.2), 0);
-        
-        const batCap = bats.reduce((sum, d) => sum + (d.capacity || 0), 0);
-        const currentEnergy = bats.reduce((sum, d) => sum + ((d.capacity || 0) * (d.soc !== undefined ? d.soc : (40 + Math.floor(Math.random() * 40))) / 100), 0);
-        const socPercentage = batCap > 0 ? Math.round((currentEnergy / batCap) * 100) : 0;
-        
-        const todayYield = ratedPower * (2 + Math.random() * 2);
-
-        // Summary Section
-        // Details Card
-        const detailsCard = document.createElement('div');
-        detailsCard.className = 'bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4 flex items-center gap-4';
-        
-        // Mock Credentials (retrieved from system or random mock if missing)
+        // Mock Credentials
         const appKey = system.credentials?.appKey || 'manta_cloud_1';
         const appSecret = system.credentials?.appSecret || 'sec_cloud_1';
 
-        detailsCard.innerHTML = `
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Type -->
-                <div class="flex items-center gap-2 min-w-0">
-                    <i data-lucide="server" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                    <div class="text-sm text-gray-900 font-mono truncate"><span class="text-gray-500 text-[10px] tracking-wider mr-2">Type:</span>${system.type}</div>
-                </div>
-                <!-- AppKey -->
-                <div class="flex items-center gap-2 min-w-0 group">
-                    <i data-lucide="key" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                    <div class="flex-1 flex items-center gap-2 min-w-0">
-                        <span class="text-gray-500 text-[10px] tracking-wider mr-2 whitespace-nowrap">AppKey:</span>
-                        <input type="password" value="${appKey}" id="details-app-key" readonly class="text-sm text-gray-900 font-mono bg-transparent border-none p-0 w-full focus:ring-0 truncate" />
-                    </div>
-                    <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button onclick="app.togglePasswordVisibility('details-app-key')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="app.copyToClipboard('details-app-key')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </div>
-                </div>
-                <!-- AppSecret -->
-                <div class="flex items-center gap-2 min-w-0 group">
-                    <i data-lucide="lock" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                    <div class="flex-1 flex items-center gap-2 min-w-0">
-                        <span class="text-gray-500 text-[10px] tracking-wider mr-2 whitespace-nowrap">AppSecret:</span>
-                        <input type="password" value="${appSecret}" id="details-app-secret" readonly class="text-sm text-gray-900 font-mono bg-transparent border-none p-0 w-full focus:ring-0 truncate" />
-                    </div>
-                    <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="app.togglePasswordVisibility('details-app-secret')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="app.copyToClipboard('details-app-secret')" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(detailsCard);
-
-        // Stats Grid
-        const statsGrid = document.createElement('div');
-        statsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6';
+        // Main Card (Merged Summary + Device List)
+        const mainCard = document.createElement('div');
+        mainCard.className = "flex-1 flex flex-col bg-white shadow-sm border border-[#e2e6ec] rounded-[4px] overflow-hidden";
         
-        statsGrid.innerHTML = `
-            <!-- DERs -->
-            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
-                <div class="flex items-center gap-4">
-                    <div class="p-2.5 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-200">
-                        <i data-lucide="cpu" class="w-5 h-5"></i>
+        mainCard.innerHTML = `
+            <!-- Summary Section -->
+            <div class="flex flex-col gap-[16px] items-start p-[16px] w-full relative">
+                <!-- Top Row: Back Button + Title -->
+                <div class="flex flex-col gap-[8px] items-start relative shrink-0 w-full">
+                    <div class="flex gap-[16px] h-[40px] items-center px-[8px] py-0 relative shrink-0 w-full">
+                        <div class="flex flex-1 gap-[4px] items-center min-h-px min-w-px relative">
+                            <!-- Back Button -->
+                            <button onclick="app.navigate('device_management')" class="flex gap-[4px] items-center justify-center p-[8px] relative rounded-[4px] shrink-0 hover:bg-[#f3f3f6] transition-colors group">
+                                <div class="relative shrink-0 w-[24px] h-[24px]">
+                                    <i data-lucide="arrow-left" class="w-6 h-6 text-[#313949] group-hover:text-black"></i>
+                                </div>
+                            </button>
+                            <!-- Title -->
+                            <div class="flex gap-[16px] items-center relative shrink-0">
+                                <p class="font-['Roboto'] font-semibold leading-[1.4] text-[20px] text-[#313949] text-center">
+                                    ${system.name}
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">DERs</span>
-                        <span class="text-xl font-bold text-gray-900 leading-none">${totalDevices}</span>
-                    </div>
+                </div>
+                
+                <!-- Details Row: Logo + Info + Stats -->
+                <div class="flex gap-[40px] items-center py-[8px] relative shrink-0 w-full">
+                     <div class="flex flex-1 flex-col gap-[24px] items-start justify-center min-h-px min-w-px relative">
+                        <div class="flex gap-[15px] items-center relative shrink-0 w-full">
+                            <!-- Logo Box -->
+                            <div class="flex items-center justify-center relative rounded-[16px] shrink-0 w-[80px] h-[80px] bg-[#f3f3f6] border border-[#e2e6ec]">
+                                 <i data-lucide="server" class="w-10 h-10 text-[#313949]"></i>
+                            </div>
+                            
+                            <!-- Info Column -->
+                            <div class="flex flex-1 flex-row items-center self-stretch">
+                                <div class="flex flex-1 flex-col gap-[8px] h-full items-start min-h-px min-w-px py-[4px] relative">
+                                    <!-- Name + Icon -->
+                                    <div class="flex gap-[8px] items-center relative shrink-0">
+                                        <p class="font-['Roboto'] font-semibold leading-[1.4] text-[20px] text-[#313949]">
+                                            ${system.name}
+                                        </p>
+                                        <div class="relative shrink-0 w-[24px] h-[24px]">
+                                            <i data-lucide="badge-check" class="w-5 h-5 text-[#3ec064]"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Credentials Row -->
+                                    <div class="flex gap-[32px] items-center relative shrink-0 w-full flex-wrap">
+                                        
+                                        <!-- Type -->
+                                        <div class="flex gap-[16px] items-center min-w-[48px] py-[8px] relative rounded-[12px] shrink-0">
+                                            <div class="flex gap-[4px] items-center relative shrink-0">
+                                                <div class="relative shrink-0 w-[24px] h-[24px]">
+                                                    <i data-lucide="box" class="w-5 h-5 text-[#b5bcc8]"></i>
+                                                </div>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949] text-center">Type:</p>
+                                            </div>
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949] text-center">${system.type || 'CLOUD'}</p>
+                                        </div>
+
+                                        <!-- Separator -->
+                                        <div class="h-[16px] w-px bg-[#e2e6ec] relative shrink-0"></div>
+
+                                        <!-- ApiKey -->
+                                        <div class="flex gap-[16px] items-center min-w-[48px] py-[8px] relative rounded-[12px] shrink-0 group">
+                                            <div class="flex gap-[4px] items-center relative shrink-0">
+                                                <div class="relative shrink-0 w-[24px] h-[24px]">
+                                                    <i data-lucide="key" class="w-5 h-5 text-[#b5bcc8]"></i>
+                                                </div>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949] text-center">AppKey:</p>
+                                            </div>
+                                            <div class="relative shrink-0 w-[120px] bg-[#f3f3f6] rounded-[4px] px-2 py-1">
+                                                <input type="password" value="${appKey}" id="details-app-key" readonly class="w-full bg-transparent border-none p-0 text-sm font-mono text-[#313949] focus:ring-0">
+                                            </div>
+                                            <div class="flex gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="app.togglePasswordVisibility('details-app-key')" class="text-[#b5bcc8] hover:text-[#313949]">
+                                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="app.copyToClipboard('details-app-key')" class="text-[#b5bcc8] hover:text-[#313949]">
+                                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Separator -->
+                                        <div class="h-[16px] w-px bg-[#e2e6ec] relative shrink-0"></div>
+
+                                        <!-- AppSecret -->
+                                        <div class="flex gap-[16px] items-center min-w-[48px] py-[8px] relative rounded-[12px] shrink-0 group">
+                                            <div class="flex gap-[4px] items-center relative shrink-0">
+                                                <div class="relative shrink-0 w-[24px] h-[24px]">
+                                                    <i data-lucide="lock" class="w-5 h-5 text-[#b5bcc8]"></i>
+                                                </div>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949] text-center">AppSecret:</p>
+                                            </div>
+                                            <div class="relative shrink-0 w-[120px] bg-[#f3f3f6] rounded-[4px] px-2 py-1">
+                                                <input type="password" value="${appSecret}" id="details-app-secret" readonly class="w-full bg-transparent border-none p-0 text-sm font-mono text-[#313949] focus:ring-0">
+                                            </div>
+                                            <div class="flex gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="app.togglePasswordVisibility('details-app-secret')" class="text-[#b5bcc8] hover:text-[#313949]">
+                                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="app.copyToClipboard('details-app-secret')" class="text-[#b5bcc8] hover:text-[#313949]">
+                                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stats Row -->
+                        <div class="flex gap-[40px] items-start px-[16px] py-[4px] relative shrink-0 w-full pt-4">
+                            <!-- Total DERs -->
+                            <div class="flex gap-[16px] items-center py-0 relative shrink-0">
+                                <div class="relative shrink-0 w-[32px] h-[32px]">
+                                    <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <g>
+                                            <path d="M1.41421 14.5858L14.5858 1.41421C15.3668 0.633165 16.6332 0.633164 17.4142 1.41421L30.5858 14.5858C31.3668 15.3668 31.3668 16.6332 30.5858 17.4142L17.4142 30.5858C16.6332 31.3668 15.3668 31.3668 14.5858 30.5858L1.41421 17.4142C0.633165 16.6332 0.633164 15.3668 1.41421 14.5858Z" fill="#E6E8EE"/>
+                                            <path d="M11.5 16.5L16.5 9.50004V15.5L20.5 15.5L15.5 22.5V16.5H11.5Z" fill="#313949" stroke="#313949" stroke-linejoin="round"/>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <div class="flex gap-[4px] items-end relative shrink-0 text-[#313949]">
+                                    <p class="font-['Roboto'] font-extrabold leading-[1.33] text-[24px]">${totalDevices}</p>
+                                    <p class="font-['Roboto'] font-semibold italic leading-[1.42] text-[16px] text-gray-500 mb-1">DERs</p>
+                                </div>
+                            </div>
+
+                            <!-- Online/Offline Stats -->
+                            <div class="flex gap-[24px] items-start p-0 relative shrink-0 h-[32px]">
+                                <!-- Online -->
+                                <div class="flex gap-[24px] h-full items-center pr-0 py-0 relative shrink-0">
+                                    <div class="flex gap-[8px] items-center relative shrink-0">
+                                        <div class="bg-[#3ec064] h-[12px] rounded-[2px] shrink-0 w-[4px]"></div>
+                                        <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Online</p>
+                                    </div>
+                                    <p class="font-['Roboto'] font-medium leading-[1.42] text-[14px] text-[#3ec064] text-right">${onlineDevices}</p>
+                                </div>
+
+                                <!-- Offline -->
+                                <div class="flex gap-[24px] h-full items-center pr-0 relative shrink-0">
+                                    <div class="flex gap-[8px] items-center relative shrink-0">
+                                        <div class="bg-[#b5bcc8] h-[12px] rounded-[2px] shrink-0 w-[4px]"></div>
+                                        <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Offline</p>
+                                    </div>
+                                    <p class="font-['Roboto'] font-medium leading-[1.42] text-[14px] text-[#b5bcc8] text-right">${offlineCount}</p>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
                 </div>
             </div>
 
-            <!-- Online -->
-            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
-                <div class="flex items-center gap-4">
-                    <div class="p-2.5 rounded-full bg-green-50 text-green-600 group-hover:bg-green-100 group-hover:scale-110 transition-all duration-200">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">Online</span>
-                        <span class="text-xl font-bold text-gray-900 leading-none">${onlineDevices}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Offline -->
-            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
-                <div class="flex items-center gap-4">
-                    <div class="p-2.5 rounded-full bg-gray-100 text-gray-500 group-hover:bg-gray-200 group-hover:scale-110 transition-all duration-200">
-                        <i data-lucide="minus-circle" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">Offline</span>
-                        <span class="text-xl font-bold text-gray-900 leading-none">${offlineDevices}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Disconnected -->
-            <div class="bg-white px-6 py-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group cursor-default">
-                <div class="flex items-center gap-4">
-                    <div class="p-2.5 rounded-full bg-red-50 text-red-600 group-hover:bg-red-100 group-hover:scale-110 transition-all duration-200">
-                        <i data-lucide="x-circle" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5">Disconnected</span>
-                        <span class="text-xl font-bold text-gray-900 leading-none">${disconnectedDevices}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(statsGrid);
-
-        // Content (Device List)
-        const content = document.createElement('div');
-        content.className = 'flex-1 flex flex-col bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden';
-        
-        content.innerHTML = `
             <!-- Table Header -->
-            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                 <h2 class="text-lg font-bold text-gray-900">DERs</h2>
-                 <div class="flex gap-2">
-                    <div class="relative">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                        <input 
-                            type="text" 
-                            placeholder="Search" 
-                            class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary/50 w-64 transition-colors placeholder:text-gray-400"
-                        >
+            <div class="flex justify-between items-center px-[16px] py-[16px] bg-white">
+                 <div class="flex items-center justify-center h-[32px] px-[8px] py-[4px] rounded-[4px] bg-white">
+                    <p class="font-['Roboto'] font-semibold leading-[1.5] text-[16px] text-[#313949] text-center">DERs</p>
+                 </div>
+                 <div class="flex gap-[16px] items-center pl-[8px] pr-[8px] py-0 relative rounded-[4px] w-[240px] h-[32px] bg-[#f3f3f6]">
+                    <input 
+                        type="text" 
+                        placeholder="Search" 
+                        class="flex-1 bg-transparent border-none p-0 text-[14px] text-[#313949] placeholder-[#b5bcc8] focus:ring-0 font-['Roboto'] font-normal leading-[normal]"
+                    >
+                    <div class="relative shrink-0 w-[18px] h-[18px]">
+                        <svg width="100%" height="100%" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16.6 18L10.3 11.7C9.8 12.1 9.225 12.4167 8.575 12.65C7.925 12.8833 7.23333 13 6.5 13C4.68333 13 3.146 12.3707 1.888 11.112C0.63 9.85333 0.000667196 8.316 5.29101e-07 6.5C-0.000666138 4.684 0.628667 3.14667 1.888 1.888C3.14733 0.629333 4.68467 0 6.5 0C8.31533 0 9.853 0.629333 11.113 1.888C12.373 3.14667 13.002 4.684 13 6.5C13 7.23333 12.8833 7.925 12.65 8.575C12.4167 9.225 12.1 9.8 11.7 10.3L18 16.6L16.6 18ZM6.5 11C7.75 11 8.81267 10.5627 9.688 9.688C10.5633 8.81333 11.0007 7.75067 11 6.5C10.9993 5.24933 10.562 4.187 9.688 3.313C8.814 2.439 7.75133 2.00133 6.5 2C5.24867 1.99867 4.18633 2.43633 3.313 3.313C2.43967 4.18967 2.002 5.252 2 6.5C1.998 7.748 2.43567 8.81067 3.313 9.688C4.19033 10.5653 5.25267 11.0027 6.5 11Z" fill="#B5BCC8"/>
+                        </svg>
                     </div>
                  </div>
             </div>
 
             <!-- Device Table -->
-            <div class="flex-1 overflow-y-auto p-6">
+            <div class="flex-1 overflow-y-auto p-[16px]">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-xs text-gray-500 border-b border-gray-200">
-                            <th class="pb-3 font-medium">Status</th>
-                            <th class="pb-3 font-medium">SN</th>
-                            <th class="pb-3 font-medium">Manufacturer</th>
-                            <th class="pb-3 font-medium">State</th>
-                            <th class="pb-3 font-medium">Actions</th>
+                        <tr class="h-[40px] border-b border-[#e2e6ec]">
+                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">Status</th>
+                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">SN</th>
+                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">Manufacturer</th>
+                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">State</th>
+                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         ${devices.length > 0 ? devices.map(dev => {
                             return `
-                            <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                <td class="py-3">
-                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
-                                        <span class="w-1 h-1 rounded-full bg-current"></span>
+                            <tr class="group hover:bg-[#f3f3f6] transition-colors border-b border-[#e2e6ec] last:border-0 h-[48px]">
+                                <td class="px-[8px] py-[12px]">
+                                    <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-['Roboto'] ${dev.status === 'online' ? 'bg-[#3ec064]/10 text-[#3ec064]' : 'bg-[#b5bcc8]/10 text-[#b5bcc8]'}">
+                                        <span class="w-[4px] h-[4px] rounded-full bg-current"></span>
                                         ${dev.status}
                                     </span>
                                 </td>
-                                <td class="py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn}</td>
-                                <td class="py-3 text-gray-500">${dev.vendor || 'Unknown'}</td>
-                                <td class="py-3 text-gray-500">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
-                                <td class="py-3">
-                                    <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-gray-400 hover:text-manta-primary transition-colors">
+                                <td class="px-[8px] py-[12px] font-mono text-[14px] text-[#313949] font-normal">${dev.sn}</td>
+                                <td class="px-[8px] py-[12px] font-['Roboto'] text-[14px] text-[#313949] font-normal">${dev.vendor || 'Unknown'}</td>
+                                <td class="px-[8px] py-[12px] font-['Roboto'] text-[14px] text-[#313949] font-normal">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
+                                <td class="px-[8px] py-[12px] text-right">
+                                    <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </button>
                                 </td>
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-gray-400">
+                                <td colspan="5" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
                                     No devices found.
                                 </td>
                             </tr>
@@ -5060,7 +5235,8 @@ const app = {
                 </table>
             </div>
         `;
-        container.appendChild(content);
+        
+        container.appendChild(mainCard);
     },
 
     // ==========================================
@@ -7372,53 +7548,66 @@ const app = {
     },
 
     viewDeviceDetails(sn) {
-        // Default to 'Power' and '24H' for initial view
-        this.renderDeviceDataModalContent(sn, 'Power', '24H');
+        // Default to 'Power' and 'Real-time' for initial view
+        this.renderDeviceDataModalContent(sn, 'Power', 'Real-time');
         this.toggleModal(true);
     },
 
-    renderDeviceDataModalContent(sn, dataType = 'Power', timeRange = '24H') {
+    renderDeviceDataModalContent(sn, dataType = 'Power', timeRange = 'Real-time', startDate = null, endDate = null) {
         const modalContent = document.getElementById('modal-content');
         
-        // Mock data generation based on SN and dataType
+        // Mock data generation
         const dataMap = {
-            'Power': { unit: 'kW', color: '#1E40AF', data: [120, 132, 101, 134, 90, 230, 210] },
-            'Voltage': { unit: 'V', color: '#10B981', data: [220, 222, 221, 223, 220, 221, 222] },
-            'Current': { unit: 'A', color: '#F59E0B', data: [10, 12, 11, 13, 9, 23, 21] },
-            'Frequency': { unit: 'Hz', color: '#8B5CF6', data: [50.01, 50.02, 49.99, 50.00, 50.01, 50.02, 49.98] },
-            'Temperature': { unit: '°C', color: '#F43F5E', data: [35, 36, 38, 40, 42, 41, 39] },
-            'SOC': { unit: '%', color: '#3B82F6', data: [80, 78, 75, 72, 70, 68, 85] }
+            'Power': { unit: 'kW', color: '#1E40AF' },
+            'Voltage': { unit: 'V', color: '#10B981' },
+            'Current': { unit: 'A', color: '#F59E0B' },
+            'Frequency': { unit: 'Hz', color: '#8B5CF6' },
+            'Temperature': { unit: '°C', color: '#F43F5E' },
+            'SOC': { unit: '%', color: '#3B82F6' }
         };
 
-        // Adjust data based on timeRange
-        let xAxisData = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
+        const currentMeta = dataMap[dataType] || dataMap['Power'];
         
-        if (timeRange === '7D') {
-            xAxisData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            // Simple randomization for demo
-            Object.keys(dataMap).forEach(k => {
-                dataMap[k].data = dataMap[k].data.map(v => v * (0.9 + Math.random() * 0.2));
-            });
-        } else if (timeRange === '30D') {
-            xAxisData = ['1st', '5th', '10th', '15th', '20th', '25th', '30th'];
-            Object.keys(dataMap).forEach(k => {
-                dataMap[k].data = dataMap[k].data.map(v => v * (0.8 + Math.random() * 0.4));
-            });
-        } else if (timeRange === 'Custom') {
-            xAxisData = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+        // Generate X-Axis and Series Data
+        let xAxisData = [];
+        let seriesData = [];
+        
+        if (timeRange === 'Real-time') {
+            // Today 00:00 to 24:00 (every 4 hours for simplicity in mock)
+            xAxisData = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
+            // Generate some realistic looking curve
+            seriesData = xAxisData.map(() => Math.floor(Math.random() * 100) + 50);
+        } else {
+            // Historical
+            if (!startDate) {
+                // Default to yesterday
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                startDate = yesterday.toISOString().split('T')[0];
+                endDate = yesterday.toISOString().split('T')[0];
+            }
+            
+            // Generate hourly data for the selected range (mock)
+            // If same day, show hours. If multiple days, show days.
+            if (startDate === endDate) {
+                xAxisData = ['00:00', '06:00', '12:00', '18:00', '24:00'];
+                seriesData = xAxisData.map(() => Math.floor(Math.random() * 100) + 50);
+            } else {
+                // Mock multi-day
+                xAxisData = [startDate, endDate]; // Simplified for mock
+                seriesData = [120, 150];
+            }
         }
 
-        // Available devices in the current context
+        // Available devices
         const availableDevices = (state.devices && state.devices.length > 0) ? state.devices.map(d => ({
             sn: d.sn,
-            model: d.vendor ? `${d.vendor} ${d.type}` : d.type,
-            type: d.type
+            model: d.vendor ? `${d.vendor} ${d.type}` : d.type
         })) : [
-            { sn: 'INV-001', model: 'SG-5K-D', type: 'Inverter' },
-            { sn: 'INV-002', model: 'SG-5K-D', type: 'Inverter' }
+            { sn: 'INV-001', model: 'SG-5K-D' },
+            { sn: 'INV-002', model: 'SG-5K-D' }
         ];
-
-        const currentData = dataMap[dataType] || dataMap['Power'];
+        
         const types = Object.keys(dataMap);
 
         modalContent.innerHTML = `
@@ -7428,29 +7617,34 @@ const app = {
                         <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                             Device Analysis
                         </h3>
-                        <p class="text-gray-500 text-xs mt-1">Real-time data monitoring</p>
+                        <p class="text-gray-500 text-xs mt-1">Monitor device performance and historical data</p>
                     </div>
                     <button onclick="app.closeModal()" class="text-gray-400 hover:text-gray-900 transition-colors">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Controls -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- Device Selector -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500 uppercase">Select Device</label>
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Device</label>
                         <div class="relative">
                             <i data-lucide="server" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <select onchange="app.renderDeviceDataModalContent(this.value, '${dataType}', '${timeRange}')" class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
+                            <select onchange="app.renderDeviceDataModalContent(this.value, '${dataType}', '${timeRange}', '${startDate || ''}', '${endDate || ''}')" 
+                                class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
                                 ${availableDevices.map(d => `<option value="${d.sn}" ${d.sn === sn ? 'selected' : ''}>${d.sn} - ${d.model}</option>`).join('')}
                             </select>
                             <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
                         </div>
                     </div>
+                    <!-- Metric Selector -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500 uppercase">Data Metric</label>
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Metric</label>
                         <div class="relative">
                             <i data-lucide="activity" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <select onchange="app.renderDeviceDataModalContent('${sn}', this.value, '${timeRange}')" class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
+                            <select onchange="app.renderDeviceDataModalContent('${sn}', this.value, '${timeRange}', '${startDate || ''}', '${endDate || ''}')" 
+                                class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
                                 ${types.map(t => `<option value="${t}" ${t === dataType ? 'selected' : ''}>${t}</option>`).join('')}
                             </select>
                             <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
@@ -7458,62 +7652,56 @@ const app = {
                     </div>
                 </div>
 
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-gray-900">${dataType} Trend</h4>
-                        
-                        <div class="flex items-center gap-3">
-                            <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
-                                ${['24H', '7D', '30D'].map(range => `
-                                    <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', '${range}')" 
-                                        class="px-3 py-1 text-xs rounded-md transition-all ${timeRange === range ? 'bg-white text-gray-900 font-medium shadow-sm' : 'text-gray-500 hover:text-gray-900'}">
-                                        ${range}
-                                    </button>
-                                `).join('')}
+                <!-- Time Range Tabs & Date Picker -->
+                <div class="flex flex-col gap-3 mb-6 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Real-time')" 
+                            class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeRange === 'Real-time' ? 'bg-white text-manta-primary shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
+                            Real-time
+                        </button>
+                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Historical')" 
+                            class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeRange === 'Historical' ? 'bg-white text-manta-primary shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
+                            Historical
+                        </button>
+                    </div>
+
+                    ${timeRange === 'Historical' ? `
+                        <div class="flex items-center gap-2 pt-2 border-t border-gray-200 animate-in fade-in slide-in-from-top-1">
+                            <div class="flex-1 space-y-1">
+                                <label class="text-[10px] uppercase text-gray-400 font-semibold">Start</label>
+                                <input type="date" value="${startDate}" 
+                                    onchange="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Historical', this.value, document.getElementById('end-date-input').value)"
+                                    class="w-full bg-white border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary">
                             </div>
-                            
-                            <div class="h-4 w-px bg-gray-200"></div>
-                            
-                            <div class="relative">
-                                <button onclick="const picker = document.getElementById('custom-range-picker'); picker.classList.toggle('hidden');" 
-                                    class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg border border-gray-200 transition-all ${timeRange === 'Custom' ? 'bg-manta-primary/10 text-manta-primary border-manta-primary/20' : 'bg-gray-50 text-gray-500 hover:text-gray-900 hover:border-gray-300'}">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                    <span>${timeRange === 'Custom' ? 'Custom' : 'Custom'}</span>
-                                </button>
-                                
-                                <div id="custom-range-picker" class="hidden absolute top-full right-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-50 w-64">
-                                    <div class="space-y-3">
-                                        <div class="space-y-1">
-                                            <label class="text-[10px] uppercase text-gray-500 font-semibold">Start Date</label>
-                                            <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary" onclick="event.stopPropagation()">
-                                        </div>
-                                        <div class="space-y-1">
-                                            <label class="text-[10px] uppercase text-gray-500 font-semibold">End Date</label>
-                                            <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary" onclick="event.stopPropagation()">
-                                        </div>
-                                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Custom')" class="w-full bg-manta-primary hover:bg-manta-dark text-white text-xs font-medium py-1.5 rounded transition-colors">
-                                            Apply Range
-                                        </button>
-                                    </div>
-                                </div>
+                            <div class="flex-1 space-y-1">
+                                <label class="text-[10px] uppercase text-gray-400 font-semibold">End</label>
+                                <input type="date" id="end-date-input" value="${endDate}" 
+                                    onchange="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Historical', '${startDate}', this.value)"
+                                    class="w-full bg-white border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary">
                             </div>
                         </div>
-                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- Chart -->
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6">
+                    <h4 class="font-bold text-gray-900 mb-4">${dataType} Trend</h4>
                     <div id="device-chart-container" class="w-full h-[300px]"></div>
                 </div>
 
-                <div class="mt-6 grid grid-cols-3 gap-4">
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-4">
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <p class="text-xs text-gray-500 mb-1">Current</p>
-                        <p class="text-lg font-mono text-gray-900">${currentData.data[currentData.data.length-1].toFixed(1)} <span class="text-xs text-gray-500">${currentData.unit}</span></p>
+                        <p class="text-lg font-mono text-gray-900">${seriesData[seriesData.length-1]?.toFixed(1) || '-'} <span class="text-xs text-gray-500">${currentMeta.unit}</span></p>
                     </div>
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <p class="text-xs text-gray-500 mb-1">Average</p>
-                        <p class="text-lg font-mono text-gray-900">${(currentData.data.reduce((a,b)=>a+b,0)/currentData.data.length).toFixed(1)} <span class="text-xs text-gray-500">${currentData.unit}</span></p>
+                        <p class="text-lg font-mono text-gray-900">${(seriesData.reduce((a,b)=>a+b,0)/seriesData.length).toFixed(1)} <span class="text-xs text-gray-500">${currentMeta.unit}</span></p>
                     </div>
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <p class="text-xs text-gray-500 mb-1">Peak</p>
-                        <p class="text-lg font-mono text-gray-900">${Math.max(...currentData.data).toFixed(1)} <span class="text-xs text-gray-500">${currentData.unit}</span></p>
+                        <p class="text-lg font-mono text-gray-900">${Math.max(...seriesData).toFixed(1)} <span class="text-xs text-gray-500">${currentMeta.unit}</span></p>
                     </div>
                 </div>
             </div>
@@ -7525,7 +7713,6 @@ const app = {
         setTimeout(() => {
             const chartDom = document.getElementById('device-chart-container');
             if (!chartDom) return;
-            // Dispose existing instance if any
             const existingChart = echarts.getInstanceByDom(chartDom);
             if (existingChart) existingChart.dispose();
 
@@ -7545,15 +7732,15 @@ const app = {
                     axisLabel: { color: '#6B7280' }
                 },
                 series: [{
-                    data: currentData.data,
+                    data: seriesData,
                     type: 'line',
                     smooth: true,
                     symbol: 'none',
-                    lineStyle: { width: 3, color: currentData.color },
+                    lineStyle: { width: 3, color: currentMeta.color },
                     areaStyle: {
                         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: currentData.color + '80' }, // 50% opacity
-                            { offset: 1, color: currentData.color + '00' }  // 0% opacity
+                            { offset: 0, color: currentMeta.color + '80' },
+                            { offset: 1, color: currentMeta.color + '00' }
                         ])
                     }
                 }]
