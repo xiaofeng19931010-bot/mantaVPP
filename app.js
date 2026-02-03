@@ -731,6 +731,13 @@ const state = {
         active: 'All',
         currentPage: 1
     },
+    tradingRules: [], // Store created rules
+    tradingRulesList: {
+        state: 'All',
+        vppName: '',
+        triggerType: 'All',
+        currentPage: 1
+    },
     fcasPriceAvailability: {
         region: 'SA',
         direction: 'Raise', // Raise or Lower
@@ -990,7 +997,7 @@ const app = {
         if (navItem) navItem.classList.add('active');
 
         // Handle Electricity Market Submenu Expansion
-        if (['spot_market', 'arbitrage_points'].includes(viewName)) {
+        if (['spot_market', 'arbitrage_points', 'trading'].includes(viewName)) {
             this.expandSubmenu('electricity-market-submenu');
         }
 
@@ -1112,7 +1119,7 @@ const app = {
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-medium text-gray-500">Pricing Region:</span>
-                            <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                            <select id="spot-region-select" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
                                 <option>NSW</option>
                                 <option>VIC</option>
                                 <option>QLD</option>
@@ -1188,17 +1195,6 @@ const app = {
                                             </label>
                                          </div>
                                     </div>
-
-                                    <!-- Price Alert -->
-                                    <label class="block cursor-pointer select-none">
-                                        <input type="checkbox" id="setting-price-alert" class="peer sr-only">
-                                        <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
-                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
-                                                <i data-lucide="check" class="w-3 h-3"></i>
-                                            </div>
-                                            <span class="text-sm">Price Alert</span>
-                                        </div>
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -1241,7 +1237,7 @@ const app = {
                             </div>
                             <div class="h-8 w-px bg-gray-200"></div>
                             <div>
-                                <p class="text-sm text-gray-500 mb-1">Current Sellable Energy</p>
+                                <p class="text-sm text-gray-500 mb-1">Available Discharge</p>
                                 <div class="flex items-end gap-2">
                                     <span class="text-xl font-bold text-gray-900">12.5</span>
                                     <span class="text-sm text-gray-500 mb-1">MWh</span>
@@ -1249,7 +1245,7 @@ const app = {
                             </div>
                             <div class="h-8 w-px bg-gray-200"></div>
                             <div>
-                                <p class="text-sm text-gray-500 mb-1">Current Chargeable Capacity</p>
+                                <p class="text-sm text-gray-500 mb-1">Available Charge</p>
                                 <div class="flex items-end gap-2">
                                     <span class="text-xl font-bold text-gray-900">8.2</span>
                                     <span class="text-sm text-gray-500 mb-1">MWh</span>
@@ -1268,16 +1264,11 @@ const app = {
                                 <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
                                 <p class="text-lg font-bold text-green-600">+$1,520</p>
                             </div>
-                            <div class="h-8 w-px bg-gray-200"></div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Realized Profit</p>
-                                <p class="text-lg font-bold text-manta-primary">+$980 <span class="text-xs text-gray-400 font-normal">(Real-time)</span></p>
-                            </div>
                         </div>
                     </div>
 
                     <!-- Chart Area -->
-                    <div class="flex-1 bg-white relative flex flex-col">
+                    <div id="spot-chart-wrapper" class="flex-1 bg-white relative flex flex-col">
                         <div id="spot-market-chart" class="w-full h-full"></div>
                     </div>
                 </div>
@@ -1322,7 +1313,9 @@ const app = {
                 const dispatchPrices = [];
                 const tradingPrices = [];
                 const forecastTradingPrices = [];
-                const signals = [];
+                const signals = []; // Keep for backward compatibility if needed, or remove
+                const forecastSignals = [];
+                const spotSignals = [];
                 
                 // Seed based on date string for consistency in historical mode
                 let seed = 0;
@@ -1378,7 +1371,8 @@ const app = {
                     const minute = (i % 12) * 5;
                     const timeVal = hour + minute / 60;
                     const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                    timestamps.push(timeStr);
+                    const fullTimeStr = `${dateStr} ${timeStr}`;
+                    timestamps.push(fullTimeStr);
                     
                     // Simulate price curve with AU market characteristics
                     const baseVal = getBasePrice(timeVal);
@@ -1439,14 +1433,60 @@ const app = {
                     if (i % 50 === 0 && random() > 0.5 && (!isRealtime || i <= currentTimeIndex)) {
                         signals.push({
                             name: random() > 0.5 ? 'Buy' : 'Sell',
-                            coord: [timeStr, val],
+                            coord: [fullTimeStr, val],
                             value: random() > 0.5 ? 'B' : 'S',
                             itemStyle: { color: random() > 0.5 ? '#10B981' : '#EF4444' }
                         });
                     }
+
+                    // Generate Forecast Signals (can cover future)
+                    if (i % 25 === 0 && random() > 0.6) {
+                        const types = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
+                        const type = types[Math.floor(random() * types.length)];
+                        
+                        let color, value;
+                        switch (type) {
+                            case 'Discharge': color = '#EF4444'; value = 'D'; break; // Red
+                            case 'Charge': color = '#10B981'; value = 'C'; break;    // Green
+                            case 'Normal': color = '#9CA3AF'; value = 'N'; break;    // Gray
+                            case 'FCAS': color = '#8B5CF6'; value = 'F'; break;      // Purple
+                            case 'Abnormal': color = '#F59E0B'; value = 'A'; break;  // Amber
+                        }
+
+                        forecastSignals.push({
+                            name: type,
+                            coord: [fullTimeStr, forecastTradingVal], // Align with Forecast Spot series data
+                            value: value,
+                            itemStyle: { color: color },
+                            type: type // Used for filtering
+                        });
+                    }
+
+                    // Generate Spot Signals (historical/realtime up to now)
+                    if (i % 35 === 0 && random() > 0.6 && (!isRealtime || i <= currentTimeIndex)) {
+                        const types = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
+                        const type = types[Math.floor(random() * types.length)];
+                        
+                        let color, value;
+                        switch (type) {
+                            case 'Discharge': color = '#EF4444'; value = 'D'; break; // Red
+                            case 'Charge': color = '#10B981'; value = 'C'; break;    // Green
+                            case 'Normal': color = '#9CA3AF'; value = 'N'; break;    // Gray
+                            case 'FCAS': color = '#8B5CF6'; value = 'F'; break;      // Purple
+                            case 'Abnormal': color = '#F59E0B'; value = 'A'; break;  // Amber
+                        }
+
+                        spotSignals.push({
+                            name: type,
+                            coord: [fullTimeStr, currentTradingPrice], // Align with Spot series data
+                            value: value,
+                            itemStyle: { color: color },
+                            type: type // Used for filtering
+                        });
+                    }
                 }
                 
-                return { timestamps, prices, predictions, dispatchPrices, tradingPrices, forecastTradingPrices, signals };
+                return { timestamps, prices, predictions, dispatchPrices, tradingPrices, forecastTradingPrices, signals, forecastSignals, spotSignals };
             }
 
             function updateChart() {
@@ -1474,6 +1514,24 @@ const app = {
                     if (spotEl) spotEl.textContent = spotVal || '-';
                     if (preDispatchEl) preDispatchEl.textContent = preDispatchVal || '-';
                     if (forecastEl) forecastEl.textContent = forecastVal || '-';
+                }
+
+                // Filter Arbitrage Signals
+                const arbitrageEnabled = document.getElementById('setting-arbitrage')?.checked;
+                const selectedArbitrage = document.querySelector('input[name="arbitrage-signal"]:checked');
+                const signalType = selectedArbitrage ? selectedArbitrage.value : 'forecast';
+                
+                const rawSignals = (arbitrageEnabled && (signalType === 'forecast' ? currentData.forecastSignals : currentData.spotSignals)) || [];
+                const displaySignals = [];
+                let lastType = null;
+                
+                if (rawSignals) {
+                    rawSignals.forEach(signal => {
+                        if (signal.type !== lastType) {
+                            displaySignals.push(signal);
+                            lastType = signal.type;
+                        }
+                    });
                 }
 
                 const option = {
@@ -1511,6 +1569,16 @@ const app = {
                                 </div>`;
                             }
                             
+                            // Add Arbitrage Signal
+                            const currentTimestamp = params[0].axisValue;
+                            const signal = displaySignals.find(s => s.coord[0] === currentTimestamp);
+                            if (signal) {
+                                html += `<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between gap-4 text-xs">
+                                    <span class="font-bold text-gray-600">Signal</span>
+                                    <span class="font-bold" style="color:${signal.itemStyle.color}">${signal.type}</span>
+                                </div>`;
+                            }
+
                             return html;
                         }
                     },
@@ -1532,7 +1600,17 @@ const app = {
                             data: currentData.timestamps,
                             axisLine: { show: false },
                             axisTick: { show: false },
-                            axisLabel: { show: true, color: '#9ca3af', margin: 10 }
+                            axisLabel: { 
+                                show: true, 
+                                color: '#9ca3af', 
+                                margin: 10,
+                                formatter: function(value) {
+                                    // Extract HH:mm from "YYYY-MM-DD HH:mm"
+                                    if (!value) return '';
+                                    const parts = value.split(' ');
+                                    return parts.length > 1 ? parts[1] : value;
+                                }
+                            }
                         }
                     ],
                     yAxis: [
@@ -1572,13 +1650,39 @@ const app = {
                             barWidth: '75%',
                             barGap: '-175%', // -100% - (75-30)/2/30 * 100% = -175%
                             z: 1,
-                            showSymbol: false
+                            showSymbol: false,
+                            markPoint: {
+                                data: displaySignals,
+                                symbol: 'pin',
+                                symbolSize: 40,
+                                label: {
+                                    show: true,
+                                    formatter: function(params) {
+                                        return params.data.value;
+                                    },
+                                    color: '#fff',
+                                    fontSize: 12,
+                                    fontWeight: 'bold'
+                                },
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowColor: 'rgba(0,0,0,0.3)'
+                                }
+                            }
                         },
                     ]
                 };
                 
                 myChart.setOption(option);
             }
+
+            // Arbitrage Signal Interaction
+            const arbitrageRadios = document.querySelectorAll('input[name="arbitrage-signal"]');
+            arbitrageRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    updateChart();
+                });
+            });
             
             // Resize handler
             window.addEventListener('resize', () => myChart.resize());
@@ -1586,7 +1690,7 @@ const app = {
             // Refresh Interval Helper
             const startRefreshInterval = () => {
                 if (this.spotMarketInterval) clearInterval(this.spotMarketInterval);
-                this.spotMarketInterval = setInterval(updateChart, 15000);
+                this.spotMarketInterval = setInterval(updateChart, 300000); // 5 minutes
             };
 
             const stopRefreshInterval = () => {
@@ -1621,6 +1725,138 @@ const app = {
                         arbitrageSubmenu.classList.remove('hidden');
                     } else {
                         arbitrageSubmenu.classList.add('hidden');
+                    }
+                    updateChart(); // Trigger chart update to show/hide signals
+                });
+            }
+
+            // Weather Popup Logic
+            const weatherCheckbox = document.getElementById('setting-weather');
+            const spotChartWrapper = document.getElementById('spot-chart-wrapper');
+            const regionSelect = document.getElementById('spot-region-select');
+
+            const getMockWeatherData = (region) => {
+                const cities = { 'NSW': 'Sydney', 'VIC': 'Melbourne', 'QLD': 'Brisbane', 'SA': 'Adelaide', 'TAS': 'Hobart' };
+                return {
+                    current: {
+                        city: cities[region] || region,
+                        temp: Math.floor(20 + Math.random() * 15),
+                        icon: ['sun', 'cloud', 'cloud-rain'][Math.floor(Math.random() * 3)],
+                        desc: ['Sunny', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 3)],
+                        humidity: 60 + Math.floor(Math.random() * 20),
+                        wind: 10 + Math.floor(Math.random() * 15),
+                        feelsLike: 25 + Math.floor(Math.random() * 10)
+                    },
+                    alerts: Math.random() > 0.5 ? [
+                        { level: 'high', type: 'Heat Wave', start: '12:00', end: '18:00', desc: 'Severe heat wave warning.' },
+                        { level: 'medium', type: 'Strong Wind', start: '14:00', end: '20:00', desc: 'Gusts up to 60km/h.' }
+                    ] : []
+                };
+            };
+
+            const hideWeatherPopup = () => {
+                const popup = document.getElementById('weather-popup');
+                if (popup) popup.remove();
+                if (weatherCheckbox && weatherCheckbox.checked) {
+                    weatherCheckbox.checked = false;
+                    // Dispatch change to sync state, but ensure we don't cause a loop if needed.
+                    // The 'change' listener removes the popup if unchecked.
+                    weatherCheckbox.dispatchEvent(new Event('change'));
+                }
+            };
+
+            const renderWeatherPopup = async () => {
+                const region = regionSelect ? regionSelect.value : 'NSW';
+                let popup = document.getElementById('weather-popup');
+                if (popup) popup.remove();
+
+                popup = document.createElement('div');
+                popup.id = 'weather-popup';
+                popup.className = 'absolute top-0 left-0 mt-2 ml-2 w-[320px] bg-white rounded-lg shadow-xl border border-gray-200 z-[1050] overflow-hidden animate-in fade-in zoom-in-95 duration-200 group';
+                popup.innerHTML = `
+                    <div class="p-4 flex items-center justify-center h-40">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-manta-primary"></div>
+                    </div>
+                `;
+                if (spotChartWrapper) spotChartWrapper.appendChild(popup);
+
+                try {
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    const data = getMockWeatherData(region);
+
+                    popup.innerHTML = `
+                        <button id="weather-popup-close" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 transition-all text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 z-10">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                        <div class="p-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-700 mb-1">${data.current.city}</span>
+                                    <span class="text-4xl font-bold text-gray-900">${data.current.temp}°</span>
+                                    <span class="text-sm text-gray-500">${data.current.desc}</span>
+                                </div>
+                                <i data-lucide="${data.current.icon}" class="w-16 h-16 text-yellow-500 stroke-1"></i>
+                            </div>
+                            <div class="space-y-1 text-xs text-gray-500">
+                                <div class="flex items-center gap-1"><i data-lucide="droplets" class="w-3 h-3"></i> ${data.current.humidity}%</div>
+                                <div class="flex items-center gap-1"><i data-lucide="wind" class="w-3 h-3"></i> ${data.current.wind}km/h</div>
+                                <div class="flex items-center gap-1"><i data-lucide="thermometer" class="w-3 h-3"></i> ${data.current.feelsLike}°</div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <h4 class="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wider">24H Major Changes</h4>
+                            <div class="space-y-2">
+                                ${data.alerts.length > 0 ? data.alerts.map(alert => `
+                                    <div class="flex gap-2 p-2 rounded bg-gray-50 border border-gray-100">
+                                        <div class="w-1 rounded-full ${alert.level === 'high' ? 'bg-red-500' : 'bg-orange-500'}"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-0.5">
+                                                <span class="text-xs font-medium text-gray-900 truncate">${alert.type}</span>
+                                                <span class="text-xs text-gray-400 whitespace-nowrap">${alert.start}-${alert.end}</span>
+                                            </div>
+                                            <p class="text-[10px] text-gray-500 leading-tight line-clamp-2">${alert.desc}</p>
+                                        </div>
+                                    </div>
+                                `).join('') : '<div class="text-xs text-gray-400 italic">No major weather changes expected.</div>'}
+                            </div>
+                        </div>
+                    `;
+                    lucide.createIcons();
+
+                    const closeBtn = document.getElementById('weather-popup-close');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            hideWeatherPopup();
+                        });
+                    }
+
+                } catch (e) {
+                    popup.innerHTML = `
+                        <div class="p-4 flex flex-col items-center justify-center h-40 text-center">
+                            <p class="text-sm text-gray-500 mb-3">Weather data fetch failed</p>
+                            <button onclick="document.getElementById('setting-weather').dispatchEvent(new Event('change'))" class="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors">Retry</button>
+                        </div>
+                    `;
+                }
+            };
+
+            if (weatherCheckbox) {
+                weatherCheckbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        renderWeatherPopup();
+                    } else {
+                        const popup = document.getElementById('weather-popup');
+                        if (popup) popup.remove();
+                    }
+                });
+            }
+
+            if (regionSelect) {
+                regionSelect.addEventListener('change', () => {
+                    if (weatherCheckbox && weatherCheckbox.checked) {
+                        renderWeatherPopup();
                     }
                 });
             }
@@ -1661,29 +1897,6 @@ const app = {
                     // Mock jump to strategy
                     alert(`Jump to Strategy Orchestration: View logic for ${params.name} signal (Price: ${params.data.coord[1]})`);
                 }
-            });
-            
-            chartDom.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                // Custom Context Menu Logic
-                const menu = document.createElement('div');
-                menu.className = 'fixed bg-white shadow-lg rounded-lg border border-gray-200 py-1 z-50 text-sm w-40';
-                menu.style.left = e.pageX + 'px';
-                menu.style.top = e.pageY + 'px';
-                menu.innerHTML = `
-
-                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-700">
-                        <i data-lucide="bell" class="w-3 h-3"></i> Set Price Alert
-                    </div>
-                `;
-                document.body.appendChild(menu);
-                lucide.createIcons();
-                
-                const closeMenu = () => {
-                    menu.remove();
-                    document.removeEventListener('click', closeMenu);
-                };
-                setTimeout(() => document.addEventListener('click', closeMenu), 0);
             });
             
         }, 100);
@@ -3898,12 +4111,21 @@ const app = {
             const data = [];
             // Generate data for the last 3 days to cover "Yesterday" and "Today" scenarios
             const now = new Date();
+            // Round down to nearest 5 minutes
+            const minutes = now.getMinutes();
+            const roundedMinutes = Math.floor(minutes / 5) * 5;
+            now.setMinutes(roundedMinutes);
+            now.setSeconds(0);
+            now.setMilliseconds(0);
+
             const signalTypes = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
             
             // Generate 3 days worth of data points (every 5 minutes)
-            // 3 days * 24 hours * 12 intervals = 864 points
-            for (let i = 0; i < 864; i++) {
+            // Start from -1 to include the next 5-minute interval
+            for (let i = -1; i < 864; i++) {
                 const settlementTime = new Date(now.getTime() - i * 5 * 60000);
+                const isFuture = i < 0;
+
                 const forecasts = [];
                 for (let j = 1; j <= 4; j++) {
                     forecasts.push({
@@ -3931,8 +4153,9 @@ const app = {
                     forecastStatus: Math.random() > 0.2, // true = success/green
                     forecastSignalType: finalSignal, // Forecast matches signal for now
                     actualStatus: Math.random() > 0.1,
-                    signalType: finalSignal,
-                    spotPrice: (Math.random() * 200 - 50).toFixed(2) // Random price between -50 and 150
+                    signalType: isFuture ? null : finalSignal,
+                    spotPrice: isFuture ? null : (Math.random() * 200 - 50).toFixed(2),
+                    forecastPrice: (Math.random() * 200 - 50).toFixed(2)
                 });
             }
             return data;
@@ -4025,7 +4248,9 @@ const app = {
                             <table class="w-full text-left border-collapse">
                                 <thead class="sticky top-0 z-10 bg-white">
                                     <tr>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap min-w-[140px]">Time / Spot ($/MW)</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Time</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Spot ($/MW)</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Forecast Spot ($/MW)</th>
                                         <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Time / Forecast Spot ($/MW)</th>
                                         <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center whitespace-nowrap">Signal By Forecast</th>
                                         <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center whitespace-nowrap">Signal By Spot</th>
@@ -4097,10 +4322,13 @@ const app = {
                 return `
                     <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] animate-in fade-in slide-in-from-bottom-1 duration-300">
                         <td class="px-[8px] whitespace-nowrap">
-                            <div class="flex flex-col justify-center h-full py-1">
-                                <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto'] leading-tight">${timeStr}</div>
-                                <div class="text-[12px] text-gray-500 font-['Roboto'] leading-tight mt-0.5">${row.spotPrice}</div>
-                            </div>
+                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto'] leading-tight">${timeStr}</div>
+                        </td>
+                        <td class="px-[8px] whitespace-nowrap">
+                            <div class="text-[12px] text-gray-500 font-['Roboto'] leading-tight">${row.spotPrice || '-'}</div>
+                        </td>
+                        <td class="px-[8px] whitespace-nowrap">
+                            <div class="text-[12px] text-gray-500 font-['Roboto'] leading-tight">${row.forecastPrice || '-'}</div>
                         </td>
                         <td class="px-[8px]">
                             <div class="flex gap-8 overflow-x-auto pb-1 no-scrollbar">
@@ -4113,9 +4341,11 @@ const app = {
                             </span>
                         </td>
                         <td class="px-[8px] text-center">
+                            ${row.signalType ? `
                             <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
                                 ${row.signalType}
                             </span>
+                            ` : '<span class="text-gray-400">-</span>'}
                         </td>
                     </tr>
                 `;
@@ -4131,10 +4361,20 @@ const app = {
         const applyFilters = () => {
             let filtered = [];
             const now = new Date();
+            // Round down to nearest 5 minutes to match data generation
+            const minutes = now.getMinutes();
+            const roundedMinutes = Math.floor(minutes / 5) * 5;
+            now.setMinutes(roundedMinutes);
+            now.setSeconds(0);
+            now.setMilliseconds(0);
+            
+            // Add 5 minutes to include the next interval
+            const futureLimit = new Date(now.getTime() + 5 * 60000);
+
             const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             
             if (currentMode === 'realtime') {
-                filtered = allData.filter(d => d.settlementTime >= todayStart && d.settlementTime <= now);
+                filtered = allData.filter(d => d.settlementTime >= todayStart && d.settlementTime <= futureLimit);
             } else {
                 // Historical
                 const start = dateRange.start ? new Date(dateRange.start) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
@@ -4258,124 +4498,429 @@ const app = {
     },
 
     renderTradingRules(container) {
-        // Mock Data
-        const rules = [
-            { id: 1, state: 'NSW', vppName: 'NSW VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:39:43', eventsTriggered: 38, active: true },
-            { id: 2, state: 'VIC', vppName: 'VIC VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:38:16', eventsTriggered: 32, active: true },
-            { id: 3, state: 'SA', vppName: 'SA VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:37:48', eventsTriggered: 98, active: true },
-            { id: 4, state: 'QLD', vppName: 'QLD VPP', triggerType: 'Actual', triggerPrice: '>= $500.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '27/06/2025 15:35:51', eventsTriggered: 12, active: true },
-            { id: 5, state: 'NSW', vppName: "Jeff's VPP", triggerType: 'Actual', triggerPrice: '>= $300.00/MWh', eventType: 'Discharge', ignoreTime: '', lastModified: '20/03/2024 12:38:58', eventsTriggered: 1285, active: true },
-        ];
+        // Apply Filters
+        let filteredRules = state.tradingRules;
+        
+        if (state.tradingRulesList.state !== 'All') {
+            filteredRules = filteredRules.filter(r => r.state === state.tradingRulesList.state);
+        }
+        if (state.tradingRulesList.triggerType !== 'All') {
+            filteredRules = filteredRules.filter(r => r.triggerType === state.tradingRulesList.triggerType);
+        }
+        if (state.tradingRulesList.vppName) {
+            const term = state.tradingRulesList.vppName.toLowerCase();
+            filteredRules = filteredRules.filter(r => r.vpp.toLowerCase().includes(term));
+        }
 
-        container.innerHTML = `
-            <div class="flex flex-col h-full space-y-4">
-                <!-- Search Bar -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                    <div class="flex flex-wrap items-end gap-4">
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Trigger Type</label>
-                            <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
-                                <option>All</option>
-                                <option>Actual</option>
-                                <option>Forecast</option>
-                            </select>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
-                            <select class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
-                                <option>All</option>
-                                <option>NSW</option>
-                                <option>VIC</option>
-                                <option>QLD</option>
-                                <option>SA</option>
-                            </select>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
-                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
-                        </div>
-                        <button class="px-6 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
-                            Search
-                        </button>
+        // Pagination Logic
+        const itemsPerPage = 10;
+        const totalItems = filteredRules.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const currentPage = Math.min(Math.max(1, state.tradingRulesList.currentPage), totalPages);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentRules = filteredRules.slice(startIndex, endIndex);
+
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        
+        if (state.tradingRules.length === 0) {
+            // Empty State
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="scroll-text" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                </div>
-
-                <!-- Action Bar -->
-                <div class="flex justify-end">
-                    <button onclick="app.openTradingRuleModal()" class="flex items-center gap-2 px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors">
-                        New Trading Rule
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">No Rules Created</h3>
+                    <p class="text-gray-500 text-sm mb-6 max-w-sm text-center">Get started by creating your first trading rule to automate your VPP operations.</p>
+                    <button onclick="app.openTradingRuleDrawer()" class="flex items-center gap-2 px-6 py-2.5 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors group">
+                        <i data-lucide="plus" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        Create Trading Rule
                     </button>
                 </div>
+            `;
+        } else {
+            // List View
+            container.innerHTML = `
+                <div class="h-full flex flex-col bg-white rounded-[4px] overflow-hidden border border-gray-200 shadow-sm">
+                    <!-- Top Bar -->
+                    <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <!-- Filter: State -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-500">State:</span>
+                                <select onchange="app.updateTradingRulesState('state', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2 min-w-[100px]">
+                                    <option value="All" ${state.tradingRulesList.state === 'All' ? 'selected' : ''}>All</option>
+                                    <option value="Active" ${state.tradingRulesList.state === 'Active' ? 'selected' : ''}>Active</option>
+                                    <option value="Inactive" ${state.tradingRulesList.state === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                                </select>
+                            </div>
+                            <!-- Filter: Trigger Type -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-500">Trigger Type:</span>
+                                <select onchange="app.updateTradingRulesState('triggerType', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2 min-w-[120px]">
+                                    <option value="All" ${state.tradingRulesList.triggerType === 'All' ? 'selected' : ''}>All</option>
+                                    <option value="Price" ${state.tradingRulesList.triggerType === 'Price' ? 'selected' : ''}>Price</option>
+                                    <option value="Time" ${state.tradingRulesList.triggerType === 'Time' ? 'selected' : ''}>Time</option>
+                                </select>
+                            </div>
+                            <!-- Search -->
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <i data-lucide="search" class="w-4 h-4 text-gray-500"></i>
+                                </div>
+                                <input type="text" 
+                                    value="${state.tradingRulesList.vppName}"
+                                    oninput="app.updateTradingRulesState('vppName', this.value)"
+                                    class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block w-64 pl-10 p-2" 
+                                    placeholder="Search by VPP name...">
+                            </div>
+                        </div>
+                        <button onclick="app.openTradingRuleDrawer()" class="flex items-center gap-2 px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Create Rule
+                        </button>
+                    </div>
 
-                <!-- Table -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
-                    <div class="overflow-auto flex-1">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                    <!-- Table -->
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10">
                                 <tr>
-                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
-                                    <th class="px-6 py-3 font-medium">State</th>
-                                    <th class="px-6 py-3 font-medium">VPP Name</th>
-                                    <th class="px-6 py-3 font-medium">Trigger Type</th>
-                                    <th class="px-6 py-3 font-medium">Trigger Price</th>
-                                    <th class="px-6 py-3 font-medium">Event Type</th>
-                                    <th class="px-6 py-3 font-medium">Ignore Time</th>
-                                    <th class="px-6 py-3 font-medium">Last Modified At</th>
-                                    <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
-                                    <th class="px-6 py-3 font-medium">Active</th>
-                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                    <th scope="col" class="px-6 py-3">Rule ID</th>
+                                    <th scope="col" class="px-6 py-3">VPP Name</th>
+                                    <th scope="col" class="px-6 py-3">State</th>
+                                    <th scope="col" class="px-6 py-3">Trigger Type</th>
+                                    <th scope="col" class="px-6 py-3">Details</th>
+                                    <th scope="col" class="px-6 py-3">Action</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                ${rules.map((rule, idx) => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
-                                        <td class="px-6 py-4 text-gray-900">${rule.state}</td>
-                                        <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${rule.vppName}</td>
-                                        <td class="px-6 py-4 text-gray-900">${rule.triggerType}</td>
-                                        <td class="px-6 py-4 font-mono text-gray-900 font-medium">${rule.triggerPrice}</td>
-                                        <td class="px-6 py-4 text-gray-900">${rule.eventType}</td>
-                                        <td class="px-6 py-4 text-gray-500">${rule.ignoreTime || '-'}</td>
-                                        <td class="px-6 py-4 text-gray-500">
-                                            <div class="text-gray-900">${rule.lastModified.split(' ')[0]}</div>
-                                            <div class="text-xs text-gray-400">${rule.lastModified.split(' ')[1]}</div>
+                            <tbody>
+                                ${currentRules.length > 0 ? currentRules.map(rule => `
+                                    <tr class="bg-white border-b hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 font-medium text-gray-900">#${rule.id}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.vpp}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${rule.state === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                                ${rule.state}
+                                            </span>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-900 pl-12">${rule.eventsTriggered}</td>
-                                        <td class="px-6 py-4 text-gray-900">${rule.active ? 'Yes' : 'No'}</td>
+                                        <td class="px-6 py-4">${rule.triggerType}</td>
+                                        <td class="px-6 py-4">
+                                            ${rule.triggerType === 'Price' ? `Price ${rule.condition} $${rule.price}` : rule.timeRange || 'Time-based'}
+                                            ${rule.ignoreTimeStart && rule.ignoreTimeEnd ? `<div class="text-xs text-gray-400 mt-1">Ignore: ${rule.ignoreTimeStart} - ${rule.ignoreTimeEnd}</div>` : ''}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                                                ${rule.action}
+                                            </span>
+                                        </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-2">
-                                                <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
-                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                <button onclick="app.toggleTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="${rule.state === 'Active' ? 'Deactivate' : 'Activate'}">
+                                                    <i data-lucide="${rule.state === 'Active' ? 'pause-circle' : 'play-circle'}" class="w-4 h-4"></i>
                                                 </button>
-                                                <button class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                                <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
+                                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="app.deleteTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-red-600 transition-colors" title="Delete">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                `).join('')}
+                                `).join('') : ''}
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- Pagination -->
-                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Total ${rules.length}</span>
-                        <div class="flex items-center gap-2">
-                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50" disabled>
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    ${filteredRules.length > 0 ? `
+                    <div class="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-white">
+                        <div class="text-sm text-gray-500">
+                            Showing <span class="font-medium">${startIndex + 1}</span> to <span class="font-medium">${Math.min(endIndex, totalItems)}</span> of <span class="font-medium">${totalItems}</span> results
+                        </div>
+                        <div class="flex gap-2">
+                            <button 
+                                onclick="app.updateTradingRulesState('currentPage', ${currentPage - 1})"
+                                ${currentPage === 1 ? 'disabled' : ''}
+                                class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Previous
                             </button>
-                            <span class="text-sm font-medium text-gray-900">1</span>
-                            <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            <button 
+                                onclick="app.updateTradingRulesState('currentPage', ${currentPage + 1})"
+                                ${currentPage === totalPages ? 'disabled' : ''}
+                                class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Next
                             </button>
-                            <span class="text-sm text-gray-500 ml-2">Go to</span>
-                            <input type="text" value="1" class="w-10 h-8 border border-gray-300 rounded text-center text-sm focus:ring-manta-primary focus:border-manta-primary">
                         </div>
                     </div>
+                    ` : ''}
                 </div>
+            `;
+        }
+        lucide.createIcons();
+    },
+
+    updateTradingRulesState(key, value) {
+        state.tradingRulesList[key] = value;
+        // Reset to page 1 on filter change
+        if (key !== 'currentPage') {
+            state.tradingRulesList.currentPage = 1;
+        }
+        this.renderTradingRules(document.getElementById('content-area'));
+    },
+
+    openTradingRuleDrawer(ruleId = null) {
+        const drawerContent = document.getElementById('drawer-content');
+        const rule = ruleId ? state.tradingRules.find(r => r.id === ruleId) : null;
+        
+        // Mock VPPs for the selector
+        const vppOptions = state.vpps.length > 0 ? state.vpps : [
+            { id: 1, name: 'Virtual Power Plant 1' },
+            { id: 2, name: 'Virtual Power Plant 2' }
+        ];
+
+        drawerContent.innerHTML = `
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <!-- Header -->
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-bold text-[20px] leading-normal text-[#313949]">${rule ? 'Edit' : 'Create'} Trading Rule</p>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
+                        <img src="assets/icons/close-drawer.svg" class="w-full h-full block" alt="Close">
+                    </button>
+                </div>
+
+                <!-- Form Content -->
+                <form onsubmit="app.handleTradingRuleSubmit(event)" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
+                    <input type="hidden" name="ruleId" value="${rule ? rule.id : ''}">
+                    
+                    <!-- VPP Selector -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Applicable VPP</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <select name="vppId" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                 <option value="" disabled ${!rule ? 'selected' : ''}>Select VPP</option>
+                                 ${vppOptions.map(v => `<option value="${v.id}" ${rule && rule.vppId == v.id ? 'selected' : ''} class="text-[#313949]">${v.name}</option>`).join('')}
+                             </select>
+                             <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                 <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- State -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">State</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                 <option value="Active" ${!rule || rule.state === 'Active' ? 'selected' : ''}>Active</option>
+                                 <option value="Inactive" ${rule && rule.state === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                             </select>
+                             <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                 <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- Trigger Type -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger Type</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <select name="triggerType" required onchange="app.handleTriggerTypeChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                 <option value="Price" ${!rule || rule.triggerType === 'Price' ? 'selected' : ''}>Price</option>
+                                 <option value="Time" ${rule && rule.triggerType === 'Time' ? 'selected' : ''}>Time</option>
+                             </select>
+                             <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                 <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- Trigger Price (Conditional) -->
+                    <div id="field-trigger-price" class="flex flex-col gap-[4px] w-full shrink-0" style="display: ${!rule || rule.triggerType === 'Price' ? 'flex' : 'none'}">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger Price ($)</span>
+                         </div>
+                         <div class="flex gap-2">
+                             <div class="relative w-24 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <select name="condition" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer">
+                                     <option value=">" ${rule && rule.condition === '>' ? 'selected' : ''}>></option>
+                                     <option value="<" ${rule && rule.condition === '<' ? 'selected' : ''}><</option>
+                                     <option value=">=" ${rule && rule.condition === '>=' ? 'selected' : ''}>>=</option>
+                                     <option value="<=" ${rule && rule.condition === '<=' ? 'selected' : ''}><=</option>
+                                 </select>
+                                 <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                     <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                                 </div>
+                             </div>
+                             <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <input type="number" name="price" value="${rule ? rule.price || '' : ''}" step="0.01" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="0.00" ${!rule || rule.triggerType === 'Price' ? 'required' : ''}>
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Action</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <select name="action" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                 <option value="Discharge" ${!rule || rule.action === 'Discharge' ? 'selected' : ''}>Discharge</option>
+                                 <option value="Charge" ${rule && rule.action === 'Charge' ? 'selected' : ''}>Charge</option>
+                                 <option value="Stop" ${rule && rule.action === 'Stop' ? 'selected' : ''}>Stop</option>
+                             </select>
+                             <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                 <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- Ignore Time -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Ignore Time (Optional)</span>
+                         </div>
+                         <div class="flex gap-2 items-center">
+                             <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <input type="time" name="ignoreTimeStart" value="${rule ? rule.ignoreTimeStart || '' : ''}" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                             </div>
+                             <span class="text-gray-400">-</span>
+                             <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <input type="time" name="ignoreTimeEnd" value="${rule ? rule.ignoreTimeEnd || '' : ''}" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                             </div>
+                         </div>
+                    </div>
+                    
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
+                         <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                             Cancel
+                         </button>
+                         <button type="submit" id="rule-submit-btn" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                             ${rule ? 'Update Rule' : 'Create Rule'}
+                         </button>
+                    </div>
+                </form>
             </div>
         `;
+        this.toggleDrawer(true);
+    },
+
+    handleTriggerTypeChange(type) {
+        const priceField = document.getElementById('field-trigger-price');
+        if (priceField) {
+            priceField.style.display = type === 'Price' ? 'flex' : 'none';
+            const priceInput = priceField.querySelector('input[name="price"]');
+            if (priceInput) {
+                if (type === 'Price') priceInput.setAttribute('required', '');
+                else priceInput.removeAttribute('required');
+            }
+        }
+    },
+
+    handleTradingRuleSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('rule-submit-btn');
+
+        // Validation
+        const vppId = formData.get('vppId');
+        const triggerType = formData.get('triggerType');
+        const price = formData.get('price');
+        const ruleId = formData.get('ruleId');
+        
+        if (!vppId) {
+            this.showToast('Please select a VPP', 'error');
+            return;
+        }
+
+        if (triggerType === 'Price' && !price) {
+            this.showToast('Please enter a trigger price', 'error');
+            return;
+        }
+
+        // Loading State
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+        lucide.createIcons({ root: submitBtn });
+
+        // Simulate API
+        setTimeout(() => {
+            const vpp = (state.vpps.length > 0 ? state.vpps : [
+                { id: 1, name: 'Virtual Power Plant 1' },
+                { id: 2, name: 'Virtual Power Plant 2' }
+            ]).find(v => v.id == vppId);
+
+            const ruleData = {
+                vppId: vppId,
+                vpp: vpp ? vpp.name : 'Unknown VPP',
+                state: formData.get('state'),
+                triggerType: triggerType,
+                condition: formData.get('condition'),
+                price: price,
+                action: formData.get('action'),
+                ignoreTimeStart: formData.get('ignoreTimeStart'),
+                ignoreTimeEnd: formData.get('ignoreTimeEnd'),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (ruleId) {
+                // Update existing rule
+                const index = state.tradingRules.findIndex(r => r.id == ruleId);
+                if (index !== -1) {
+                    state.tradingRules[index] = { ...state.tradingRules[index], ...ruleData };
+                    this.showToast('Trading rule updated successfully', 'success');
+                }
+            } else {
+                // Create new rule
+                const newRule = {
+                    id: Date.now(),
+                    ...ruleData,
+                    createdAt: new Date().toISOString()
+                };
+                state.tradingRules.unshift(newRule);
+                this.showToast('Trading rule created successfully', 'success');
+            }
+            
+            this.closeDrawer();
+            this.renderTradingRules(document.getElementById('content-area'));
+
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }, 1000);
+    },
+
+    toggleTradingRule(id) {
+        const rule = state.tradingRules.find(r => r.id === id);
+        if (rule) {
+            rule.state = rule.state === 'Active' ? 'Inactive' : 'Active';
+            this.showToast(`Rule ${rule.state === 'Active' ? 'activated' : 'deactivated'}`, 'success');
+            this.renderTradingRules(document.getElementById('content-area'));
+        }
+    },
+
+    deleteTradingRule(id) {
+        if (confirm('Are you sure you want to delete this trading rule?')) {
+            state.tradingRules = state.tradingRules.filter(r => r.id !== id);
+            this.showToast('Trading rule deleted', 'success');
+            this.renderTradingRules(document.getElementById('content-area'));
+        }
     },
 
     renderOverview(container) {
@@ -5200,7 +5745,6 @@ const app = {
                         <tr class="h-[40px] border-b border-[#e2e6ec]">
                             <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">Status</th>
                             <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">SN</th>
-                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">Manufacturer</th>
                             <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">State</th>
                             <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider text-right">Actions</th>
                         </tr>
@@ -5216,7 +5760,6 @@ const app = {
                                     </span>
                                 </td>
                                 <td class="px-[8px] py-[12px] font-mono text-[14px] text-[#313949] font-normal">${dev.sn}</td>
-                                <td class="px-[8px] py-[12px] font-['Roboto'] text-[14px] text-[#313949] font-normal">${dev.vendor || 'Unknown'}</td>
                                 <td class="px-[8px] py-[12px] font-['Roboto'] text-[14px] text-[#313949] font-normal">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
                                 <td class="px-[8px] py-[12px] text-right">
                                     <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
@@ -5226,7 +5769,7 @@ const app = {
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
+                                <td colspan="4" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
                                     No devices found.
                                 </td>
                             </tr>
@@ -6891,9 +7434,16 @@ const app = {
                                         </div>
                                     </div>
                                     <div class="flex justify-between items-center h-[32px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">SOC</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">Rated Capacity</span>
                                         <div class="flex items-center gap-[8px]">
-                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#313949]">${stats.bat.socPercentage}% (${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)})</span>
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#313949]">${stats.bat.cap.toFixed(1)}</span>
+                                            <span class="font-['Roboto'] font-normal text-[14px] text-[#b5bcc8]">kWh</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center h-[32px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] text-[#5f646e]">Today Yield</span>
+                                        <div class="flex items-center gap-[8px]">
+                                            <span class="font-['Roboto'] font-medium text-[14px] text-[#313949]">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)}</span>
                                             <span class="font-['Roboto'] font-normal text-[14px] text-[#b5bcc8]">kWh</span>
                                         </div>
                                     </div>
@@ -6913,7 +7463,7 @@ const app = {
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Power</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SOC</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Capacity</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Today Yield</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right min-w-[140px]">Actions</th>
                                 </tr>
@@ -6968,12 +7518,7 @@ const app = {
                                             </td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.inv.cap} kW</td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.inv.pvCapacity} kW</td>
-                                            <td class="px-[8px]">
-                                                <div class="flex flex-col">
-                                                    <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.bat.socPercentage}%</span>
-                                                    <span class="text-[10px] text-[#b5bcc8] font-['Roboto']">(${stats.bat.currentEnergy.toFixed(0)}/${stats.bat.cap.toFixed(0)})</span>
-                                                </div>
-                                            </td>
+                                            <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.bat.cap.toFixed(1)} kWh</td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
                                             <td class="px-[8px] text-right">
                                                 <div class="flex items-center justify-end gap-[12px]">
@@ -7169,11 +7714,11 @@ const app = {
                                          <div class="size-[24px] flex items-center justify-center">
                                             <i data-lucide="battery" class="w-5 h-5 text-[#5f646e]"></i>
                                          </div>
-                                         <p class="text-[14px] text-[#5f646e]">SOC</p>
+                                         <p class="text-[14px] text-[#5f646e]">Rated Capacity</p>
                                      </div>
-                                     <div class="flex flex-col items-end">
-                                         <p class="font-semibold text-[18px] text-[#313949]">${socPercentage}%</p>
-                                         <p class="text-[12px] text-[#5f646e]">(${currentEnergy.toFixed(0)}/${batCap.toFixed(0)} kWh)</p>
+                                     <div class="flex gap-[8px] items-center">
+                                         <p class="font-semibold text-[18px] text-[#313949]">${batCap.toFixed(1)}</p>
+                                         <p class="text-[14px] text-[#b5bcc8]">kWh</p>
                                      </div>
                                 </div>
                                  <!-- Today Yield -->
@@ -7238,6 +7783,7 @@ const app = {
                                 <th class="px-[16px] font-medium">State</th>
                                 <th class="px-[16px] font-medium">Rated Power</th>
                                 <th class="px-[16px] font-medium">PV Capacity</th>
+                                <th class="px-[16px] font-medium">Rated Capacity</th>
                                 <th class="px-[16px] font-medium">SOC</th>
                                 <th class="px-[16px] font-medium">Today Yield</th>
                                 <th class="px-[16px] font-medium">Actions</th>
@@ -7248,6 +7794,7 @@ const app = {
                                 const capacity = dev.capacity || 5;
                                 const ratedPower = capacity.toFixed(1) + ' kW';
                                 const pvCapacity = dev.type === 'Inverter' ? (capacity * 1.2).toFixed(1) + ' kW' : '-';
+                                const ratedCapacity = dev.type === 'Battery' ? capacity.toFixed(1) + ' kWh' : '-';
                                 let socDisplay = '-';
                                 if (dev.type === 'Battery') {
                                     const socVal = dev.soc !== undefined ? dev.soc : Math.floor(40 + Math.random() * 40);
@@ -7275,6 +7822,7 @@ const app = {
                                     <td class="px-[16px] py-[12px] text-[#5f646e]">${vpp.state || '-'}</td>
                                     <td class="px-[16px] py-[12px] text-[#313949] font-mono">${ratedPower}</td>
                                     <td class="px-[16px] py-[12px] text-[#313949] font-mono">${pvCapacity}</td>
+                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${ratedCapacity}</td>
                                     <td class="px-[16px] py-[12px] font-mono">${socDisplay}</td>
                                     <td class="px-[16px] py-[12px] text-[#313949] font-mono">${todayYield}</td>
                                     <td class="px-[16px] py-[12px]">
