@@ -625,6 +625,22 @@ const MOCK_DATA = {
         }
     ],
 
+    users: (typeof MOCK_USERS !== 'undefined' && Array.isArray(MOCK_USERS)) ? MOCK_USERS : [
+        { id: 1, userName: '2121 2121', email: 'ian.ru@SmartRent.com.au', company: 'OSW', mobile: '0400000000', status: 'Active', loginCount: 1, lastLoginTime: '2026-02-04 11:53:46', lastLoginIp: '101.185.179.154', currentLoginIp: '101.185.179.154', created: '2026-02-04' },
+        ...Array.from({ length: 15 }, (_, i) => ({
+            id: i + 2,
+            userName: `User ${i + 2}`,
+            email: `user${i + 2}@example.com`,
+            company: ['Solar Naturally Pty Ltd', 'GPOWER PTY LTD', 'Regen Power Pty Ltd', 'Connect Solar Cycle Team', 'Green Energy Co', 'Manta Energy'][i % 6],
+            mobile: `04000000${String(i + 2).padStart(2, '0')}`,
+            status: i % 2 === 0 ? 'Active' : 'Inactive',
+            loginCount: Math.floor(Math.random() * 100),
+            lastLoginTime: '2026-02-04 11:53:46',
+            lastLoginIp: '101.185.179.154',
+            currentLoginIp: '101.185.179.154',
+            created: '2026-02-04'
+        }))
+    ],
     companies: [
         { id: 1, name: 'Solar Naturally Pty Ltd', industry: 'Energy Retailer', country: 'Australia', status: 'Active' },
         { id: 2, name: 'GPOWER PTY LTD', industry: 'Commercial & Industrial', country: 'USA', status: 'Inactive' },
@@ -664,7 +680,8 @@ const titles = {
     vpp_details: 'VPP Details',
     device_management: 'Device Connection',
     system_details: 'System Details',
-    system: 'System'
+    system: 'System',
+    account: 'Account'
 };
 
 // State
@@ -680,13 +697,21 @@ const state = {
     assignedSearchQuery: '',
     discoverySearchQuery: '',
     vppList: {
-        vppName: '',
-        state: ''
+                                                                                                                                                                                                                                                                                                                                                                                        vppName: '',
+        state: '',
+        currentPage: 1,
+        itemsPerPage: 10
+    },
+    derListPagination: {
+        currentPage: 1,
+        itemsPerPage: 10
     },
     subVppList: {
         name: '',
         type: 'All',
-        status: 'All'
+        status: 'All',
+        currentPage: 1,
+        itemsPerPage: 10
     },
     isSuperAdmin: true, // Default to true to simulate an admin user
     cloudBound: false, // New state for cloud platform binding
@@ -698,24 +723,28 @@ const state = {
     capRules: {
         state: 'All',
         vppName: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     capEvents: {
         timeRange: '',
         status: 'All',
         eventType: 'All',
         vppName: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     smartFeedInRules: {
         state: 'All',
         vppName: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     smartFeedInEvents: {
         type: 'All',
         status: 'All',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     tradingEvents: {
         timeRange: '',
@@ -723,15 +752,34 @@ const state = {
         status: 'All',
         state: 'All',
         vppName: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     fcasGroups: {
         groupName: '',
         state: 'All',
         active: 'All',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
-    // Trading Rules State Removed
+    systemDetails: {
+        deviceListPagination: {
+            currentPage: 1,
+            itemsPerPage: 10
+        }
+    },
+    tradingRules: [], // Store created rules
+    tradingRulesList: {
+        state: 'All',
+        vppName: '',
+        triggerType: 'All',
+        currentPage: 1,
+        itemsPerPage: 10
+    },
+    tradingRuleVppSelections: [],
+    tradingRuleVppDropdownOpen: false,
+    tradingRuleVppOptions: [],
+    tradingOverviewTab: 'rules',
     fcasPriceAvailability: {
         region: 'SA',
         direction: 'Raise', // Raise or Lower
@@ -739,7 +787,8 @@ const state = {
         bids: {
             dateRange: '',
             serviceType: 'All',
-            currentPage: 1
+            currentPage: 1,
+            itemsPerPage: 10
         }
     },
     reportsVppEvents: {
@@ -747,7 +796,8 @@ const state = {
         status: 'All',
         eventType: 'All',
         vppName: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     reportsDerEvents: {
         timeRange: '',
@@ -755,7 +805,8 @@ const state = {
         status: 'All',
         from: 'All',
         sn: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
     },
     reportsVppEventItems: {
         month: '',
@@ -763,7 +814,19 @@ const state = {
         from: 'All',
         eventId: '',
         nmi: '',
-        currentPage: 1
+        currentPage: 1,
+        itemsPerPage: 10
+    },
+    account: {
+        status: 'All',
+        company: 'All',
+        keyword: '',
+        currentPage: 1,
+        itemsPerPage: 10
+    },
+    arbitrage: {
+        currentPage: 1,
+        itemsPerPage: 10
     },
     currentUser: {
         company: 'Manta Energy',
@@ -901,10 +964,10 @@ const app = {
 
         const breadcrumbPaths = {
             'overview': [{label: 'Overview'}],
-            'electricity_market': [{label: 'Electricity Market'}],
-            'spot_market': [{label: 'Electricity Market'}],
-            'arbitrage_points': [{label: 'Electricity Market'}, {label: 'Arbitrage Points'}],
-            'trading': [{label: 'Trading'}],
+            'electricity_market': [{label: 'Spot Market'}],
+            'spot_market': [{label: 'Spot Market'}, {label: 'Spot Price'}],
+            'arbitrage_points': [{label: 'Spot Market'}, {label: 'Arbitrage Points'}],
+            'trading': [{label: 'Spot Market'}, {label: 'Spot Trading'}],
             'trading_rules': [{label: 'Trading'}, {label: 'Trading Rules'}],
             'trading_events': [{label: 'Trading'}, {label: 'Trading Events'}],
             'smart_feed_in': [{label: 'Smart Feed-in'}],
@@ -925,10 +988,11 @@ const app = {
             'reports_terminated': [{label: 'Reports'}, {label: 'Terminated'}],
             'vpp': [{label: 'VPP Management'}],
             'der': [{label: 'DER Management'}],
-            'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
+            'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV ESS'}],
             'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
-            'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'EV'}],
+            'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
             'device_management': [{label: 'System'}, {label: 'Sub-VPP Management'}],
+            'account': [{label: 'System'}, {label: 'Account'}],
             'vpp_details': [
                 {label: 'VPP Management', view: 'vpp'}, 
                 {label: 'VPP Details'}
@@ -940,7 +1004,7 @@ const app = {
             ],
             'device_details': [
                 {label: 'DER Management', view: 'der'},
-                {label: 'ESS', view: 'der_ess'}, 
+                {label: 'PV ESS', view: 'der_ess'}, 
                 {label: 'Device Details'}
             ],
         };
@@ -1026,7 +1090,7 @@ const app = {
         }
 
         // Handle System Submenu Expansion
-        if (['device_management'].includes(viewName)) {
+        if (['device_management', 'account'].includes(viewName)) {
             this.expandSubmenu('system-submenu');
         }
 
@@ -1044,7 +1108,10 @@ const app = {
             this.renderOverview(contentArea);
         } else if (viewName === 'arbitrage_points') {
             this.renderArbitragePoints(contentArea);
-        // Trading rules removed
+        } else if (viewName === 'trading') {
+            this.renderTradingOverview(contentArea);
+        } else if (viewName === 'trading_rules') {
+            this.renderTradingRules(contentArea);
         } else if (viewName === 'trading_events') {
             this.renderTradingEvents(contentArea);
         } else if (viewName === 'smart_feed_in_rules') {
@@ -1069,7 +1136,9 @@ const app = {
             this.renderReportsVppEventItems(contentArea);
         } else if (viewName === 'spot_market') {
             this.renderSpotMarket(contentArea);
-        } else if (['electricity_market', 'trading', 'smart_feed_in', 'cap_service', 'fcas', 'reports', 'reports_vpp_event_month_summary', 'reports_terminated'].includes(viewName)) {
+        } else if (viewName === 'account') {
+            this.renderAccount(contentArea);
+        } else if (['electricity_market', 'smart_feed_in', 'cap_service', 'fcas', 'reports', 'reports_vpp_event_month_summary', 'reports_terminated'].includes(viewName)) {
             this.renderPlaceholder(contentArea, titles[viewName]);
         } else if (viewName === 'vpp') {
             this.renderVPP(contentArea);
@@ -1095,6 +1164,31 @@ const app = {
         }
 
         lucide.createIcons();
+    },
+
+    updateVPPListState(key, value) {
+        state.vppList[key] = value;
+        if (key !== 'currentPage') {
+            state.vppList.currentPage = 1;
+        }
+        this.renderVPP(document.getElementById('content-area'));
+    },
+
+    updateSubVPPListState(key, value) {
+        state.subVppList[key] = value;
+        if (key === 'itemsPerPage') {
+            state.subVppList.currentPage = 1;
+        }
+        this.renderDeviceManagement(document.getElementById('content-area'));
+        lucide.createIcons();
+    },
+
+    updateDERListState(key, value) {
+        state.derListPagination[key] = value;
+        if (key === 'itemsPerPage') {
+            state.derListPagination.currentPage = 1;
+        }
+        this.renderVPPDetails(document.getElementById('content-area'), state.selectedVppId);
     },
 
     renderSpotMarket(container) {
@@ -1264,6 +1358,7 @@ const app = {
                     <div id="spot-chart-wrapper" class="flex-1 bg-white relative flex flex-col">
                         <div id="spot-market-chart" class="w-full h-full"></div>
                     </div>
+<!-- Pagination removed -->
                 </div>
 
 
@@ -2078,8 +2173,19 @@ const app = {
         }
     },
 
+    updateArbitrageState(key, value) {
+        const parts = key.split('.');
+        if (parts.length === 2) {
+            state[parts[0]][parts[1]] = value;
+            if (parts[0] === 'arbitrage') {
+                this.renderArbitragePoints(document.getElementById('content-area'));
+            }
+        }
+    },
+
     renderCapRules(container) {
         const { state: stateFilter, vppName, currentPage } = state.capRules;
+        const itemsPerPage = state.capRules.itemsPerPage || 10;
         
         // Filter logic
         let filteredRules = MOCK_DATA.capRules.filter(rule => {
@@ -2088,12 +2194,30 @@ const app = {
             return matchState && matchVppName;
         });
 
-        const total = filteredRules.length;
-        const totalPages = Math.ceil(total / 10);
+        const totalItems = filteredRules.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
         
         // Pagination logic
-        const startIdx = (currentPage - 1) * 10;
-        const rules = filteredRules.slice(startIdx, startIdx + 10);
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const rules = filteredRules.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -2191,21 +2315,35 @@ const app = {
                     
                     <!-- Pagination -->
                     <div class="border-t border-gray-100 p-4 flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Total ${total}</span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateCapState('capRules.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="app.updateCapState('capRules.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                            <button onclick="app.updateCapState('capRules.currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1;
-                                return `<button onclick="app.updateCapState('capRules.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateCapState('capRules.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
                             }).join('')}
-                            <button onclick="app.updateCapState('capRules.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                            <button onclick="app.updateCapState('capRules.currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         `;
         
@@ -2216,6 +2354,7 @@ const app = {
 
     renderCapEvents(container) {
         const { timeRange, status, eventType, vppName, currentPage } = state.capEvents;
+        const itemsPerPage = state.capEvents.itemsPerPage || 10;
         
         // Filter logic
         let filteredEvents = MOCK_DATA.capEvents.filter(event => {
@@ -2226,12 +2365,30 @@ const app = {
             return matchTime && matchStatus && matchEventType && matchVppName;
         });
 
-        const total = filteredEvents.length;
-        const totalPages = Math.ceil(total / 10);
+        const totalItems = filteredEvents.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
         
         // Pagination logic
-        const startIdx = (currentPage - 1) * 10;
-        const events = filteredEvents.slice(startIdx, startIdx + 10);
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const events = filteredEvents.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -2277,23 +2434,6 @@ const app = {
 
                 <!-- Table Section -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
-                    <!-- Table Header Controls -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                        <span class="text-sm text-gray-500">Total ${total}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="app.updateCapState('capEvents.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                            </button>
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1;
-                                return `<button onclick="app.updateCapState('capEvents.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
-                            }).join('')}
-                            <button onclick="app.updateCapState('capEvents.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-
                     <div class="overflow-auto flex-1">
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
@@ -2376,6 +2516,36 @@ const app = {
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateCapState('capEvents.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateCapState('capEvents.currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateCapState('capEvents.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateCapState('capEvents.currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -2387,6 +2557,7 @@ const app = {
 
     renderReportsVppEventItems(container) {
         const { month, eventType, from, eventId, nmi, currentPage } = state.reportsVppEventItems;
+        const itemsPerPage = state.reportsVppEventItems.itemsPerPage || 10;
         
         // Filter logic
         let filteredEvents = MOCK_DATA.reportsVppEventItems.filter(item => {
@@ -2398,12 +2569,30 @@ const app = {
             return matchMonth && matchEventType && matchFrom && matchEventId && matchNmi;
         });
 
-        const total = filteredEvents.length;
-        const totalPages = Math.ceil(total / 10);
+        const totalItems = filteredEvents.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
         
         // Pagination logic
-        const startIdx = (currentPage - 1) * 10;
-        const events = filteredEvents.slice(startIdx, startIdx + 10);
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const slicedEvents = filteredEvents.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -2450,33 +2639,6 @@ const app = {
 
                 <!-- Table Section -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
-                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                         <span class="text-sm text-gray-500">Total ${total}</span>
-                         
-                         <!-- Pagination Controls -->
-                         <div class="flex items-center gap-2 text-sm">
-                            <button onclick="app.updateReportsVppEventItemsState('currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                            </button>
-                            
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1; // Simplified pagination for now
-                                return `<span class="${pageNum === currentPage ? 'font-medium text-green-600' : 'text-gray-600 cursor-pointer hover:bg-gray-100'} w-6 text-center rounded-full py-1" onclick="app.updateReportsVppEventItemsState('currentPage', ${pageNum})">${pageNum}</span>`;
-                            }).join('')}
-                            
-                            ${totalPages > 5 ? '<span class="text-gray-400">...</span>' : ''}
-                            
-                            <button onclick="app.updateReportsVppEventItemsState('currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                            </button>
-                         </div>
-                         
-                         <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
-                             <span>Go to</span>
-                             <input type="text" value="${currentPage}" onchange="app.updateReportsVppEventItemsState('currentPage', parseInt(this.value) || 1)" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
-                         </div>
-                     </div>
-
                     <div class="flex-1 overflow-auto">
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
@@ -2497,9 +2659,9 @@ const app = {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                ${events.length > 0 ? events.map((event, idx) => `
+                                ${slicedEvents.length > 0 ? slicedEvents.map((event, idx) => `
                                     <tr class="hover:bg-gray-50 transition-colors group">
-                                        <td class="px-6 py-4 text-gray-500">${(currentPage - 1) * 10 + idx + 1}</td>
+                                        <td class="px-6 py-4 text-gray-500">${(validCurrentPage - 1) * itemsPerPage + idx + 1}</td>
                                         <td class="px-6 py-4 text-gray-900">${event.eventId}</td>
                                         <td class="px-6 py-4 text-gray-900">${event.nmi}</td>
                                         <td class="px-6 py-4 text-gray-600">${event.eventType}</td>
@@ -2520,6 +2682,35 @@ const app = {
                                 `}
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateReportsVppEventItemsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateReportsVppEventItemsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateReportsVppEventItemsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateReportsVppEventItemsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2550,12 +2741,31 @@ const app = {
             return matchName && matchState && matchActive;
         });
 
-        const total = filteredGroups.length;
-        const totalPages = Math.ceil(total / 10);
+        const itemsPerPage = state.fcasGroups.itemsPerPage || 10;
+        const totalItems = filteredGroups.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
         
         // Pagination logic
-        const startIdx = (currentPage - 1) * 10;
-        const groups = filteredGroups.slice(startIdx, startIdx + 10);
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const groups = filteredGroups.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -2595,21 +2805,6 @@ const app = {
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
                     <!-- Table Header Controls -->
                     <div class="flex items-center justify-end px-6 py-4 border-b border-gray-100 gap-4">
-                        <span class="text-sm text-gray-500">Total ${total}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                            </button>
-                            
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1;
-                                return `<button onclick="app.updateFcasGroupsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
-                            }).join('')}
-                            
-                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                            </button>
-                        </div>
                     </div>
 
                     <div class="overflow-auto flex-1">
@@ -2689,20 +2884,31 @@ const app = {
                         </table>
                     </div>
                      <!-- Pagination Bottom -->
-                    <div class="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-4">
-                        <span class="text-sm text-gray-500">Total ${total}</span>
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateFcasGroupsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            <button onclick="app.updateFcasGroupsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1;
-                                return `<button onclick="app.updateFcasGroupsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateFcasGroupsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
                             }).join('')}
-                            
-                            <button onclick="app.updateFcasGroupsState('currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            <button onclick="app.updateFcasGroupsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
@@ -2733,10 +2939,30 @@ const app = {
             return bidsState.serviceType === 'All' || bid.serviceType === bidsState.serviceType;
         });
 
+        const itemsPerPage = bidsState.itemsPerPage || 10;
         const totalBids = filteredBids.length;
-        const totalPages = Math.ceil(totalBids / 10);
-        const startIdx = (bidsState.currentPage - 1) * 10;
-        const currentBids = filteredBids.slice(startIdx, startIdx + 10);
+        const totalPages = Math.ceil(totalBids / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, bidsState.currentPage), totalPages);
+        
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const currentBids = filteredBids.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -2916,20 +3142,31 @@ const app = {
                     </div>
                     
                     <!-- Pagination -->
-                    <div class="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-4">
-                        <span class="text-sm text-gray-500">Total ${totalBids}</span>
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalBids}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateFcasPriceAvailabilityState('bids.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${bidsState.currentPage - 1})" ${bidsState.currentPage <= 1 ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            <button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1;
-                                return `<button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === bidsState.currentPage ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
                             }).join('')}
-                            
-                            <button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${bidsState.currentPage + 1})" ${bidsState.currentPage >= totalPages ? 'disabled' : ''} class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            <button onclick="app.updateFcasPriceAvailabilityState('bids.currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
@@ -3016,9 +3253,49 @@ const app = {
         this.renderFcasPriceAvailability(document.getElementById('content-area'));
     },
 
+    updateReportsVppEventsState(key, value) {
+        state.reportsVppEvents[key] = value;
+        this.renderReportsVppEvents(document.getElementById('content-area'));
+    },
+
+    updateReportsDerEventsState(key, value) {
+        state.reportsDerEvents[key] = value;
+        this.renderReportsDerEvents(document.getElementById('content-area'));
+    },
+
     renderReportsVppEvents(container) {
-        const events = MOCK_DATA.reportsVppEvents;
-        const total = 15295; // From screenshot
+        const { currentPage, itemsPerPage } = state.reportsVppEvents;
+        
+        // Mock data expansion for pagination demo
+        let allEvents = [...MOCK_DATA.reportsVppEvents];
+        // Duplicate to have enough items for pagination demo
+        while (allEvents.length < 55) {
+             allEvents = [...allEvents, ...MOCK_DATA.reportsVppEvents.map((e, i) => ({...e, id: allEvents.length + 1 + i}))];
+        }
+
+        const totalItems = allEvents.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+        
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const events = allEvents.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
         
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
@@ -3062,29 +3339,38 @@ const app = {
                 <!-- Table Section -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
                      <div class="flex items-center justify-end px-6 py-4 gap-4 border-b border-gray-100">
-                         <span class="text-sm text-gray-500">Total ${total}</span>
+                         <div class="flex items-center gap-4">
+                             <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                             <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateReportsVppEventsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                         </div>
                          
                          <!-- Pagination Controls -->
                          <div class="flex items-center gap-2 text-sm">
-                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            <span class="font-medium text-green-600 w-6 text-center">1</span>
-                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">2</span>
-                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">3</span>
-                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">4</span>
-                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">5</span>
-                            <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">6</span>
-                            <span class="text-gray-400">...</span>
-                            <span class="text-gray-600 w-8 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">765</span>
-                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateReportsVppEventsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                          </div>
                          
                          <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
                              <span>Go to</span>
-                             <input type="text" value="1" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                             <input type="text" value="${validCurrentPage}" onchange="app.updateReportsVppEventsState('currentPage', Number(this.value))" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
                          </div>
                      </div>
 
@@ -3156,8 +3442,38 @@ const app = {
     },
 
     renderReportsDerEvents(container) {
-        const events = MOCK_DATA.reportsDerEvents;
-        const total = 795202; // From screenshot
+        const { currentPage, itemsPerPage } = state.reportsDerEvents;
+        
+        // Mock data expansion for pagination demo
+        let allEvents = [...MOCK_DATA.reportsDerEvents];
+        // Duplicate to have enough items for pagination demo
+        while (allEvents.length < 55) {
+             allEvents = [...allEvents, ...MOCK_DATA.reportsDerEvents.map((e, i) => ({...e, id: allEvents.length + 1 + i}))];
+        }
+
+        const totalItems = allEvents.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+        
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const events = allEvents.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
         
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
@@ -3213,29 +3529,36 @@ const app = {
                          </button>
                          
                          <div class="flex items-center gap-4">
-                             <span class="text-sm text-gray-500">Total ${total}</span>
+                             <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                             <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateReportsDerEventsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
                              
                              <!-- Pagination Controls -->
-                             <div class="flex items-center gap-2 text-sm">
-                                <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                             <div class="flex items-center gap-2 text-sm ml-4">
+                                <button onclick="app.updateReportsDerEventsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
                                 </button>
-                                <span class="font-medium text-green-600 w-6 text-center">1</span>
-                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">2</span>
-                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">3</span>
-                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">4</span>
-                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">5</span>
-                                <span class="text-gray-600 w-6 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">6</span>
-                                <span class="text-gray-400">...</span>
-                                <span class="text-gray-600 w-12 text-center cursor-pointer hover:bg-gray-100 rounded-full py-1">39761</span>
-                                <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                ${pages.map(pageNum => {
+                                    if (pageNum === '...') {
+                                        return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                    }
+                                    return `<button onclick="app.updateReportsDerEventsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                                }).join('')}
+                                <button onclick="app.updateReportsDerEventsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
                                 </button>
                              </div>
                              
                              <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
                                  <span>Go to</span>
-                                 <input type="text" value="1" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                                 <input type="text" value="${validCurrentPage}" onchange="app.updateReportsDerEventsState('currentPage', Number(this.value))" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
                              </div>
                          </div>
                      </div>
@@ -3506,7 +3829,33 @@ const app = {
     },
 
     renderTradingEvents(container) {
+        const { currentPage } = state.tradingEvents;
+        const itemsPerPage = state.tradingEvents.itemsPerPage || 10;
+        
         const events = MOCK_DATA.tradingEvents;
+        const totalItems = events.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const slicedEvents = events.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
         
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
@@ -3561,43 +3910,58 @@ const app = {
                 <!-- Table -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
                     <div class="flex items-center justify-end px-4 py-2 border-b border-gray-100">
-                         <span class="text-xs text-gray-500">Total ${events.length}</span>
+                         <span class="text-xs text-gray-500">Total ${totalItems}</span>
                     </div>
                     <div class="overflow-auto flex-1">
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
-                                    <th class="px-6 py-3 font-medium">VPP Name</th>
+                                    <th class="px-6 py-3 font-medium">Date</th>
+                                    <th class="px-6 py-3 font-medium">VPP</th>
                                     <th class="px-6 py-3 font-medium">State</th>
                                     <th class="px-6 py-3 font-medium">Trigger Type</th>
-                                    <th class="px-6 py-3 font-medium">Event Type</th>
-                                    <th class="px-6 py-3 font-medium">Actual Price</th>
-                                    <th class="px-6 py-3 font-medium">Date</th>
-                                    <th class="px-6 py-3 font-medium">Start Time - End Time</th>
+                                    <th class="px-6 py-3 font-medium">Action</th>
+                                    <th class="px-6 py-3 font-medium">Spot</th>
+                                    <th class="px-6 py-3 font-medium">Start Time</th>
+                                    <th class="px-6 py-3 font-medium">End Time</th>
                                     <th class="px-6 py-3 font-medium">Power</th>
+                                    <th class="px-6 py-3 font-medium">Volume</th>
+                                    <th class="px-6 py-3 font-medium">Status</th>
+                                    <th class="px-6 py-3 font-medium">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="trading-events-tbody">
-                                ${this.renderTradingEventsRows(events)}
+                                ${this.renderTradingEventsRows(slicedEvents)}
                             </tbody>
                         </table>
                     </div>
                     
                     <!-- Pagination -->
                     <div class="border-t border-gray-100 p-4 flex items-center justify-between">
-                         <span class="text-sm text-gray-500">Total ${events.length}</span>
-                         <div class="flex items-center gap-2">
-                             <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50" disabled>
-                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                             </button>
-                             <span class="text-sm font-medium text-gray-900">1</span>
-                             <button class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                             </button>
-                             <span class="text-sm text-gray-500 ml-2">Go to</span>
-                             <input type="text" value="1" class="w-10 h-8 border border-gray-300 rounded text-center text-sm focus:ring-manta-primary focus:border-manta-primary">
-                         </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateTradingState('tradingEvents.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateTradingState('tradingEvents.currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') return `<span class="px-2 text-gray-400">...</span>`;
+                                return `<button onclick="app.updateTradingState('tradingEvents.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateTradingState('tradingEvents.currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3620,11 +3984,31 @@ const app = {
         });
 
         const total = filteredRules.length;
-        const totalPages = Math.ceil(total / 10);
-        
+        const itemsPerPage = state.smartFeedInRules.itemsPerPage || 10;
+        const totalItems = filteredRules.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
         // Pagination logic
-        const startIdx = (currentPage - 1) * 10;
-        const rules = filteredRules.slice(startIdx, startIdx + 10);
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const rules = filteredRules.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
         
         container.innerHTML = `
             <div class="flex flex-col h-full space-y-4">
@@ -3758,16 +4142,29 @@ const app = {
                     
                     <!-- Pagination -->
                     <div class="border-t border-gray-100 p-4 flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Total ${total}</span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateSmartFeedInState('smartFeedInRules.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                            <button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                                const pageNum = i + 1;
-                                return `<button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') {
+                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                                }
+                                return `<button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
                             }).join('')}
-                            <button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                            <button onclick="app.updateSmartFeedInState('smartFeedInRules.currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                         </div>
@@ -3784,7 +4181,33 @@ const app = {
     },
 
     renderSmartFeedInEvents(container) {
+        const { currentPage } = state.smartFeedInEvents;
+        const itemsPerPage = state.smartFeedInEvents.itemsPerPage || 10;
+        
         const events = MOCK_DATA.smartFeedInEvents;
+        const totalItems = events.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+        const startIdx = (validCurrentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const slicedEvents = events.slice(startIdx, endIdx);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (validCurrentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (validCurrentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', validCurrentPage - 1, validCurrentPage, validCurrentPage + 1, '...', totalPages];
+                }
+            }
+        }
         
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
@@ -3855,9 +4278,37 @@ const app = {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="safety-events-tbody">
-                                ${this.renderSafetyEventsRows(events)}
+                                ${this.renderSafetyEventsRows(slicedEvents)}
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Rows per page:</span>
+                                <select onchange="app.updateSmartFeedInState('smartFeedInEvents.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.updateSmartFeedInState('smartFeedInEvents.currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            ${pages.map(pageNum => {
+                                if (pageNum === '...') return `<span class="px-2 text-gray-400">...</span>`;
+                                return `<button onclick="app.updateSmartFeedInState('smartFeedInEvents.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                            }).join('')}
+                            <button onclick="app.updateSmartFeedInState('smartFeedInEvents.currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4055,19 +4506,45 @@ const app = {
     },
 
     renderTradingEventsRows(events) {
-        return events.map((event, idx) => `
+        return events.map((event) => {
+            const matchedRule = state.tradingRules.find(rule => {
+                const ruleNames = [];
+                if (rule.vpp) ruleNames.push(rule.vpp);
+                if (rule.applicableVpps && rule.applicableVpps.length) {
+                    ruleNames.push(...rule.applicableVpps.map(v => v.name).filter(Boolean));
+                }
+                return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
+            });
+            const triggerType = matchedRule?.triggerType || event.triggerType || '-';
+            const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
+            const startTime = timeParts[0] || '-';
+            const endTime = timeParts[1] || '-';
+            const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
+            const volume = event.volume || '-';
+            const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
+            return `
             <tr class="hover:bg-gray-50 transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300">
-                <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
-                <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${event.vppName}</td>
-                <td class="px-6 py-4 text-gray-900">${event.state}</td>
-                <td class="px-6 py-4 text-gray-900">${event.triggerType}</td>
-                <td class="px-6 py-4 text-gray-900">${event.eventType}</td>
-                <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${event.price.toFixed(5)} /MWh</td>
-                <td class="px-6 py-4 text-gray-500">${event.date}</td>
-                <td class="px-6 py-4 text-gray-500">${event.timeRange}</td>
-                <td class="px-6 py-4 text-gray-900 font-medium">${event.power.toFixed(2)} kW</td>
+                <td class="px-6 py-4 text-gray-500">${event.date || '-'}</td>
+                <td class="px-6 py-4 font-medium text-blue-600 hover:text-blue-800 cursor-pointer">${event.vppName || '-'}</td>
+                <td class="px-6 py-4 text-gray-900">${event.state || '-'}</td>
+                <td class="px-6 py-4 text-gray-900">${triggerType}</td>
+                <td class="px-6 py-4 text-gray-900">${event.eventType || '-'}</td>
+                <td class="px-6 py-4 font-mono text-gray-900 font-medium">${spot}</td>
+                <td class="px-6 py-4 text-gray-500">${startTime}</td>
+                <td class="px-6 py-4 text-gray-500">${endTime}</td>
+                <td class="px-6 py-4 text-gray-900 font-medium">${power}</td>
+                <td class="px-6 py-4 text-gray-900 font-medium">${volume}</td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
     },
 
     startTradingSimulation() {
@@ -4257,25 +4734,63 @@ const app = {
                     </div>
 
                     <!-- Pagination Header -->
-                    <div class="px-6 py-3 border-t border-gray-200 flex flex-wrap justify-end items-center gap-4 text-sm text-gray-600 bg-gray-50/50">
-                        <span class="text-gray-500">Total 285</span>
-                        <div class="flex items-center gap-1">
-                            <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                            <span class="font-medium text-manta-primary px-2">1</span>
-                            <span class="px-2 cursor-pointer hover:text-gray-900">2</span>
-                            <span class="px-2 cursor-pointer hover:text-gray-900">3</span>
-                            <span class="px-2 text-gray-400">...</span>
-                            <span class="px-2 cursor-pointer hover:text-gray-900">15</span>
-                            <button class="p-1 hover:bg-gray-200 rounded text-gray-600 transition-colors"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-                        </div>
-                        <div class="flex items-center gap-2 border-l border-gray-200 pl-4">
-                            <span>Go to</span>
-                            <input type="text" value="1" class="w-12 text-center border border-gray-300 rounded px-1 py-0.5 focus:ring-manta-primary focus:border-manta-primary">
-                        </div>
+                    <div id="arbitrage-pagination" class="border-t border-gray-100 p-4 flex items-center justify-between">
+                        <!-- Pagination controls rendered by JS -->
                     </div>
                 </div>
             </div>
         `;
+
+        // Pagination Controls Renderer
+        const updatePaginationControls = (totalItems, totalPages, currentPage, itemsPerPage) => {
+            const paginationContainer = document.getElementById('arbitrage-pagination');
+            if (!paginationContainer) return;
+
+            // Calculate pagination pages
+            let pages = [];
+            if (totalPages > 0) {
+                if (totalPages <= 7) {
+                    pages = Array.from({length: totalPages}, (_, i) => i + 1);
+                } else {
+                    if (currentPage <= 4) {
+                        pages = [1, 2, 3, 4, 5, '...', totalPages];
+                    } else if (currentPage >= totalPages - 3) {
+                        pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                    } else {
+                        pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                    }
+                }
+            }
+
+            paginationContainer.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-500">Rows per page:</span>
+                        <select onchange="app.updateArbitrageState('arbitrage.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                            <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                            <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                            <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                            <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="app.updateArbitrageState('arbitrage.currentPage', ${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    ${pages.map(pageNum => {
+                        if (pageNum === '...') return `<span class="px-2 text-gray-400">...</span>`;
+                        return `<button onclick="app.updateArbitrageState('arbitrage.currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === currentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                    }).join('')}
+                    <button onclick="app.updateArbitrageState('arbitrage.currentPage', ${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            `;
+            
+            if (window.lucide) window.lucide.createIcons();
+        };
 
         // Tab Switching Logic moved below renderTableBody
 
@@ -4388,7 +4903,23 @@ const app = {
             // Sort by time descending
             filtered.sort((a, b) => b.settlementTime - a.settlementTime);
 
-            renderTableBody(filtered);
+            // Pagination Logic
+            const { currentPage, itemsPerPage } = state.arbitrage;
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const validCurrentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+
+            // Sync state if needed
+            if (state.arbitrage.currentPage !== validCurrentPage) {
+                state.arbitrage.currentPage = validCurrentPage;
+            }
+
+            const startIdx = (validCurrentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const paginatedData = filtered.slice(startIdx, endIdx);
+
+            renderTableBody(paginatedData);
+            updatePaginationControls(totalItems, totalPages, validCurrentPage, itemsPerPage);
         };
 
         // Tab Switching Logic
@@ -4488,6 +5019,1405 @@ const app = {
 
         // Initial Render
         applyFilters();
+    },
+
+    updateTradingOverviewTab(tab) {
+        state.tradingOverviewTab = tab;
+        this.renderTradingOverview(document.getElementById('content-area'));
+    },
+
+    renderTradingOverview(container) {
+        const rules = state.tradingRules;
+        const events = MOCK_DATA.tradingEvents;
+        const recentRules = rules.slice(0, 5);
+        const recentEvents = events.slice(0, 5);
+        const activeTab = state.tradingOverviewTab;
+
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.innerHTML = `
+            <div class="flex flex-col h-full gap-4">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col min-h-0 flex-1">
+                    <div class="flex flex-wrap items-center justify-between px-4 py-3 border-b border-gray-100 gap-3">
+                        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                            <button onclick="app.updateTradingOverviewTab('rules')" class="px-3 py-1.5 text-xs font-medium rounded-md ${activeTab === 'rules' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}">Trading Rules</button>
+                            <button onclick="app.updateTradingOverviewTab('events')" class="px-3 py-1.5 text-xs font-medium rounded-md ${activeTab === 'events' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}">Trading Events</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${activeTab === 'rules' && rules.length > 0 ? `
+                                <button onclick="app.openTradingRuleDrawer()" class="px-3 py-1.5 text-xs font-medium bg-manta-primary text-white rounded-md hover:bg-manta-dark transition-colors">New</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                        ${activeTab === 'rules' ? `
+                            ${rules.length > 0 ? `
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-2 font-medium">State</th>
+                                            <th class="px-4 py-2 font-medium">Trigger Type</th>
+                                            <th class="px-4 py-2 font-medium">Trigger Price ($)</th>
+                                            <th class="px-4 py-2 font-medium">Arbitrage Signal</th>
+                                            <th class="px-4 py-2 font-medium">Action</th>
+                                            <th class="px-4 py-2 font-medium">Status</th>
+                                            <th class="px-4 py-2 font-medium">Applicable VPP</th>
+                                            <th class="px-4 py-2 font-medium">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${recentRules.map(rule => `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-gray-900 font-medium">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.condition} $${rule.price}` : '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? '-' : (rule.arbitrageSignal || '-')}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.action || '-'}</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${rule.state === 'Inactive' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">${rule.state === 'Inactive' ? 'Inactive' : 'Active'}</span>
+                                                </td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => v.name).filter(Boolean).join(', ') : (rule.vpp || '-')}</td>
+                                                <td class="px-4 py-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
+                                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                        </button>
+                                                        <button onclick="app.deleteTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-red-600 transition-colors" title="Delete">
+                                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : `
+                                <div class="h-full flex items-center justify-center p-[20px]">
+                                    <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[366px] flex flex-col items-center text-center gap-[10px]">
+                                        <div class="relative w-[88px] h-[88px]">
+                                            <i data-lucide="scroll-text" class="w-full h-full text-[#b5bcc8]"></i>
+                                        </div>
+                                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Rules Created</p>
+                                        <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f]">Create a rule to automate VPP actions.</p>
+                                        <button onclick="app.openTradingRuleDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[6px] h-[40px] px-[24px] rounded-[6px] text-white transition-colors min-w-[100px]">
+                                            <div class="w-[20px] h-[20px] flex items-center justify-center">
+                                                <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
+                                            </div>
+                                            <span class="font-['Roboto'] font-semibold text-[14px] leading-[1.42]">Create</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            `}
+                        ` : `
+                            ${events.length > 0 ? `
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-2 font-medium">Date</th>
+                                            <th class="px-4 py-2 font-medium">VPP</th>
+                                            <th class="px-4 py-2 font-medium">State</th>
+                                            <th class="px-4 py-2 font-medium">Trigger Type</th>
+                                            <th class="px-4 py-2 font-medium">Action</th>
+                                            <th class="px-4 py-2 font-medium">Spot</th>
+                                            <th class="px-4 py-2 font-medium">Start Time</th>
+                                            <th class="px-4 py-2 font-medium">End Time</th>
+                                            <th class="px-4 py-2 font-medium">Power</th>
+                                            <th class="px-4 py-2 font-medium">Volume</th>
+                                            <th class="px-4 py-2 font-medium">Status</th>
+                                            <th class="px-4 py-2 font-medium">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${recentEvents.map(event => {
+                                            const matchedRule = state.tradingRules.find(rule => {
+                                                const ruleNames = [];
+                                                if (rule.vpp) ruleNames.push(rule.vpp);
+                                                if (rule.applicableVpps && rule.applicableVpps.length) {
+                                                    ruleNames.push(...rule.applicableVpps.map(v => v.name).filter(Boolean));
+                                                }
+                                                return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
+                                            });
+                                            const triggerType = matchedRule?.triggerType || event.triggerType || '-';
+                                            const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
+                                            const startTime = timeParts[0] || '-';
+                                            const endTime = timeParts[1] || '-';
+                                            const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
+                                            const volume = event.volume || '-';
+                                            const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
+                                            return `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-gray-600">${event.date || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${triggerType}</td>
+                                                <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${spot}</td>
+                                                <td class="px-4 py-3 text-gray-600">${startTime}</td>
+                                                <td class="px-4 py-3 text-gray-600">${endTime}</td>
+                                                <td class="px-4 py-3 text-gray-600">${power}</td>
+                                                <td class="px-4 py-3 text-gray-600">${volume}</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
+                                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            ` : `
+                                <div class="h-full flex items-center justify-center p-[20px]">
+                                    <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                        <div class="relative w-[88px] h-[88px]">
+                                            <i data-lucide="activity" class="w-full h-full text-[#b5bcc8]"></i>
+                                        </div>
+                                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Events Created</p>
+                                        <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f]">Trading events will appear here once available.</p>
+                                    </div>
+                                </div>
+                            `}
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    },
+
+    renderAccount(container) {
+        const users = Array.isArray(MOCK_DATA.users) ? MOCK_DATA.users : [];
+        let filteredUsers = [...users];
+
+        if (state.account.status !== 'All') {
+            filteredUsers = filteredUsers.filter(user => user.status === state.account.status);
+        }
+
+        if (state.account.keyword) {
+            const term = state.account.keyword.toLowerCase();
+            filteredUsers = filteredUsers.filter(user =>
+                String(user.userName || '').toLowerCase().includes(term) ||
+                String(user.email || '').toLowerCase().includes(term)
+            );
+        }
+
+        const itemsPerPage = state.account.itemsPerPage || 10;
+        const totalItems = filteredUsers.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const currentPage = Math.min(Math.max(1, state.account.currentPage), totalPages);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+        // Design Tokens
+        const styles = `
+            --color-neutral-bluegrey: #313949;
+            --color-neutral-black: #1c2026;
+            --color-neutral-lightgrey: #b5bcc8;
+            --color-neutral-thingrey: #f3f3f6;
+            --color-neutral-line: #e6e8ee;
+            --color-brand-primary: #3ec064;
+            --font-roboto: 'Roboto', sans-serif;
+        `;
+
+        // Pagination Logic
+        let paginationHTML = '';
+        if (totalPages > 0) {
+            let pages = [];
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (currentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (currentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                }
+            }
+
+            paginationHTML = `
+            <div class="flex items-center justify-end gap-[12px] px-[16px] py-[16px] mt-auto bg-white">
+                <!-- Page Size Selector -->
+                <div class="flex items-center gap-[8px] mr-2">
+                     <div class="relative group">
+                        <select class="appearance-none bg-white border border-[var(--color-neutral-line)] text-[var(--color-neutral-bluegrey)] text-[14px] rounded-[4px] px-[12px] py-[4px] pr-[32px] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer font-['Roboto']" onchange="app.updateAccountState('itemsPerPage', parseInt(this.value))">
+                            <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10/page</option>
+                            <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20/page</option>
+                            <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50/page</option>
+                        </select>
+                        <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none">
+                            <i data-lucide="chevron-down" class="w-[16px] h-[16px] text-[var(--color-neutral-lightgrey)]"></i>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex items-center gap-[4px]">
+                    <!-- First Page -->
+                    <button onclick="app.updateAccountState('currentPage', 1)" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevrons-left" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    <!-- Prev Page -->
+                    <button onclick="app.updateAccountState('currentPage', ${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevron-left" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    
+                    <!-- Page Numbers -->
+                    ${pages.map(page => {
+                        if (page === '...') {
+                            return `<span class="w-[32px] h-[32px] flex items-center justify-center text-[#5f646e] font-['Roboto']">...</span>`;
+                        }
+                        return `
+                            <button onclick="app.updateAccountState('currentPage', ${page})" class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] text-[14px] font-medium transition-colors font-['Roboto'] ${page === currentPage ? 'bg-[var(--color-neutral-thingrey)] text-[var(--color-neutral-bluegrey)]' : 'text-[#5f646e] hover:bg-[var(--color-neutral-thingrey)]'}">
+                                ${page}
+                            </button>
+                        `;
+                    }).join('')}
+
+                    <!-- Next Page -->
+                    <button onclick="app.updateAccountState('currentPage', ${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevron-right" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    <!-- Last Page -->
+                    <button onclick="app.updateAccountState('currentPage', ${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevrons-right" class="w-[16px] h-[16px]"></i>
+                    </button>
+                </div>
+            </div>
+            `;
+        }
+
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.style.cssText = styles;
+
+        if (users.length === 0) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">No Users</h3>
+                    <p class="text-gray-500 text-sm mb-6 max-w-sm text-center">Create your first account to manage access.</p>
+                    <button onclick="app.openCreateUserDrawer()" class="flex items-center gap-2 px-6 py-2.5 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors group">
+                        <i data-lucide="plus" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        New User
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="bg-white rounded-[4px] shadow-sm border border-[var(--color-neutral-line)] h-full flex flex-col p-[16px] font-['Roboto']">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-start items-center gap-[8px] mb-[16px] flex-shrink-0">
+                    <div class="flex items-center gap-[16px]">
+                        <!-- Title -->
+                        <h2 class="text-[20px] font-semibold text-[var(--color-neutral-bluegrey)] leading-[28px]">Accounts</h2>
+                        
+                        <!-- Add Button -->
+                        <button onclick="app.openCreateUserDrawer()" class="w-[24px] h-[24px] bg-[var(--color-neutral-thingrey)] rounded-[4px] flex items-center justify-center hover:bg-[#e6e8ee] transition-colors">
+                            <i data-lucide="plus" class="w-[14px] h-[14px] text-[var(--color-neutral-bluegrey)]"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Search Group -->
+                    <div class="flex items-center gap-[12px]">
+                         <!-- Search Input -->
+                        <div class="bg-[var(--color-neutral-thingrey)] flex items-center px-[8px] py-[4px] rounded-[4px] h-[32px] w-[240px]">
+                            <input type="text" 
+                                value="${state.account.keyword}"
+                                oninput="app.updateAccountState('keyword', this.value)"
+                                class="flex-1 bg-transparent border-none focus:ring-0 p-0 text-[14px] font-normal text-[var(--color-neutral-black)] placeholder-[var(--color-neutral-lightgrey)] leading-normal" 
+                                placeholder="Search by Email/User Name">
+                            <i data-lucide="search" class="w-[16px] h-[16px] text-[var(--color-neutral-lightgrey)]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div class="flex-1 overflow-hidden flex flex-col bg-white rounded-[4px]">
+                    <div class="overflow-x-auto h-full">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 z-10 bg-white">
+                                <tr>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">#</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">User Name</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Email</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Status</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Login Count</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Last Login Time</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Last Login IP</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Current Login IP</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Create Time</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)] text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${currentUsers.map((user, index) => `
+                                    <tr class="h-[48px] hover:bg-[var(--color-neutral-thingrey)] transition-colors group border-b border-[var(--color-neutral-line)] bg-white">
+                                        <td class="px-[16px] text-[12px] text-[var(--color-neutral-bluegrey)] font-['Roboto']">${startIndex + index + 1}</td>
+                                        <td class="px-[16px] text-[14px] font-semibold text-[var(--color-neutral-black)] font-['Roboto']">${user.userName || '-'}</td>
+                                        <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.email || '-'}</td>
+                                        <td class="px-[16px]">
+                                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-['Roboto'] ${user.status === 'Active' ? 'bg-[var(--color-brand-primary)] text-white' : 'bg-[var(--color-neutral-lightgrey)] text-white'}">
+                                                ${(user.status || '-').toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.loginCount ?? '-'}</td>
+                                        <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.lastLoginTime || '-'}</td>
+                                        <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.lastLoginIp || '-'}</td>
+                                        <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.currentLoginIp || '-'}</td>
+                                        <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.created || user.createTime || '-'}</td>
+                                        <td class="px-[16px] text-right">
+                                            <div class="flex items-center justify-end gap-[12px]">
+                                                <button onclick="app.openEditUserDrawer(${user.id})" class="text-[var(--color-neutral-bluegrey)] hover:text-[var(--color-brand-primary)] transition-colors" title="Edit">
+                                                    <i data-lucide="edit-3" class="w-[16px] h-[16px]"></i>
+                                                </button>
+                                                <button onclick="app.openChangePasswordDrawer(${user.id})" class="text-[var(--color-neutral-bluegrey)] hover:text-[var(--color-brand-primary)] transition-colors" title="Change Password">
+                                                    <i data-lucide="key" class="w-[16px] h-[16px]"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                ${paginationHTML}
+            </div>
+        `;
+
+        lucide.createIcons();
+    },
+
+    updateAccountState(key, value) {
+        state.account[key] = value;
+        if (key !== 'currentPage') {
+            state.account.currentPage = 1;
+        }
+        this.renderAccount(document.getElementById('content-area'));
+    },
+
+    openCreateUserDrawer() {
+        const drawerContent = document.getElementById('drawer-content');
+        if (!drawerContent) return;
+
+        drawerContent.innerHTML = `
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <!-- Header -->
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-bold text-[20px] leading-normal text-[#313949]">New User</p>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
+                        <i data-lucide="x" class="w-[16px] h-[16px] text-[#313949]"></i>
+                    </button>
+                </div>
+                <!-- Form Content -->
+                <form onsubmit="app.handleCreateUserSubmit(event)" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
+                    <!-- First Name -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">First Name</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="text" name="firstName" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Last Name</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="text" name="lastName" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Email</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="email" name="email" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Status</span>
+                        </div>
+                        <div class="flex items-center gap-[24px] h-[32px]">
+                            <label class="flex items-center gap-[8px] cursor-pointer">
+                                <input type="radio" name="status" value="Active" checked class="accent-[#3ec064] w-[16px] h-[16px]">
+                                <span class="text-[14px] text-[#313949] font-normal">Active</span>
+                            </label>
+                            <label class="flex items-center gap-[8px] cursor-pointer">
+                                <input type="radio" name="status" value="Inactive" class="accent-[#3ec064] w-[16px] h-[16px]">
+                                <span class="text-[14px] text-[#313949] font-normal">Inactive</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Password</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="password" name="password" id="create-user-password" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal pr-[24px]">
+                            <button type="button" onclick="app.togglePasswordVisibility('create-user-password', this)" class="absolute right-[8px] top-1/2 -translate-y-1/2 text-[#b5bcc8] hover:text-[#313949] transition-colors">
+                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Confirmation Password</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="password" name="confirmPassword" id="create-user-confirm-password" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal pr-[24px]">
+                            <button type="button" onclick="app.togglePasswordVisibility('create-user-confirm-password', this)" class="absolute right-[8px] top-1/2 -translate-y-1/2 text-[#b5bcc8] hover:text-[#313949] transition-colors">
+                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Cancel
+                        </button>
+                        <button type="submit" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        this.toggleDrawer(true);
+        lucide.createIcons();
+    },
+
+    handleCreateUserSubmit(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        if (data.password !== data.confirmPassword) {
+            this.showToast('Passwords do not match', 'error');
+            return;
+        }
+
+        const newUser = {
+            id: MOCK_DATA.users.length + 1,
+            userName: `${data.firstName} ${data.lastName}`,
+            email: data.email,
+            status: data.status,
+            loginCount: 0,
+            lastLoginTime: '-',
+            lastLoginIp: '-',
+            currentLoginIp: '-',
+            created: new Date().toISOString().split('T')[0]
+        };
+
+        MOCK_DATA.users.unshift(newUser);
+        this.closeDrawer();
+        this.renderAccount(document.getElementById('content-area'));
+        this.showToast('User created successfully', 'success');
+    },
+
+    togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerHTML = '<i data-lucide="eye-off" class="w-[16px] h-[16px]"></i>';
+        } else {
+            input.type = 'password';
+            btn.innerHTML = '<i data-lucide="eye" class="w-[16px] h-[16px]"></i>';
+        }
+        lucide.createIcons();
+    },
+
+    openEditUserDrawer(userId) {
+        const user = MOCK_DATA.users.find(u => u.id === userId);
+        if (!user) return;
+
+        const drawerContent = document.getElementById('drawer-content');
+        if (!drawerContent) return;
+
+        // Split name into first and last
+        const nameParts = (user.userName || '').split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        drawerContent.innerHTML = `
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <!-- Header -->
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-bold text-[20px] leading-normal text-[#313949]">Edit User</p>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
+                        <i data-lucide="x" class="w-[16px] h-[16px] text-[#313949]"></i>
+                    </button>
+                </div>
+                <!-- Form Content -->
+                <form onsubmit="app.handleEditUserSubmit(event, ${userId})" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
+                    <!-- First Name -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">First Name</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="text" name="firstName" value="${firstName}" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Last Name</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="text" name="lastName" value="${lastName}" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Email</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="email" name="email" value="${user.email || ''}" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Status</span>
+                        </div>
+                        <div class="flex items-center gap-[24px] h-[32px]">
+                            <label class="flex items-center gap-[8px] cursor-pointer">
+                                <input type="radio" name="status" value="Active" ${user.status === 'Active' ? 'checked' : ''} class="accent-[#3ec064] w-[16px] h-[16px]">
+                                <span class="text-[14px] text-[#313949] font-normal">Active</span>
+                            </label>
+                            <label class="flex items-center gap-[8px] cursor-pointer">
+                                <input type="radio" name="status" value="Inactive" ${user.status === 'Inactive' ? 'checked' : ''} class="accent-[#3ec064] w-[16px] h-[16px]">
+                                <span class="text-[14px] text-[#313949] font-normal">Inactive</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Password fields removed (moved to separate drawer) -->
+
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Cancel
+                        </button>
+                        <button type="submit" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        this.toggleDrawer(true);
+        lucide.createIcons();
+    },
+
+    handleEditUserSubmit(event, userId) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        // Password validation removed (moved to separate drawer)
+
+        const userIndex = MOCK_DATA.users.findIndex(u => u.id === userId);
+        if (userIndex === -1) return;
+
+        MOCK_DATA.users[userIndex] = {
+            ...MOCK_DATA.users[userIndex],
+            userName: `${data.firstName} ${data.lastName}`,
+            email: data.email,
+            status: data.status,
+        };
+
+        this.closeDrawer();
+        this.renderAccount(document.getElementById('content-area'));
+        this.showToast('User updated successfully', 'success');
+    },
+
+    openChangePasswordDrawer(userId) {
+        const user = MOCK_DATA.users.find(u => u.id === userId);
+        if (!user) return;
+
+        const drawerContent = document.getElementById('drawer-content');
+        if (!drawerContent) return;
+
+        drawerContent.innerHTML = `
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <!-- Header -->
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-bold text-[20px] leading-normal text-[#313949]">Change Password</p>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
+                        <i data-lucide="x" class="w-[16px] h-[16px] text-[#313949]"></i>
+                    </button>
+                </div>
+                <!-- Form Content -->
+                <form onsubmit="app.handleChangePasswordSubmit(event, ${userId})" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
+                    <!-- Password -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Password</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="password" name="password" id="change-password-input" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal pr-[24px]">
+                            <button type="button" onclick="app.togglePasswordVisibility('change-password-input', this)" class="absolute right-[8px] top-1/2 -translate-y-1/2 text-[#b5bcc8] hover:text-[#313949] transition-colors">
+                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                        <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                            <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                            <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Confirmation Password</span>
+                        </div>
+                        <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="password" name="confirmPassword" id="change-password-confirm" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal pr-[24px]">
+                            <button type="button" onclick="app.togglePasswordVisibility('change-password-confirm', this)" class="absolute right-[8px] top-1/2 -translate-y-1/2 text-[#b5bcc8] hover:text-[#313949] transition-colors">
+                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
+                        <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Cancel
+                        </button>
+                        <button type="submit" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        this.toggleDrawer(true);
+        lucide.createIcons();
+    },
+
+    handleChangePasswordSubmit(event, userId) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        if (data.password !== data.confirmPassword) {
+            this.showToast('Passwords do not match', 'error');
+            return;
+        }
+
+        // In a real app, this would send an API request
+        // For now, we just simulate a success
+        console.log(`Password changed for user ${userId}`);
+
+        this.closeDrawer();
+        this.showToast('Password changed successfully', 'success');
+    },
+
+    renderTradingRules(container) {
+        // Apply Filters
+        let filteredRules = state.tradingRules;
+        
+        if (state.tradingRulesList.state !== 'All') {
+            filteredRules = filteredRules.filter(r => r.state === state.tradingRulesList.state);
+        }
+        if (state.tradingRulesList.triggerType !== 'All') {
+            filteredRules = filteredRules.filter(r => state.tradingRulesList.triggerType === 'Arbitrage Point'
+                ? (r.triggerType === 'Arbitrage Point' || r.triggerType === 'Time')
+                : r.triggerType === state.tradingRulesList.triggerType);
+        }
+        if (state.tradingRulesList.vppName) {
+            const term = state.tradingRulesList.vppName.toLowerCase();
+            filteredRules = filteredRules.filter(r => r.vpp.toLowerCase().includes(term));
+        }
+
+        // Pagination Logic
+        const itemsPerPage = state.tradingRulesList.itemsPerPage || 10;
+        const totalItems = filteredRules.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        const currentPage = Math.min(Math.max(1, state.tradingRulesList.currentPage), totalPages);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentRules = filteredRules.slice(startIndex, endIndex);
+
+        // Calculate pagination pages
+        let pages = [];
+        if (totalPages > 0) {
+            if (totalPages <= 7) {
+                pages = Array.from({length: totalPages}, (_, i) => i + 1);
+            } else {
+                if (currentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (currentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                }
+            }
+        }
+
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        
+        if (state.tradingRules.length === 0) {
+            // Empty State
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="scroll-text" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">No Rules Created</h3>
+                    <p class="text-gray-500 text-sm mb-6 max-w-sm text-center">Get started by creating your first trading rule to automate your VPP operations.</p>
+                    <button onclick="app.openTradingRuleDrawer()" class="flex items-center gap-2 px-6 py-2.5 bg-manta-primary hover:bg-manta-dark text-white font-medium rounded-lg shadow-sm transition-colors group">
+                        <i data-lucide="plus" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        Create Trading Rule
+                    </button>
+                </div>
+            `;
+        } else {
+            // List View
+            container.innerHTML = `
+                <div class="h-full flex flex-col bg-white rounded-[4px] overflow-hidden border border-gray-200 shadow-sm">
+                    <!-- Top Bar -->
+                    <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <!-- Filter: State -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-500">State:</span>
+                                <select onchange="app.updateTradingRulesState('state', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2 min-w-[100px]">
+                                    <option value="All" ${state.tradingRulesList.state === 'All' ? 'selected' : ''}>All</option>
+                                    <option value="Active" ${state.tradingRulesList.state === 'Active' ? 'selected' : ''}>Active</option>
+                                    <option value="Inactive" ${state.tradingRulesList.state === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                                </select>
+                            </div>
+                            <!-- Filter: Trigger Type -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-500">Trigger Type:</span>
+                                <select onchange="app.updateTradingRulesState('triggerType', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2 min-w-[120px]">
+                                    <option value="All" ${state.tradingRulesList.triggerType === 'All' ? 'selected' : ''}>All</option>
+                                    <option value="Price" ${state.tradingRulesList.triggerType === 'Price' ? 'selected' : ''}>Price</option>
+                                    <option value="Signal by Spot" ${state.tradingRulesList.triggerType === 'Signal by Spot' ? 'selected' : ''}>Signal by Spot</option>
+                                    <option value="Signal by Forecast" ${state.tradingRulesList.triggerType === 'Signal by Forecast' ? 'selected' : ''}>Signal by Forecast</option>
+                                </select>
+                            </div>
+                            <!-- Search -->
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <i data-lucide="search" class="w-4 h-4 text-gray-500"></i>
+                                </div>
+                                <input type="text" 
+                                    value="${state.tradingRulesList.vppName}"
+                                    oninput="app.updateTradingRulesState('vppName', this.value)"
+                                    class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block w-64 pl-10 p-2" 
+                                    placeholder="Search by VPP name...">
+                            </div>
+                        </div>
+                        <button onclick="app.openTradingRuleDrawer()" class="flex items-center gap-2 px-4 py-2 bg-manta-primary hover:bg-manta-dark text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Create Rule
+                        </button>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Rule ID</th>
+                                    <th scope="col" class="px-6 py-3">VPP Name</th>
+                                    <th scope="col" class="px-6 py-3">State</th>
+                                    <th scope="col" class="px-6 py-3">Trigger Type</th>
+                                    <th scope="col" class="px-6 py-3">Details</th>
+                                    <th scope="col" class="px-6 py-3">Action</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${currentRules.length > 0 ? currentRules.map(rule => `
+                                    <tr class="bg-white border-b hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 font-medium text-gray-900">#${rule.id}</td>
+                                        <td class="px-6 py-4 text-gray-900">${rule.vpp}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${rule.state === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                                ${rule.state}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">${rule.triggerType || 'Price'}</td>
+                                        <td class="px-6 py-4">
+                                            ${rule.triggerType === 'Price' ? `Price ${rule.condition} $${rule.price}` : rule.triggerType}
+                                            ${rule.applicableVpps && rule.applicableVpps.some(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd) ? `<div class="text-xs text-gray-400 mt-1">${rule.applicableVpps.filter(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd).map(v => `Ignore ${v.name || 'VPP'}: ${v.ignoreTimeStart} - ${v.ignoreTimeEnd}`).join('<br>')}</div>` : ''}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                                                ${rule.action}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button onclick="app.toggleTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="${rule.state === 'Active' ? 'Deactivate' : 'Activate'}">
+                                                    <i data-lucide="${rule.state === 'Active' ? 'pause-circle' : 'play-circle'}" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
+                                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="app.deleteTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-red-600 transition-colors" title="Delete">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('') : ''}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    ${filteredRules.length > 0 ? `
+                    <div class="flex items-center justify-end px-[16px] py-[12px] mt-auto bg-white border-t border-gray-200">
+                        <div class="flex items-center gap-[4px]">
+                            <!-- Page Size Selector -->
+                            <div class="flex items-center gap-[8px] mr-2">
+                                <div class="relative group">
+                                    <select class="appearance-none bg-white border border-[var(--color-neutral-line)] text-[var(--color-neutral-bluegrey)] text-[14px] rounded-[4px] px-[12px] py-[4px] pr-[32px] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer font-['Roboto']" onchange="app.updateTradingRulesState('itemsPerPage', parseInt(this.value))">
+                                        <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10/page</option>
+                                        <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20/page</option>
+                                        <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50/page</option>
+                                        <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100/page</option>
+                                    </select>
+                                    <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <i data-lucide="chevron-down" class="w-[16px] h-[16px] text-[var(--color-neutral-lightgrey)]"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- First Page -->
+                            <button onclick="app.updateTradingRulesState('currentPage', 1)" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevrons-left" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            <!-- Prev Page -->
+                            <button onclick="app.updateTradingRulesState('currentPage', ${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevron-left" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            
+                            <!-- Page Numbers -->
+                            ${pages.map(page => {
+                                if (page === '...') {
+                                    return `<span class="w-[32px] h-[32px] flex items-center justify-center text-[#5f646e] font-['Roboto']">...</span>`;
+                                }
+                                return `
+                                    <button onclick="app.updateTradingRulesState('currentPage', ${page})" class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] text-[14px] font-medium transition-colors font-['Roboto'] ${page === currentPage ? 'bg-[var(--color-neutral-thingrey)] text-[var(--color-neutral-bluegrey)]' : 'text-[#5f646e] hover:bg-[var(--color-neutral-thingrey)]'}">
+                                        ${page}
+                                    </button>
+                                `;
+                            }).join('')}
+
+                            <!-- Next Page -->
+                            <button onclick="app.updateTradingRulesState('currentPage', ${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevron-right" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            <!-- Last Page -->
+                            <button onclick="app.updateTradingRulesState('currentPage', ${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevrons-right" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        lucide.createIcons();
+    },
+
+    updateTradingRulesState(key, value) {
+        state.tradingRulesList[key] = value;
+        // Reset to page 1 on filter change
+        if (key !== 'currentPage') {
+            state.tradingRulesList.currentPage = 1;
+        }
+        this.renderTradingRules(document.getElementById('content-area'));
+    },
+
+    openTradingRuleDrawer(ruleId = null) {
+        const drawerContent = document.getElementById('drawer-content');
+        const rule = ruleId ? state.tradingRules.find(r => r.id === ruleId) : null;
+        
+        // Mock VPPs for the selector
+        const vppOptions = state.vpps.length > 0 ? state.vpps : [
+            { id: 1, name: 'Virtual Power Plant 1' },
+            { id: 2, name: 'Virtual Power Plant 2' }
+        ];
+
+        const initialSelections = rule?.applicableVpps?.length
+            ? rule.applicableVpps.map(v => ({
+                id: v.id,
+                name: v.name,
+                ignoreTimeEnabled: !!v.ignoreTimeEnabled,
+                ignoreTimeStart: v.ignoreTimeStart || '',
+                ignoreTimeEnd: v.ignoreTimeEnd || ''
+            }))
+            : (rule?.vppId ? [{
+                id: rule.vppId,
+                name: rule.vpp || 'VPP',
+                ignoreTimeEnabled: !!(rule.ignoreTimeStart || rule.ignoreTimeEnd),
+                ignoreTimeStart: rule.ignoreTimeStart || '',
+                ignoreTimeEnd: rule.ignoreTimeEnd || ''
+            }] : []);
+        const statusValue = rule && (rule.state === 'Active' || rule.state === 'Inactive') ? rule.state : 'Active';
+
+        state.tradingRuleVppSelections = initialSelections;
+        state.tradingRuleVppDropdownOpen = false;
+        state.tradingRuleVppOptions = vppOptions;
+
+        drawerContent.innerHTML = `
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <!-- Header -->
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-bold text-[20px] leading-normal text-[#313949]">${rule ? 'Edit Rule' : 'Create a Rule'}</p>
+                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
+                        <img src="assets/icons/close-drawer.svg" class="w-full h-full block" alt="Close">
+                    </button>
+                </div>
+
+                <!-- Form Content -->
+                <form onsubmit="app.handleTradingRuleSubmit(event)" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
+                    <input type="hidden" name="ruleId" value="${rule ? rule.id : ''}">
+                    
+                    <div class="grid grid-cols-2 gap-[12px] w-full">
+                        <div class="flex flex-col gap-[4px] w-full shrink-0">
+                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                                 <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">State</span>
+                             </div>
+                             <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                    <option value="NSW" ${!rule || rule.state === 'NSW' ? 'selected' : ''}>NSW</option>
+                                    <option value="VIC" ${rule && rule.state === 'VIC' ? 'selected' : ''}>VIC</option>
+                                    <option value="QLD" ${rule && rule.state === 'QLD' ? 'selected' : ''}>QLD</option>
+                                    <option value="SA" ${rule && rule.state === 'SA' ? 'selected' : ''}>SA</option>
+                                    <option value="WA" ${rule && rule.state === 'WA' ? 'selected' : ''}>WA</option>
+                                </select>
+                                <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                    <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="flex flex-col gap-[4px] w-full shrink-0">
+                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                                 <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                                <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger From</span>
+                             </div>
+                             <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                               <select name="triggerType" required onchange="app.handleTriggerTypeChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                    <option value="Price" ${!rule || rule.triggerType === 'Price' ? 'selected' : ''}>Price</option>
+                                    <option value="Signal by Spot" ${rule && rule.triggerType === 'Signal by Spot' ? 'selected' : ''}>Signal by Spot</option>
+                                    <option value="Signal by Forecast" ${rule && rule.triggerType === 'Signal by Forecast' ? 'selected' : ''}>Signal by Forecast</option>
+                                </select>
+                                <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                    <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Trigger Price (Conditional) -->
+                    <div id="field-trigger-price" class="flex flex-col gap-[4px] w-full shrink-0" style="display: ${!rule || rule.triggerType === 'Price' ? 'flex' : 'none'}">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger Price ($)</span>
+                         </div>
+                        <div class="flex gap-2">
+                            <div class="relative w-28 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                <select name="priceSource" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer">
+                                    <option value="Spot" ${!rule || rule.priceSource === 'Spot' ? 'selected' : ''}>Spot</option>
+                                    <option value="Forecast Spot" ${rule && rule.priceSource === 'Forecast Spot' ? 'selected' : ''}>Forecast Spot</option>
+                                </select>
+                               <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                   <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                               </div>
+                            </div>
+                            <div class="relative w-24 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                <select name="condition" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer">
+                                     <option value=">" ${rule && rule.condition === '>' ? 'selected' : ''}>></option>
+                                     <option value="<" ${rule && rule.condition === '<' ? 'selected' : ''}><</option>
+                                     <option value=">=" ${rule && rule.condition === '>=' ? 'selected' : ''}>>=</option>
+                                     <option value="<=" ${rule && rule.condition === '<=' ? 'selected' : ''}><=</option>
+                                 </select>
+                                <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                    <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                                </div>
+                             </div>
+                             <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <input type="number" name="price" value="${rule ? rule.price || '' : ''}" step="0.01" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="0.00" ${!rule || rule.triggerType === 'Price' ? 'required' : ''}>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div id="field-arbitrage-signal" class="flex flex-col gap-[4px] w-full shrink-0" style="display: ${rule && rule.triggerType !== 'Price' ? 'flex' : 'none'}">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Arbitrage Signal</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <select name="arbitrageSignal" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                 <option value="Discharge" ${rule && rule.arbitrageSignal === 'Discharge' ? 'selected' : ''}>Discharge</option>
+                                 <option value="Charge" ${rule && rule.arbitrageSignal === 'Charge' ? 'selected' : ''}>Charge</option>
+                                 <option value="Abnormal" ${rule && rule.arbitrageSignal === 'Abnormal' ? 'selected' : ''}>Abnormal</option>
+                             </select>
+                            <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Action</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <select name="action" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                                 <option value="Discharge" ${!rule || rule.action === 'Discharge' ? 'selected' : ''}>Discharge</option>
+                                 <option value="Charge" ${rule && rule.action === 'Charge' ? 'selected' : ''}>Charge</option>
+                                 <option value="Stop" ${rule && rule.action === 'Stop' ? 'selected' : ''}>Stop</option>
+                             </select>
+                            <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                            </div>
+                         </div>
+                    </div>
+
+                    <div class="flex flex-col gap-[6px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Status</span>
+                         </div>
+                         <div class="flex gap-[12px] items-center">
+                            <label class="flex items-center gap-[6px] text-[14px] text-[#313949]">
+                                <input type="radio" name="status" value="Active" class="accent-[#3ec064]" ${statusValue === 'Active' ? 'checked' : ''} required>
+                                 <span>Active</span>
+                             </label>
+                             <label class="flex items-center gap-[6px] text-[14px] text-[#313949]">
+                                <input type="radio" name="status" value="Inactive" class="accent-[#3ec064]" ${statusValue === 'Inactive' ? 'checked' : ''} required>
+                                 <span>Inactive</span>
+                             </label>
+                         </div>
+                    </div>
+
+                    <div class="flex flex-col gap-[6px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Applicable VPP</span>
+                         </div>
+                         <div class="relative w-full">
+                             <button type="button" onclick="app.toggleRuleVppDropdown()" class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center justify-between transition-colors focus-within:border-[#3ec064]">
+                                 <span id="rule-vpp-placeholder" class="text-[14px] font-normal ${state.tradingRuleVppSelections.length ? 'text-[#313949]' : 'text-[#b5bcc8]'}">${state.tradingRuleVppSelections.length ? `${state.tradingRuleVppSelections.length} VPP selected` : 'Select VPP'}</span>
+                                 <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                             </button>
+                             <div id="rule-vpp-dropdown" class="absolute left-0 right-0 mt-[6px] bg-white border border-[#e6e8ee] rounded-[6px] shadow-lg z-10 ${state.tradingRuleVppDropdownOpen ? '' : 'hidden'}">
+                                <div id="rule-vpp-options" class="max-h-[200px] overflow-y-auto py-[4px]">
+                                     ${this.renderRuleVppDropdownOptions()}
+                                 </div>
+                             </div>
+                         </div>
+                         <div id="rule-vpp-selections" class="flex flex-col gap-[8px]">
+                             ${this.renderRuleVppSelections()}
+                         </div>
+                    </div>
+                    
+                    <!-- Footer Buttons -->
+                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
+                         <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                             Cancel
+                         </button>
+                        <button type="submit" id="rule-submit-btn" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+        this.toggleDrawer(true);
+        this.syncRuleVppUi();
+        lucide.createIcons();
+    },
+
+    toggleRuleVppDropdown() {
+        state.tradingRuleVppDropdownOpen = !state.tradingRuleVppDropdownOpen;
+        this.syncRuleVppUi();
+    },
+
+    renderRuleVppDropdownOptions() {
+        const selectedIds = new Set(state.tradingRuleVppSelections.map(v => v.id));
+        return state.tradingRuleVppOptions.map(vpp => `
+            <label class="flex items-center gap-[8px] px-[10px] py-[6px] hover:bg-[#f3f3f6] cursor-pointer">
+                <input type="checkbox" class="accent-[#3ec064]" ${selectedIds.has(vpp.id) ? 'checked' : ''} onchange="app.toggleRuleVppSelection(${vpp.id})">
+                <span class="text-[13px] text-[#313949]">${vpp.name}</span>
+            </label>
+        `).join('');
+    },
+
+    renderRuleVppSelections() {
+        if (!state.tradingRuleVppSelections.length) return '';
+        return state.tradingRuleVppSelections.map(vpp => `
+            <div class="border border-[#e6e8ee] rounded-[6px] p-[8px]">
+                <div class="flex items-center justify-between">
+                    <span class="text-[13px] text-[#313949] font-medium">${vpp.name}</span>
+                    <button type="button" onclick="app.toggleRuleVppSelection(${vpp.id})" class="text-[12px] text-[#7a828f] hover:text-[#313949]">Remove</button>
+                </div>
+                <label class="flex items-center gap-[6px] mt-[6px]">
+                    <input type="checkbox" class="accent-[#3ec064]" ${vpp.ignoreTimeEnabled ? 'checked' : ''} onchange="app.toggleRuleVppIgnore(${vpp.id}, this.checked)">
+                    <span class="text-[12px] text-[#5f646e]">Add Ignore Time</span>
+                </label>
+                <div id="rule-vpp-ignore-${vpp.id}" class="flex gap-2 items-center mt-[6px]" style="display: ${vpp.ignoreTimeEnabled ? 'flex' : 'none'}">
+                    <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                        <input type="time" value="${vpp.ignoreTimeStart || ''}" onchange="app.updateRuleVppIgnoreTime(${vpp.id}, 'start', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                    </div>
+                    <span class="text-gray-400">-</span>
+                    <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                        <input type="time" value="${vpp.ignoreTimeEnd || ''}" onchange="app.updateRuleVppIgnoreTime(${vpp.id}, 'end', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    syncRuleVppUi() {
+        const placeholder = document.getElementById('rule-vpp-placeholder');
+        if (placeholder) {
+            placeholder.textContent = state.tradingRuleVppSelections.length
+                ? `${state.tradingRuleVppSelections.length} VPP selected`
+                : 'Select VPP';
+            placeholder.className = `text-[14px] font-normal ${state.tradingRuleVppSelections.length ? 'text-[#313949]' : 'text-[#b5bcc8]'}`;
+        }
+        const dropdown = document.getElementById('rule-vpp-dropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden', !state.tradingRuleVppDropdownOpen);
+        }
+        const options = document.getElementById('rule-vpp-options');
+        if (options) {
+            options.innerHTML = this.renderRuleVppDropdownOptions();
+        }
+        const selections = document.getElementById('rule-vpp-selections');
+        if (selections) {
+            selections.innerHTML = this.renderRuleVppSelections();
+        }
+        lucide.createIcons();
+    },
+
+    toggleRuleVppSelection(vppId) {
+        const existingIndex = state.tradingRuleVppSelections.findIndex(v => v.id === vppId);
+        if (existingIndex >= 0) {
+            state.tradingRuleVppSelections.splice(existingIndex, 1);
+        } else {
+            const vpp = state.tradingRuleVppOptions.find(v => v.id === vppId);
+            if (vpp) {
+                state.tradingRuleVppSelections.push({
+                    id: vpp.id,
+                    name: vpp.name,
+                    ignoreTimeEnabled: false,
+                    ignoreTimeStart: '',
+                    ignoreTimeEnd: ''
+                });
+            }
+        }
+        this.syncRuleVppUi();
+    },
+
+    toggleRuleVppIgnore(vppId, enabled) {
+        const vpp = state.tradingRuleVppSelections.find(v => v.id === vppId);
+        if (vpp) {
+            vpp.ignoreTimeEnabled = enabled;
+            if (!enabled) {
+                vpp.ignoreTimeStart = '';
+                vpp.ignoreTimeEnd = '';
+            }
+            this.syncRuleVppUi();
+        }
+    },
+
+    updateRuleVppIgnoreTime(vppId, field, value) {
+        const vpp = state.tradingRuleVppSelections.find(v => v.id === vppId);
+        if (vpp) {
+            if (field === 'start') vpp.ignoreTimeStart = value;
+            if (field === 'end') vpp.ignoreTimeEnd = value;
+        }
+    },
+
+    handleTriggerTypeChange(type) {
+        const priceField = document.getElementById('field-trigger-price');
+        const arbitrageField = document.getElementById('field-arbitrage-signal');
+        if (priceField) {
+            priceField.style.display = type === 'Price' ? 'flex' : 'none';
+            const priceInput = priceField.querySelector('input[name="price"]');
+            if (priceInput) {
+                if (type === 'Price') priceInput.setAttribute('required', '');
+                else priceInput.removeAttribute('required');
+            }
+        }
+        if (arbitrageField) {
+            arbitrageField.style.display = type === 'Price' ? 'none' : 'flex';
+            const signalSelect = arbitrageField.querySelector('select[name="arbitrageSignal"]');
+            if (signalSelect) {
+                if (type === 'Price') signalSelect.removeAttribute('required');
+                else signalSelect.setAttribute('required', '');
+            }
+        }
+    },
+
+    handleTradingRuleSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('rule-submit-btn');
+
+        // Validation
+        const triggerType = formData.get('triggerType');
+        const price = formData.get('price');
+        const ruleId = formData.get('ruleId');
+        const selections = state.tradingRuleVppSelections;
+
+        if (!selections.length) {
+            this.showToast('Please select at least one VPP', 'error');
+            return;
+        }
+
+        if (triggerType === 'Price' && !price) {
+            this.showToast('Please enter a trigger price', 'error');
+            return;
+        }
+
+        // Loading State
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+        lucide.createIcons({ root: submitBtn });
+
+        // Simulate API
+        setTimeout(() => {
+            const vppNames = selections.map(v => v.name).filter(Boolean);
+            const primaryVpp = selections[0];
+
+            const status = formData.get('status') || 'Active';
+            const ruleData = {
+                vppId: primaryVpp ? primaryVpp.id : null,
+                vpp: vppNames.length ? vppNames.join(', ') : 'Unknown VPP',
+                state: status,
+                region: formData.get('state'),
+                triggerType: triggerType,
+                priceSource: formData.get('priceSource'),
+                arbitrageSignal: formData.get('arbitrageSignal'),
+                condition: formData.get('condition'),
+                price: price,
+                action: formData.get('action'),
+                applicableVpps: selections.map(v => ({
+                    id: v.id,
+                    name: v.name,
+                    ignoreTimeEnabled: v.ignoreTimeEnabled,
+                    ignoreTimeStart: v.ignoreTimeStart,
+                    ignoreTimeEnd: v.ignoreTimeEnd
+                })),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (ruleId) {
+                // Update existing rule
+                const index = state.tradingRules.findIndex(r => r.id == ruleId);
+                if (index !== -1) {
+                    state.tradingRules[index] = { ...state.tradingRules[index], ...ruleData };
+                    this.showToast('Trading rule updated successfully', 'success');
+                }
+            } else {
+                // Create new rule
+                const newRule = {
+                    id: Date.now(),
+                    ...ruleData,
+                    createdAt: new Date().toISOString()
+                };
+                state.tradingRules.unshift(newRule);
+                this.showToast('Trading rule created successfully', 'success');
+            }
+            
+            this.closeDrawer();
+            const contentArea = document.getElementById('content-area');
+            if (state.currentView === 'trading') {
+                this.renderTradingOverview(contentArea);
+            } else {
+                this.renderTradingRules(contentArea);
+            }
+
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }, 1000);
+    },
+
+    toggleTradingRule(id) {
+        const rule = state.tradingRules.find(r => r.id === id);
+        if (rule) {
+            rule.state = rule.state === 'Active' ? 'Inactive' : 'Active';
+            this.showToast(`Rule ${rule.state === 'Active' ? 'activated' : 'deactivated'}`, 'success');
+            const contentArea = document.getElementById('content-area');
+            if (state.currentView === 'trading') {
+                this.renderTradingOverview(contentArea);
+            } else {
+                this.renderTradingRules(contentArea);
+            }
+        }
+    },
+
+    deleteTradingRule(id) {
+        this.showConfirmModal(
+            'Delete?',
+            'Are you sure you want to delete this rule?',
+            () => {
+                state.tradingRules = state.tradingRules.filter(r => r.id !== id);
+                this.showToast('Trading rule deleted', 'success');
+                const contentArea = document.getElementById('content-area');
+                if (state.currentView === 'trading') {
+                    this.renderTradingOverview(contentArea);
+                } else {
+                    this.renderTradingRules(contentArea);
+                }
+            }
+        );
     },
 
     renderOverview(container) {
@@ -4813,8 +6743,17 @@ const app = {
                 }
             }
 
-            // Pre-calculate stats for all systems
-            const systemsWithStats = filteredSystems.map(sys => {
+            // Pagination
+            const itemsPerPage = state.subVppList.itemsPerPage || 10;
+            const totalItems = filteredSystems.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const currentPage = Math.min(Math.max(1, state.subVppList.currentPage || 1), totalPages);
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const paginatedSystems = filteredSystems.slice(startIdx, endIdx);
+
+            // Pre-calculate stats for paginated systems
+            const systemsWithStats = paginatedSystems.map(sys => {
                 let iconName = 'cloud';
                 if (sys.type === 'SCADA') iconName = 'database';
                 if (sys.type === 'Edge') iconName = 'cpu';
@@ -4878,6 +6817,28 @@ const app = {
 
                 return { sys, sysDevices, stats, statusConfig, isEstablished, isDisconnected, onclickAttr, cursorClass };
             });
+
+            // Calculate pagination pages
+            const pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+                if (currentPage <= 4) {
+                    for (let i = 1; i <= 5; i++) pages.push(i);
+                    pages.push('...');
+                    pages.push(totalPages);
+                } else if (currentPage >= totalPages - 3) {
+                    pages.push(1);
+                    pages.push('...');
+                    for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+                } else {
+                    pages.push(1);
+                    pages.push('...');
+                    for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+                    pages.push('...');
+                    pages.push(totalPages);
+                }
+            }
 
             container.innerHTML = `
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6 font-['Roboto']">
@@ -5107,19 +7068,85 @@ const app = {
                                 </div>
                             </div>
                         `}
+
+                    <!-- Pagination Controls -->
+                    ${!isCardView ? `
+                    <div class="flex items-center justify-end px-[16px] py-[12px] mt-auto bg-white">
+                        <div class="flex items-center gap-[4px]">
+                            <!-- Page Size Selector -->
+                            <div class="flex items-center gap-[8px] mr-2">
+                                <div class="relative group">
+                                    <select class="appearance-none bg-white border border-[var(--color-neutral-line)] text-[var(--color-neutral-bluegrey)] text-[14px] rounded-[4px] px-[12px] py-[4px] pr-[32px] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer font-['Roboto']" onchange="app.updateSubVPPListState('itemsPerPage', parseInt(this.value))">
+                                        <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10/page</option>
+                                        <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20/page</option>
+                                        <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50/page</option>
+                                        <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100/page</option>
+                                    </select>
+                                    <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <i data-lucide="chevron-down" class="w-[16px] h-[16px] text-[var(--color-neutral-lightgrey)]"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- First Page -->
+                            <button onclick="app.updateSubVPPListState('currentPage', 1)" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevrons-left" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            <!-- Prev Page -->
+                            <button onclick="app.updateSubVPPListState('currentPage', ${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevron-left" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            
+                            <!-- Page Numbers -->
+                            ${pages.map(page => {
+                                if (page === '...') {
+                                    return `<span class="w-[32px] h-[32px] flex items-center justify-center text-[#5f646e] font-['Roboto']">...</span>`;
+                                }
+                                return `
+                                    <button onclick="app.updateSubVPPListState('currentPage', ${page})" class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] text-[14px] font-medium transition-colors font-['Roboto'] ${page === currentPage ? 'bg-[var(--color-neutral-thingrey)] text-[var(--color-neutral-bluegrey)]' : 'text-[#5f646e] hover:bg-[var(--color-neutral-thingrey)]'}">
+                                        ${page}
+                                    </button>
+                                `;
+                            }).join('')}
+
+                            <!-- Next Page -->
+                            <button onclick="app.updateSubVPPListState('currentPage', ${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevron-right" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            <!-- Last Page -->
+                            <button onclick="app.updateSubVPPListState('currentPage', ${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i data-lucide="chevrons-right" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }
+    },
+
+    updateDeviceListState(newState, systemId) {
+        Object.assign(state.systemDetails.deviceListPagination, newState);
+        const contentArea = document.getElementById('content-area');
+        this.renderSystemDetails(contentArea, systemId);
+        lucide.createIcons();
     },
 
     renderSystemDetails(container, systemId) {
         const system = state.systems.find(s => s.id == systemId);
         if (!system) return this.navigate('device_management');
 
-        container.className = "w-full h-full bg-[#f3f3f6] p-[8px] flex flex-col";
+        container.innerHTML = '';
+        container.className = "w-full flex-1 bg-[#f3f3f6] p-[8px] flex flex-col overflow-hidden min-h-0";
 
         // Calculate Metrics
         const devices = state.devices || [];
+        const { currentPage, itemsPerPage } = state.systemDetails.deviceListPagination;
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedDevices = devices.slice(start, end);
+        const totalPages = Math.ceil(devices.length / itemsPerPage);
+        
         const totalDevices = devices.length;
         const onlineDevices = devices.filter(d => d.status === 'online').length;
         const offlineCount = totalDevices - onlineDevices;
@@ -5306,32 +7333,38 @@ const app = {
             </div>
 
             <!-- Device Table -->
-            <div class="flex-1 overflow-y-auto p-[16px]">
+            <div class="flex-1 overflow-y-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="h-[40px] border-b border-[#e2e6ec]">
-                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">Status</th>
-                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">SN</th>
-                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider">State</th>
-                            <th class="px-[8px] pb-[8px] font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase tracking-wider text-right">Actions</th>
+                    <thead class="sticky top-0 z-10 bg-white">
+                        <tr>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">State</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm">
-                        ${devices.length > 0 ? devices.map(dev => {
+                    <tbody class="">
+                        ${paginatedDevices.length > 0 ? paginatedDevices.map(dev => {
                             return `
-                            <tr class="group hover:bg-[#f3f3f6] transition-colors border-b border-[#e2e6ec] last:border-0 h-[48px]">
-                                <td class="px-[8px] py-[12px]">
+                            <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
+                                <td class="px-[8px]">
                                     <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-['Roboto'] ${dev.status === 'online' ? 'bg-[#3ec064]/10 text-[#3ec064]' : 'bg-[#b5bcc8]/10 text-[#b5bcc8]'}">
                                         <span class="w-[4px] h-[4px] rounded-full bg-current"></span>
                                         ${dev.status}
                                     </span>
                                 </td>
-                                <td class="px-[8px] py-[12px] font-mono text-[14px] text-[#313949] font-normal">${dev.sn}</td>
-                                <td class="px-[8px] py-[12px] font-['Roboto'] text-[14px] text-[#313949] font-normal">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</td>
-                                <td class="px-[8px] py-[12px] text-right">
-                                    <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </button>
+                                <td class="px-[8px]">
+                                    <div class="text-[14px] text-[#313949] font-normal font-mono">${dev.sn}</div>
+                                </td>
+                                <td class="px-[8px]">
+                                    <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</div>
+                                </td>
+                                <td class="px-[8px] text-right">
+                                    <div class="flex items-center justify-end gap-[12px]">
+                                        <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `}).join('') : `
@@ -5343,6 +7376,79 @@ const app = {
                         `}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-end px-[16px] py-[12px] mt-auto bg-white">
+                <div class="flex items-center gap-[4px]">
+                    <!-- Page Size Selector -->
+                    <div class="flex items-center gap-[8px] mr-2">
+                        <div class="relative group">
+                            <select class="appearance-none bg-white border border-[var(--color-neutral-line)] text-[var(--color-neutral-bluegrey)] text-[14px] rounded-[4px] px-[12px] py-[4px] pr-[32px] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer font-['Roboto']" onchange="app.updateDeviceListState({ itemsPerPage: parseInt(this.value), currentPage: 1 }, '${systemId}')">
+                                <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10/page</option>
+                                <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20/page</option>
+                                <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50/page</option>
+                                <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100/page</option>
+                            </select>
+                            <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i data-lucide="chevron-down" class="w-[16px] h-[16px] text-[var(--color-neutral-lightgrey)]"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- First Page -->
+                    <button onclick="app.updateDeviceListState({ currentPage: 1 }, '${systemId}')" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevrons-left" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    <!-- Prev Page -->
+                    <button onclick="app.updateDeviceListState({ currentPage: ${Math.max(1, currentPage - 1)} }, '${systemId}')" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevron-left" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    
+                    <!-- Page Numbers -->
+                    ${(() => {
+                        let pages = [];
+                        if (totalPages <= 7) {
+                            for (let i = 1; i <= totalPages; i++) pages.push(i);
+                        } else {
+                            if (currentPage <= 4) {
+                                for (let i = 1; i <= 5; i++) pages.push(i);
+                                pages.push('...');
+                                pages.push(totalPages);
+                            } else if (currentPage >= totalPages - 3) {
+                                pages.push(1);
+                                pages.push('...');
+                                for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+                            } else {
+                                pages.push(1);
+                                pages.push('...');
+                                for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+                                pages.push('...');
+                                pages.push(totalPages);
+                            }
+                        }
+                        
+                        return pages.map(page => {
+                            if (page === '...') {
+                                return `<span class="w-[32px] h-[32px] flex items-center justify-center text-[#5f646e] font-['Roboto']">...</span>`;
+                            }
+                            return `
+                                <button onclick="app.updateDeviceListState({ currentPage: ${page} }, '${systemId}')" class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] text-[14px] font-medium transition-colors font-['Roboto'] ${page === currentPage ? 'bg-[var(--color-neutral-thingrey)] text-[var(--color-neutral-bluegrey)]' : 'text-[#5f646e] hover:bg-[var(--color-neutral-thingrey)]'}">
+                                    ${page}
+                                </button>
+                            `;
+                        }).join('');
+                    })()}
+
+                    <!-- Next Page -->
+                    <button onclick="app.updateDeviceListState({ currentPage: ${Math.min(totalPages, currentPage + 1)} }, '${systemId}')" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevron-right" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    <!-- Last Page -->
+                    <button onclick="app.updateDeviceListState({ currentPage: ${totalPages} }, '${systemId}')" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i data-lucide="chevrons-right" class="w-[16px] h-[16px]"></i>
+                    </button>
+                </div>
             </div>
         `;
         
@@ -5361,7 +7467,7 @@ const app = {
     },
 
     renderDERManagement(container, filterType = 'All') {
-        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.className = "w-full flex-1 bg-[#f8f9fb] p-[8px] flex flex-col overflow-hidden";
         
         let filteredDevices = [...(state.devices || [])];
         if (filterType !== 'All') {
@@ -5398,115 +7504,119 @@ const app = {
         const title = filterType === 'All' ? 'DER Management' : `${filterType} Management`;
 
         container.innerHTML = `
-            <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-2 ${filterType !== 'Inverter' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4 mb-4">
-                <!-- 1-4. Status Combined Card -->
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
-                    <div class="flex flex-col items-center flex-1">
-                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">${filterType === 'Inverter' ? 'PVs' : (filterType === 'EV' ? 'EVs' : 'ESSs')}</span>
-                         <span class="text-xl font-bold text-gray-900">${filteredDevices.length}</span>
-                    </div>
-                    <div class="w-px h-8 bg-gray-200"></div>
-                    <div class="flex flex-col items-center flex-1">
-                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
-                         <span class="text-xl font-bold text-green-600">${filteredDevices.filter(d => d.status === 'online').length}</span>
-                    </div>
-                    <div class="w-px h-8 bg-gray-200"></div>
-                    <div class="flex flex-col items-center flex-1">
-                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
-                         <span class="text-xl font-bold text-gray-400">${filteredDevices.filter(d => d.status === 'offline').length}</span>
-                    </div>
-                    <div class="w-px h-8 bg-gray-200"></div>
-                    <div class="flex flex-col items-center flex-1">
-                         <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
-                         <span class="text-xl font-bold text-red-500">${filteredDevices.filter(d => d.status === 'disconnected').length}</span>
+            <!-- Top Container -->
+            <div class="w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col gap-4 overflow-hidden">
+                <div class="flex justify-end items-center">
+                    <div class="flex gap-2">
+                        <!-- Actions can go here -->
                     </div>
                 </div>
 
-                ${filterType !== 'EV' ? `
-                <!-- 5. Rated Power -->
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
-                    <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1)} kW</span>
-                </div>
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-2 ${filterType !== 'Inverter' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4">
+                    <!-- 1-4. Status Combined Card -->
+                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
+                        <div class="flex flex-col items-center flex-1">
+                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">${filterType === 'Inverter' ? 'PV' : (filterType === 'Battery' ? 'PV ESS' : (filterType === 'EV' ? 'ESSs' : 'ESSs'))}</span>
+                             <span class="text-xl font-bold text-gray-900">${filteredDevices.length}</span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-200"></div>
+                        <div class="flex flex-col items-center flex-1">
+                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
+                             <span class="text-xl font-bold text-green-600">${filteredDevices.filter(d => d.status === 'online').length}</span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-200"></div>
+                        <div class="flex flex-col items-center flex-1">
+                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
+                             <span class="text-xl font-bold text-gray-400">${filteredDevices.filter(d => d.status === 'offline').length}</span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-200"></div>
+                        <div class="flex flex-col items-center flex-1">
+                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
+                             <span class="text-xl font-bold text-red-500">${filteredDevices.filter(d => d.status === 'disconnected').length}</span>
+                        </div>
+                    </div>
 
-                <!-- 6. PV Capacity -->
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
-                    <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.type === 'Inverter' ? (d.capacity || 0) * 1.2 : 0), 0).toFixed(1)} kW</span>
-                </div>
-                ` : ''}
+                    <!-- 5. Rated Power -->
+                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
+                        <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1)} kW</span>
+                    </div>
 
-                ${filterType !== 'Inverter' ? `
-                <!-- 7. SOC -->
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">SOC</span>
-                    ${(() => {
-                        const bats = filteredDevices.filter(d => d.type === 'Battery');
-                        if (!bats.length) return '<span class="text-xl font-bold text-gray-900">-</span>';
-                        
-                        const totalCap = bats.reduce((acc, d) => acc + (d.capacity || 0), 0);
-                        const totalEnergy = bats.reduce((acc, d) => {
-                             const soc = d.soc !== undefined ? d.soc : 50;
-                             return acc + ((d.capacity || 0) * soc / 100);
-                        }, 0);
-                        const avgSoc = totalCap > 0 ? Math.round((totalEnergy / totalCap) * 100) : 0;
-                        
-                        return `
-                            <div class="text-center">
-                                <div class="text-xl font-bold text-gray-900">${avgSoc}%</div>
-                                <div class="text-[10px] text-gray-500">(${totalEnergy.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
-                            </div>
-                        `;
-                    })()}
-                </div>
-                ` : ''}
+                    ${filterType !== 'EV' ? `
+                    <!-- 6. PV Capacity -->
+                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
+                        <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.type === 'Inverter' ? (d.capacity || 0) * 1.2 : 0), 0).toFixed(1)} kW</span>
+                    </div>
+                    ` : ''}
 
-                ${filterType !== 'EV' ? `
-                <!-- 8. Today Yield -->
-                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                    <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
-                    <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + ((d.capacity || 0) * 3), 0).toFixed(1)} kWh</span>
+                    ${filterType !== 'Inverter' ? `
+                    <!-- 7. Rated Capacity -->
+                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Capacity</span>
+                        ${(() => {
+                            const storageDevices = filteredDevices.filter(d => d.type === 'Battery' || d.type === 'EV');
+                            if (!storageDevices.length) return '<span class="text-xl font-bold text-gray-900">-</span>';
+                            
+                            const totalCap = storageDevices.reduce((acc, d) => acc + (d.capacity || 0), 0);
+                            
+                            return `<span class="text-xl font-bold text-gray-900">${totalCap.toFixed(1)} kWh</span>`;
+                        })()}
+                    </div>
+                    ` : ''}
+
+                    ${filterType !== 'EV' ? `
+                    <!-- 8. Today Yield -->
+                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
+                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
+                        <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + ((d.capacity || 0) * 3), 0).toFixed(1)} kWh</span>
+                    </div>
+                    ` : ''}
                 </div>
-                ` : ''}
-            </div>
 
             <!-- Device List -->
-            <div class="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
-                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                     <h2 class="text-lg font-bold text-gray-900">${filterType === 'Inverter' ? 'PVs' : (filterType === 'EV' ? 'EVs' : 'ESSs')}</h2>
+            <div class="flex-1 bg-white rounded-[4px] shadow-sm flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center px-[16px] py-[12px] bg-white">
+                     <h2 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">${filterType === 'Inverter' ? 'PVs' : (filterType === 'Battery' ? 'PV ESS' : (filterType === 'EV' ? 'ESSs' : 'ESSs'))}</h2>
                      <div class="flex gap-2">
                         <div class="relative">
-                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" placeholder="Search" class="bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-manta-primary/50 w-64 transition-colors placeholder:text-gray-400">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b5bcc8]"></i>
+                            <input type="text" placeholder="Search" class="bg-white border border-[#e6e8ee] rounded-[4px] pl-9 pr-4 py-1.5 text-[14px] text-[#1c2026] focus:outline-none focus:border-[var(--color-brand-primary)] w-64 transition-colors placeholder:text-[#b5bcc8] font-['Roboto']">
                         </div>
                      </div>
                 </div>
-                <div class="flex-1 overflow-auto p-6">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
-                        <thead>
-                            <tr class="text-xs text-gray-500 border-b border-gray-200">
-                                <th class="px-4 py-3 font-medium">Status</th>
-                                <th class="px-4 py-3 font-medium">SN</th>
-                                <th class="px-4 py-3 font-medium">NMI</th>
-                                <th class="px-4 py-3 font-medium">Manufacturer</th>
-                                <th class="px-4 py-3 font-medium">State</th>
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10 bg-white">
+                            <tr>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">NMI</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Manufacturer</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">State</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Rated Power</th>
                                 ${filterType !== 'EV' ? `
-                                <th class="px-4 py-3 font-medium text-right">Rated Power</th>
-                                <th class="px-4 py-3 font-medium text-right">PV Capacity</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">PV Capacity</th>
                                 ` : ''}
-                                ${filterType !== 'Inverter' ? '<th class="px-4 py-3 font-medium text-center">SOC</th>' : ''}
-                                ${filterType !== 'EV' ? `<th class="px-4 py-3 font-medium text-right">Today Yield</th>` : ''}
-                                <th class="px-4 py-3 font-medium">Assigned VPP</th>
-                                <th class="px-4 py-3 font-medium text-center">Actions</th>
+                                ${filterType !== 'Inverter' ? `
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Rated Capacity</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center">SOC</th>
+                                ` : ''}
+                                ${filterType !== 'EV' ? `
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Today Yield</th>
+                                ` : ''}
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Assigned VPP</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="text-sm">
+                        <tbody class="">
                             ${filteredDevices.length > 0 ? filteredDevices.map(dev => {
                                 const vpp = state.vpps.find(v => v.id === dev.vppId) || {};
                                 const capacity = dev.capacity || 5;
                                 const ratedPower = capacity.toFixed(1) + ' kW';
                                 const pvCapacity = dev.type === 'Inverter' ? (capacity * 1.2).toFixed(1) + ' kW' : '-';
+                                const ratedCapacity = dev.type === 'Battery' ? capacity.toFixed(1) + ' kWh' : '-';
                                 
                                 let socDisplay = '-';
                                 if (dev.type === 'Battery') {
@@ -5514,9 +7624,9 @@ const app = {
                                     const totalCap = capacity;
                                     const currentEn = (totalCap * socVal) / 100;
                                     socDisplay = `
-                                        <div>
-                                            <div class="text-gray-900">${socVal}%</div>
-                                            <div class="text-[10px] text-gray-500">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</div>
+                                        <div class="flex flex-col items-center">
+                                            <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${socVal}%</span>
+                                            <span class="text-[10px] text-[#b5bcc8] font-['Roboto']">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</span>
                                         </div>
                                     `;
                                 }
@@ -5524,39 +7634,67 @@ const app = {
                                 const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
                                 
                                 return `
-                                <tr class="group hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                                    <td class="px-4 py-3">
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${dev.status === 'online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">
-                                            <span class="w-1 h-1 rounded-full bg-current"></span>
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
+                                    <td class="px-[8px]">
+                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-['Roboto'] ${dev.status === 'online' ? 'bg-[#3ec064]/10 text-[#3ec064]' : 'bg-[#b5bcc8]/10 text-[#b5bcc8]'}">
+                                            <span class="w-[4px] h-[4px] rounded-full bg-current"></span>
                                             ${dev.status.charAt(0).toUpperCase() + dev.status.slice(1)}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 font-mono text-gray-700 group-hover:text-gray-900">${dev.sn || '-'}</td>
-                                    <td class="px-4 py-3 text-gray-500 font-mono">${dev.nmi || '-'}</td>
-                                    <td class="px-4 py-3 text-gray-500">${dev.vendor}</td>
-                                    <td class="px-4 py-3 text-gray-500">${vpp.state || dev.mockState || '-'}</td>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${dev.sn || '-'}</div>
+                                    </td>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#5f646e] font-normal font-mono">${dev.nmi || '-'}</div>
+                                    </td>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.vendor}</div>
+                                    </td>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${vpp.state || dev.mockState || '-'}</div>
+                                    </td>
+                                    <td class="px-[8px] text-right">
+                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${ratedPower}</div>
+                                    </td>
                                     ${filterType !== 'EV' ? `
-                                    <td class="px-4 py-3 text-gray-500 font-mono text-right">${ratedPower}</td>
-                                    <td class="px-4 py-3 text-gray-500 font-mono text-right">${pvCapacity}</td>
+                                    <td class="px-[8px] text-right">
+                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${pvCapacity}</div>
+                                    </td>
                                     ` : ''}
-                                    ${filterType !== 'Inverter' ? `<td class="px-4 py-3 text-gray-500 font-mono text-center">${socDisplay}</td>` : ''}
-                                    ${filterType !== 'EV' ? `<td class="px-4 py-3 text-gray-500 font-mono text-right">${todayYield}</td>` : ''}
-                                    <td class="px-4 py-3 text-gray-500">${vpp.name || '-'}</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-gray-400 hover:text-manta-primary transition-colors">
-                                            <i data-lucide="eye" class="w-4 h-4"></i>
-                                        </button>
+                                    ${filterType !== 'Inverter' ? `
+                                    <td class="px-[8px] text-right">
+                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${ratedCapacity}</div>
+                                    </td>
+                                    <td class="px-[8px] text-center">
+                                        ${socDisplay}
+                                    </td>
+                                    ` : ''}
+                                    ${filterType !== 'EV' ? `
+                                    <td class="px-[8px] text-right">
+                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${todayYield}</div>
+                                    </td>
+                                    ` : ''}
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${vpp.name || '-'}</div>
+                                    </td>
+                                    <td class="px-[8px] text-right">
+                                        <div class="flex items-center justify-end gap-[12px]">
+                                            <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
+                                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             `;
                             }).join('') : `
                                 <tr>
-                                    <td colspan="11" class="py-8 text-center text-gray-500">No devices found</td>
+                                    <td colspan="12" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">No devices found</td>
                                 </tr>
                             `}
                         </tbody>
                     </table>
                 </div>
+            </div>
             </div>
         `;
     },
@@ -6771,21 +8909,22 @@ const app = {
             container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
             
             container.innerHTML = `
-                <!-- White Card (Node 35:305) -->
-                <div class="bg-white w-full h-full rounded-[4px] p-[16px] flex flex-col relative">
-                    <!-- Inner Grey Box (Node 39:459) -->
-                    <div class="bg-[#f3f3f6] flex flex-1 flex-col gap-[8px] items-center justify-center rounded-[4px] w-full relative">
-                        <div class="relative w-[80px] h-[80px]">
+                <div class="bg-white w-full h-full rounded-[6px] p-[20px] flex flex-col">
+                    <div class="bg-[#f3f3f6] flex flex-1 flex-col gap-[10px] items-center justify-center rounded-[6px] w-full px-[16px] py-[16px]">
+                        <div class="relative w-[88px] h-[88px]">
                             <img src="assets/icons/empty-state.svg" alt="Empty State" class="w-full h-full block">
                         </div>
                         <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949] text-center">
                             No VPPs Created
                         </p>
-                        <button onclick="app.openVPPDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[4px] h-[40px] px-[24px] py-[4px] rounded-[4px] text-white transition-colors min-w-[80px]">
-                            <div class="w-[24px] h-[24px] flex items-center justify-center">
+                        <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f] text-center max-w-[320px]">
+                            Create a VPP to start onboarding assets and monitoring performance.
+                        </p>
+                        <button onclick="app.openVPPDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[6px] h-[40px] px-[24px] py-[4px] rounded-[6px] text-white transition-colors min-w-[100px]">
+                            <div class="w-[20px] h-[20px] flex items-center justify-center">
                                  <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
                             </div>
-                            <span class="font-['Roboto'] font-semibold text-[16px] leading-[1.42]">Create</span>
+                            <span class="font-['Roboto'] font-semibold text-[14px] leading-[1.42]">Create</span>
                         </button>
                     </div>
                 </div>
@@ -6813,10 +8952,33 @@ const app = {
             return nameMatch && stateMatch;
         });
 
+        // Pagination
+        const itemsPerPage = state.vppList.itemsPerPage || 10;
+        const totalItems = filteredVPPs.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const currentPage = state.vppList.currentPage || 1;
+        const startIdx = (currentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const paginatedVPPs = isCardView ? filteredVPPs : filteredVPPs.slice(startIdx, endIdx);
+
+        // Calculate pages
+        let pages = [];
+        if (totalPages <= 7) {
+            pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+        } else {
+            if (currentPage <= 4) {
+                pages = [1, 2, 3, 4, 5, '...', totalPages];
+            } else if (currentPage >= totalPages - 3) {
+                pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+            } else {
+                pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+            }
+        }
+
         container.innerHTML = `
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col p-6">
             <!-- Toolbar -->
-            <div class="flex flex-col md:flex-row justify-between items-center gap-[8px] mb-[8px] flex-shrink-0">
+            <div class="flex flex-col md:flex-row justify-start items-center gap-[8px] mb-[8px] flex-shrink-0">
                 <!-- Left: Title & Add -->
                 <div class="flex items-center gap-2">
                     <h2 class="text-xl font-bold text-gray-900">VPPs</h2>
@@ -6826,7 +8988,7 @@ const app = {
                 </div>
 
                 <!-- Center: Search & Filter Group -->
-                <div class="flex-1 w-full md:max-w-xl mx-4 flex justify-end">
+                <div class="flex items-center">
                     <div class="bg-[#f3f3f6] flex gap-[16px] items-center pl-[8px] pr-0 py-0 relative rounded-[4px] shrink-0 w-[320px] h-[32px]">
                          <!-- Search Input -->
                          <input type="text" id="vpp-name-filter" 
@@ -6856,7 +9018,7 @@ const app = {
                 </div>
 
                 <!-- Right: View Switcher -->
-                <div class="flex bg-[#f3f3f6] p-[4px] rounded-[4px] items-center">
+                <div class="flex bg-[#f3f3f6] p-[4px] rounded-[4px] items-center ml-auto">
                     <button onclick="app.toggleVPPViewMode('list')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${!isCardView ? 'bg-white shadow-sm' : ''}">
                         <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
                             <div class="h-[20px] shrink-0 w-[4px] ${!isCardView ? 'bg-[#313949]' : 'bg-[#b5bcc8]'}"></div>
@@ -6876,9 +9038,22 @@ const app = {
             </div>
 
                 
-                ${isCardView ? `
+                ${filteredVPPs.length === 0 ? `
+                <div class="flex-1 flex flex-col items-center justify-center bg-gray-50 rounded-xl border border-gray-200 border-dashed p-12 m-4">
+                     <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm border border-gray-100">
+                        <i data-lucide="search" class="w-6 h-6 text-gray-400"></i>
+                     </div>
+                     <h3 class="text-base font-medium text-gray-900 mb-1">No VPPs found</h3>
+                     <p class="text-sm text-gray-500 mb-4 text-center">
+                        No VPPs match your current filters.
+                     </p>
+                     <button onclick="app.resetVPPFilters()" class="px-3 py-1.5 bg-white border border-gray-300 shadow-sm rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                        Clear Filters
+                     </button>
+                </div>
+                ` : isCardView ? `
                 <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    ${filteredVPPs.map((vpp) => {
+                    ${paginatedVPPs.map((vpp) => {
                         const isSelected = vpp.id === state.selectedVppId;
                         const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
                         
@@ -7036,7 +9211,7 @@ const app = {
                                 </tr>
                             </thead>
                             <tbody class="">
-                                ${filteredVPPs.map((vpp, index) => {
+                                ${paginatedVPPs.map((vpp, index) => {
                                     const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
                                     
                                     const invs = vppDevices.filter(d => d.type === 'Inverter');
@@ -7108,6 +9283,56 @@ const app = {
                     </div>
                 </div>
                 `}
+                
+                ${!isCardView ? `
+                <div class="flex items-center justify-end px-[16px] py-[12px] mt-auto bg-white rounded-b-[4px]">
+                    <div class="flex items-center gap-[4px]">
+                        <!-- Page Size Selector -->
+                        <div class="flex items-center gap-[8px] mr-2">
+                             <div class="relative group">
+                                <select class="appearance-none bg-white border border-[var(--color-neutral-line)] text-[var(--color-neutral-bluegrey)] text-[14px] rounded-[4px] px-[12px] py-[4px] pr-[32px] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer font-['Roboto']" onchange="app.updateVPPListState('itemsPerPage', parseInt(this.value))">
+                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10/page</option>
+                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20/page</option>
+                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50/page</option>
+                                </select>
+                                <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <i data-lucide="chevron-down" class="w-[16px] h-[16px] text-[var(--color-neutral-lightgrey)]"></i>
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- First Page -->
+                        <button onclick="app.updateVPPListState('currentPage', 1)" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i data-lucide="chevrons-left" class="w-[16px] h-[16px]"></i>
+                        </button>
+                        <!-- Prev Page -->
+                        <button onclick="app.updateVPPListState('currentPage', ${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i data-lucide="chevron-left" class="w-[16px] h-[16px]"></i>
+                        </button>
+                        
+                        <!-- Page Numbers -->
+                        ${pages.map(page => {
+                            if (page === '...') {
+                                return `<span class="w-[32px] h-[32px] flex items-center justify-center text-[#5f646e] font-['Roboto']">...</span>`;
+                            }
+                            return `
+                                <button onclick="app.updateVPPListState('currentPage', ${page})" class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] text-[14px] font-medium transition-colors font-['Roboto'] ${page === currentPage ? 'bg-[var(--color-neutral-thingrey)] text-[var(--color-neutral-bluegrey)]' : 'text-[#5f646e] hover:bg-[var(--color-neutral-thingrey)]'}">
+                                    ${page}
+                                </button>
+                            `;
+                        }).join('')}
+
+                        <!-- Next Page -->
+                        <button onclick="app.updateVPPListState('currentPage', ${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i data-lucide="chevron-right" class="w-[16px] h-[16px]"></i>
+                        </button>
+                        <!-- Last Page -->
+                        <button onclick="app.updateVPPListState('currentPage', ${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="w-[32px] h-[32px] flex items-center justify-center rounded-[4px] hover:bg-[var(--color-neutral-thingrey)] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i data-lucide="chevrons-right" class="w-[16px] h-[16px]"></i>
+                        </button>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
         lucide.createIcons();
@@ -7139,7 +9364,7 @@ const app = {
         
         const todayYield = ratedPower * (2 + Math.random() * 2);
 
-        const assignedDevices = allVppDevices
+        const filteredDevices = allVppDevices
             .filter(d => {
                 if (!state.assignedSearchQuery) return true;
                 const q = state.assignedSearchQuery.toLowerCase();
@@ -7151,6 +9376,12 @@ const app = {
                        (d.email && d.email.toLowerCase().includes(q)) ||
                        (d.address && d.address.toLowerCase().includes(q));
             });
+
+        const { currentPage, itemsPerPage } = state.derListPagination;
+        const totalPages = Math.ceil(filteredDevices.length / itemsPerPage);
+        const startIdx = (currentPage - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const assignedDevices = filteredDevices.slice(startIdx, endIdx);
 
         // Content
         const content = document.createElement('div');
@@ -7456,6 +9687,60 @@ const app = {
                     </div>
                     `}
                 </div>
+                ${(state.vppDetailsTab === 'der-list') ? `
+                <div class="flex items-center justify-end px-[16px] py-[12px] mt-auto bg-white rounded-b-[4px]">
+                    <div class="flex items-center gap-[12px]">
+                        <div class="relative mr-2">
+                            <select 
+                                onchange="app.updateDERListState('itemsPerPage', parseInt(this.value))"
+                                class="appearance-none bg-white border border-[#e6e8ee] rounded-[4px] h-[32px] pl-[12px] pr-[32px] text-[14px] text-[#313949] focus:outline-none focus:border-[#0052ff] cursor-pointer hover:border-[#b5bcc8] transition-colors"
+                            >
+                                <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10/page</option>
+                                <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20/page</option>
+                                <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50/page</option>
+                            </select>
+                            <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none text-[#5f646e]">
+                                <i data-lucide="chevron-down" class="w-[16px] h-[16px]"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-[8px]">
+                            <button 
+                                onclick="app.updateDERListState('currentPage', 1)"
+                                class="p-[6px] rounded-[4px] hover:bg-[#f3f3f6] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                ${currentPage === 1 ? 'disabled' : ''}
+                            >
+                                <i data-lucide="chevrons-left" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            <button 
+                                onclick="app.updateDERListState('currentPage', ${currentPage - 1})"
+                                class="p-[6px] rounded-[4px] hover:bg-[#f3f3f6] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                ${currentPage === 1 ? 'disabled' : ''}
+                            >
+                                <i data-lucide="chevron-left" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            
+                            <span class="text-[14px] text-[#313949] font-medium min-w-[32px] text-center">${currentPage}</span>
+                            <span class="text-[14px] text-[#5f646e]">/ ${totalPages || 1}</span>
+
+                            <button 
+                                onclick="app.updateDERListState('currentPage', ${currentPage + 1})"
+                                class="p-[6px] rounded-[4px] hover:bg-[#f3f3f6] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                ${currentPage >= totalPages ? 'disabled' : ''}
+                            >
+                                <i data-lucide="chevron-right" class="w-[16px] h-[16px]"></i>
+                            </button>
+                            <button 
+                                onclick="app.updateDERListState('currentPage', ${totalPages})"
+                                class="p-[6px] rounded-[4px] hover:bg-[#f3f3f6] text-[#5f646e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                ${currentPage >= totalPages ? 'disabled' : ''}
+                            >
+                                <i data-lucide="chevrons-right" class="w-[16px] h-[16px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
         
@@ -7544,6 +9829,7 @@ const app = {
 
     setAssignedSearch(query) {
         state.assignedSearchQuery = query;
+        state.derListPagination.currentPage = 1;
         const container = document.getElementById('content-area');
         if (state.currentView === 'vpp_details') {
             this.renderVPPDetails(container, state.selectedVppId);
@@ -8149,9 +10435,6 @@ const app = {
                                 <div class="relative h-[32px]">
                                     <input type="password" name="appKey" id="input-app-key" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] pl-[8px] pr-[60px] text-[14px] text-[#313949] placeholder-[#b5bcc8] focus:border-[#3ec064] outline-none transition-colors" placeholder="Enter AppKey">
                                     <div class="absolute right-[8px] top-1/2 -translate-y-1/2 flex items-center gap-[4px]">
-                                        <button type="button" onclick="app.copyToClipboard('input-app-key')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5" title="Copy">
-                                            <i data-lucide="copy" class="w-[14px] h-[14px]"></i>
-                                        </button>
                                         <button type="button" onclick="app.togglePasswordVisibility('input-app-key')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5">
                                             <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                         </button>
@@ -8167,9 +10450,6 @@ const app = {
                                 <div class="relative h-[32px]">
                                     <input type="password" name="appSecret" id="input-app-secret" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] pl-[8px] pr-[60px] text-[14px] text-[#313949] placeholder-[#b5bcc8] focus:border-[#3ec064] outline-none transition-colors" placeholder="Enter AppSecret">
                                     <div class="absolute right-[8px] top-1/2 -translate-y-1/2 flex items-center gap-[4px]">
-                                        <button type="button" onclick="app.copyToClipboard('input-app-secret')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5" title="Copy">
-                                            <i data-lucide="copy" class="w-[14px] h-[14px]"></i>
-                                        </button>
                                         <button type="button" onclick="app.togglePasswordVisibility('input-app-secret')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors p-0.5">
                                             <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                         </button>
@@ -8469,14 +10749,16 @@ const app = {
         
         state.vppList.vppName = nameInput.value;
         state.vppList.state = stateInput.value;
+        state.vppList.currentPage = 1;
         
-        this.renderVPP(document.getElementById('main-content'));
+        this.renderVPP(document.getElementById('content-area'));
     },
 
     resetVPPFilters() {
         state.vppList.vppName = '';
         state.vppList.state = '';
-        this.renderVPP(document.getElementById('main-content'));
+        state.vppList.currentPage = 1;
+        this.renderVPP(document.getElementById('content-area'));
     },
 
     filterSubVPPs() {
@@ -8487,6 +10769,7 @@ const app = {
         state.subVppList.name = name;
         state.subVppList.type = type;
         state.subVppList.status = status;
+        state.subVppList.currentPage = 1;
         
         this.renderDeviceManagement(document.getElementById('content-area'));
         lucide.createIcons();
@@ -8496,6 +10779,7 @@ const app = {
         state.subVppList.name = '';
         state.subVppList.type = 'All';
         state.subVppList.status = 'All';
+        state.subVppList.currentPage = 1;
         
         this.renderDeviceManagement(document.getElementById('content-area'));
         lucide.createIcons();
