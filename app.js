@@ -908,6 +908,18 @@ const app = {
         });
         // Close drawer on backdrop click
         document.getElementById('drawer-backdrop').addEventListener('click', () => this.closeDrawer());
+
+        // Close VPP dropdown on outside click
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('rule-vpp-dropdown');
+            const toggleBtn = document.getElementById('rule-vpp-toggle-btn');
+            
+            if (state.tradingRuleVppDropdownOpen && dropdown && toggleBtn) {
+                if (!dropdown.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    this.toggleRuleVppDropdown();
+                }
+            }
+        });
     },
 
     toggleSubmenu(id, element) {
@@ -5055,12 +5067,12 @@ const app = {
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                         <tr>
                                             <th class="px-4 py-2 font-medium">State</th>
-                                            <th class="px-4 py-2 font-medium">Trigger Type</th>
-                                            <th class="px-4 py-2 font-medium">Trigger Price ($)</th>
-                                            <th class="px-4 py-2 font-medium">Arbitrage Signal</th>
+                                            <th class="px-4 py-2 font-medium">Trigger From</th>
+                                            <th class="px-4 py-2 font-medium">Trigger Condition</th>
                                             <th class="px-4 py-2 font-medium">Action</th>
                                             <th class="px-4 py-2 font-medium">Status</th>
                                             <th class="px-4 py-2 font-medium">Applicable VPP</th>
+                                            <th class="px-4 py-2 font-medium">Ignore Time</th>
                                             <th class="px-4 py-2 font-medium">Action</th>
                                         </tr>
                                     </thead>
@@ -5069,13 +5081,13 @@ const app = {
                                             <tr class="hover:bg-gray-50 transition-colors">
                                                 <td class="px-4 py-3 text-gray-900 font-medium">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.triggerType || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.condition} $${rule.price}` : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? '-' : (rule.arbitrageSignal || '-')}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.action || '-'}</td>
                                                 <td class="px-4 py-3">
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${rule.state === 'Inactive' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">${rule.state === 'Inactive' ? 'Inactive' : 'Active'}</span>
                                                 </td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => v.name).filter(Boolean).join(', ') : (rule.vpp || '-')}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => `<div class="truncate max-w-[200px]" title="${v.name}">${v.name}</div>`).filter(Boolean).join('') : (rule.vpp || '-')}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => `<div>${v.ignoreTimeEnabled ? `${v.ignoreTimeStart} - ${v.ignoreTimeEnd}` : '-'}</div>`).join('') : '-'}</td>
                                                 <td class="px-4 py-3">
                                                     <div class="flex items-center gap-2">
                                                         <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
@@ -5115,13 +5127,13 @@ const app = {
                                             <th class="px-4 py-2 font-medium">Date</th>
                                             <th class="px-4 py-2 font-medium">VPP</th>
                                             <th class="px-4 py-2 font-medium">State</th>
-                                            <th class="px-4 py-2 font-medium">Trigger Type</th>
+                                            <th class="px-4 py-2 font-medium">Trigger From</th>
                                             <th class="px-4 py-2 font-medium">Action</th>
-                                            <th class="px-4 py-2 font-medium">Spot</th>
                                             <th class="px-4 py-2 font-medium">Start Time</th>
                                             <th class="px-4 py-2 font-medium">End Time</th>
-                                            <th class="px-4 py-2 font-medium">Power</th>
+                                            <th class="px-4 py-2 font-medium">Rated Power</th>
                                             <th class="px-4 py-2 font-medium">Volume</th>
+                                            <th class="px-4 py-2 font-medium">Spot</th>
                                             <th class="px-4 py-2 font-medium">Status</th>
                                             <th class="px-4 py-2 font-medium">Action</th>
                                         </tr>
@@ -5136,7 +5148,8 @@ const app = {
                                                 }
                                                 return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
                                             });
-                                            const triggerType = matchedRule?.triggerType || event.triggerType || '-';
+                                            const rawTriggerType = matchedRule?.triggerType || event.triggerType;
+                                            const triggerType = rawTriggerType === 'Price' ? 'Spot Price' : (rawTriggerType === 'Arbitrage' ? 'Arbitrage Point' : rawTriggerType || '-');
                                             const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
                                             const startTime = timeParts[0] || '-';
                                             const endTime = timeParts[1] || '-';
@@ -5145,16 +5158,16 @@ const app = {
                                             const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
                                             return `
                                             <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-4 py-3 text-gray-600">${event.date || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${event.date ? event.date.split(' ')[0] : '-'}</td>
                                                 <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600">${triggerType}</td>
                                                 <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${spot}</td>
                                                 <td class="px-4 py-3 text-gray-600">${startTime}</td>
                                                 <td class="px-4 py-3 text-gray-600">${endTime}</td>
                                                 <td class="px-4 py-3 text-gray-600">${power}</td>
                                                 <td class="px-4 py-3 text-gray-600">${volume}</td>
+                                                <td class="px-4 py-3 text-gray-600">${spot}</td>
                                                 <td class="px-4 py-3">
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
                                                 </td>
@@ -5863,7 +5876,7 @@ const app = {
                                     <th scope="col" class="px-6 py-3">Rule ID</th>
                                     <th scope="col" class="px-6 py-3">VPP Name</th>
                                     <th scope="col" class="px-6 py-3">State</th>
-                                    <th scope="col" class="px-6 py-3">Trigger Type</th>
+                                    <th scope="col" class="px-6 py-3">Trigger From</th>
                                     <th scope="col" class="px-6 py-3">Details</th>
                                     <th scope="col" class="px-6 py-3">Action</th>
                                     <th scope="col" class="px-6 py-3 text-right">Actions</th>
@@ -5879,9 +5892,9 @@ const app = {
                                                 ${rule.state}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4">${rule.triggerType || 'Price'}</td>
+                                        <td class="px-6 py-4">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || 'Spot Price')}</td>
                                         <td class="px-6 py-4">
-                                            ${rule.triggerType === 'Price' ? `Price ${rule.condition} $${rule.price}` : rule.triggerType}
+                                            ${rule.triggerType === 'Price' ? `Spot Price ${rule.condition} $${rule.price}` : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType)}
                                             ${rule.applicableVpps && rule.applicableVpps.some(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd) ? `<div class="text-xs text-gray-400 mt-1">${rule.applicableVpps.filter(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd).map(v => `Ignore ${v.name || 'VPP'}: ${v.ignoreTimeStart} - ${v.ignoreTimeEnd}`).join('<br>')}</div>` : ''}
                                         </td>
                                         <td class="px-6 py-4">
@@ -6046,8 +6059,7 @@ const app = {
                              <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
                                <select name="triggerType" required onchange="app.handleTriggerTypeChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
                                     <option value="Price" ${!rule || rule.triggerType === 'Price' ? 'selected' : ''}>Price</option>
-                                    <option value="Signal by Spot" ${rule && rule.triggerType === 'Signal by Spot' ? 'selected' : ''}>Signal by Spot</option>
-                                    <option value="Signal by Forecast" ${rule && rule.triggerType === 'Signal by Forecast' ? 'selected' : ''}>Signal by Forecast</option>
+                                    <option value="Arbitrage" ${rule && rule.triggerType === 'Arbitrage' ? 'selected' : ''}>Arbitrage Point</option>
                                 </select>
                                 <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
                                     <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
@@ -6056,53 +6068,56 @@ const app = {
                         </div>
                     </div>
 
-                    <!-- Trigger Price (Conditional) -->
-                    <div id="field-trigger-price" class="flex flex-col gap-[4px] w-full shrink-0" style="display: ${!rule || rule.triggerType === 'Price' ? 'flex' : 'none'}">
+                    <!-- Trigger Condition -->
+                    <div id="field-trigger-price" class="flex flex-col gap-[4px] w-full shrink-0">
                          <div class="flex gap-0 items-center h-[16px] pl-[4px]">
                              <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger Price ($)</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger Condition</span>
                          </div>
                         <div class="flex gap-2">
                             <div class="relative w-28 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                                <select name="priceSource" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer">
-                                    <option value="Spot" ${!rule || rule.priceSource === 'Spot' ? 'selected' : ''}>Spot</option>
-                                    <option value="Forecast Spot" ${rule && rule.priceSource === 'Forecast Spot' ? 'selected' : ''}>Forecast Spot</option>
+                                <select name="priceSource" id="trigger-source-select" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer">
+                                    ${!rule || rule.triggerType === 'Price' ? `
+                                        <option value="Spot" ${!rule || rule.priceSource === 'Spot' ? 'selected' : ''}>Spot</option>
+                                        <option value="Forecast Spot" ${rule && rule.priceSource === 'Forecast Spot' ? 'selected' : ''}>Forecast Spot</option>
+                                    ` : `
+                                        <option value="Signal by Spot" ${rule && rule.priceSource === 'Signal by Spot' ? 'selected' : ''}>Signal by Spot</option>
+                                        <option value="Signal by Forecast" ${rule && rule.priceSource === 'Signal by Forecast' ? 'selected' : ''}>Signal by Forecast</option>
+                                    `}
                                 </select>
                                <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
                                    <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
                                </div>
                             </div>
                             <div class="relative w-24 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                                <select name="condition" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer">
+                                <select name="condition" id="trigger-condition-select" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer" style="display: ${!rule || rule.triggerType === 'Price' ? 'block' : 'none'}">
                                      <option value=">" ${rule && rule.condition === '>' ? 'selected' : ''}>></option>
                                      <option value="<" ${rule && rule.condition === '<' ? 'selected' : ''}><</option>
                                      <option value=">=" ${rule && rule.condition === '>=' ? 'selected' : ''}>>=</option>
                                      <option value="<=" ${rule && rule.condition === '<=' ? 'selected' : ''}><=</option>
                                  </select>
-                                <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
+                                 <div id="trigger-condition-static" class="w-full h-full flex items-center justify-center text-[14px] text-[#313949] font-normal" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'flex' : 'none'}">
+                                    =
+                                 </div>
+                                <div id="trigger-condition-arrow" class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]" style="display: ${!rule || rule.triggerType === 'Price' ? 'flex' : 'none'}">
                                     <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
                                 </div>
                              </div>
-                             <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                                 <input type="number" name="price" value="${rule ? rule.price || '' : ''}" step="0.01" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="0.00" ${!rule || rule.triggerType === 'Price' ? 'required' : ''}>
+                             <div class="relative flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                                 <input type="number" name="price" id="trigger-price-input" value="${rule ? rule.price || '' : ''}" step="0.01" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="0.00" ${!rule || rule.triggerType === 'Price' ? 'required' : ''} style="display: ${!rule || rule.triggerType === 'Price' ? 'block' : 'none'}">
+                                 
+                                 <select name="arbitrageSignal" id="trigger-arbitrage-select" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'block' : 'none'}" ${rule && rule.triggerType === 'Arbitrage' ? 'required' : ''}>
+                                     <option value="Discharge" ${rule && rule.arbitrageSignal === 'Discharge' ? 'selected' : ''}>Discharge</option>
+                                     <option value="Charge" ${rule && rule.arbitrageSignal === 'Charge' ? 'selected' : ''}>Charge</option>
+                                     <option value="Abnormal" ${rule && rule.arbitrageSignal === 'Abnormal' ? 'selected' : ''}>Abnormal</option>
+                                 </select>
+                                 <div id="trigger-arbitrage-arrow" class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'flex' : 'none'}">
+                                    <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
+                                </div>
                              </div>
-                         </div>
-                    </div>
-
-                    <div id="field-arbitrage-signal" class="flex flex-col gap-[4px] w-full shrink-0" style="display: ${rule && rule.triggerType !== 'Price' ? 'flex' : 'none'}">
-                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Arbitrage Signal</span>
-                         </div>
-                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                             <select name="arbitrageSignal" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
-                                 <option value="Discharge" ${rule && rule.arbitrageSignal === 'Discharge' ? 'selected' : ''}>Discharge</option>
-                                 <option value="Charge" ${rule && rule.arbitrageSignal === 'Charge' ? 'selected' : ''}>Charge</option>
-                                 <option value="Abnormal" ${rule && rule.arbitrageSignal === 'Abnormal' ? 'selected' : ''}>Abnormal</option>
-                             </select>
-                            <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
-                                <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
-                            </div>
+                             <div class="flex items-center h-[32px]" id="trigger-price-unit" style="display: ${!rule || rule.triggerType === 'Price' ? 'flex' : 'none'}">
+                                 <span class="text-[14px] text-[#313949] font-normal">$/MW</span>
+                             </div>
                          </div>
                     </div>
 
@@ -6147,7 +6162,7 @@ const app = {
                              <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Applicable VPP</span>
                          </div>
                          <div class="relative w-full">
-                             <button type="button" onclick="app.toggleRuleVppDropdown()" class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center justify-between transition-colors focus-within:border-[#3ec064]">
+                             <button type="button" id="rule-vpp-toggle-btn" onclick="app.toggleRuleVppDropdown()" class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center justify-between transition-colors focus-within:border-[#3ec064]">
                                  <span id="rule-vpp-placeholder" class="text-[14px] font-normal ${state.tradingRuleVppSelections.length ? 'text-[#313949]' : 'text-[#b5bcc8]'}">${state.tradingRuleVppSelections.length ? `${state.tradingRuleVppSelections.length} VPP selected` : 'Select VPP'}</span>
                                  <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
                              </button>
@@ -6283,23 +6298,58 @@ const app = {
 
     handleTriggerTypeChange(type) {
         const priceField = document.getElementById('field-trigger-price');
-        const arbitrageField = document.getElementById('field-arbitrage-signal');
+        // Ensure the main field container is visible
         if (priceField) {
-            priceField.style.display = type === 'Price' ? 'flex' : 'none';
-            const priceInput = priceField.querySelector('input[name="price"]');
-            if (priceInput) {
-                if (type === 'Price') priceInput.setAttribute('required', '');
-                else priceInput.removeAttribute('required');
+            priceField.style.display = 'flex';
+        }
+
+        // 1. Update Source Select Options
+        const sourceSelect = document.getElementById('trigger-source-select');
+        if (sourceSelect) {
+            if (type === 'Price') {
+                sourceSelect.innerHTML = `
+                    <option value="Spot">Spot</option>
+                    <option value="Forecast Spot">Forecast Spot</option>
+                `;
+            } else {
+                sourceSelect.innerHTML = `
+                    <option value="Signal by Spot">Signal by Spot</option>
+                    <option value="Signal by Forecast">Signal by Forecast</option>
+                `;
             }
         }
-        if (arbitrageField) {
-            arbitrageField.style.display = type === 'Price' ? 'none' : 'flex';
-            const signalSelect = arbitrageField.querySelector('select[name="arbitrageSignal"]');
-            if (signalSelect) {
-                if (type === 'Price') signalSelect.removeAttribute('required');
-                else signalSelect.setAttribute('required', '');
-            }
+
+        // 2. Toggle Condition Select vs Static Display
+        const conditionSelect = document.getElementById('trigger-condition-select');
+        const conditionStatic = document.getElementById('trigger-condition-static');
+        const conditionArrow = document.getElementById('trigger-condition-arrow');
+        
+        if (conditionSelect) conditionSelect.style.display = type === 'Price' ? 'block' : 'none';
+        if (conditionStatic) conditionStatic.style.display = type === 'Arbitrage' ? 'flex' : 'none';
+        if (conditionArrow) conditionArrow.style.display = type === 'Price' ? 'flex' : 'none';
+
+        // 3. Toggle Price Input vs Arbitrage Select
+        const priceInput = document.getElementById('trigger-price-input');
+        const arbitrageSelect = document.getElementById('trigger-arbitrage-select');
+        const arbitrageArrow = document.getElementById('trigger-arbitrage-arrow');
+
+        if (priceInput) {
+            priceInput.style.display = type === 'Price' ? 'block' : 'none';
+            if (type === 'Price') priceInput.setAttribute('required', '');
+            else priceInput.removeAttribute('required');
         }
+
+        if (arbitrageSelect) {
+            arbitrageSelect.style.display = type === 'Arbitrage' ? 'block' : 'none';
+            if (type === 'Arbitrage') arbitrageSelect.setAttribute('required', '');
+            else arbitrageSelect.removeAttribute('required');
+        }
+        
+        if (arbitrageArrow) arbitrageArrow.style.display = type === 'Arbitrage' ? 'flex' : 'none';
+
+        // 4. Toggle Unit Display
+        const unitDiv = document.getElementById('trigger-price-unit');
+        if (unitDiv) unitDiv.style.display = type === 'Price' ? 'flex' : 'none';
     },
 
     handleTradingRuleSubmit(event) {
@@ -10410,20 +10460,7 @@ const app = {
                         </div>
 
                         <!-- Connection Mode Radio -->
-                        <div class="flex items-center gap-[10px] h-[24px]">
-                            <label class="flex items-center gap-[4px] cursor-pointer group">
-                                <div class="relative w-[24px] h-[24px] flex items-center justify-center">
-                                    <input type="radio" name="connectionMode" value="create" onchange="app.toggleConnectionMode('create')" class="peer appearance-none w-[16px] h-[16px] rounded-full border border-[#cacfd8] checked:border-[#3ec064] checked:border-[5px] transition-all bg-white">
-                                </div>
-                                <span class="text-[14px] text-[#313949] leading-normal group-hover:text-[#3ec064] transition-colors">Create New</span>
-                            </label>
-                            <label class="flex items-center gap-[4px] cursor-pointer group">
-                                <div class="relative w-[24px] h-[24px] flex items-center justify-center">
-                                    <input type="radio" name="connectionMode" value="add" checked onchange="app.toggleConnectionMode('add')" class="peer appearance-none w-[16px] h-[16px] rounded-full border border-[#cacfd8] checked:border-[#3ec064] checked:border-[5px] transition-all bg-white">
-                                </div>
-                                <span class="text-[14px] text-[#313949] leading-normal group-hover:text-[#3ec064] transition-colors">Add Existing</span>
-                            </label>
-                        </div>
+
 
                         <!-- Credentials -->
                         <div id="cloud-credentials" class="flex flex-col gap-[16px] pt-[4px]">
@@ -10638,7 +10675,7 @@ const app = {
 
             if (['cloud', 'aggregator_cloud', 'private_cloud'].includes(systemType)) {
                 const manufacturers = formData.getAll('manufacturers');
-                const connectionMode = formData.get('connectionMode');
+                const connectionMode = formData.get('connectionMode') || 'add';
                 const appKey = formData.get('appKey');
                 const appSecret = formData.get('appSecret');
 
