@@ -1003,7 +1003,7 @@ const app = {
             'der_ess': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV ESS'}],
             'der_pv': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'PV'}],
             'der_ev': [{label: 'DER Management', onclick: "app.navigate('der')"}, {label: 'ESS'}],
-            'device_management': [{label: 'System'}, {label: 'Sub-VPP Management'}],
+            'device_management': [{label: 'System'}, {label: 'DER Access'}],
             'account': [{label: 'System'}, {label: 'Account'}],
             'vpp_details': [
                 {label: 'VPP Management', view: 'vpp'}, 
@@ -1011,7 +1011,7 @@ const app = {
             ],
             'system_details': [
                 {label: 'System'},
-                {label: 'Sub-VPP Management', view: 'device_management'}, 
+                {label: 'DER Access', view: 'device_management'}, 
                 {label: 'Details'}
             ],
             'device_details': [
@@ -6707,8 +6707,8 @@ const app = {
         if (!system) return;
 
         this.showConfirmModal(
-            'Close Sub-VPP Connection',
-            'Are you sure you want to close this connection? The status will be updated to Closed.',
+            'Close Access',
+            'Are you sure you want to close this Access? Note: After closing, devices under this Access will no longer be controlled by Manta.',
             () => {
                 system.status = 'closed';
                 this.renderDeviceManagement(document.getElementById('content-area'));
@@ -6734,11 +6734,10 @@ const app = {
                             <img src="assets/icons/empty-state.svg" alt="Empty State" class="w-full h-full block">
                         </div>
                         <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949] text-center">
-                            No Sub-VPP Connected
+                            No Access
                         </p>
-                        <p class="font-['Roboto'] font-normal text-[12px] leading-[20px] text-[#5f646e] text-center">
-                            Connect a sub-VPP to synchronize and manage your devices.
-                        </p>
+
+
                         <button onclick="app.openCloudBindDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[4px] h-[40px] px-[24px] py-[8px] rounded-[4px] text-white transition-colors min-w-[80px]">
                             <div class="w-[24px] h-[24px] flex items-center justify-center">
                                 <i data-lucide="link" class="w-[16px] h-[16px]"></i>
@@ -6896,7 +6895,7 @@ const app = {
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 flex-shrink-0">
                          <div class="flex items-center gap-2">
                              <!-- Title -->
-                             <h2 class="text-xl font-bold text-gray-900">Sub-VPP List</h2>
+                             <h2 class="text-xl font-bold text-gray-900">Access</h2>
                              
                              <!-- Add Button -->
                              <button onclick="app.openCloudBindDrawer()" class="p-1 text-green-500 hover:text-green-600 transition-colors hover:bg-green-50 rounded-full">
@@ -6911,7 +6910,7 @@ const app = {
                                      <input type="text" id="subvpp-name-filter"
                                          value="${state.subVppList.name || ''}"
                                          class="flex-1 bg-transparent border-none focus:ring-0 p-0 text-[14px] font-normal text-[#1c2026] placeholder-[#b5bcc8] leading-normal min-w-[200px]"
-                                         placeholder="Search by VPP Name..."
+                                         placeholder="Search by Name..."
                                          onkeydown="if(event.key === 'Enter') app.filterSubVPPs()">
                                      
                                      <div class="flex gap-0 items-center px-[4px] relative shrink-0 border-l border-gray-200">
@@ -7244,15 +7243,7 @@ const app = {
                             <!-- Info Column -->
                             <div class="flex flex-1 flex-row items-center self-stretch">
                                 <div class="flex flex-1 flex-col gap-[8px] h-full items-start min-h-px min-w-px py-[4px] relative">
-                                    <!-- Name + Icon -->
-                                    <div class="flex gap-[8px] items-center relative shrink-0">
-                                        <p class="font-['Roboto'] font-semibold leading-[1.4] text-[20px] text-[#313949]">
-                                            ${system.name}
-                                        </p>
-                                        <div class="relative shrink-0 w-[24px] h-[24px]">
-                                            <i data-lucide="badge-check" class="w-5 h-5 text-[#3ec064]"></i>
-                                        </div>
-                                    </div>
+
                                     
                                     <!-- Credentials Row -->
                                     <div class="flex gap-[32px] items-center relative shrink-0 w-full flex-wrap">
@@ -7292,29 +7283,7 @@ const app = {
                                             </div>
                                         </div>
 
-                                        <!-- Separator -->
-                                        <div class="h-[16px] w-px bg-[#e2e6ec] relative shrink-0"></div>
 
-                                        <!-- AppSecret -->
-                                        <div class="flex gap-[16px] items-center min-w-[48px] py-[8px] relative rounded-[12px] shrink-0 group">
-                                            <div class="flex gap-[4px] items-center relative shrink-0">
-                                                <div class="relative shrink-0 w-[24px] h-[24px]">
-                                                    <i data-lucide="lock" class="w-5 h-5 text-[#b5bcc8]"></i>
-                                                </div>
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949] text-center">AppSecret:</p>
-                                            </div>
-                                            <div class="relative shrink-0 w-[120px] bg-[#f3f3f6] rounded-[4px] px-2 py-1">
-                                                <input type="password" value="${appSecret}" id="details-app-secret" readonly class="w-full bg-transparent border-none p-0 text-sm font-mono text-[#313949] focus:ring-0">
-                                            </div>
-                                            <div class="flex gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onclick="app.togglePasswordVisibility('details-app-secret')" class="text-[#b5bcc8] hover:text-[#313949]">
-                                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                                </button>
-                                                <button onclick="app.copyToClipboard('details-app-secret')" class="text-[#b5bcc8] hover:text-[#313949]">
-                                                    <i data-lucide="copy" class="w-4 h-4"></i>
-                                                </button>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -10407,7 +10376,7 @@ const app = {
             <div class="bg-white h-full flex flex-col font-['Roboto']">
                 <!-- Header -->
                 <div class="flex items-center justify-between p-[16px] border-b border-[#e6e8ee] shrink-0">
-                    <h3 class="font-bold text-[20px] text-[#313949] leading-normal">${title}</h3>
+                    <h3 class="font-bold text-[20px] text-[#313949] leading-normal">Create Access</h3>
                     <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center text-[#313949] hover:text-gray-600 transition-colors">
                         <i data-lucide="x" class="w-[24px] h-[24px]"></i>
                     </button>
