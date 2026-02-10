@@ -1,0 +1,839 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Author" content="Apache POI">
+  <meta name="CreationTime" content="2026-02-03T20:45:16Z">
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.3">
+  <style type="text/css">
+    p.p1 {margin: 24.0px 0.0px 24.0px 0.0px; font: 26.0px Arial}
+    p.p2 {margin: 16.0px 0.0px 6.0px 0.0px; font: 16.0px Arial}
+    p.p3 {margin: 6.0px 0.0px 6.0px 0.0px; font: 11.0px Arial}
+    p.p4 {margin: 6.0px 0.0px 6.0px 0.0px; font: 11.0px Arial; min-height: 12.0px}
+    p.p5 {margin: 15.0px 0.0px 6.0px 0.0px; font: 15.0px Arial}
+    li.li3 {margin: 6.0px 0.0px 6.0px 0.0px; font: 11.0px Arial}
+    span.s1 {text-decoration: line-through}
+    table.t1 {border-collapse: collapse}
+    td.td1 {border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #bfbfbf #bfbfbf #bfbfbf #bfbfbf; padding: 0.0px 5.0px 0.0px 5.0px}
+    ul.ul1 {list-style-type: disc}
+  </style>
+</head>
+<body>
+<p class="p1"><b>Manta Sub-VPP Management 产品需求文档</b></p>
+<p class="p2"><b>1. 产品概述</b></p>
+<p class="p3">Sub-VPP Management 模块旨在为VPP Aggregator提供跨平台的设备连接与管理能力。通过连接云平台（Cloud）等，实现设备在VPP集中的集中管理和调度。</p>
+<p class="p4"><br></p>
+<p class="p2"><b>2. 核心功能</b></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">功能</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">描述</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Demo</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">UI</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Sub-VPP管理<span class="Apple-converted-space"> </span></b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3">连接Sub-VPP：支持 Cloud等接入方式</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Sub-VPP列表：卡片式展示已连接系统及其状态。</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Sub-VPP连接断开：解除平台绑定。</li>
+        </ul>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>[该类型的内容暂不支持下载]</b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">https://www.figma.com/design/Tctsrl2GV9aQThoQCtaYi8/Manta-VPP-2026?node-id=0-1&amp;p=f&amp;t=JqVCFR0M1jVAvlu5-0</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Sub-VPP详情</b></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3">连接概览：显示系统类型、厂商、国家及核心统计指标。</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">设备列表：分页/滚动展示该系统下的所有设备（逆变器、电池）。</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">设备搜索：支持基于关键字的设备检索。</li>
+        </ul>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p4"><br></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p2"><b>3. 详细功能</b></p>
+<p class="p5"><b>3.2 Sub-VPP列表</b></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">功能点</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">功能描述</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">内容</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">全局逻辑</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Sub-VPP卡片</b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">以卡片形式展示所有 创建的连接及其运行状态</p>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>Sub-VPP名称</b>：所选择的Data Platform的名称</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Type</b>：当前Sub-VPP的连接类型（例：Cloud）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>统计数据</b>：</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>DERs</b>：DER总数</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Online：</b>在线的DER总数</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Offline：</b>离线的DER总数</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Disconnected：</b>连接断开的DER总数</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Rated Power：</b>所有逆变器总额定功率</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>PV Capacity：</b>所有组件总容量</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>SOC：</b>所有电池的剩余电量百分比（总当前电量/电池总容量）</span></li>
+        </ul>
+        <p class="p4"><span class="s1"></span><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>空状态</b>：</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">当无数据时，居中显示 "No Sub-VPPs Established" 提示及图标。并展示Create按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>状态指示</b>:</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Establishing (Yellow): 连接建立中</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">卡片点击不跳转详情页</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">列表无按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Established (Primary Color): 连接已建立</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">卡片点击跳转详情</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">卡片hover展示关闭按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">列表展示查看详情按钮、关闭按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Closed (Gray): 连接已关闭</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">卡片点击跳转详情</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">列表展示查看详情按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Failed（red）：连接失败</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">卡片点击不跳转详情页</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">卡片hover展示编辑按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">列表展示编辑按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Disconnected（Gray)：连接网络中断</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">同Established状态</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>查看详情：</b>卡片边框增加高亮状态突出显示，跳转至该Sub-VPP 的详情页面</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>断开连接</b>: Hover 卡片右上角显示 "Close" 按钮<span class="Apple-converted-space"> </span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>连接失败：</b>Hover 卡片右上角显示 "Edit" 按钮</li>
+        </ul>
+        <p class="p4"><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Sub-VPP列表</b></p>
+        <p class="p3">（<b>Sub-VPPs）</b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">以列表形式展示所有 创建的连接及其运行状态</p>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>Sub-VPP列表：</b>列表字段如下</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Name</b>：Sub-VPP名称</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Type：</b>平台类型</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Status：</b>连接状态</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>DERs</b>：DER总数</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Online：</b>在线的DER总数（无连接时显示0）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Offline：</b>离线的DER总数（无连接时显示0）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Disconnected：</b>连接网络断开的DER总数</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Rated Power：</b>所有逆变器总额定功率</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>PV Capacity：</b>所有组件总容量</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>SOC：</b>所有电池的剩余电量百分比（总当前电量/电池总容量）</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Actions：</b>1.查看详情；2.编辑；3.关闭</li>
+        </ul>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>展示模式切换按钮：</b></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">默认展示卡片模式</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击切换列表模式</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">再次点击切换卡片模式</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>查看详情：</b>点击按钮跳转详情页</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>关闭连接按钮：</b>点击弹出弹窗</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>编辑按钮：</b>点击进入编辑弹窗，同创建</li>
+        </ul>
+        <p class="p4"><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">条件筛选器</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">根据条件搜索筛选列表展示Sub-VPP</p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>Name：</b>输入框，根据输入名称搜索</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Type：</b>下拉选择框，展示所有Sub—VPP连接类型</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Status：</b>下拉选择框，展示所有状态</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Opened（除Closed外的其他状态的合集）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Closed</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Search：</b>搜索按钮</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Reset：</b>重置按钮</span></li>
+        </ul>
+        <p class="p4"><span class="s1"></span><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>搜索：</b>点击按所选条件筛选查询列表数据并展示</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>重置：</b>点击清空筛选条件，刷新列表数据</span></li>
+        </ul>
+        <p class="p4"><span class="s1"></span><br></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p5"><b>3.2 连接/断开Sub-VPP连接</b></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">功能点</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">功能描述</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">内容</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">全局逻辑</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>连接/断开Sub-VPP连接</b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">新建连接或断开连接</p>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>Create/New/Edit按钮：</b></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击弹出右侧弹窗</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">弹窗字段如下：</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">弹窗名称：Create a Connection</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Type </b>:单选框，仅显示当前用户所属公司已加入的Data Platform类型</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">例如Cloud</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Manufacturer Cloud</b>:（根据所选Type类型展示）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">单选框</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">仅展示当前用户所属公司已加入的Data Platform。</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">已连接过的Data Platform不再显示。</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>单项选择器</b></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">选项：<span class="s1">1️⃣Create New</span>2️⃣Add Existing</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">默认选择<span class="s1">Create New</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>AppKey和AppSecret输入框：</b>仅当选择Add Existing时展示</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">默认加密显示，点击明文按钮展示明文</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击复制按钮复制到当前剪切板</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击取消，退出弹窗，点击Submit完成创建并提示成功</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Close按钮：</b></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击弹出确认弹窗</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">弹窗提示：</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">标题：Close a connection？</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">内容：Are you sure you want to close this <b>Sub-VPP</b>? Note: After closing , devices under this <b>Sub-VPP</b> will no longer be controlled by Manta.</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击Cancel，退出弹窗，点击Confirm，完成断开连接并提示成功</li>
+        </ul>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3">创建提交后，连接卡片状态应显示为Establishing，此时设备统计数据展示为0；当首次获取到设备数据时，卡片状态变更为Established</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">当卡片状态为Failed时，可以编辑，点击编辑弹出右侧弹窗（同创建）进入编辑</li>
+        </ul>
+        <p class="p4"><br></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p5"><b>3.3 Sub-VPP详情<span class="Apple-converted-space"> </span></b></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">功能点</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">功能描述</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">内容</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">全局逻辑</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>顶部导航</b></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">导航和返回</p>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>返回按钮：</b>点击返回列表页</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>标题：</b></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Sub—VPP名称</li>
+        </ul>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p4"><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>概览卡片</b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">展示关键指标</p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>基础信息</b>：</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">Type：Data Platform类型</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">AppKey：</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">默认加密显示，点击明文按钮展示明文</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击复制按钮复制到当前剪切板</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>AppSecret：</b></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">默认加密显示，点击明文按钮展示明文</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3">点击复制按钮复制到当前剪切板</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>设备总数 (DERs)</b>：关联设备总数量。</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>在线数 (Online)</b>：状态为 'online' 的设备数量（绿色图标）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>离线数 (Offline)</b>：状态为 'offline' 的设备数量（灰色图标）</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>网络断开数（Disconnected）：</b>状态为Disconnected的设备数量（灰色图标）</span></li>
+        </ul>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p4"><span class="s1"></span><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>设备列表 (DERs)</b></p>
+        <p class="p4"><b></b><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">展示连接下关联的设备信息</p>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>搜索：</b>关键字搜索</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>电站列表：</b>列表字段如下</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Status</b>：在线/离线状态</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>SN</b>：序列号</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Manufacturer</b>：厂商</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>State：</b>设备所在州</li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>Rated Power：</b>逆变器额定功率</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>PV Capacity：</b>组件容量</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b></b><span class="s1"><b>SOC：</b>电池的剩余电量百分比（当前电量/电池容量）</span></li>
+        </ul>
+        <ul class="ul1">
+          <li class="li3"><b>Actions：</b>操作栏</li>
+        </ul>
+        <p class="p4"><br></p>
+      </td>
+      <td valign="middle" class="td1">
+        <ul class="ul1">
+          <li class="li3"><b>空状态</b>：搜索无结果或无设备时显示 "No Devices"。</li>
+        </ul>
+        <p class="p4"><br></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p2"><b><span class="Apple-converted-space">  </span>4. 文案</b></p>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">中文</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">英文</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">连接建立中</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Establishing</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">连接已建立</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Established<span class="Apple-converted-space"> </span></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">连接已关闭</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Closed</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">类型</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Type</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">设备数</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">DERs</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">在线数</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Online</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">离线数</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Offline</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">网络断开数</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Disconnected</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">州</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">State</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">额定功率</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Rated Power</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">光伏容量</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>PV Capacity</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">SOC</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">SOC</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">名称</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Name</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">状态</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Status</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">搜索</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Search</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">重置</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Reset</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">创建</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Create</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">新建</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>New</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">编辑</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Edit</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">云平台</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b><span class="Apple-converted-space"> </span>Cloud</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">添加</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Add Existing</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">新建</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Create New</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>AppKey</b></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>AppKey</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>AppSecret</b></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>AppSecret</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">关闭连接？</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Close a connection</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">确定要关闭前Sub-VPP吗？</p>
+        <p class="p3">提示：关闭后，该Sub-VPP下设备将不能再通过Manta控制。</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">Are you sure you want to close this <b>Sub-VPP</b>? Note: After closing , devices under this <b>Sub-VPP</b> will no longer be controlled by Manta.</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>设备总数</b></p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3">DERs</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">序列号</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>SN</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p3">厂商</p>
+      </td>
+      <td valign="middle" class="td1">
+        <p class="p3"><b>Manufacturer</b></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p4"><b></b><br></p>
+</body>
+</html>

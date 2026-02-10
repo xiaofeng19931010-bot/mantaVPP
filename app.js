@@ -2105,45 +2105,6 @@ const app = {
                 </div>
                 </div>
 
-                <!-- Footer -->
-                <div class="bg-white border-t border-gray-200 px-8 py-4">
-                    <div class="flex justify-between items-center">
-                        <div class="text-sm text-gray-500">
-                            Last updated: <span class="font-medium text-gray-900">Just now</span>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="app.openDeviceEditModal('${device.sn}')" class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center gap-2">
-                                <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                Edit
-                            </button>
-                            <button class="px-4 py-2 bg-manta-primary text-white rounded-lg hover:bg-manta-dark font-medium transition-colors shadow-sm flex items-center gap-2">
-                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                                Refresh
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="bg-white border-t border-gray-200 px-8 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="text-sm text-gray-500">
-                        Last updated: <span class="font-medium text-gray-900">Just now</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="app.openDeviceEditModal('${device.sn}')" class="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center gap-2">
-                            <i data-lucide="edit-2" class="w-4 h-4"></i>
-                            Edit
-                        </button>
-                        <button class="px-4 py-2 bg-manta-primary text-white rounded-lg hover:bg-manta-dark font-medium transition-colors shadow-sm flex items-center gap-2">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                            Refresh
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
         `;
         
         // Initialize Chart
@@ -6036,7 +5997,7 @@ const app = {
                         <div class="flex flex-col gap-[4px] w-full shrink-0">
                              <div class="flex gap-0 items-center h-[16px] pl-[4px]">
                                  <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">State</span>
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Pricing Region</span>
                              </div>
                              <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
                                 <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
@@ -6125,7 +6086,7 @@ const app = {
                     <div class="flex flex-col gap-[4px] w-full shrink-0">
                          <div class="flex gap-0 items-center h-[16px] pl-[4px]">
                              <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Action</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Event</span>
                          </div>
                          <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
                              <select name="action" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
@@ -8936,9 +8897,6 @@ const app = {
                         <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949] text-center">
                             No VPPs Created
                         </p>
-                        <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f] text-center max-w-[320px]">
-                            Create a VPP to start onboarding assets and monitoring performance.
-                        </p>
                         <button onclick="app.openVPPDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[6px] h-[40px] px-[24px] py-[4px] rounded-[6px] text-white transition-colors min-w-[100px]">
                             <div class="w-[20px] h-[20px] flex items-center justify-center">
                                  <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
@@ -9020,7 +8978,7 @@ const app = {
                              <!-- State Select -->
                              <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer">
                                  <select id="vpp-state-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterVPPs()">
-                                     <option value="">All States</option>
+                                     <option value="">all</option>
                                      ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
                                  </select>
                                  <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[16px] h-[16px] flex items-center justify-center pointer-events-none">
@@ -9220,7 +9178,7 @@ const app = {
                             <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">VPP Name</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">State</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Pricing Region</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Power</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
@@ -10243,11 +10201,11 @@ const app = {
                         <div class="flex flex-col gap-[4px] flex-1 min-w-0">
                              <div class="flex gap-0 items-center h-[16px] pl-[4px]">
                                  <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">State</span>
+                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Pricing Region</span>
                              </div>
                              <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
                                  <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
-                                     <option value="" disabled ${!isEdit && !vpp?.state ? 'selected' : ''}>Select State</option>
+                                     <option value="" disabled ${!isEdit && !vpp?.state ? 'selected' : ''}>Select Pricing Region</option>
                                      ${['NSW', 'VIC', 'QLD', 'SA'].map(s => `<option value="${s}" ${vpp?.state === s ? 'selected' : ''} class="text-[#313949]">${s}</option>`).join('')}
                                  </select>
                                  <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">

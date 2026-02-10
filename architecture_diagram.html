@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manta VPP Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05080F; /* Darker, richer background */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 233, 68, 0.03) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 102, 255, 0.05) 0%, transparent 25%);
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Manta Brand Colors */
+        :root {
+            --manta-green: #00E944;
+            --manta-blue: #0066FF;
+            --manta-gradient: linear-gradient(135deg, #00E944 0%, #0066FF 100%);
+        }
+
+        .text-gradient {
+            background: var(--manta-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .border-gradient-left {
+            position: relative;
+            overflow: hidden;
+        }
+        .border-gradient-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--manta-gradient);
+        }
+        
+        /* Glassmorphism Card Refined */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px -1px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .glass-card:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(0, 233, 68, 0.2);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.3), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.2),
+                0 0 15px rgba(0, 233, 68, 0.1); /* Green glow */
+        }
+
+        /* Specific Node Colors (Unified with Brand) */
+        /* Edge -> Green dominant */
+        .node-edge .icon-bg { 
+            background: rgba(0, 233, 68, 0.1); 
+            color: #00E944;
+            border: 1px solid rgba(0, 233, 68, 0.2);
+        }
+        .node-edge:hover .icon-bg {
+            background: rgba(0, 233, 68, 0.2); 
+            box-shadow: 0 0 10px rgba(0, 233, 68, 0.2);
+        }
+
+        /* Core -> Gradient or Blue dominant */
+        .node-core .icon-bg { 
+            background: rgba(0, 102, 255, 0.1); 
+            color: #0066FF;
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+        .node-core:hover .icon-bg {
+            background: rgba(0, 102, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.3);
+        }
+
+        /* AI -> Full Gradient Accent */
+        .node-ai { 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .node-ai .icon-bg {
+            background: linear-gradient(135deg, rgba(0, 233, 68, 0.1), rgba(0, 102, 255, 0.1));
+            color: #fff; /* Icons white on gradient */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .node-ai i, .node-ai svg {
+             /* For AI icons, let's use gradient text effect where possible or white */
+        }
+        
+        /* Market -> Blue/White neutral but crisp */
+        .node-market .icon-bg {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* SVG Connections */
+        #connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-path {
+            fill: none;
+            stroke-width: 2;
+            opacity: 0.5;
+            transition: stroke 0.3s;
+        }
+
+        .flow-particle {
+            fill: #00E944;
+            filter: drop-shadow(0 0 3px #00E944);
+        }
+
+        /* Group Labels */
+        .group-label {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-left: 0.5rem;
+        }
+        .group-label::before {
+            content: '';
+            width: 24px;
+            height: 2px;
+            background: var(--manta-gradient);
+            border-radius: 2px;
+        }
+
+        /* Layout Grid */
+        .diagram-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 5rem;
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 4rem 3rem;
+            min-height: 100vh;
+            align-items: end;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .column-right {
+            align-items: flex-end;
+            align-self: start;
+        }
+
+        .core-column {
+            display: grid;
+            gap: 2.5rem;
+        }
+
+        .sub-group {
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 2rem;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+        }
+        
+        /* Connecting dots on subgroup */
+        .sub-group::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: 20px; right: 20px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .ai-engine-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            position: relative;
+        }
+        
+        .ai-outputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        /* Icon container helper */
+        .icon-bg {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Physical Layer Container */
+        .der-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7.5rem 0.75rem;
+            padding: 1.5rem;
+            border: 1px dashed rgba(0, 233, 68, 0.3);
+            border-radius: 20px;
+            background: rgba(0, 233, 68, 0.02);
+            position: relative;
+            margin-bottom: 1rem;
+            min-height: 440px;
+        }
+        .der-group > #Inv, .der-group > #Load {
+            grid-column: span 2;
+            justify-self: center;
+            width: calc(50% - 0.375rem);
+        }
+        .der-group::before {
+            content: 'Edge Assets (DER)';
+            position: absolute;
+            top: -10px;
+            left: 1.5rem;
+            background: #05080F;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(0, 233, 68, 0.8);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        /* Manufacturer Container */
+        .mfr-group {
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            border: 1px dashed rgba(0, 102, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(0, 102, 255, 0.02);
+            position: relative;
+            margin-top: 1rem;
+        }
+        .mfr-group::before {
+            content: 'Manufacturer';
+            position: absolute;
+            top: -10px;
+            left: 1.5rem;
+            background: #05080F;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(0, 102, 255, 0.8);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        /* Onboarding Container (Core) */
+        .onboarding-group {
+            border: 1px dashed rgba(0, 102, 255, 0.3) !important;
+            background: rgba(0, 102, 255, 0.02) !important;
+        }
+        .onboarding-group::before {
+            content: 'Manta Onboarding';
+            position: absolute;
+            top: -10px;
+            left: 1.5rem;
+            background: #05080F;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(0, 102, 255, 0.8);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .ai-trading-group {
+            border: 1px dashed rgba(0, 102, 255, 0.3) !important;
+            background: rgba(0, 102, 255, 0.02) !important;
+            position: relative;
+        }
+        .ai-trading-group::before {
+            content: 'Manta Trading';
+            position: absolute;
+            top: -10px;
+            left: 1.5rem;
+            background: #05080F;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(0, 102, 255, 0.8);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .strategy-group {
+            border: 1px dashed rgba(0, 102, 255, 0.3) !important;
+            background: rgba(0, 102, 255, 0.02) !important;
+            position: relative;
+        }
+        .strategy-group::before {
+            content: 'Manta Strategy & Algorithm';
+            position: absolute;
+            top: -10px;
+            left: 1.5rem;
+            background: #05080F;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(0, 102, 255, 0.8);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .strategy-group span {
+            white-space: nowrap;
+        }
+
+        .strategy-group .glass-card {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Market Container */
+        .market-group {
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+            margin-top: 1rem;
+        }
+        .market-group::before {
+            content: 'Market & Grid';
+            position: absolute;
+            top: -10px;
+            left: 1.5rem;
+            background: #05080F;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+    </style>
+</head>
+<body>
+
+    <svg id="connections">
+        <defs>
+            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00E944" />
+                <stop offset="100%" stop-color="#0066FF" />
+            </linearGradient>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="diagram-container">
+        <!-- LEFT COLUMN: EDGE ASSETS -->
+        <div class="column">
+            
+            <div class="der-group" id="DerGroup">
+                <div class="glass-card node-edge p-3 flex flex-col items-center text-center gap-2 border-gradient-left" id="PV">
+                    <div class="icon-bg">
+                        <i class="fa-solid fa-sun text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">PV</div>
+                    </div>
+                </div>
+
+                <div class="glass-card node-edge p-3 flex flex-col items-center text-center gap-2 border-gradient-left" id="Bat">
+                    <div class="icon-bg">
+                        <i class="fa-solid fa-battery-three-quarters text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">Battery</div>
+                    </div>
+                </div>
+
+                <div class="glass-card node-edge p-3 flex flex-col items-center text-center gap-2 border-gradient-left" id="Inv">
+                    <div class="icon-bg">
+                        <i class="fa-solid fa-bolt text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">Inverter</div>
+                    </div>
+                </div>
+
+                <div class="glass-card node-edge p-3 flex flex-col items-center text-center gap-2 border-gradient-left" id="Load">
+                    <div class="icon-bg">
+                        <i class="fa-solid fa-house-chimney text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">Load</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mfr-group" id="MfrGroup">
+                <div class="glass-card node-edge p-3 flex flex-col items-center text-center gap-2 border-gradient-left flex-1" id="EdgeGW">
+                    <div class="icon-bg">
+                        <i class="fa-solid fa-server text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">Gateway</div>
+                    </div>
+                </div>
+
+                <div class="glass-card node-core p-3 flex flex-col items-center text-center gap-2 border-gradient-left flex-1" id="CloudPlat">
+                    <div class="icon-bg">
+                        <i class="fa-solid fa-cloud text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">Cloud</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MIDDLE COLUMN: VPP CORE -->
+        <div class="column core-column">
+            <!-- AI ENGINE SUBGRAPH -->
+                <div class="sub-group ai-trading-group mb-0.5" id="AITradingGroup">
+                    <div class="ai-engine-grid">
+                        <div class="ai-outputs">
+                            <div class="glass-card node-ai p-3 flex flex-col items-center gap-2 text-center" id="Spot">
+                                <div class="icon-bg w-8 h-8">
+                                    <i class="fa-solid fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="font-bold text-sm text-slate-300">Spot Arbitrage</div>
+                            </div>
+                            <div class="glass-card node-ai p-3 flex flex-col items-center gap-2 text-center" id="Cap">
+                                <div class="icon-bg w-8 h-8">
+                                    <i class="fa-solid fa-battery-full text-sm"></i>
+                                </div>
+                                <div class="font-bold text-sm text-slate-300">Cap Service</div>
+                            </div>
+                            <div class="glass-card node-ai p-3 flex flex-col items-center gap-2 text-center" id="FCAS">
+                                <div class="icon-bg w-8 h-8">
+                                    <i class="fa-solid fa-stopwatch text-sm"></i>
+                                </div>
+                                <div class="font-bold text-sm text-slate-300">FCAS Bidding</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="glass-card node-ai p-6 flex items-center justify-center gap-6 mb-0.5" id="AI_Opt">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-blue-500 blur-xl opacity-20 rounded-full"></div>
+                        <i class="fa-solid fa-brain text-4xl text-gradient animate-pulse relative z-10"></i>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-lg text-white">Dynamic Optimizer</div>
+                    </div>
+                </div>
+
+                <div class="sub-group strategy-group flex flex-row items-center justify-center gap-6 mb-0.5" id="StrategyGroup">
+                    <div class="glass-card node-ai p-4 flex flex-col items-center text-center gap-2" id="GenForecast">
+                        <div class="icon-bg w-8 h-8 rounded-full">
+                            <i class="fa-solid fa-solar-panel text-xs"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-200">Generation Forecast</span>
+                    </div>
+                    <div class="glass-card node-ai p-4 flex flex-col items-center text-center gap-2" id="SpotForecast">
+                        <div class="icon-bg w-8 h-8 rounded-full">
+                            <i class="fa-solid fa-chart-line text-xs"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-200">Spot Price Forecast</span>
+                    </div>
+                    <div class="glass-card node-ai p-4 flex flex-col items-center text-center gap-2" id="Strategy">
+                        <div class="icon-bg w-8 h-8 rounded-full">
+                            <i class="fa-solid fa-chess-knight text-xs"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-200">Strategy Engine&amp;Market</span>
+                    </div>
+                </div>
+
+                <div class="glass-card node-ai p-6 flex items-center justify-center gap-6 mb-0.5" id="VPP_Mgr">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-blue-500 blur-xl opacity-20 rounded-full"></div>
+                        <i class="fa-solid fa-bolt text-3xl text-gradient animate-pulse relative z-10"></i>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-lg text-white">VPP Fleet</div>
+                    </div>
+                </div>
+
+                <div class="sub-group onboarding-group flex flex-row items-center justify-center gap-6" id="OnboardingGroup">
+                
+                    <div class="glass-card node-core p-3 flex flex-col items-center text-center gap-2 flex-1" id="Ingest">
+                        <div class="icon-bg w-8 h-8">
+                            <i class="fa-solid fa-network-wired text-sm"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-300">Manufacturer Access</span>
+                    </div>
+                    <div class="glass-card node-core p-3 flex flex-col items-center text-center gap-2 flex-1" id="Topology">
+                        <div class="icon-bg w-8 h-8">
+                            <i class="fa-solid fa-circle-nodes text-sm"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-300">DER Access</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Connections Logic
+        const GREEN = '#00E944';
+        const BLUE = '#0066FF';
+        const GRADIENT = 'url(#line-gradient)';
+
+        const connections = [
+            // Edge -> Inv (Energy Flow - Green)
+            { from: 'PV', to: 'Inv', color: GREEN },
+            { from: 'Bat', to: 'Inv', color: GREEN },
+            { from: 'Load', to: 'Inv', color: '#94A3B8', dashed: true }, // Load consumes (Neutral)
+            
+            // Inv -> Edge Gateway (Local Data) - UPDATED: Edge Assets -> Manufacturer
+            { from: 'DerGroup', to: 'MfrGroup', color: BLUE },
+
+            // Manufacturer -> Manta Onboarding (Container to Container)
+            { from: 'MfrGroup', to: 'OnboardingGroup', color: BLUE },
+
+            // Edge Gateway -> Cloud Platform (Internal Manufacturer Flow)
+            { from: 'EdgeGW', to: 'CloudPlat', color: BLUE },
+            
+            // Manta Onboarding -> VPP_Mgr
+            { from: 'OnboardingGroup', to: 'VPP_Mgr', color: BLUE },
+
+            // VPP_Mgr -> Strategy Group
+            { from: 'VPP_Mgr', to: 'StrategyGroup', color: BLUE },
+
+            // Strategy Group -> AI_Opt
+            { from: 'StrategyGroup', to: 'AI_Opt', color: BLUE },
+            { from: 'AI_Opt', to: 'AITradingGroup', color: BLUE },
+            
+            // Outputs -> Market/Grid (Value - Gradient)
+            { from: 'Spot', to: 'AEMO', color: GRADIENT, bidirectional: true },
+            { from: 'FCAS', to: 'AEMO', color: GRADIENT, bidirectional: true },
+            { from: 'Cap', to: 'DNSP', color: GRADIENT }
+        ];
+
+        function drawConnections() {
+            const svg = document.getElementById('connections');
+            // Keep defs
+            const defs = svg.querySelector('defs');
+            svg.innerHTML = '';
+            if(defs) svg.appendChild(defs);
+            
+            // Set SVG size
+            const container = document.body;
+            svg.setAttribute('width', container.scrollWidth);
+            svg.setAttribute('height', container.scrollHeight);
+
+            connections.forEach(conn => {
+                const fromEl = document.getElementById(conn.from);
+                const toEl = document.getElementById(conn.to);
+                
+                if (!fromEl || !toEl) return;
+
+                const fromRect = fromEl.getBoundingClientRect();
+                const toRect = toEl.getBoundingClientRect();
+                const scrollX = window.scrollX;
+                const scrollY = window.scrollY;
+
+                // Calculate connection points
+                let startX, startY, endX, endY;
+                let isCustomPath = false;
+                let d = '';
+
+                // Edge Column -> Core Column (Excluding internal Edge flows)
+                if (['PV', 'Bat', 'Inv', 'Load'].includes(conn.from) && !['PV', 'Bat', 'Inv', 'Load', 'EdgeGW', 'CloudPlat'].includes(conn.to)) {
+                    startX = fromRect.right + scrollX;
+                    startY = fromRect.top + fromRect.height / 2 + scrollY;
+                    endX = toRect.left + scrollX;
+                    endY = toRect.top + toRect.height / 2 + scrollY;
+                } else if (['Spot', 'Cap', 'FCAS'].includes(conn.from)) {
+                    // Core -> Market
+                    startX = fromRect.right + scrollX;
+                    startY = fromRect.top + fromRect.height / 2 + scrollY;
+                    endX = toRect.left + scrollX;
+                    endY = toRect.top + toRect.height / 2 + scrollY;
+                } else {
+                    // Vertical flows inside Core
+                    startX = fromRect.left + fromRect.width / 2 + scrollX;
+                    startY = fromRect.bottom + scrollY;
+                    endX = toRect.left + toRect.width / 2 + scrollX;
+                    endY = toRect.top + scrollY;
+                }
+
+                if (conn.from === 'VPP_Mgr' && conn.to === 'StrategyGroup') {
+                    endX = toRect.left + toRect.width / 2 + scrollX;
+                    endY = toRect.bottom + scrollY;
+                }
+
+                if (conn.from === 'StrategyGroup' && conn.to === 'AI_Opt') {
+                    startX = fromRect.left + fromRect.width / 2 + scrollX;
+                    startY = fromRect.top + scrollY;
+                    endX = toRect.left + toRect.width / 2 + scrollX;
+                    endY = toRect.bottom + scrollY;
+                }
+
+                if (conn.from === 'AI_Opt' && conn.to === 'AITradingGroup') {
+                    startX = fromRect.left + fromRect.width / 2 + scrollX;
+                    startY = fromRect.top + scrollY;
+                    endX = toRect.left + toRect.width / 2 + scrollX;
+                    endY = toRect.bottom + scrollY;
+                }
+
+                if (conn.from === 'OnboardingGroup' && conn.to === 'VPP_Mgr') {
+                    startX = fromRect.left + fromRect.width / 2 + scrollX;
+                    startY = fromRect.top + scrollY;
+                    endX = toRect.left + toRect.width / 2 + scrollX;
+                    endY = toRect.bottom + scrollY;
+                }
+                
+                // Override for specific logic based on visual placement
+                if (!isCustomPath && toRect.left > fromRect.right + 50) {
+                     startX = fromRect.right + scrollX;
+                     startY = fromRect.top + fromRect.height / 2 + scrollY;
+                     endX = toRect.left + scrollX;
+                     endY = toRect.top + toRect.height / 2 + scrollY;
+                }
+
+                // Create Path
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                
+                if (!isCustomPath) {
+                    // Cubic Bezier
+                    const deltaX = endX - startX;
+                    const deltaY = endY - startY;
+                    
+                    if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+                        // Horizontal flow
+                        const cp1x = startX + deltaX * 0.5;
+                        const cp1y = startY;
+                        const cp2x = endX - deltaX * 0.5;
+                        const cp2y = endY;
+                        d = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
+                    } else {
+                        // Vertical flow
+                        const cp1x = startX;
+                        const cp1y = startY + deltaY * 0.5;
+                        const cp2x = endX;
+                        const cp2y = endY - deltaY * 0.5;
+                        d = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
+                    }
+                }
+
+                path.setAttribute('d', d);
+                path.setAttribute('class', 'connection-path');
+                path.style.stroke = conn.color;
+                if (conn.dashed) path.style.strokeDasharray = "5,5";
+                
+                svg.appendChild(path);
+
+                // Add moving particle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', '3');
+                circle.setAttribute('class', 'flow-particle');
+                
+                // Particle color logic: If path is gradient, use white or specific color
+                // SVG gradient stroke doesn't apply to fill easily, so keep particles white or green
+                if (conn.color === GRADIENT) {
+                     circle.style.fill = '#fff';
+                }
+
+                const animateMotion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+                animateMotion.setAttribute('dur', (2 + Math.random()) + 's');
+                animateMotion.setAttribute('repeatCount', 'indefinite');
+                animateMotion.setAttribute('path', d);
+                
+                circle.appendChild(animateMotion);
+                svg.appendChild(circle);
+
+                // Bidirectional?
+                if (conn.bidirectional) {
+                    const path2 = path.cloneNode();
+                    path2.style.opacity = 0.2;
+                    svg.appendChild(path2);
+                    
+                    const circle2 = circle.cloneNode(true);
+                    const anim2 = circle2.querySelector('animateMotion');
+                    anim2.setAttribute('keyPoints', '1;0');
+                    anim2.setAttribute('keyTimes', '0;1');
+                    svg.appendChild(circle2);
+                }
+            });
+        }
+
+        window.addEventListener('load', drawConnections);
+        window.addEventListener('resize', drawConnections);
+        
+        // Redraw every few seconds to handle font loading layout shifts
+        setTimeout(drawConnections, 1000);
+    </script>
+</body>
+</html>
