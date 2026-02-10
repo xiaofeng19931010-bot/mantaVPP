@@ -2199,7 +2199,7 @@ const app = {
                 <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                     <div class="flex flex-wrap items-end gap-4">
                         <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Pricing Region</label>
                             <select onchange="app.updateCapState('capRules.state', this.value)" class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
                                 <option value="All" ${stateFilter === 'All' ? 'selected' : ''}>All</option>
                                 <option value="NSW" ${stateFilter === 'NSW' ? 'selected' : ''}>NSW</option>
@@ -2232,7 +2232,7 @@ const app = {
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium text-center w-16">#</th>
-                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">Pricing Region</th>
                                     <th class="px-6 py-3 font-medium">Schedule Type</th>
                                     <th class="px-6 py-3 font-medium">Target Time</th>
                                     <th class="px-6 py-3 font-medium">Trigger Price</th>
@@ -2751,7 +2751,7 @@ const app = {
                             <input type="text" value="${groupName}" oninput="app.updateFcasGroupsState('groupName', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm">
                         </div>
                         <div class="flex-1 min-w-[150px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Pricing Region</label>
                             <select onchange="app.updateFcasGroupsState('state', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
                                 <option value="All" ${filterState === 'All' ? 'selected' : ''}>All</option>
                                 <option value="NSW" ${filterState === 'NSW' ? 'selected' : ''}>NSW</option>
@@ -2786,7 +2786,7 @@ const app = {
                                 <tr>
                                     <th class="px-6 py-3">FCAS Group Name</th>
                                     <th class="px-6 py-3">DERs(Online/Total)</th>
-                                    <th class="px-6 py-3">State</th>
+                                    <th class="px-6 py-3">Pricing Region</th>
                                     <th class="px-6 py-3">
                                         <div class="flex flex-col">
                                             <span>Inverter</span>
@@ -3714,9 +3714,9 @@ const app = {
                 <!-- Row 1: VPP & State -->
                 <div class="grid grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pricing Region</label>
                         <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-manta-primary focus:border-manta-primary">
-                            <option>Select State</option>
+                            <option>Select Pricing Region</option>
                             <option>NSW</option>
                             <option>VIC</option>
                             <option>QLD</option>
@@ -3765,9 +3765,9 @@ const app = {
                     </div>
                 </div>
 
-                <!-- Row 3: Action -->
+                <!-- Row 3: Event -->
                 <div class="space-y-4">
-                    <h4 class="text-sm font-semibold text-gray-900">Action</h4>
+                    <h4 class="text-sm font-semibold text-gray-900">Event</h4>
                     
                     <div class="grid grid-cols-3 gap-4">
                         <div>
@@ -3859,7 +3859,7 @@ const app = {
                             </select>
                         </div>
                         <div class="w-32">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Pricing Region</label>
                             <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-manta-primary focus:border-manta-primary bg-white">
                                 <option>All</option>
                                 <option>NSW</option>
@@ -3891,16 +3891,16 @@ const app = {
                                 <tr>
                                     <th class="px-6 py-3 font-medium">Date</th>
                                     <th class="px-6 py-3 font-medium">VPP</th>
-                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">Pricing Region</th>
                                     <th class="px-6 py-3 font-medium">Trigger Type</th>
-                                    <th class="px-6 py-3 font-medium">Action</th>
+                                    <th class="px-6 py-3 font-medium">Event</th>
                                     <th class="px-6 py-3 font-medium">Spot</th>
                                     <th class="px-6 py-3 font-medium">Start Time</th>
                                     <th class="px-6 py-3 font-medium">End Time</th>
                                     <th class="px-6 py-3 font-medium">Power</th>
                                     <th class="px-6 py-3 font-medium">Volume</th>
                                     <th class="px-6 py-3 font-medium">Status</th>
-                                    <th class="px-6 py-3 font-medium">Action</th>
+                                    <th class="px-6 py-3 font-medium">Event</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="trading-events-tbody">
@@ -4026,7 +4026,7 @@ const app = {
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <div class="flex flex-wrap items-end gap-4">
                         <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Pricing Region</label>
                             <select onchange="app.updateSmartFeedInState('smartFeedInRules.state', this.value)" class="w-full py-2 pl-3 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-manta-primary focus:border-manta-primary sm:text-sm bg-white">
                                 <option value="All" ${stateFilter === 'All' ? 'selected' : ''}>All</option>
                                 <option value="NSW" ${stateFilter === 'NSW' ? 'selected' : ''}>NSW</option>
@@ -4059,7 +4059,7 @@ const app = {
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium text-center w-16">#</th>
-                                    <th class="px-6 py-3 font-medium">State</th>
+                                    <th class="px-6 py-3 font-medium">Pricing Region</th>
                                     <th class="px-6 py-3 font-medium">Trigger Time</th>
                                     <th class="px-6 py-3 font-medium">Trigger Price</th>
                                     <th class="px-6 py-3 font-medium">SOC Reserve</th>
@@ -5027,14 +5027,14 @@ const app = {
                                 <table class="w-full text-sm text-left">
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                         <tr>
-                                            <th class="px-4 py-2 font-medium">State</th>
+                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
                                             <th class="px-4 py-2 font-medium">Trigger From</th>
                                             <th class="px-4 py-2 font-medium">Trigger Condition</th>
-                                            <th class="px-4 py-2 font-medium">Action</th>
+                                            <th class="px-4 py-2 font-medium">Event</th>
                                             <th class="px-4 py-2 font-medium">Status</th>
                                             <th class="px-4 py-2 font-medium">Applicable VPP</th>
                                             <th class="px-4 py-2 font-medium">Ignore Time</th>
-                                            <th class="px-4 py-2 font-medium">Action</th>
+                                            <th class="px-4 py-2 font-medium">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
@@ -5087,16 +5087,17 @@ const app = {
                                         <tr>
                                             <th class="px-4 py-2 font-medium">Date</th>
                                             <th class="px-4 py-2 font-medium">VPP</th>
-                                            <th class="px-4 py-2 font-medium">State</th>
+                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
                                             <th class="px-4 py-2 font-medium">Trigger From</th>
-                                            <th class="px-4 py-2 font-medium">Action</th>
+                                            <th class="px-4 py-2 font-medium">Trigger Condition</th>
+                                            <th class="px-4 py-2 font-medium">Event</th>
                                             <th class="px-4 py-2 font-medium">Start Time</th>
                                             <th class="px-4 py-2 font-medium">End Time</th>
                                             <th class="px-4 py-2 font-medium">Rated Power</th>
                                             <th class="px-4 py-2 font-medium">Volume</th>
                                             <th class="px-4 py-2 font-medium">Spot</th>
                                             <th class="px-4 py-2 font-medium">Status</th>
-                                            <th class="px-4 py-2 font-medium">Action</th>
+                                            <th class="px-4 py-2 font-medium">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
@@ -5123,6 +5124,7 @@ const app = {
                                                 <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600">${triggerType}</td>
+                                                <td class="px-4 py-3 text-gray-600">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600">${startTime}</td>
                                                 <td class="px-4 py-3 text-gray-600">${endTime}</td>
@@ -5836,10 +5838,10 @@ const app = {
                                 <tr>
                                     <th scope="col" class="px-6 py-3">Rule ID</th>
                                     <th scope="col" class="px-6 py-3">VPP Name</th>
-                                    <th scope="col" class="px-6 py-3">State</th>
+                                    <th scope="col" class="px-6 py-3">Pricing Region</th>
                                     <th scope="col" class="px-6 py-3">Trigger From</th>
                                     <th scope="col" class="px-6 py-3">Details</th>
-                                    <th scope="col" class="px-6 py-3">Action</th>
+                                    <th scope="col" class="px-6 py-3">Event</th>
                                     <th scope="col" class="px-6 py-3 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -6516,7 +6518,7 @@ const app = {
                                 <table class="w-full text-sm text-left">
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
                                         <tr>
-                                            <th class="px-4 py-2 font-medium">State</th>
+                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
                                             <th class="px-4 py-2 font-medium text-right">Charge</th>
                                             <th class="px-4 py-2 font-medium text-right">Discharge</th>
                                         </tr>
