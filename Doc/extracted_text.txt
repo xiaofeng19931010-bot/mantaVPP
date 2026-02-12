@@ -1,0 +1,2058 @@
+National Electricity Amendment (Integrating price-responsive
+resources into the NEM) Rule 2024 No. 24
+The Australian Energy Market Commission makes the following Rule under the
+National Electricity Law to the extent applied by:
+(a) the National Electricity (South Australia) Act 1996 of South
+Australia;
+(b) the Electricity (National Scheme) Act 1997 of the Australian
+Capital Territory;
+(c) the Electricity - National Scheme (Queensland) Act 1997 of
+Queensland;
+(d) the National Electricity (New South Wales) Act 1997 of New
+South Wales;
+(e) the Electricity - National Scheme (Tasmania) Act 1999 of
+Tasmania;
+(f) the National Electricity (Victoria) Act 2005 of Victoria;
+(g) the National Electricity (Northern Territory) (National Uniform
+Legislation) Act 2015 of the Northern Territory; and
+(h) the Australian Energy Market Act 2004 of the Commonwealth.
+Anna Collyer
+Chairperson
+Australian Energy Market Commission
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+National Electricity Amendment (Integrating price-responsive
+resources into the NEM) Rule 2024 No. 24
+1 Title of Rule
+This Rule is the National Electricity Amendment (Integrating price-responsive
+resources into the NEM) Rule 2024 No.24
+2 Commencement
+Schedule 1 of this Rule commences operation on 23 May 2027.
+Schedule 2 of this Rule commences operation on 31 March 2026.
+Schedule 3 of this Rule commences operation on 1 January 2026.
+Schedule 4 of this Rule commences operation on 23 May 2027.
+Schedule 5 of this Rule commences operation on 19 December 2024.
+3 Amendment to the National Electricity Rules (voluntarily
+scheduled resources in dispatch)
+The National Electricity Rules are amended as set out in Schedule 1.
+4 Amendment to the National Electricity Rules (incentive
+mechanism)
+The National Electricity Rules are amended as set out in Schedule 2.
+5 Amendment to the National Electricity Rules (monitoring
+and reporting)
+The National Electricity Rules are amended as set out in Schedule 3.
+6 Amendment to the National Electricity Rules (glossary)
+The National Electricity Rules are amended as set out in Schedule 4.
+7 Savings and Transitional Amendment to the National
+Electricity Rules
+The National Electricity Rules are amended as set out in Schedule 5.
+2
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Schedule 1 Amendment to the National Electricity Rules
+(voluntarily scheduled resources in dispatch)
+(Clause 3)
+[1] Clause 2.4.1 Registration as a category of Market
+Participant
+Omit clause 2.4.1, including the heading, and substitute:
+2.4.1 Market Participants must satisfy prudential requirements
+A Market Participant may only participate in any of the markets or trading
+activities conducted by AEMO if that Market Participant satisfies the
+relevant prudential requirements set out in Chapter 3 applicable to the
+relevant trading activity.
+[2] Clause 3.7.3 Short term PASA
+In clause 3.7.3(h)(2), after "scheduled generating units, scheduled bidirectional units,"
+insert "voluntarily scheduled resources (other than hibernated voluntarily scheduled
+resources),".
+[3] Clause 3.7.3 Short term PASA
+In clause 3.7.3(k)(3), after "scheduled generating units, scheduled bidirectional units,"
+insert "voluntarily scheduled resources (other than hibernated voluntarily scheduled
+resources),".
+[4] Rule 3.7D Demand side participation information
+In rule 3.7D(a), omit the definition of "contracted demand side participation" and
+substitute the following:
+contracted demand side participation means, in relation to a Registered
+Participant, a contractual arrangement under which a person and the
+Registered Participant agree to:
+(1) the adjustment of non-scheduled load or the provision of
+unscheduled generation in certain specified circumstances;
+(2) the provision of wholesale demand response by a wholesale
+demand response unit; or
+(3) the use of a qualifying resource as a voluntarily scheduled
+resource.
+[5] Rule 3.7G Enhancing reserve information
+Omit rule 3.7G(a) and substitute the following:
+(a) In this rule:
+3
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+battery means each of the following:
+(1) a scheduled bidirectional unit, excluding a pumped hydro
+production unit; and
+(2) a voluntarily scheduled resource comprised of one or more
+market bidirectional units.
+[6] Clause 3.8.2B Voluntarily scheduled resource
+participation in central dispatch
+After clause 3.8.2A, insert a new clause 3.8.2B as follows:
+3.8.2B Voluntarily scheduled resource participation in central
+dispatch
+(a) Subject to paragraphs (b) and (c), a Voluntarily Scheduled Resource
+Provider must submit a dispatch bid in respect of its voluntarily
+scheduled resource for each trading day in accordance with clause
+3.8.6 and (if applicable) its VSR participation agreement.
+(b) A Voluntarily Scheduled Resource Provider for an inactive voluntarily
+scheduled resource participates in central dispatch in accordance with
+the modifications in clauses 3.10A.2(d), (e) and (f).
+(c) A Voluntarily Scheduled Resource Provider for a hibernated
+voluntarily scheduled resource does not participate in central dispatch
+and is not required to submit dispatch bids in respect of its hibernated
+voluntarily scheduled resource.
+[7] Clause 3.8.3 Central dispatch aggregation guidelines
+In clause 3.8.3, before paragraph (a), insert a subheading
+Applications for aggregation
+[8] Clause 3.8.3 Central dispatch aggregation guidelines
+After clause 3.8.3(a2), insert a new clause 3.8.3(a3) as follows:
+(a3) A Voluntarily Scheduled Resource Provider who is applying to
+nominate qualifying resources in accordance with clause 3.10A.1 and
+who wishes to aggregate two or more qualifying resources so they are
+treated as one voluntarily scheduled resource for the purposes of
+central dispatch must apply to AEMO to do so in accordance with this
+clause.
+[9] Clause 3.8.3 Central dispatch aggregation guidelines
+In clause 3.8.3, before paragraph (b), insert a subheading:
+4
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Conditions for approval of applications for aggregation
+[10] Clause 3.8.3 Central dispatch aggregation guidelines
+After clause 3.8.3(b4), insert a new clause 3.8.3(b5) as follows:
+(b5) AEMO must approve applications for aggregation made under
+paragraph (a3) if the following conditions are fulfilled:
+(1) all qualifying resources forming part of the aggregated
+voluntarily scheduled resource must be connected within a
+single region and must be operated by a single person in its
+capacity as a Voluntarily Scheduled Resource Provider;
+(2) power system security must not be materially affected by the
+proposed aggregation;
+(3) each qualifying resource forming part of the aggregated
+voluntarily scheduled resource must satisfy the requirements of
+clause 3.10A.1(f) after aggregation; and
+(4) each other requirement for aggregation in the voluntarily
+scheduled resource guidelines must have been satisfied in
+respect of the proposed aggregation.
+[11] Clause 3.8.3 Central dispatch aggregation guidelines
+After clause 3.8.3(b5), insert new clauses 3.8.3(b6) and 3.8.3(b7) as follows:
+(b6) If AEMO approves an application for aggregation made under
+paragraph (a3), AEMO may impose on the relevant Voluntarily
+Scheduled Resource Provider such terms and conditions as AEMO
+determines, which may include the circumstances in which AEMO
+may require an aggregated voluntarily scheduled resource to be
+disaggregated.
+(b7) A Voluntarily Scheduled Resource Provider must comply with any
+conditions imposed by AEMO under paragraph (b6) in respect of its
+voluntarily scheduled resource.
+[12] Clause 3.8.3 Central dispatch aggregation guidelines
+In clause 3.8.3, before paragraph (d), insert a subheading:
+Other aggregation requirements
+[13] Clause 3.8.3 Central dispatch aggregation guidelines
+Omit clause 3.8.3(e) and substitute the following:
+(d1) For the purposes of Chapter 3 and rule 4.9, a reference to a voluntarily
+scheduled resource is always taken as a reference to the aggregated
+5
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+voluntarily scheduled resource where it has been aggregated in
+accordance with this clause 3.8.3.
+(e) Except to the extent paragraph (e1) applies, AEMO must evaluate
+applications for aggregation and reply within 20 business days of
+receiving the application setting out whether AEMO approves the
+application and the conditions that apply to the approval.
+(e1) AEMO must evaluate applications for aggregation of qualifying
+resources as a voluntarily scheduled resource in accordance with the
+process specified in the voluntarily scheduled resource guidelines.
+[14] Clause 3.8.3 Central dispatch aggregation guidelines
+Omit clause 3.8.3(f1) and substitute:
+(f1) Demand Response Service Providers and Voluntarily Scheduled
+Resource Providers that have been granted aggregated status with
+respect to wholesale demand response units or voluntarily scheduled
+resources must, if required by AEMO, declare individual wholesale
+demand response unit or qualifying resource availability and operating
+status to AEMO in the short term PASA process under clause 3.7.3 to
+allow power system security to be effectively monitored.
+[15] Clause 3.8.3A Ramp rates
+In clause 3.8.3A(a)(2)(ii), after "clause 3.8.6(g)" insert "and 3.8.6(g1)".
+[16] Clause 3.8.3A Ramp rates
+In clause 3.8.3A(b), after "scheduled bidirectional unit" insert "and voluntarily
+scheduled resource".
+[17] Clause 3.8.3A Ramp rates
+Omit clause 3.8.3A(b)(1)(iv) and substitute the following:
+(iv) in the case of a scheduled resource that is aggregated in
+accordance with clause 3.8.3, the minimum ramp rate is
+equal to the minimum ramp rate requirement for the
+aggregated scheduled resource; and
+[18] Clause 3.8.3A Ramp rates
+In clause 3.8.3A(c), omit each occurrence of "generating unit, scheduled bidirectional
+unit, scheduled load or scheduled network service" and substitute "scheduled resource".
+[19] Clause 3.8.3A Ramp rates
+In clause 3.8.3A(d), after "scheduled bidirectional unit," insert "voluntarily scheduled
+resource,".
+6
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[20] Clause 3.8.3A Ramp rates
+In clause 3.8.3A(j), after "scheduled bidirectional unit," insert "voluntarily scheduled
+resource,".
+[21] Clause 3.8.4 Notification of scheduled capacity
+Omit clause 3.8.4(c) and substitute the following:
+(c) for scheduled generating units, scheduled bidirectional units and
+voluntarily scheduled resources, two days ahead of each trading day:
+(1) for a scheduled generating unit, a MW capacity profile that
+specifies the MW available for each of the 288 trading intervals
+in the trading day;
+(1A) for a scheduled bidirectional unit and a voluntarily scheduled
+resource, for each of generation and consumption, a MW
+capacity profile that specifies the MW available for each of the
+288 trading intervals in the trading day;
+(2) estimated commitment or decommitment times for scheduled
+generating units;
+(3) daily energy availability for scheduled generating units with
+energy constraints, scheduled bidirectional units with energy
+constraints and voluntarily scheduled resources with energy
+constraints;
+(4) for a scheduled generating unit, an up ramp rate and a down
+ramp rate; and
+Note
+This paragraph is classified as a tier 1 civil penalty provision under the
+National Electricity (South Australia) Regulations. (See clause 6(1) and
+Schedule 1 of the National Electricity (South Australia) Regulations.)
+(5) for a scheduled bidirectional unit and a voluntarily scheduled
+resource, an up ramp rate and a down ramp rate for generation
+from, and an up ramp rate and a down ramp rate for
+consumption by, the bidirectional unit or the voluntarily
+scheduled resource;
+[22] Clause 3.8.6 Dispatch bids - generating units and
+bidirectional units
+In clause 3.8.6, omit the heading and substitute:
+7
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+3.8.6 Dispatch bids - generating units, bidirectional units and
+voluntarily scheduled resources
+[23] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+Omit clause 3.8.6(a0) and substitute the following:
+(a0) A Scheduled Generator, Semi-Scheduled Generator, Scheduled
+Integrated Resource Provider and Voluntarily Scheduled Resource
+Provider must comply with the applicable requirements of this clause
+3.8.6 when submitting a dispatch bid.
+[24] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+In clause 3.8.6, omit the subheading above clause 3.8.6(g1) and substitute:
+Scheduled bidirectional units and voluntarily scheduled resources
+[25] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+Omit clause 3.8.6(g1) and substitute the following:
+(g1) A dispatch bid for a scheduled bidirectional unit or a voluntarily
+scheduled resource may contain up to 10 price bands for production
+from, and up to 10 price bands for consumption by, the bidirectional
+unit or voluntarily scheduled resource, and must:
+(1) specify for each of the 288 trading intervals in the trading day:
+(i) an incremental MW amount for each price band specified
+in the dispatch bid; and
+(ii) an up ramp rate and a down ramp rate for generation and
+an up ramp rate and a down ramp rate for consumption;
+and
+(2) specify a price for each price band specified in the dispatch bid,
+in dollars and whole cents per MWh, and this price is to apply
+to the price band throughout the trading day;
+8
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[26] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+After clause 3.8.6(g2), insert a new clause 3.8.6(g3) as follows:
+(g3) A Voluntarily Scheduled Resource Provider's dispatch bid must
+specify the daily energy available for voluntarily scheduled resources
+with energy constraints.
+[27] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+In clause 3.8.6, omit the subheading above clause 3.8.6(h) and substitute:
+Scheduled and semi-scheduled generating units, scheduled
+bidirectional units and voluntarily scheduled resources
+[28] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+In clause 3.8.6(h), omit "semi-scheduled generating unit or scheduled bidirectional unit
+must meet" and substitute "semi-scheduled generating unit, scheduled bidirectional unit
+or voluntarily scheduled resource must meet".
+[29] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+Omit clause 3.8.6(h)(1) and substitute the following:
+(1) the MW quantities specified are to apply at the terminals of the
+scheduled generating unit, semi-scheduled generating unit,
+scheduled bidirectional unit or voluntarily scheduled resource
+or, with AEMO's agreement, at any other point in the relevant
+Generator's, Scheduled Integrated Resource Provider's or
+Voluntarily Scheduled Resource Provider’s electrical installation
+or on the network;
+[30] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+In clause 3.8.6(h)(3), omit "connection point of the scheduled generating unit, semi-
+scheduled generating unit or scheduled bidirectional unit" and substitute "market
+connection point of the scheduled generating unit, semi-scheduled generating unit,
+scheduled bidirectional unit or voluntarily scheduled resource, or each market
+9
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+connection point of the voluntarily scheduled resource if it is aggregated under clause
+3.8.3".
+[31] Clause 3.8.6 Dispatch bids - generating units,
+bidirectional units and voluntarily
+scheduled resources
+In clause 3.8.6(h)(3), omit the definition of "LF" and substitute the following:
+LF means:
+(i) where the market connection point (or, if the market
+connection point is a secondary settlement point, the
+connection point for the premises) is a transmission
+network connection point - the relevant intra-regional loss
+factor at that connection point;
+(ii) where the market connection point (or, if the market
+connection point is a secondary settlement point, the
+connection point for the premises) is a distribution
+network connection point - the product of the distribution
+loss factor at that connection point and the relevant intra-
+regional loss factor at the transmission network
+connection point to which it is assigned; or
+(iii) where two or more qualifying resources have been
+aggregated as a voluntarily scheduled resource in
+accordance with clause 3.8.3 - a loss factor determined in
+accordance with the voluntarily scheduled resource
+guidelines; and
+[32] Clause 3.8.20 Pre-dispatch schedule
+In clause 3.8.20(k), omit "scheduled generating unit, a semi-scheduled generating unit,
+a scheduled bidirectional unit or a scheduled load" and substitute "scheduled resource
+(other than a wholesale demand response unit or a scheduled network service)".
+[33] Clause 3.8.21 On-line dispatch process
+Omit clause 3.8.21(m) and substitute the following:
+(m) Where the central dispatch process may have failed to dispatch a
+scheduled resource (other than a wholesale demand response unit or
+a scheduled network service) to maximise the joint value of energy
+and ancillary services due to the relevant scheduled resource
+operating outside its enablement limit, AEMO must notify the relevant
+Market Participant electronically on a confidential basis.
+10
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[34] Clause 3.8.22A Bids and rebids must not be false or
+misleading
+Omit clause 3.8.22A(e)(2) and substitute the following:
+(2) the importance of rebids being made, where possible, in
+sufficient time to allow reasonable opportunity for other Market
+Participants to respond (including by making responsive rebids,
+by bringing one or more generating units, bidirectional units or
+voluntarily scheduled resources into operation, or adjusting the
+loading level of any generating units, bidirectional units, load,
+wholesale demand response units or voluntarily scheduled
+resources) prior to the commencement of the trading interval
+to which the rebid relates, and may have regard to any other
+relevant matter, including any of the matters referred to in sub-
+paragraphs (c)(1) to (5).
+[35] Clause 3.8.23 Failure to conform to dispatch
+instructions excluding wholesale demand
+response units
+In clause 3.8.23, omit the heading and substitute:
+3.8.23 Failure to conform to dispatch instructions, excluding
+wholesale demand response units and voluntarily scheduled
+resources
+[36] Clause 3.8.23B Failure of voluntarily scheduled
+resources to conform to dispatch
+instructions
+After clause 3.8.23A, insert a new clause 3.8.23B as follows:
+3.8.23B Failure of voluntarily scheduled resources to conform to
+dispatch instructions
+(a) This clause does not apply to an inactive voluntarily scheduled
+resource.
+Note
+Inactive voluntarily scheduled resources are required to submit dispatch bids in accordance
+with clause 3.8.6 but are not required to follow dispatch instructions. See clauses
+3.10A.2(d) to (f). Hibernated voluntarily scheduled resources do not participate in central
+dispatch at all. See clause 3.10A.2(l).
+(b) If a voluntarily scheduled resource fails to respond to a dispatch
+instruction within a tolerable time and accuracy (as determined in
+AEMO's reasonable opinion), then the voluntarily scheduled resource:
+(1) is to be declared and identified as non-conforming; and
+11
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(2) cannot be used as the basis for setting spot prices.
+(c) If a voluntarily scheduled resource is declared as non-conforming
+under paragraph (b), then:
+(1) AEMO must advise the relevant Voluntarily Scheduled Resource
+Provider that the relevant voluntarily scheduled resource is
+identified as non-conforming, and request and log a reason for
+the non-compliance with the dispatch instruction;
+(2) if, in AEMO's opinion, modification of plant parameters is
+necessary or desirable, AEMO must request the relevant
+Voluntarily Scheduled Resource Provider to submit modified
+plant parameters to satisfy AEMO that a realistic real time
+dispatch schedule can be carried out.
+(d) If a voluntarily scheduled resource is identified as non-conforming
+under paragraph (b), it continues to be non-conforming until:
+(1) the Voluntarily Scheduled Resource Provider responds to any
+requests under paragraph (c); and
+(2) AEMO is satisfied that the voluntarily scheduled resource will
+respond to future dispatch instructions as required.
+(e) If a voluntarily scheduled resource is identified as non-conforming
+under paragraph (b), AEMO acting reasonably may, by notice to a
+Voluntarily Scheduled Resource Provider, require the Voluntarily
+Scheduled Resource Provider to limit the available capacity of the
+non-conforming voluntarily scheduled resource to a maximum figure
+determined by AEMO for so long as the voluntarily scheduled
+resource remains non-conforming.
+(f) A notice given under paragraph (e) remains in place until:
+(1) the voluntarily scheduled resource ceases to be non-conforming
+in accordance with paragraph (d); or
+(2) AEMO varies the notice by giving a further notice under
+paragraph (e).
+(g) If a voluntarily scheduled resource continues to be non-conforming
+after a reasonable period, AEMO must prepare a report setting out the
+details for the non-conformance and forward a copy to the Voluntarily
+Scheduled Resource Provider and the AER.
+[37] Clause 3.9.1 Principles applicable to spot price
+determination
+In clause 3.9.1(a)(3), after "wholesale demand response unit" insert ", voluntarily
+scheduled resource".
+12
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[38] Clause 3.9.3 Pricing in the event of intervention by
+AEMO
+Omit clause 3.9.3(b1)(1) and substitute the following:
+(1) energy that is capable of being provided by any generating unit,
+bidirectional unit or voluntarily scheduled resource within a
+region;
+[39] Clause 3.9.3 Pricing in the event of intervention by
+AEMO
+In clause 3.9.3(b1)(2), omit "generating unit or bidirectional unit" and substitute
+"generating unit, bidirectional unit or voluntarily scheduled resource".
+[40] Clause 3.9.3 Pricing in the event of intervention by
+AEMO
+In clause 3.9.3(b2)(1), omit "generating unit or, bidirectional unit" and substitute
+"generating unit, bidirectional unit, voluntarily scheduled resource".
+[41] Rule 3.10A Voluntarily scheduled resources
+Omit rule 3.10A, including the heading and the note, and substitute:
+3.10A Voluntarily scheduled resources
+3.10A.1 Nominating voluntarily scheduled resources
+Resources which may be nominated as a voluntarily scheduled resource
+(a) Qualifying resource means:
+(1) a market generating unit that is a non-scheduled generating
+unit;
+(2) a market bidirectional unit that is a non-scheduled bidirectional
+unit;
+(3) a market connection point that is non-scheduled load; or
+(4) one or more small generating units or small bidirectional units
+(or any combination) at a small resource connection point
+classified as a market connection point in accordance with
+clause 2.2.8.
+(b) Subject to paragraph (c), a person registered as a Generator,
+Integrated Resource Provider or Market Customer, in respect of one
+or more qualifying resources, may apply to AEMO to nominate its
+qualifying resource, or qualifying resources that are aggregated under
+clause 3.8.3, as a voluntarily scheduled resource under this clause.
+13
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Application process to nominate a voluntarily scheduled resource
+(c) An application to nominate a voluntarily scheduled resource under
+paragraph (b) must be in the form prescribed by AEMO and must:
+(1) identify the NMI and market connection point associated with
+the qualifying resource; and
+(2) demonstrate how the qualifying resource meets the requirements
+specified in the Voluntarily Scheduled Resource Guidelines.
+(d) AEMO must, within 5 business days of receiving a nomination
+application under paragraph (b), advise the applicant of any further
+information or clarification which is required in support of its
+application if, in AEMO's reasonable opinion, the application:
+(1) is incomplete; or
+(2) contains information upon which AEMO requires clarification.
+(e) If the further information or clarification required pursuant to
+paragraph (d) is not provided to AEMO's satisfaction within 15
+business days of the request, AEMO may, on notice to the applicant
+at any time after expiry of that period, elect to treat the application as
+withdrawn and the applicant will be deemed to have withdrawn the
+application.
+(f) AEMO must, subject to paragraph (g), approve the application for
+nomination under paragraph (b), if AEMO is reasonably satisfied that:
+(1) the request is made in respect of one or more qualifying
+resources;
+(2) the applicant has submitted data in accordance with Schedule
+3.1;
+(3) the applicant has adequate communications and/or telemetry in
+place to support the exchange of required data for the proposed
+voluntarily scheduled resource; and
+(4) the qualifying resource satisfies each other requirement in the
+voluntarily scheduled resource guidelines for nomination as a
+voluntarily scheduled resource.
+(g) AEMO must not give approval to a person under paragraph (f) in
+respect of a qualifying resource that is nominated as a voluntarily
+scheduled resource by a different person.
+Effect of approval for nomination as a voluntarily scheduled resource
+(h) If AEMO gives approval under paragraph (f) to nominate one or more
+qualifying resources as a voluntarily scheduled resource, then subject
+to paragraph (i), the voluntarily scheduled resource is a scheduled
+14
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+resource (but does not become classified as a scheduled generating
+unit, scheduled load or scheduled bidirectional unit).
+Note
+Approval of a qualifying resource as a voluntarily scheduled resource does not affect
+the classification of that resource as a market generating unit, market bidirectional
+unit or market connection point (as applicable).
+(i) During those periods where a voluntarily scheduled resource is:
+(1) an inactive voluntarily scheduled resource, the requirements and
+exemptions in clause 3.10A.2(d) to (i) will apply; or
+(2) a hibernated voluntarily scheduled resource, it will not be a
+scheduled resource and the requirements and exemptions in
+clause 3.10A.2(l) to (p) will apply.
+(j) A person whose qualifying resource is approved for nomination as a
+voluntarily scheduled resource in accordance with paragraph (f), and
+if applicable, has been aggregated with other qualifying resources as
+a single voluntarily scheduled resource under clause 3.8.3, is taken to
+be a Voluntarily Scheduled Resource Provider in so far as its activities
+relate to that voluntarily scheduled resource.
+(k) AEMO may approve the nomination of a qualifying resource as a
+voluntarily scheduled resource on such terms and conditions as
+AEMO considers necessary to ensure the provisions of the Rules
+applying to voluntarily scheduled resources can be met.
+(l) A Voluntarily Scheduled Resource Provider must comply with any
+terms and conditions imposed by AEMO under paragraph (k) in
+respect of its voluntarily scheduled resource.
+(m) A Voluntarily Scheduled Resource Provider must notify AEMO:
+(1) immediately if the Voluntarily Scheduled Resource Provider
+ceases to be the financially responsible Market Participant for
+a qualifying resource forming part of a voluntarily scheduled
+resource; or
+(2) as soon as practicable, and in any event, no later than 10
+business days after becoming aware that a resource forming part
+of a voluntarily scheduled resource ceases to be a qualifying
+resource.
+(n) If a Voluntarily Scheduled Resource Provider gives AEMO a notice
+under paragraph (m) in respect of a voluntarily scheduled resource,
+the voluntarily scheduled resource ceases to be a voluntarily
+scheduled resource from the time the relevant notice is given.
+(o) A Voluntarily Scheduled Resource Provider may (but is not required
+to) participate in the VSR incentive mechanism in accordance with
+rule 3.10B.
+15
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(p) A Market Participant in respect of a qualifying resource may
+participate in the VSR incentive mechanism in accordance with rule
+3.10B prior to applying to AEMO to nominate its qualifying resource
+as a voluntarily scheduled resource under this clause.
+3.10A.2 Deactivation and temporary hibernation of voluntarily
+scheduled resources
+(a) In this clause:
+deactivation notice means a notice submitted to AEMO for the
+deactivation of a voluntarily scheduled resource under paragraph (b).
+hibernation notice means a notice submitted to AEMO for the
+temporary hibernation of a voluntarily scheduled resource under
+paragraph (j).
+maximum hibernation period means a hibernation period of 18
+months in respect of a hibernated voluntarily scheduled resource, to
+commence from the date that AEMO records its status as such under
+subparagraph (l)(1).
+reactivation notice means a notice submitted to AEMO under
+paragraph (g) for the reactivation of an inactive voluntarily scheduled
+resource as a voluntarily scheduled resource.
+resumption notice means a notice submitted to AEMO under
+subparagraph (m)(1) for the resumption of a hibernated voluntarily
+scheduled resource as a voluntarily scheduled resource.
+Deactivation and reactivation notices
+(b) A Voluntarily Scheduled Resource Provider may submit a deactivation
+notice to AEMO.
+(c) A deactivation notice submitted under paragraph (b) must:
+(1) contain the information required by the voluntarily scheduled
+resource guidelines;
+(2) be submitted to AEMO in accordance with the process specified
+in the voluntarily scheduled resource guidelines; and
+(3) where the voluntarily scheduled resource has been aggregated
+in accordance with clause 3.8.3, apply to each individual
+qualifying resource forming part of the aggregated voluntarily
+scheduled resource.
+(d) If a Voluntarily Scheduled Resource Provider submits a deactivation
+notice in accordance with paragraph (c), then:
+(1) AEMO must record the status of the voluntarily scheduled
+resource as an inactive voluntarily scheduled resource in
+accordance with the voluntarily scheduled resource guidelines;
+16
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(2) AEMO may impose conditions on the inactive voluntarily
+scheduled resource in accordance with the voluntarily scheduled
+resource guidelines, and the Voluntarily Scheduled Resource
+Provider must comply with those conditions; and
+(3) the Voluntarily Scheduled Resource Provider remains a
+Voluntarily Scheduled Resource Provider in respect of the
+voluntarily scheduled resource and must continue to comply
+with the obligations for voluntarily scheduled resources under
+these Rules, except to the extent its inactive voluntarily
+scheduled resource is exempted from the application of a
+provision of the Rules in accordance with paragraph (f).
+(e) For the purposes of central dispatch, AEMO:
+(1) is not required to include dispatch bids submitted in respect of
+an inactive voluntarily scheduled resource in central dispatch
+or validate those dispatch bids in accordance with clause 3.8.8;
+and
+(2) must specify, in the voluntarily scheduled resource guidelines,
+how an inactive voluntarily scheduled resource is to be treated
+by AEMO.
+(f) In respect of its inactive voluntarily scheduled resource, a Voluntarily
+Scheduled Resource Provider is exempt from the application of the
+following clauses, except in relation to any market ancillary services
+to be provided by any qualifying resource forming part of the
+voluntarily scheduled resource:
+(1) clause 3.8.8;
+(2) the requirements in the Rules to conform to dispatch
+instructions including clause 3.8.23B;
+(3) clause 3.8.22A;
+(4) clause 4.8.9, to the extent that clause relates to a direction issued
+by AEMO;
+(5) clause 4.9.2; and
+(6) clause 4.9.8.
+(g) A Voluntarily Scheduled Resource Provider may submit a reactivation
+notice in respect of its inactive voluntarily scheduled resource at any
+time. A reactivation notice must:
+(1) be made in accordance with the voluntarily scheduled resource
+guidelines; and
+(2) specify a date on which the relevant deactivation period is
+proposed to end.
+17
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(h) If a Voluntarily Scheduled Resource Provider submits a reactivation
+notice in accordance with paragraph (g), then with effect from the date
+specified in subparagraph (g)(2) or a later date determined by AEMO
+in accordance with the voluntarily scheduled resource guidelines:
+(1) AEMO must remove the status of the voluntarily scheduled
+resource as an inactive voluntarily scheduled resource; and
+(2) the Voluntarily Scheduled Resource Provider is no longer
+exempt from the application of a provision of the Rules in
+accordance with paragraph (f).
+(i) An inactive voluntarily scheduled resource continues to have that
+status unless it becomes:
+(1) a voluntarily scheduled resource pursuant to a reactivation
+notice; or
+(2) a hibernated voluntarily scheduled resource pursuant to a
+hibernation notice.
+Hibernation and resumption notices
+(j) A Voluntarily Scheduled Resource Provider may submit a hibernation
+notice to AEMO at any time in respect of its voluntarily scheduled
+resource, including an inactive voluntarily scheduled resource.
+(k) A hibernation notice submitted under paragraph (j) must:
+(1) specify an expected hibernation period of at least 30 days but
+not exceeding the maximum hibernation period;
+(2) contain the information required by the voluntarily scheduled
+resource guidelines;
+(3) be submitted to AEMO in accordance with the process specified
+in the voluntarily scheduled resource guidelines; and
+(4) where the voluntarily scheduled resource has been aggregated
+in accordance with clause 3.8.3, apply to each individual
+qualifying resource forming part of the aggregated voluntarily
+scheduled resource.
+(l) If a Voluntarily Scheduled Resource Provider submits a hibernation
+notice in accordance with paragraph (k), then:
+(1) AEMO must record the status of the voluntarily scheduled
+resource as a hibernated voluntarily scheduled resource in
+accordance with the voluntarily scheduled resource guidelines;
+and
+(2) for the duration of the relevant hibernation period:
+18
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(i) AEMO may impose conditions on the hibernated
+voluntarily scheduled resource in accordance with the
+voluntarily scheduled resource guidelines, and the
+Voluntarily Scheduled Resource Provider must comply
+with those conditions; and
+(ii) the hibernated voluntarily scheduled resource is not a
+scheduled resource and will not participate in central
+dispatch.
+(m) A Voluntarily Scheduled Resource Provider may, prior to the end of
+the maximum hibernation period and in accordance with the
+voluntarily scheduled resource guidelines:
+(1) submit a resumption notice, specifying a date within the
+maximum hibernation period on which the relevant hibernation
+period is proposed to end; or
+(2) notify AEMO that each relevant qualifying resource is no longer
+nominated as a voluntarily scheduled resource.
+(n) If a Voluntarily Scheduled Resource Provider submits a resumption
+notice in accordance with subparagraph (m)(1):
+(1) AEMO must remove the status of the voluntarily scheduled
+resource as a hibernated voluntarily scheduled resource; and
+(2) the voluntarily scheduled resource becomes a scheduled
+resource on the date specified in subparagraph (m)(1) or a later
+date determined by AEMO in accordance with the voluntarily
+scheduled resource guidelines.
+(o) A Voluntarily Scheduled Resource Provider ceases to be a Voluntarily
+Scheduled Resource Provider in respect of a hibernated voluntarily
+scheduled resource and each relevant qualifying resource ceases to
+be a voluntarily scheduled resource (or part of a voluntarily scheduled
+resource, if aggregated):
+(1) in accordance with the timing and process specified in the
+voluntarily scheduled resource guidelines, if the Voluntarily
+Scheduled Resource Provider submits a notice under
+subparagraph (m)(2); or
+(2) at the end of the maximum hibernation period, if the Voluntarily
+Scheduled Resource Provider has not submitted a resumption
+notice or a notice under subparagraph (m)(2) before that time.
+(p) A hibernated voluntarily scheduled resource continues to have that
+status until paragraph (n) or (o) applies and notwithstanding the expiry
+of the expected hibernation period included in the hibernation notice
+prior to those paragraphs applying.
+19
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+3.10A.3 Voluntarily scheduled resource guidelines
+(a) AEMO must develop and publish, and may amend, the voluntarily
+scheduled resource guidelines in accordance with the Rules
+consultation procedures.
+(b) The voluntarily scheduled resource guidelines must specify:
+(1) requirements for nominating one or more qualifying resources
+as a voluntarily scheduled resource in accordance with clause
+3.10A.1;
+(2) the requirements and process for aggregation of voluntarily
+scheduled resources in accordance with clause 3.8.3, including
+the circumstances in which AEMO may request Voluntarily
+Scheduled Resource Providers that have aggregated voluntarily
+scheduled resources to declare individual qualifying resource
+availability and operating status to AEMO pursuant to clause
+3.8.3(f1) or to disaggregate pursuant to clause 3.8.3(b6);
+(3) a requirement that the Voluntarily Scheduled Resource Provider
+is the financially responsible Market Participant in respect of a
+market connection point nominated as a voluntarily scheduled
+resource;
+(4) a framework for testing the capabilities of qualifying resources
+prior to their request for nomination as a voluntarily scheduled
+resource;
+(5) operational requirements for a voluntarily scheduled resource
+including:
+(i) the types of data to be provided by a Voluntarily
+Scheduled Resource Provider to AEMO and by AEMO to
+a Voluntarily Scheduled Resource Provider;
+(ii) information about the requirements for telemetry and
+communications equipment;
+(iii) the minimum threshold for nameplate rating, or combined
+nameplate rating, of a voluntarily scheduled resource;
+(iv) the dispatch conformance criteria; and
+(v) the acceptable types of metering installation for
+participating market connection points;
+(6) the processes for:
+(i) Voluntarily Scheduled Resource Providers to share data
+with Distribution Network Service Providers or (where
+relevant) Transmission Network Service Providers; and
+20
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(ii) the disclosure of data collected by AEMO from
+Voluntarily Scheduled Resource Providers to Distribution
+Network Service Providers and Transmission Network
+Service Providers (as applicable), including obligations
+of confidentiality that will apply to any such disclosures.
+(7) the matters required by clause 3.10A.2; and
+(8) any other information that AEMO considers reasonably
+necessary.
+(c) The voluntarily scheduled resource guidelines must also specify zonal
+aggregation requirements including:
+(1) a methodology for determining zones in which voluntarily
+scheduled resources participate in central dispatch as well as
+the loss factor that is to apply in each zone for the purpose of
+clause 3.8.6(h);
+(2) requirements and conditions on Voluntarily Scheduled Resource
+Providers for aggregating qualifying resources as voluntarily
+scheduled resources in accordance with clause 3.8.3 (including
+that all qualifying resources that form part of an aggregated
+voluntarily scheduled resource must be within the same zone);
+(3) guidance for Voluntarily Scheduled Resource Providers on
+processes for the aggregation of voluntarily scheduled resources
+into the zones determined under subparagraph (1);
+(4) validation processes for AEMO; and
+(5) where AEMO proposes to implement a change to any zone in
+which voluntarily scheduled resources participate in central
+dispatch (including implementing a new zone), guidance for
+Voluntarily Scheduled Resource Providers on the processes and
+timing for the implementation of such change in zones,
+including the minimum lead time before the change would take
+effect.
+(d) In developing the voluntarily scheduled resource guidelines, AEMO:
+(1) must balance costs of participation for voluntarily scheduled
+resources in central dispatch with AEMO's costs for facilitating
+participation by voluntarily scheduled resources in central
+dispatch;
+(2) must facilitate ease of participation in central dispatch for
+voluntarily scheduled resources;
+(3) may apply restrictions on voluntarily scheduled resources in
+central dispatch only to the extent reasonably necessary for
+AEMO to manage power system security and reliability; and
+21
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(4) may have regard to any other matter determined by AEMO,
+acting reasonably, and which AEMO must specify in the
+voluntarily scheduled resource guidelines.
+(e) AEMO may from time to time review the voluntarily scheduled
+resource guidelines and, if at the conclusion of that review, AEMO
+considers that changes are necessary or desirable, AEMO must amend
+the voluntarily scheduled resource guidelines in accordance with the
+Rules consultation procedures.
+[42] Clause 3.13.3 Standing data
+In clause 3.13.3(b1)(3), omit "or".
+[43] Clause 3.13.3 Standing data
+In clause 3.13.3(b1)(4), omit "clause 3.8.3." and substitute "clause 3.8.3; or".
+[44] Clause 3.13.3 Standing data
+After clause 3.8.3(b1)(4), insert a new clause 3.8.3(b1)(5) as follows:
+(5) the number of individual qualifying resources that have been
+aggregated as a single voluntarily scheduled resource in
+accordance with clause 3.8.3.
+[45] Clause 3.13.4 Spot market
+Omit clause 3.13.4(p)(9) and substitute the following:
+(9) in respect of a:
+(i) scheduled bidirectional unit, excluding a pumped hydro
+production unit; and
+(ii) a voluntarily scheduled resource comprised of one or
+more market bidirectional units,
+the actual state of charge in each trading interval in respect of
+each dispatchable unit identifier.
+[46] Clause 3.14.5A Payment of compensation due to market
+suspension pricing schedule periods
+Omit clause 3.14.5A(a)(1) and substitute the following:
+(1) Scheduled Generators, Scheduled Integrated Resource
+Providers and Voluntarily Scheduled Resource Providers to
+supply energy;
+22
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[47] Clause 3.14.5B Claims for additional compensation due
+to market suspension pricing schedule
+periods
+In clause 3.14.5B(a)(3), omit "generating unit or bidirectional unit" and substitute
+"generating unit, bidirectional unit or voluntarily scheduled resource".
+[48] Clause 3.14.5B Claims for additional compensation due
+to market suspension pricing schedule
+periods
+In clause 3.14.5B(d), omit "generating unit or bidirectional unit supplying" and
+substitute "generating unit, bidirectional unit or voluntarily scheduled resource
+(relevant resource) supplying".
+[49] Clause 3.14.5B Claims for additional compensation due
+to market suspension pricing schedule
+periods
+In clause 3.14.5B(d)(1), omit "relevant generating unit or bidirectional unit;" and
+substitute "relevant resource;".
+[50] Clause 3.14.5B Claims for additional compensation due
+to market suspension pricing schedule
+periods
+In clause 3.14.5B(d)(2), omit "relevant generating unit or bidirectional unit;" and
+substitute "relevant resource;".
+[51] Clause 3.14.5B Claims for additional compensation due
+to market suspension pricing schedule
+periods
+In clause 3.14.5B(d)(3), omit "relevant generating unit or bidirectional unit; and" and
+substitute "relevant resource; and".
+[52] Clause 3.14.5B Claims for additional compensation due
+to market suspension pricing schedule
+periods
+Omit clause 3.14.5B(d)(4) and substitute the following:
+(4) other direct costs reasonably incurred in connection with the
+relevant resource, where such costs are incurred to enable the
+relevant resource to supply energy or market ancillary services
+during the market suspension pricing schedule period.
+23
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[53] Clause 3.14.6 Compensation due to the application of
+an administered price cap or
+administered floor price
+In clause 3.14.6(a), in paragraph (1) of the definition of price limit event, after
+"Scheduled Integrated Resource Providers", insert", Voluntarily Scheduled Resource
+Providers".
+[54] Clause 3.14.6 Compensation due to the application of
+an administered price cap or
+administered floor price
+In clause 3.14.6(b)(1), after "Non-Scheduled Integrated Resource Provider" insert ",
+Voluntarily Scheduled Resource Provider".
+[55] Clause 3.14.6 Compensation due to the application of
+an administered price cap or
+administered floor price
+In clause 3.14.6(c)(1), after "Non-Scheduled Integrated Resource Providers" insert ",
+Voluntarily Scheduled Resource Providers".
+[56] Clause 3.15.3 Connection point and virtual
+transmission node responsibility
+In clause 3.15.3(a)(3), omit "network service; or" and substitute "network service;".
+[57] Clause 3.15.3 Connection point and virtual
+transmission node responsibility
+In clause 3.15.3(a)(4), omit "market bidirectional unit." and substitute "market
+bidirectional unit; or".
+[58] Clause 3.15.3 Connection point and virtual
+transmission node responsibility
+After clause 3.15.3(a)(4), insert a new clause 3.15.3(a)(5) as follows:
+(5) the Market Participant which has nominated the qualifying
+resource at that market connection point as a voluntarily
+scheduled resource.
+[59] Clause 3.15.6A Ancillary services transactions
+In clause 3.15.6A(k)(5), omit "ancillary service unit (called a Scheduled Participant)"
+and substitute "ancillary service unit, or a Voluntarily Scheduled Resource Provider in
+respect of its voluntarily scheduled resources, called a Scheduled Participant,".
+24
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[60] Clause 3.15.6AA Frequency performance payments and
+cost recovery for regulation services
+In clause 3.15.6AA(a), in the definition of "eligible unit" after "a non-scheduled
+bidirectional unit" insert ", a voluntarily scheduled resource".
+[61] Clause 3.15.6AA Frequency performance payments and
+cost recovery for regulation services
+In clause 3.15.6AA(g)(7)(i), after "scheduled bidirectional unit" insert ", voluntarily
+scheduled resource".
+[62] Clause 3.15.7 Payment to Directed Participants
+In clause 3.15.7(c), in the definition of "AMP", after "Demand Response Service
+Providers" insert ", Voluntarily Scheduled Resource Providers".
+[63] Clause 3.15.8 Funding of compensation for directions
+In clause 3.15.8(b), omit "scheduled loads or scheduled bidirectional units" and
+substitute "scheduled loads, scheduled bidirectional units or voluntarily scheduled
+resources (but not excluding energy consumed by a voluntarily scheduled resource while
+it was an inactive voluntarily scheduled resource)".
+[64] Clause 3.15.9 Reserve settlements
+In clause 3.15.9(b)(2)(ii), after "wholesale demand response unit" insert ", voluntarily
+scheduled resource".
+[65] Clause 3.15.9 Reserve settlements
+In clause 3.15.9(e), in the definition of "EUC", omit "any scheduled loads or scheduled
+bidirectional units" and substitute "any scheduled loads, scheduled bidirectional units
+or voluntarily scheduled resources (but not excluding energy consumed by a voluntarily
+scheduled resource while it was an inactive voluntarily scheduled resource)".
+[66] Clause 3.15.9 Reserve settlements
+In clause 3.15.9(e), in the definition of "EOC", omit " scheduled loads or scheduled
+bidirectional units" and substitute "scheduled loads, scheduled bidirectional units or
+voluntarily scheduled resources (but not excluding energy consumed by a voluntarily
+scheduled resource while it was an inactive voluntarily scheduled resource)".
+[67] Clause 3.16.1 Establishment of Participant
+compensation fund
+In clause 3.16.1(a), after "Scheduled Integrated Resource Providers" insert ", Voluntarily
+Scheduled Resource Providers".
+25
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[68] Clause 3.16.1 Establishment of Participant
+compensation fund
+In clause 3.16.1(g), after "Scheduled Integrated Resource Provider" insert ", Voluntarily
+Scheduled Resource Provider".
+[69] Clause 3.16.2 Dispute resolution panel to determine
+compensation
+Omit clause 3.16.2(d) and substitute the following:
+(d) A Scheduled Generator, Semi-Scheduled Generator, Scheduled
+Integrated Resource Provider or Voluntarily Scheduled Resource
+Provider who receives an instruction in respect of a scheduled
+generating unit, semi-scheduled generating unit, scheduled
+bidirectional unit or voluntarily scheduled resource (as the case may
+be) to operate at a loading level different to the loading level at which
+it would have been instructed to operate had the scheduling error not
+occurred, will be entitled to receive in compensation an amount
+determined by the dispute resolution panel.
+[70] Clause 3.16.2 Dispute resolution panel to determine
+compensation
+Omit clause 3.16.2(f) and substitute the following:
+(f) A Scheduled Generator, Semi-Scheduled Generator, Scheduled
+Integrated Resource Provider or Voluntarily Scheduled Resource
+Provider who receives a dispatch instruction in respect of a
+generating unit, bidirectional unit or voluntarily scheduled resource
+to operate at a level consistent with a dispatch bid price (with
+reference to the relevant regional reference node) which is higher than
+the spot price, due to the operation of clause 3.9.2B, is entitled to
+receive in compensation an amount determined by the dispute
+resolution panel.
+[71] Clause 3.16.2 Dispute resolution panel to determine
+compensation
+In clause 3.16.2(h)(1), omit "semi-scheduled generating unit or scheduled bidirectional
+unit" and substitute "semi-scheduled generating unit, scheduled bidirectional unit or
+voluntarily scheduled resource".
+[72] Clause 3.20.3 Reserve contracts
+In clause 3.20.3(a)(1), after "wholesale demand response units," insert "voluntarily
+scheduled resources,".
+26
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[73] Clause 3.20.3 Reserve contracts
+In clause 3.20.3(g), after "wholesale demand response units," insert "voluntarily
+scheduled resources,".
+[74] Schedule 3.1 Bid Validation Data
+In Schedule 3.1, after the Scheduled Bidirectional Unit Data table, insert a new
+subheading and table as follows:
+Voluntarily Scheduled Resource Data:
+Data Units of
+Measurement
+Voluntarily scheduled resource name -
+Dispatchable unit identifier -
+Maximum production of the voluntarily scheduled MW (produced)
+resource, to which the voluntarily scheduled resource
+may be dispatched
+Maximum consumption of the voluntarily scheduled MW (consumed)
+resource, to which the voluntarily scheduled resource
+may be dispatched
+Maximum ramp rate of the voluntarily scheduled MW/minute
+resource
+Maximum storage capacity of the voluntarily scheduled MWh
+resource
+[75] Clause 4.9.2 Instructions to Scheduled Generators,
+Semi-Scheduled Generators and
+Scheduled Integrated Resource
+Providers
+In clause 4.9.2, omit the heading and substitute:
+4.9.2 Instructions to Generators, Scheduled Integrated Resource
+Providers and Voluntarily Scheduled Resource Providers
+[76] Clause 4.9.2 Instructions to Generators, Scheduled
+Integrated Resource Providers and
+Voluntarily Scheduled Resource
+Providers
+Omit clause 4.9.2(a) and substitute the following:
+(a) To implement central dispatch or, where AEMO has the power to
+direct or to instruct a Scheduled Generator, Semi-Scheduled
+27
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Generator, Scheduled Integrated Resource Provider or Voluntarily
+Scheduled Resource Provider either under Chapter 3 or this Chapter,
+then for the purpose of giving effect to that direction or instruction,
+AEMO may at any time give an instruction to the Generator,
+Integrated Resource Provider or Voluntarily Scheduled Resource
+Provider in relation to any of its generating units, bidirectional units
+or voluntarily scheduled resources (a dispatch instruction), in
+accordance with clause 4.9.5(b), nominating:
+(1) whether the facilities for generation remote control by AEMO,
+if available, must be in service; and
+(2) in the case of a:
+(i) scheduled generating unit, scheduled bidirectional unit or
+voluntarily scheduled resource, the level or schedule of
+power; and
+(ii) semi-scheduled generating unit, the dispatch level,
+applicable over the specified period.
+[77] Clause 4.9.2 Instructions to Generators, Scheduled
+Integrated Resource Providers and
+Voluntarily Scheduled Resource
+Providers
+Omit clause 4.9.2(d) and substitute the following:
+(d) A Scheduled Generator, Semi-Scheduled Generator, Scheduled
+Integrated Resource Provider or Voluntarily Scheduled Resource
+Provider must, with respect to its generating units, bidirectional units
+or voluntarily scheduled resources that have an availability offer of
+greater than 0 MW (whether synchronised or not), ensure that
+appropriate personnel are available at all times to receive and
+immediately act upon dispatch instructions issued by AEMO to the
+relevant Registered Participant.
+[78] Clause 4.9.4 Dispatch related limitations on
+Scheduled Generators, Semi-Scheduled
+Generators and Scheduled Integrated
+Resource Providers
+Omit the heading of clause 4.9.4 and substitute:
+28
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+4.9.4 Dispatch related limitations on Generators, Scheduled
+Integrated Resource Providers and Voluntarily Scheduled
+Resource Providers
+[79] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+In clause 4.9.4, omit the opening paragraph and substitute the following:
+A Scheduled Generator, Semi-Scheduled Generator, Scheduled Integrated
+Resource Provider or Voluntarily Scheduled Resource Provider (as the case
+may be) must not, unless in that person's reasonable opinion, public safety
+would otherwise be threatened or there would be a material risk of damaging
+equipment or the environment:
+[80] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+In clause 4.9.4(a), omit "generating unit or bidirectional unit" and substitute "generating
+unit, bidirectional unit or voluntarily scheduled resource".
+[81] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+In clause 4.9.4(a)(3), omit "5; or" and substitute "5;".
+[82] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+In clause 4.9.4(a)(3A), omit "conditions; or" and substitute "conditions;".
+[83] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+In clause 4.9.4(a)(4), omit "self-dispatch level;" and substitute "self-dispatch level; or".
+29
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[84] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+After clause 4.9.4(a)(4), insert new clause 4.9.4(a)(5) as follows:
+(5) in the case of a voluntarily scheduled resource, it is an inactive
+voluntarily scheduled resource or a hibernated voluntarily
+scheduled resource;
+[85] Clause 4.9.4 Dispatch related limitations on
+Generators, Scheduled Integrated
+Resource Providers and Voluntarily
+Scheduled Resource Providers
+In clause 4.9.4(e), after "semi-scheduled generating unit", insert ", voluntarily scheduled
+resource".
+[86] Clause 4.9.8 General responsibilities of Registered
+Participants
+In clause 4.9.8(a1), after "Semi-Scheduled Generator", insert ", Voluntarily Scheduled
+Resource Provider".
+[87] Clause 4.9.8 General responsibilities of Registered
+Participants
+After clause 4.9.8(f), insert new clause 4.9.8(g) as follows:
+(g) A Voluntarily Scheduled Resource Provider must ensure that each of
+its voluntarily scheduled resources is at all times able to comply with
+its latest dispatch bid.
+[88] Clause 4.11.1 Remote control and monitoring devices
+In clause 4.11.1(d), omit "an Integrated Resource Provider or a Market Network Service
+Provider" and substitute "an Integrated Resource Provider, Voluntarily Scheduled
+Resource Provider or a Market Network Service Provider".
+[89] Clause 4.11.1 Remote control and monitoring devices
+In clause 4.11.1(d)(1), omit "generating unit or bidirectional unit (including its dynamic
+performance)" and substitute "generating unit, bidirectional unit or voluntarily
+scheduled resource (including its dynamic performance)".
+30
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[90] Clause 4.11.1 Remote control and monitoring devices
+In clause 4.11.1(e), after "Integrated Resource Provider" insert ", Voluntarily Scheduled
+Resource Provider".
+[91] Clause 4.11.1 Remote control and monitoring devices
+In clause 4.11.1(g), after "Integrated Resource Provider" insert ", Voluntarily Scheduled
+Resource Provider".
+[92] Clause 4A.E.1 Qualifying contracts
+Omit clause 4A.E.1(c) and substitute the following:
+(c) A demand side participation contract or other arrangement, under
+which a person provides:
+(1) demand response (including wholesale demand response) by
+curtailing non-scheduled load or the provision of unscheduled
+generation in certain specified circumstances; or
+(2) the use of a qualifying resource as a voluntarily scheduled
+resource,
+will only be a qualifying contract if it meets the requirements of
+section 14O(1)(a) of the NEL and is registered in AEMO's Demand
+Side Participation Information Portal.
+[93] Clause 4A.E.1 Qualifying contracts
+In clause 4A.E.1(e), delete "or the provision by a liable entity of wholesale demand
+response" and substitute ", the provision by a liable entity of wholesale demand
+response, or a liable entity's use of its qualifying resource as a voluntarily scheduled
+resource".
+[94] Clause 4A.F.3 Share of one-in-two year peak demand
+forecast
+In clause 4A.F.3(b)(3)(i), omit "(other than wholesale demand response)" and substitute
+"(including from the dispatch of a voluntarily scheduled resource but excluding
+wholesale demand response)".
+[95] Clause 4A.F.3 Share of one-in-two year peak demand
+forecast
+In clause 4A.F.3(d)(1), omit "(other than wholesale demand response)" and substitute
+"(including from the dispatch of a voluntarily scheduled resources but excluding
+wholesale demand response)".
+31
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[96] Clause 5A.B.3 Approval of terms and conditions of
+model standing offer to provide basic
+connection services
+In clause 5A.B.3(a)(4), omit "energy laws; and" and substitute "energy laws;".
+[97] Clause 5A.B.3 Approval of terms and conditions of
+model standing offer to provide basic
+connection services
+In clause 5A.B.3(a)(5), omit "6B." and substitute "6B; and".
+[98] Clause 5A.B.3 Approval of terms and conditions of
+model standing offer to provide basic
+connection services
+After clause 5A.B.3(a)(5), insert new subparagraph (6) as follows:
+(6) where the model standing offer imposes non-static limitations
+on Distribution Network Users’ maximum capacity of supply
+into the distribution network, the Distribution Network Service
+Provider has consulted with Voluntarily Scheduled Resource
+Providers on these limitations through the connection policy
+(and the model standing offer is consistent with the connection
+policy on this issue), or has otherwise sufficiently consulted with
+Voluntarily Scheduled Resource Providers.
+[99] Clause 5A.E.3 Connection charge guidelines
+In clause 5A.E.3(c)(8), omit "clause 5A.F.1(c)(2)." and substitute "clause 5A.F.1(c)(2);
+and:".
+[100] Clause 5A.E.3 Connection charge guidelines
+After clause 5A.E.3(c)(8), insert new subparagraph (9) as follows:
+(9) where a Distribution Network Service Provider proposes
+changes to its connection policy that would have the effect of
+imposing non-static limitations on Distribution Network Users’
+maximum capacity of supply into the distribution network,
+establish requirements for Distribution Network Service
+Providers to consult with affected Voluntarily Scheduled
+Resource Providers, regarding how those limitations could be
+incorporated into dispatch bids.
+32
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Schedule 2 Amendment to the National Electricity Rules
+(incentive mechanism)
+(Clause 4)
+[1] Rule 3.10B Voluntarily scheduled resource incentive
+mechanism
+Omit rule 3.10B, including the heading and the note, and substitute:
+3.10B Voluntarily scheduled resource incentive mechanism
+3.10B.1 Definitions
+In this rule 3.10B:
+external funding means any funding, grant or other financial support from
+a party other than AEMO (including from a government funding body or
+regulator) to meet part or all of AEMO’s costs of implementing the VSR
+incentive mechanism, including to meet any participation payments.
+incentive MW price cap is the price (in $/MW) determined by AEMO
+which must be less than the VSR Benefits (calculated in $/MW) that AEMO
+expects will accrue from successful VSR incentive mechanism participants
+participating in central dispatch, in relation to a particular VSR tender
+process.
+incentive period means the period from 1 April 2026 to 31 December 2031.
+participation payment means the amount (in $) payable under a VSR
+participation agreement.
+participation price means the amount (in $/MW) payable under a VSR
+participation agreement, which is to be determined in accordance with
+clause 3.10B.2(f)(1).
+VSR Benefits means the expected benefits to consumers as a whole of
+voluntarily scheduled resources participating in central dispatch, including
+where the participation results in reduced system security services costs,
+avoided generation, avoided greenhouse gas emissions and reduced RERT
+costs.
+VSR incentive objective is to maximise VSR Benefits in the long run by
+incentivising Market Participants with qualifying resources to nominate
+those resources as voluntarily scheduled resources, while minimising the
+cost of facilitating participation through participant payments.
+VSR incentive principles means the principles for the VSR incentive
+mechanism listed in clause 3.10B.2(e).
+3.10B.2 Design and conduct of VSR incentive mechanism
+(a) During the incentive period, AEMO must conduct at least two VSR
+tender processes.
+33
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(b) The VSR incentive mechanism must be conducted in accordance with
+this clause, the VSR incentive objective and the VSR incentive
+procedures.
+(c) AEMO must develop, publish and maintain, and may amend, the VSR
+incentive procedures in accordance with the Rules consultation
+procedures and paragraphs (d) and (f).
+(d) The VSR incentive procedures must give effect to the VSR incentive
+principles and must specify:
+(1) the criteria which a VSR incentive mechanism participant must
+satisfy to be eligible to participate in the VSR incentive
+mechanism, which must include a prohibition on participation
+by a Voluntarily Scheduled Resource Provider in respect of a
+qualifying resource where that person is, or has been, a party to
+a VSR participation agreement in respect of that qualifying
+resource as part of a voluntarily scheduled resource;
+(2) to the extent there is any external funding for a VSR tender
+process, any further requirements for VSR incentive mechanism
+participants to satisfy in order to be eligible to receive such
+external funding;
+(3) the procedures for conducting the VSR incentive mechanism;
+(4) the timing of the phases of a VSR tender process;
+(5) the requirements for offers submitted by VSR incentive
+mechanism participants into a VSR tender process, which must
+include that offers:
+(i) are in $/MW;
+(ii) are specified to apply for a region;
+(iii) are specified to apply for particular types of qualifying
+resources or voluntarily scheduled resources;
+(iv) specify the proposed term of a VSR participation
+agreement that would apply if the VSR incentive
+mechanism participant were successful in the VSR tender
+process, subject to subparagraph (j)(2); and
+(v) specify the proposed availability of the qualifying
+resource or voluntarily scheduled resource (as applicable)
+during the term identified pursuant to subparagraph (iv);
+(6) the assessment criteria and methodology for selecting successful
+VSR incentive mechanism participants from each VSR tender
+process;
+(7) the procedures and timetable for settling participation payments;
+and
+34
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(8) the requirements for VSR participation agreements and any
+standard form VSR participation agreement.
+(e) The VSR incentive principles are that the VSR incentive mechanism
+should be structured and run in a way that achieves the VSR incentive
+objective, taking into consideration:
+(1) the relative availability of voluntarily scheduled resources
+having regard to expected capacity factors and any planned
+hibernation notices under clause 3.10A.2;
+(2) the extent to which each voluntarily scheduled resource is
+expected to vary its generation or consumption in response to
+expected spot prices; and
+(3) the benefits of building capability across a number of
+Voluntarily Scheduled Resource Providers with a variety of
+voluntarily scheduled resources (including in relation to
+aggregation) in order to have multiple Voluntarily Scheduled
+Resource Providers with a diversity of resources participating
+in central dispatch.
+Participation price, incentive MW price cap and participation payments
+(f) The VSR incentive procedures must also give effect to the following
+requirements:
+(1) a participation price must not exceed the incentive MW price
+cap; and
+(2) the aggregate of all participation payments payable under all
+VSR participation agreements must not exceed $50 million plus
+the value of all external funding.
+(g) Before commencing each VSR tender process, AEMO must determine
+the incentive MW price cap for each region and notify this to the AER
+and AEMC.
+(h) Except to the extent that paragraph (g) applies, AEMO, the AER and
+AEMC must keep confidential the incentive MW price cap during the
+incentive period.
+Requirement for VSR participation agreement for successful participants
+(i) Following the completion of a VSR tender process, each successful
+VSR incentive mechanism participant must enter into a VSR
+participation agreement with AEMO under which:
+(1) AEMO pays the Voluntarily Scheduled Resource Provider the
+participation payment; and
+(2) the Voluntarily Scheduled Resource Provider participates in
+central dispatch,
+35
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+in accordance with the VSR incentive procedures and the terms of the
+VSR participation agreement.
+Note
+Voluntarily Scheduled Resource Providers may participate in central dispatch with
+a voluntarily scheduled resource without a VSR participation agreement.
+(j) A VSR participation agreement must:
+(1) if it is with an Intending VSRP, require, as a condition precedent,
+the Intending VSRP to nominate its qualifying resource as a
+voluntarily scheduled resource in accordance with clause
+3.10A.1;
+(2) have a term of at least one year and no more than three years;
+(3) not have a participation price that exceeds the relevant incentive
+MW price cap; and
+(4) to the extent there is any external funding applicable to the VSR
+participation agreement, provide for any further requirements
+as were specified to apply in respect of that VSR participant
+agreement or that VSR incentive mechanism participant under
+the relevant VSR incentive procedures.
+(k) AEMO must not enter into a VSR participation agreement with an
+Intending VSRP or a Voluntarily Scheduled Resource Provider that
+does not satisfy the criteria specified in the VSR incentive procedures.
+(l) A Voluntarily Scheduled Resource Provider must comply with the
+VSR participation agreement.
+3.10B.3 Cost recovery for expenses administering the VSR incentive
+mechanism and participation payments
+(a) Subject to paragraph (b), AEMO must recover its costs and expenses
+incurred in establishing, administering and conducting the VSR
+incentive mechanism from Registered Participants as part of the fees
+imposed in accordance with rule 2.11.
+(b) As part of the fees imposed in accordance with rule 2.11, AEMO must
+not recover:
+(1) any participation payments payable by AEMO, which are to be
+recovered from Cost Recovery Market Participants as set out
+below;
+(2) any external funding; or
+(3) any costs or expenses incurred by AEMO in establishing,
+administering or conducting a VSR tender process as a result of
+requirements imposed by any external funding, which are to be
+recovered from the external funding.
+36
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(c) Within 40 business days of the completion of each financial year in
+which AEMO made participation payments, AEMO must determine:
+(1) the amount of all participation payments paid in that financial
+year; and
+(2) (if applicable) the amount of all external funding received or
+receivable in that financial year, less any amounts used to pay
+the costs and expenses under subparagraph (b)(3).
+(d) The amount determined under subparagraph (c)(1), less the amount
+(if any) determined under subparagraph (c)(2), must be recovered
+from Cost Recovery Market Participants in accordance with
+paragraph (e).
+(e) Within 40 business days after the completion of a relevant financial
+year, AEMO must calculate a figure for each Cost Recovery Market
+Participant by applying the following formula in respect of that
+financial year:
+(cid:1)E (cid:2)NetIncentive Costs(cid:2)
+CRP (cid:1)
+(cid:3)E
+where:
+CRP = the dollar amount payable by a Cost Recovery Market
+Participant in respect of the financial year.
+E = the sum, in MWh, of the Cost Recovery Market Participant's
+adjusted consumed energy amounts at its market connection points in
+all regions over the course of a billing period (selected by AEMO) in
+the financial year.
+(cid:1)E = the sum, in MWh, of all amounts determined as “E” for all
+Cost Recovery Market Participants for the relevant billing period.
+Net Incentive Costs = the amount determined under subparagraph
+(c)(1), less the amount (if any) determined under subparagraph (c)(2).
+Where Net Incentive Costs is a negative number, it is deemed to be
+zero.
+(f) AEMO must include the amount determined under paragraph (e) for
+each Cost Recovery Market Participant in the next preliminary
+statement to be provided to each Cost Recovery Market Participant
+under clause 3.15.4 (and in the subsequent final statement to be
+provided under clause 3.15.5).
+3.10B.4 Reporting after VSR tender processes and completion of
+incentive period
+(a) Following the completion of the first VSR tender process, and
+annually thereafter, AEMO must publish the aggregate amount of all
+37
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+participation payments payable in each financial year under VSR
+participation agreements. This obligation continues for every
+financial year in which there is an amount payable under a VSR
+participation agreement.
+(b) Within 12 months of the completion of the incentive period, AEMO
+must publish a report which includes:
+(1) a summary of the outcomes from the VSR incentive mechanism,
+including AEMO’s opinion of whether the VSR incentive
+objective was satisfied;
+(2) a description of AEMO’s learnings and insights from the VSR
+incentive mechanism;
+(3) an analysis of the participation prices payable under VSR
+participation agreements;
+(4) an analysis of the types of voluntarily scheduled resources
+contracted under VSR participation agreements;
+(5) any other information AEMO considers relevant or useful to
+include.
+[2] Chapter 10 Glossary
+In chapter 10, insert the following new definitions in alphabetical order:
+Intending VSRP
+A Market Participant with one or more qualifying resources that it intends
+to nominate as a voluntarily scheduled resource in accordance with clause
+3.10A.1 if it is successful in a VSR tender process.
+qualifying resource
+Has the meaning given in clause 3.10A.1(a).
+Voluntarily Scheduled Resource Provider
+A Market Participant in respect of which any voluntarily scheduled resource
+is nominated in accordance with clause 3.10A.1.
+VSR incentive mechanism
+The mechanism constituting two or more VSR tender processes run by
+AEMO under rule 3.10B, to incentivise Market Participants with qualifying
+resources to participate in central dispatch.
+38
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+VSR incentive mechanism participant
+Either:
+(a) a Voluntarily Scheduled Resource Provider; or
+(b) an Intending VSRP,
+who satisfies the criteria for participating in the VSR incentive mechanism
+specified in the VSR incentive procedures and submits an offer in a VSR
+tender process.
+VSR incentive procedures
+The procedures made by AEMO under clause 3.10B.2 for the VSR incentive
+mechanism.
+VSR participation agreement
+A contract between AEMO and a successful VSR incentive mechanism
+participant described in clause 3.10B.2(i).
+VSR tender process
+A process, run by AEMO under clause 3.10B.2, for receiving and
+considering offers from VSR incentive mechanism participants to determine
+which of those participants will enter into a VSR participation agreement
+with AEMO.
+39
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Schedule 3 Amendment to the National Electricity Rules
+(monitoring and reporting)
+(Clause 5)
+[1] Rule 3.10A Placeholder for voluntarily scheduled
+resources rule
+After rule 3.10, insert a new rule 3.10A as follows:
+3.10A Placeholder for voluntarily scheduled resources rule
+Note
+The text of this rule will be inserted on 23 May 2027, pursuant to Schedule 1 of the National
+Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024.
+[2] Rule 3.10B Placeholder for voluntarily scheduled
+resources incentive mechanism rule
+After rule 3.10A, insert a new rule 3.10B as follows:
+3.10B Placeholder for voluntarily scheduled resources
+incentive mechanism rule
+Note
+The text of this rule will be inserted on 31 March 2026, pursuant to Schedule 2 of the
+National Electricity Amendment (Integrating price-responsive resources into the NEM)
+Rule 2024.
+[3] Rule 3.10C Monitoring and reporting of unscheduled
+price responsive resources
+After rule 3.10B, insert a new rule 3.10C as follows:
+3.10C Monitoring and reporting of unscheduled price
+responsive resources
+3.10C.1 Definitions
+In this rule 3.10C:
+forecast deviation means the difference between forecast load for a
+particular trading interval, developed for pre-dispatch and for dispatch, and
+the actual load during that trading interval.
+unscheduled price responsive resource is a resource that:
+(1) is not a scheduled resource;
+(2) is capable of changing output or consumption depending on
+changes in forecast or actual spot prices; and
+40
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(3) includes a voluntarily scheduled resource only if it is a
+hibernated voluntarily scheduled resource.
+3.10C.2 AEMO reporting on unscheduled price responsive resources
+Objective of AEMO reporting
+(a) The objective of the monitoring and reporting framework established
+by this clause is for AEMO to:
+(1) monitor and report on the impacts of unscheduled price
+responsive resources on forecast deviations; and
+(2) identify market outcomes as a result of the use of unscheduled
+price responsive resources.
+Annual reporting
+(b) By 30 September each year, AEMO must prepare and publish, in
+accordance with the AEMO price responsive reporting guidelines, a
+report which includes the following information in respect of the
+previous financial year:
+(1) an analysis of the statistics and trends of:
+(i) the volumes and types of unscheduled price responsive
+resources reported by Registered Participants, using the
+DER register information and demand side participation
+information; and
+Note
+AEMO must report on demand side participation information, no less than
+annually, under rule 3.7D(c).
+AEMO may use DER register information for the purpose of the exercise of
+its statutory functions under the NEL or Rules under rule 3.7E(e).
+(ii) patterns in forecast deviations, including to the extent
+identifiable, the approximate contribution of unscheduled
+price responsive resources to forecast deviations, in
+response to forecast and actual spot prices;
+(2) AEMO’s best estimate of the impact of unscheduled price
+responsive resources on forecast deviations in relation to
+additional amounts paid to:
+(i) Ancillary Service Providers for additional ancillary
+services that are enabled; and
+(ii) Cost Recovery Market Participants for ancillary service
+transaction payments under clause 3.15.6AA;
+(3) an assessment of the degree of forecast deviations in regional
+demand across a range of market conditions, as well as the
+factors contributing to the size of forecast deviations;
+41
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(4) analysis of impacts of unscheduled price responsive resources
+on the load forecast used by AEMO for pre-dispatch and
+dispatch, including in comparison with outcomes published in
+previous reports prepared in accordance with this clause (as
+applicable);
+(5) identification of additional information or inputs required to
+improve or account for unscheduled price responsive resources
+in load forecasts;
+(6) a description of any actions taken by AEMO to reduce forecast
+deviations by accounting for unscheduled price responsive
+resources, where those actions have resulted in improved market
+outcomes;
+(7) a description of:
+(i) the methodologies used by AEMO to consider and
+manage the impacts of unscheduled price responsive
+resources on load forecasts for pre-dispatch and dispatch;
+and
+(ii) any barriers to AEMO using those methodologies to
+improve forecasting; and
+(8) any other relevant information AEMO considers necessary or
+convenient to include in the report.
+Quarterly data
+(c) AEMO must develop, publish and maintain a single source of
+information for unscheduled price responsive resources that presents
+the information and metrics specified by the AEMO price responsive
+reporting guidelines.
+(d) AEMO must update the information published under paragraph (c)
+when new information becomes available and at least once each
+calendar quarter.
+AEMO price responsive reporting guidelines
+(e) AEMO must develop and publish, and may amend, the AEMO price
+responsive reporting guidelines in accordance with the Rules
+consultation procedures.
+(f) The AEMO price responsive reporting guidelines must specify:
+(1) how AEMO will meet its reporting obligations under paragraph
+(b); and
+(2) the information and metrics that AEMO will include in the
+reporting required pursuant to paragraph (c).
+(g) In satisfying its obligations under paragraphs (b) and (c), AEMO may:
+42
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(1) utilise existing AEMO monitoring and reporting frameworks
+under the Rules;
+(2) utilise data, reports and systems otherwise available to AEMO;
+and
+(3) take into account or include any other information that AEMO
+reasonably considers relevant to meet the objective set out in
+paragraph (a).
+3.10C.3 AER analysis of impacts of unscheduled price responsive
+resources
+Objective of AER reporting
+(a) The objective of the monitoring and reporting framework established
+by this clause is for the AER, as part of the AER wholesale market
+monitoring and reporting functions under section 18C of the NEL, to
+provide transparency on the impacts of unscheduled price responsive
+resources on efficient market outcomes to inform future market
+reform.
+Annual reporting
+(b) By 31 December each year, the AER must prepare and publish an
+annual report in respect of the previous financial year in accordance
+with the AER price responsive reporting guidelines.
+(c) The report prepared under paragraph (b) must analyse the impact of
+unscheduled price responsive resources on forecast deviations, and
+the consequential impacts on the efficiency of the market, including
+estimates in relation to:
+(1) additional amounts paid to Generators, Integrated Resource
+Providers and Demand Response Service Providers for different
+quantities and prices of electricity and wholesale demand
+response that are dispatched;
+(2) the costs incurred by Generators, Integrated Resource
+Providers and Demand Response Service Providers for different
+quantities and prices of electricity and wholesale demand
+response that are dispatched;
+(3) additional amounts paid to:
+(i) Ancillary Service Providers for additional market
+ancillary services that are enabled; and
+(ii) Cost Recovery Market Participants for ancillary service
+transaction payments under clause 3.15.6AA;
+43
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(4) additional amounts paid under the RERT for scheduled reserves
+that are dispatched and unscheduled reserves that are activated;
+and
+(5) additional greenhouse gas emissions resulting from the relative
+increases referred to in subparagraphs (1) to (4),
+and must also include:
+(6) identification of trends and outcomes on the efficiency of the
+market as a result of the matters set out in this paragraph (c)
+when compared to previous financial years (as applicable);
+(7) the AER’s recommendations for how to improve the efficiency
+of the market in respect of the matters set out in this paragraph
+(c); and
+(8) any other relevant information the AER considers necessary or
+convenient to include in the report.
+(d) In satisfying its obligations under paragraph (b), the AER may utilise
+existing frameworks under the Rules and NEL in respect of AER
+wholesale market monitoring functions, AER wholesale market
+reporting functions and any other reporting frameworks used by the
+AER.
+AEMO to provide the AER with information
+(e) To the extent the AER considers it reasonably necessary to satisfy its
+obligations under paragraph (b), the AER may request AEMO to
+provide:
+(1) confidential information received by AEMO from Registered
+Participants relating to unscheduled price responsive resources;
+(2) information about forecast deviations and the contribution of
+unscheduled price responsive resources to those forecast
+deviations; and
+(3) any other information, data or analysis from AEMO that the
+AER considers relevant.
+(f) AEMO must comply with a request from the AER under paragraph
+(e).
+AER price responsive reporting guidelines
+(g) Subject to paragraph (i), the AER must develop and publish, and may
+amend, the AER price responsive reporting guidelines in accordance
+with the Rules consultation procedures.
+(h) The AER price responsive reporting guidelines must specify how the
+AER will meet its monitoring and reporting obligations under
+paragraph (b).
+44
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(i) The AER may include the AER price responsive reporting guidelines
+as part of the wholesale market monitoring guidelines, in which case,
+the AER must consult on the amendment of the wholesale market
+monitoring guidelines in accordance with clause 8.7.2 (and the Rules
+consultation procedures do not apply).
+[4] Chapter 10 Glossary
+In chapter 10, insert the following new definitions in alphabetical order:
+AEMO price responsive reporting guidelines
+The guidelines made by AEMO under clause 3.10C.2(e).
+AER price responsive reporting guidelines
+The guidelines made by the AER under clause 3.10C.3(g).
+hibernated voluntarily scheduled resource
+A voluntarily scheduled resource that has its status recorded as hibernated
+in accordance with clause 3.10A.2(l)(1).
+inactive voluntarily scheduled resource
+A voluntarily scheduled resource that has its status recorded as inactive in
+accordance with clause 3.10A.2(d)(1).
+voluntarily scheduled resource
+Includes each of the following:
+(a) an individual qualifying resource that has been approved by AEMO
+for nomination as a voluntarily scheduled resource in accordance with
+clause 3.10A.1 and has not been aggregated under clause 3.8.3;
+(b) two or more qualifying resources that have been aggregated under
+clause 3.8.3 and approved by AEMO for nomination as a voluntarily
+scheduled resource in accordance with clause 3.10A.1.
+[5] Chapter 10 Glossary
+In chapter 10, in the definition of scheduled reserve, after paragraph (a1), insert a new
+paragraph (a2) as follows:
+(a2) of voluntarily scheduled resources;
+[6] Chapter 10 Glossary
+In chapter 10, in paragraph (a) of the definition of scheduled resource, omit "a
+scheduled network service or a scheduled load" and substitute "a scheduled network
+45
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+service, a scheduled load or a voluntarily scheduled resource (other than a hibernated
+voluntarily scheduled resource)".
+[7] Chapter 10 Glossary
+In chapter 10, in paragraph (b) of the definition of scheduled resource, omit "Chapter
+2." and substitute "Chapter 2, or a voluntarily scheduled resource (other than a
+hibernated voluntarily scheduled resource) of that Registered Participant under clause
+3.10A.1."
+46
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Schedule 4 Amendment to the National Electricity Rules
+(glossary)
+(Clause 6)
+[1] Chapter 10 Glossary
+In chapter 10, insert the following new definition in alphabetical order:
+voluntarily scheduled resource guidelines
+The guidelines made by AEMO under clause 3.10A.3.
+[2] Chapter 10 Glossary
+In Chapter 10, omit the definition of activate and substitute the following:
+activate
+Other than for scheduled resources, the operation of a generating unit or a
+bidirectional unit at an increased loading level or a reduction in demand
+undertaken in response to a request by AEMO in accordance with an
+unscheduled reserve contract.
+[3] Chapter 10 Glossary
+In Chapter 10, in the definition of AEMO intervention event, after "scheduled network
+services" insert ", voluntarily scheduled resources".
+[4] Chapter 10 Glossary
+In Chapter 10, omit the definition of affected load and substitute the following:
+affected load
+A scheduled load, scheduled bidirectional unit or voluntarily scheduled
+resource in respect of which a Market Customer, Integrated Resource
+Provider or Voluntarily Scheduled Resource Provider is an Affected Load
+Participant.
+[5] Chapter 10 Glossary
+In Chapter 10, omit the definition of Affected Load Participant and substitute the
+following:
+47
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Affected Load Participant
+A person of the kind set out in paragraphs (a) to (c):
+(a) a Market Customer in respect of its scheduled load;
+(b) an Integrated Resource Provider in respect of its scheduled
+bidirectional unit or scheduled load; or
+(c) a Voluntarily Scheduled Resource Provider in respect of its voluntarily
+scheduled resource (that is not an inactive voluntarily scheduled
+resource or a hibernated voluntarily scheduled resource),
+whose load, unit or resource (relevant scheduled resource) satisfies
+paragraph (d) or (e), to the extent provided for in the paragraph:
+(d) in respect of a particular direction in an intervention price trading
+interval:
+(1) the relevant scheduled resource was not the subject of that
+direction; and
+(2) the dispatched load quantity of the relevant scheduled resource
+was affected by that direction,
+but to avoid doubt, if the Market Customer, Integrated Resource
+Provider or Voluntarily Scheduled Resource Provider was given the
+direction, it is only an Affected Load Participant in respect of the
+relevant scheduled resources that satisfy subparagraphs (d)(1) and
+(d)(2); or
+(e) in relation to the exercise of the RERT under rule 3.20:
+(1) the relevant scheduled resource was not dispatched under a
+scheduled reserve contract and the dispatched load quantity of
+the relevant scheduled resource was affected by the dispatch of
+other scheduled reserve under a scheduled reserve contract; or
+(2) the dispatched load quantity of the relevant scheduled resource
+was affected by the activation of unscheduled reserves available
+under an unscheduled reserve contract.
+[6] Chapter 10 Glossary
+In Chapter 10, omit the definition of Affected Participant and substitute the following:
+Affected Participant
+A person who satisfies any of paragraphs (a) to (c), to the extent provided
+for in the paragraph:
+(a) In respect of a particular direction in an intervention price trading
+interval, a Scheduled Generator in respect of its scheduled generating
+48
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+unit, a Scheduled Integrated Resource Provider in respect of its
+scheduled bidirectional unit, a Voluntarily Scheduled Resource
+Provider in respect of its voluntarily scheduled resource (that is not
+an inactive voluntarily scheduled resource or a hibernated voluntarily
+scheduled resource) or a Scheduled Network Service Provider in
+respect of its scheduled network service (these units, resources or
+services being referred to below as relevant scheduled resources),
+where:
+(1) the relevant scheduled resource was not the subject of the
+direction; and
+(2) the dispatched generation quantity or the dispatched network
+service quantity of the relevant scheduled resource was affected
+by that direction,
+but to avoid doubt, if the person was given the direction, it is only an
+Affected Participant in respect of the relevant scheduled resources
+that satisfy subparagraphs (a)(1) and (a)(2).
+(b) In relation to the exercise of the RERT under rule 3.20, a person of
+the kind referred to in paragraph (a), where:
+(1) the relevant scheduled resource was not dispatched under a
+scheduled reserve contract and the dispatched generation
+quantity or the dispatched network service quantity of the
+relevant scheduled resource was affected by the dispatch of
+other scheduled reserves under a scheduled reserve contract; or
+(2) the dispatched generation quantity or the dispatched network
+service quantity of the relevant scheduled resource was affected
+by the activation of unscheduled reserves available under an
+unscheduled reserve contract.
+(c) In respect of a direction in an intervention price trading interval, or
+an exercise of the RERT under rule 3.20, an eligible person entitled
+to receive an amount from AEMO pursuant to clause 3.18.1(b)(1)
+where there has been a change in flow of a directional interconnector,
+for which the eligible person holds units for the intervention price
+trading interval, as a result of the following (as applicable):
+(1) the direction;
+(2) the dispatch of scheduled reserves under a scheduled reserve
+contract; or
+(3) the activation of unscheduled reserves available under an
+unscheduled reserve contract.
+49
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+[7] Chapter 10 Glossary
+In Chapter 10, omit the definition of affected production unit and substitute the
+following:
+affected production unit
+A scheduled generating unit, scheduled bidirectional unit or voluntarily
+scheduled resource in respect of which a Scheduled Generator, a Scheduled
+Integrated Resource Provider or Voluntarily Scheduled Resource Provider
+is an Affected Participant.
+[8] Chapter 10 Glossary
+In Chapter 10, in the definition of AGC (automatic generation control system), omit
+"scheduled bidirectional units" and substitute "bidirectional units".
+[9] Chapter 10 Glossary
+In Chapter 10, in the definition of Ancillary Service Provider, after "bidirectional unit"
+insert ", voluntarily scheduled resource".
+[10] Chapter 10 Glossary
+In Chapter 10, in the definition of ancillary service unit, after "bidirectional unit" insert
+", voluntarily scheduled resource".
+[11] Chapter 10 Glossary
+In Chapter 10, in the definition of available capacity, after "scheduled bidirectional
+unit" insert ", voluntarily scheduled resource".
+[12] Chapter 10 Glossary
+In Chapter 10, in the definition of energy constraint, after "scheduled bidirectional
+unit" insert ", voluntarily scheduled resource".
+[13] Chapter 10 Glossary
+In Chapter 10, in the definition of Market Participant, omit "Demand Response Service
+Provider or Market Network Service Provider" and insert "Demand Response Service
+Provider, Market Network Service Provider or Voluntarily Scheduled Resource
+Provider".
+[14] Chapter 10 Glossary
+In Chapter 10, in the definition of Market Suspension Compensation Claimant, omit
+"Scheduled Integrated Resource Provider or a Demand Response Service Provider" and
+substitute "Scheduled Integrated Resource Provider, a Demand Response Service
+50
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Provider or Voluntarily Scheduled Resource Provider (other than in respect of inactive
+voluntarily scheduled resources or hibernated voluntarily scheduled resources)".
+[15] Chapter 10 Glossary
+In Chapter 10, in the definition of PASA availability, after "scheduled load" insert ",
+voluntarily scheduled resource (other than a hibernated voluntarily scheduled
+resource)".
+[16] Chapter 10 Glossary
+In chapter 10, omit the definition of unscheduled reserve and substitute the following:
+unscheduled reserve
+Excluding scheduled resources, the amount of surplus or unused capacity:
+(a) of generating units;
+(b) of bidirectional units; or
+(c) arising out of the ability to reduce demand.
+51
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+Schedule 5 Savings and Transitional Amendment to the
+National Electricity Rules
+(Clause 7)
+[1] Rule 11.180 Rules consequential on the making of the
+National Electricity Amendment
+(Integrating price-responsive resources
+into the NEM) Rule 2024
+In Chapter 11 Part ZZZZZI, insert new rule 11.180 as follows:
+11.180 Rules consequential on the making of the National
+Electricity Amendment (Integrating price-responsive
+resources into the NEM) Rule 2024
+11.180.1 Definitions
+(a) In this rule 11.180:
+Amending Rule means the National Electricity Amendment
+(Integrating price-responsive resources into the NEM) Rule 2024.
+Contracts and Firmness Guidelines has the meaning given in clause
+4A.A.1.
+Demand Side Participation Information Portal is the portal
+established by AEMO for the purposes of rule 3.7D.
+dispatch rules commencement date means 23 May 2027.
+new clause 3.10A.3(d) means clause 3.10A.3(d) of the Rules as in
+force on the dispatch rules commencement date.
+new clause 3.10C.2(b) means clause 3.10C.2(b) of the Rules as in
+force on the reporting rules commencement date.
+new clause 3.10C.2(c) means clause 3.10C.2(c) of the Rules as in
+force on the reporting rules commencement date.
+new clause 3.10C.3(b) means clause 3.10C.3(b) of the Rules as in
+force on the reporting rules commencement date.
+reporting rules commencement date means 1 January 2026.
+(b) In this rule, an italicised term that is not defined in Chapter 10 of the
+Rules has the meaning given to that term in the Amending Rule.
+11.180.2 Amendments to guidelines and other instruments
+(a) By 30 September 2026, the AER must review and, where it considers
+it necessary or desirable, amend and publish guidelines and other
+52
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+documents published by the AER, including the following guidelines,
+to take into account the Amending Rule:
+(1) the Contracts and Firmness Guidelines;
+(2) the guidelines developed under clause 3.8.22; and
+(3) the connection charge guidelines.
+(b) By 1 June 2026, AEMO must must review and, where it considers it
+necessary or desirable, amend and publish procedures, guidelines and
+other documents published by AEMO, including the following, to take
+into account the Amending Rule:
+(1) the market suspension compensation methodology;
+(2) the Demand Side Participation Information Portal and
+associated demand side participation information guidelines;
+(3) the DER Register and associated DER register information
+guidelines; and
+(4) the power system operating procedure for dispatch published
+by AEMO and made in accordance with rule 4.10.
+(c) In amending the documents referred to in paragraphs (a) and (b):
+(1) the AER and AEMO must follow the process for amending those
+documents specified in the Rules, or if no process is specified,
+the Rules consultation procedures; and
+(2) AEMO must take into account the principles set out in new
+clause 3.10A.3(d).
+(d) By 23 May 2027, the AEMC must review, and where it considers it
+necessary or desirable, amend and publish the compensation
+guidelines made under clause 3.14.6 to take into account the
+Amending Rule.
+11.180.3 New guidelines and procedures
+(a) AEMO must, in accordance with the Rules consultation procedures,
+develop and publish:
+(1) the AEMO price responsive reporting guidelines by 31
+December 2025;
+(2) the voluntarily scheduled resource guidelines by 31 December
+2025; and
+(3) the VSR incentive procedures by the earlier of:
+(i) 1 December 2026; and
+(ii) the date of the first VSR tender process.
+53
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+(b) By 31 December 2025, the AER must develop and publish the AER
+price responsive reporting guidelines, in accordance with the Rules
+consultation procedures or, if the AER includes those guidelines in
+the wholesale market monitoring guidelines, in accordance with
+clause 8.7.2.
+(c) By 23 May 2030, AEMO must review the voluntarily scheduled
+resource guidelines and, if at the conclusion of that review, AEMO
+considers that changes are necessary or desirable, AEMO must amend
+the voluntarily scheduled resource guidelines in accordance with the
+Rules consultation procedures.
+11.180.4 First price responsive resource reports by AEMO and AER
+(a) For the purposes of new clause 3.10C.2(c), AEMO is not required to
+publish the single source of information until 1 April 2026, in respect
+of information for the preceding calendar quarter.
+(b) By 30 September 2026, AEMO must publish the first report required
+by new clause 3.10C.2(b).
+(c) The first annual report published by AEMO pursuant to paragraph (b)
+is not required to cover the entire financial year ending 30 June 2026,
+but instead, must:
+(1) cover the period from 1 January 2026 to 30 June 2026; and
+(2) also include an analysis of trends in the use and impact of
+unscheduled price responsive resources over the preceding three
+years, where such analysis is based on information reasonably
+available to AEMO at the time.
+(d) By 31 December 2026, the AER must publish the first annual report
+required by new clause 3.10C.3(b).
+(e) The first annual report published by the AER pursuant to paragraph
+(d) is not required to cover the entire financial year ending 30 June
+2026, but instead, must:
+(1) cover the period from 1 January 2026 to 30 June 2026; and
+(2) also include commentary on the trends identified by AEMO
+pursuant to paragraph (c)(2).
+11.180.5 Temporarily fixed voluntarily scheduled resources zones
+Notwithstanding clause 3.10A.3(e), AEMO must not prior to 23 May 2030
+implement any change to a zone in which voluntarily scheduled resources
+are able to participate in central dispatch as established in accordance with
+the voluntarily scheduled resource guidelines published under clause
+11.180.3(a)(2).
+[END OF RULE AS MADE]
+54
+
+National Electricity Amendment (Integrating price-responsive resources into the NEM) Rule 2024 No.
+24
+55
+
