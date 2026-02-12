@@ -41,6 +41,27 @@ const MOCK_DATA = {
         { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct' },
         { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl' },
     ],
+    pricingRegions: [
+        { id: 'NSW', name: 'New South Wales' },
+        { id: 'QLD', name: 'Queensland' },
+        { id: 'SA', name: 'South Australia' },
+        { id: 'VIC', name: 'Victoria' },
+        { id: 'WA', name: 'Western Australia' }
+    ],
+    regionMarkets: {
+        NSW: ['All', 'Spot', 'FCAS'],
+        QLD: ['All', 'Spot', 'FCAS'],
+        SA: ['All', 'Spot', 'FCAS'],
+        VIC: ['All', 'Spot', 'FCAS'],
+        WA: ['All', 'Spot', 'FCAS']
+    },
+    assignableVpps: [
+        { id: 'vpp-001', name: 'Harbor Flex', state: 'NSW', markets: ['Spot', 'FCAS'] },
+        { id: 'vpp-002', name: 'Coastal Grid', state: 'NSW', markets: ['Spot'] },
+        { id: 'vpp-003', name: 'Metro Pulse', state: 'VIC', markets: ['Spot', 'FCAS'] },
+        { id: 'vpp-004', name: 'Sunrise Collective', state: 'QLD', markets: ['Spot'] },
+        { id: 'vpp-005', name: 'Adelaide Reserve', state: 'SA', markets: ['FCAS'] }
+    ],
 
     smartFeedInRules: [
         { id: 1, state: 'SA', triggerTime: '07:00 - 12:00', triggerPrice: 0.00, socReserve: 30, vppName: 'SA Smart Feedin', lastModified: '10/08/2022 18:22:43', eventsTriggered: 3229, active: true },
@@ -696,6 +717,23 @@ const state = {
     vppDetailsTab: 'der-list', // der-list or event-list
     assignedSearchQuery: '',
     discoverySearchQuery: '',
+    assignVpp: {
+        deviceSn: '',
+        pricingRegion: '',
+        activeMarket: '',
+        assignedVppId: '',
+        searchQuery: '',
+        pricingRegions: [],
+        marketOptions: [],
+        vppOptions: [],
+        loadingRegions: false,
+        loadingMarkets: false,
+        loadingVpps: false,
+        submitting: false,
+        regionRequestId: 0,
+        marketRequestId: 0,
+        vppRequestId: 0
+    },
     vppList: {
                                                                                                                                                                                                                                                                                                                                                                                         vppName: '',
         state: '',
@@ -7661,6 +7699,9 @@ const app = {
                                     </td>
                                     <td class="px-[8px] text-right">
                                         <div class="flex items-center justify-end gap-[12px]">
+                                            <button onclick="app.openAssignVppDrawer('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors" title="Assign VPP" aria-label="Assign VPP">
+                                                <i data-lucide="link-2" class="w-[16px] h-[16px]"></i>
+                                            </button>
                                             <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                                 <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                             </button>
@@ -7679,6 +7720,313 @@ const app = {
             </div>
             </div>
         `;
+    },
+
+    assignVppDefaults(deviceSn = '') {
+        return {
+            deviceSn,
+            pricingRegion: '',
+            activeMarket: '',
+            assignedVppId: '',
+            searchQuery: '',
+            pricingRegions: [],
+            marketOptions: [],
+            vppOptions: [],
+            loadingRegions: false,
+            loadingMarkets: false,
+            loadingVpps: false,
+            submitting: false,
+            regionRequestId: 0,
+            marketRequestId: 0,
+            vppRequestId: 0
+        };
+    },
+
+    openAssignVppDrawer(sn) {
+        state.assignVpp = this.assignVppDefaults(sn);
+        this.renderAssignVppDrawer();
+        this.toggleDrawer(true);
+        this.loadAssignVppPricingRegions();
+    },
+
+    cancelAssignVpp() {
+        state.assignVpp = this.assignVppDefaults();
+        const drawerContent = document.getElementById('drawer-content');
+        if (drawerContent) drawerContent.style.width = '';
+        this.closeDrawer();
+    },
+
+    renderAssignVppDrawer() {
+        const drawerContent = document.getElementById('drawer-content');
+        if (!drawerContent) return;
+
+        drawerContent.style.width = 'min(90vw, 400px)';
+
+        const assign = state.assignVpp;
+        const pricingDisabled = assign.loadingRegions;
+        const marketDisabled = !assign.pricingRegion || assign.loadingMarkets;
+        const vppDisabled = !assign.pricingRegion || !assign.activeMarket || assign.loadingVpps;
+        
+        const pricingOptions = assign.pricingRegions.map(region => (
+            `<option value="${region.id}" ${region.id === assign.pricingRegion ? 'selected' : ''}>${region.id}</option>`
+        )).join('');
+        
+        const marketOptions = assign.marketOptions.map(market => (
+            `<option value="${market.id}" ${market.id === assign.activeMarket ? 'selected' : ''}>${market.label}</option>`
+        )).join('');
+
+        const vppOptionsHtml = assign.vppOptions.map(vpp => (
+            `<option value="${vpp.id}" ${vpp.id === assign.assignedVppId ? 'selected' : ''}>${vpp.name}</option>`
+        )).join('');
+
+        drawerContent.innerHTML = `
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between px-[24px] py-[16px] shrink-0 w-full bg-white z-10">
+                    <div class="flex flex-col">
+                        <p class="font-bold text-[20px] leading-normal text-[#313949]">Assign VPP</p>
+                    </div>
+                    <button onclick="app.cancelAssignVpp()" class="w-[32px] h-[32px] rounded-[6px] flex items-center justify-center hover:bg-[#f3f3f6] active:bg-[#e6e8ee] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30" aria-label="Close">
+                        <i data-lucide="x" class="w-[16px] h-[16px] text-[#313949]"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto px-[24px] py-[16px]">
+                    <div class="grid grid-cols-1 gap-[16px]">
+                        <div class="flex flex-col gap-[8px]">
+                            <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                                <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Pricing Region</span>
+                            </div>
+                            <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20 ${pricingDisabled ? 'bg-[#f3f3f6]' : ''}">
+                                <select ${pricingDisabled ? 'disabled' : ''} onchange="app.handleAssignPricingRegionChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] ${!assign.pricingRegion ? 'text-[#b5bcc8]' : 'text-[#313949]'} appearance-none z-10 cursor-pointer disabled:cursor-not-allowed disabled:text-[#b5bcc8]">
+                                    <option value="" disabled selected hidden>Select Pricing Region</option>
+                                    ${pricingOptions}
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-[8px] top-1/2 -translate-y-1/2 w-4 h-4 text-[#b5bcc8] pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-[8px]">
+                            <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                                <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Active Market</span>
+                            </div>
+                            <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20 ${marketDisabled ? 'bg-[#f3f3f6]' : ''}">
+                                <select ${marketDisabled ? 'disabled' : ''} onchange="app.handleAssignMarketChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] ${!assign.activeMarket ? 'text-[#b5bcc8]' : 'text-[#313949]'} appearance-none z-10 cursor-pointer disabled:cursor-not-allowed disabled:text-[#b5bcc8]">
+                                    <option value="" disabled selected hidden>Select Active Market</option>
+                                    ${marketOptions}
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-[8px] top-1/2 -translate-y-1/2 w-4 h-4 text-[#b5bcc8] pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-[8px]">
+                            <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                                <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Assigned VPP</span>
+                            </div>
+                            <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20 ${vppDisabled ? 'bg-[#f3f3f6]' : ''}">
+                                <select ${vppDisabled ? 'disabled' : ''} onchange="app.selectAssignedVpp(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] ${!assign.assignedVppId ? 'text-[#b5bcc8]' : 'text-[#313949]'} appearance-none z-10 cursor-pointer disabled:cursor-not-allowed disabled:text-[#b5bcc8]">
+                                    <option value="" disabled selected hidden>${assign.loadingVpps ? 'Loading...' : 'Select Assigned VPP'}</option>
+                                    ${vppOptionsHtml}
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-[8px] top-1/2 -translate-y-1/2 w-4 h-4 text-[#b5bcc8] pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-[#e6e8ee] px-[24px] py-[16px] flex items-center gap-[12px] w-full">
+                    <button type="button" onclick="app.cancelAssignVpp()" class="flex-1 h-[32px] px-[12px] flex items-center justify-center bg-white border border-[#e6e8ee] rounded-[4px] text-[14px] text-[#313949] hover:bg-[#f3f3f6] active:bg-[#e6e8ee] transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30">Cancel</button>
+                    <button type="button" onclick="app.submitAssignVpp()" ${assign.submitting ? 'disabled' : ''} class="flex-1 h-[32px] px-[12px] flex items-center justify-center bg-[#2e9f58] rounded-[4px] text-[14px] text-white hover:bg-[#258046] active:bg-[#1a6e3b] transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30 ${assign.submitting ? 'opacity-70 cursor-not-allowed' : ''}">Submit</button>
+                </div>
+            </div>
+        `;
+
+        lucide.createIcons();
+    },
+
+    async loadAssignVppPricingRegions() {
+        state.assignVpp.loadingRegions = true;
+        const requestId = ++state.assignVpp.regionRequestId;
+        this.renderAssignVppDrawer();
+        try {
+            const regions = await this.fetchPricingRegions();
+            if (requestId !== state.assignVpp.regionRequestId) return;
+            state.assignVpp.pricingRegions = regions;
+        } catch (error) {
+            this.showToast('Failed to load pricing regions', 'error');
+        } finally {
+            if (requestId === state.assignVpp.regionRequestId) {
+                state.assignVpp.loadingRegions = false;
+                this.renderAssignVppDrawer();
+            }
+        }
+    },
+
+    async loadAssignVppMarkets(regionId) {
+        state.assignVpp.loadingMarkets = true;
+        const requestId = ++state.assignVpp.marketRequestId;
+        this.renderAssignVppDrawer();
+        try {
+            const markets = await this.fetchMarketsByRegion(regionId);
+            if (requestId !== state.assignVpp.marketRequestId) return;
+            state.assignVpp.marketOptions = markets;
+        } catch (error) {
+            this.showToast('Failed to load markets', 'error');
+        } finally {
+            if (requestId === state.assignVpp.marketRequestId) {
+                state.assignVpp.loadingMarkets = false;
+                this.renderAssignVppDrawer();
+            }
+        }
+    },
+
+    async loadAssignVppList() {
+        const { pricingRegion, activeMarket, searchQuery } = state.assignVpp;
+        if (!pricingRegion || !activeMarket) return;
+
+        state.assignVpp.loadingVpps = true;
+        const requestId = ++state.assignVpp.vppRequestId;
+        this.renderAssignVppDrawer();
+        try {
+            const vpps = await this.fetchAssignableVpps(pricingRegion, activeMarket, searchQuery);
+            if (requestId !== state.assignVpp.vppRequestId) return;
+            state.assignVpp.vppOptions = vpps;
+        } catch (error) {
+            this.showToast('Failed to load VPPs', 'error');
+        } finally {
+            if (requestId === state.assignVpp.vppRequestId) {
+                state.assignVpp.loadingVpps = false;
+                this.renderAssignVppDrawer();
+            }
+        }
+    },
+
+    handleAssignPricingRegionChange(value) {
+        state.assignVpp.pricingRegion = value;
+        state.assignVpp.activeMarket = '';
+        state.assignVpp.assignedVppId = '';
+        state.assignVpp.searchQuery = '';
+        state.assignVpp.marketOptions = [];
+        state.assignVpp.vppOptions = [];
+        this.renderAssignVppDrawer();
+        if (value) this.loadAssignVppMarkets(value);
+    },
+
+    handleAssignMarketChange(value) {
+        state.assignVpp.activeMarket = value;
+        state.assignVpp.assignedVppId = '';
+        state.assignVpp.searchQuery = '';
+        state.assignVpp.vppOptions = [];
+        this.renderAssignVppDrawer();
+        if (value) this.loadAssignVppList();
+    },
+
+    handleAssignVppSearch(value) {
+        state.assignVpp.searchQuery = value;
+        this.loadAssignVppList();
+    },
+
+    selectAssignedVpp(vppId) {
+        state.assignVpp.assignedVppId = vppId;
+        this.renderAssignVppDrawer();
+    },
+
+    async submitAssignVpp() {
+        const { deviceSn, pricingRegion, activeMarket, assignedVppId, vppOptions } = state.assignVpp;
+        if (!pricingRegion) {
+            this.showToast('Pricing Region is required', 'error');
+            return;
+        }
+        if (!activeMarket) {
+            this.showToast('Active Market is required', 'error');
+            return;
+        }
+        if (!assignedVppId) {
+            this.showToast('Assigned VPP is required', 'error');
+            return;
+        }
+
+        state.assignVpp.submitting = true;
+        this.renderAssignVppDrawer();
+
+        try {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            const device = (state.devices || []).find(d => d.sn === deviceSn);
+            const selected = vppOptions.find(vpp => vpp.id === assignedVppId) || (MOCK_DATA.assignableVpps || []).find(vpp => vpp.id === assignedVppId);
+            if (!device || !selected) {
+                this.showToast('Assignment failed', 'error');
+                return;
+            }
+
+            if (!state.vpps.find(vpp => vpp.id === selected.id)) {
+                state.vpps.unshift({
+                    id: selected.id,
+                    name: selected.name,
+                    state: selected.state || pricingRegion
+                });
+            }
+
+            device.vppId = selected.id;
+            this.showToast('VPP assigned successfully', 'success');
+            this.cancelAssignVpp();
+            this.refreshDerList();
+        } catch (error) {
+            this.showToast('Assignment failed', 'error');
+        } finally {
+            state.assignVpp.submitting = false;
+        }
+    },
+
+    refreshDerList() {
+        const container = document.getElementById('content-area');
+        const viewMap = {
+            der: 'All',
+            der_ess: 'Battery',
+            der_pv: 'Inverter',
+            der_ev: 'EV'
+        };
+        const filterType = viewMap[state.currentView] || 'All';
+        this.renderDERManagement(container, filterType);
+        lucide.createIcons();
+    },
+
+    fetchPricingRegions() {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(MOCK_DATA.pricingRegions || []);
+            }, 300);
+        });
+    },
+
+    fetchMarketsByRegion(regionId) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const markets = (MOCK_DATA.regionMarkets && MOCK_DATA.regionMarkets[regionId]) || ['All', 'Spot', 'FCAS'];
+                resolve(markets.map(market => ({ id: market, label: market })));
+            }, 300);
+        });
+    },
+
+    fetchAssignableVpps(regionId, market, query = '') {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const base = state.vpps.length
+                    ? state.vpps.map(vpp => ({
+                        id: vpp.id,
+                        name: vpp.name,
+                        state: vpp.state || regionId,
+                        markets: ['Spot', 'FCAS']
+                    }))
+                    : (MOCK_DATA.assignableVpps || []);
+                let results = base.filter(vpp => !regionId || vpp.state === regionId);
+                if (market && market !== 'All') {
+                    results = results.filter(vpp => (vpp.markets || []).includes(market));
+                }
+                if (query) {
+                    const keyword = query.toLowerCase();
+                    results = results.filter(vpp => vpp.name.toLowerCase().includes(keyword));
+                }
+                resolve(results);
+            }, 400);
+        });
     },
 
     openDeviceEditModal(sn) {
@@ -10138,75 +10486,66 @@ const app = {
         
         const drawerContent = document.getElementById('drawer-content');
         drawerContent.innerHTML = `
-            <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
-                <!-- Header -->
-                <div class="border-b border-[#e6e8ee] flex items-center justify-between p-[16px] shrink-0 w-full bg-white z-10">
-                    <p class="font-bold text-[20px] leading-normal text-[#313949]">${title}</p>
-                    <button onclick="app.closeDrawer()" class="w-[24px] h-[24px] flex items-center justify-center hover:opacity-70 transition-opacity">
-                        <img src="assets/icons/close-drawer.svg" class="w-full h-full block" alt="Close">
+            <div class="bg-white flex flex-col h-full w-full font-['Roboto'] text-[#313949]">
+                <div class="border-b border-[#e6e8ee] flex items-center justify-between px-[24px] py-[16px] shrink-0 w-full bg-white z-10">
+                    <p class="font-semibold text-[20px] leading-[28px] text-[#313949]">${title}</p>
+                    <button onclick="app.closeDrawer()" class="w-[32px] h-[32px] rounded-[6px] flex items-center justify-center hover:bg-[#f3f3f6] active:bg-[#e6e8ee] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30">
+                        <img src="assets/icons/close-drawer.svg" class="w-[16px] h-[16px] block" alt="Close">
                     </button>
                 </div>
 
-                <!-- Form Content -->
                 <form onsubmit="app.handleVPPSubmit(event, ${vppId})" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
-                    <!-- VPP Name -->
-                    <div class="flex flex-col gap-[4px] w-full shrink-0">
-                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">VPP Name</span>
+                    <div class="flex flex-col gap-[8px] w-full shrink-0">
+                         <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">VPP Name</span>
                          </div>
-                         <div class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                         <div class="w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
                              <input type="text" name="name" value="${isEdit ? vpp.name : ''}" required 
                                  class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" 
                                  placeholder="e.g. Virtual Power Plant X">
                          </div>
                     </div>
 
-                    <!-- Company (Readonly) -->
-                    <div class="flex flex-col gap-[4px] w-full shrink-0">
-                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal">Company</span>
+                    <div class="flex flex-col gap-[8px] w-full shrink-0">
+                         <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                             <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Company</span>
                          </div>
-                         <div class="w-full h-[32px] px-[8px] bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] flex items-center">
-                             <span class="text-[14px] text-[#b5bcc8] font-normal leading-normal truncate">${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}</span>
+                         <div class="w-full h-[32px] px-[8px] bg-[#f3f3f6] border border-[#e6e8ee] rounded-[4px] flex items-center">
+                             <span class="text-[14px] text-[#b5bcc8] font-normal leading-[20px] truncate">${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}</span>
                          </div>
                          <input type="hidden" name="company" value="${isEdit ? (vpp.company || '') : (state.currentUser?.company || '')}">
                     </div>
 
-                    <!-- Country & ABN Row -->
-                    <div class="flex gap-[16px] w-full shrink-0">
-                        <!-- Country -->
-                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
-                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal">Country</span>
+                    <div class="flex flex-col md:flex-row gap-[16px] w-full shrink-0">
+                        <div class="flex flex-col gap-[8px] flex-1 min-w-0">
+                             <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                 <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Country</span>
                              </div>
-                             <div class="w-full h-[32px] px-[8px] bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] flex items-center">
-                                 <span class="text-[14px] text-[#b5bcc8] font-normal leading-normal truncate">${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}</span>
+                             <div class="w-full h-[32px] px-[8px] bg-[#f3f3f6] border border-[#e6e8ee] rounded-[4px] flex items-center">
+                                 <span class="text-[14px] text-[#b5bcc8] font-normal leading-[20px] truncate">${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}</span>
                              </div>
                              <input type="hidden" name="country" value="${isEdit ? (vpp.country || '') : (state.currentUser?.country || '')}">
                         </div>
-                        <!-- ABN -->
-                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
-                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal">ABN/VAT</span>
+                        <div class="flex flex-col gap-[8px] flex-1 min-w-0">
+                             <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                 <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">ABN/VAT</span>
                              </div>
-                             <div class="w-full h-[32px] px-[8px] bg-[#e6e8ee] border border-[#b5bcc8] rounded-[4px] flex items-center">
-                                 <span class="text-[14px] text-[#b5bcc8] font-normal leading-normal truncate">${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}</span>
+                             <div class="w-full h-[32px] px-[8px] bg-[#f3f3f6] border border-[#e6e8ee] rounded-[4px] flex items-center">
+                                 <span class="text-[14px] text-[#b5bcc8] font-normal leading-[20px] truncate">${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}</span>
                              </div>
                              <input type="hidden" name="abn" value="${isEdit ? (vpp.abn || '') : (state.currentUser?.abn || '')}">
                         </div>
                     </div>
 
-                    <!-- State & DNSP Row -->
-                    <div class="flex gap-[16px] w-full shrink-0">
-                        <!-- State -->
-                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
-                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                                 <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Pricing Region</span>
+                    <div class="flex flex-col md:flex-row gap-[16px] w-full shrink-0">
+                        <div class="flex flex-col gap-[8px] flex-1 min-w-0">
+                             <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                 <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                                 <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Pricing Region</span>
                              </div>
-                             <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                                 <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                             <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
+                                 <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
                                      <option value="" disabled ${!isEdit && !vpp?.state ? 'selected' : ''}>Select Pricing Region</option>
                                      ${['NSW', 'VIC', 'QLD', 'SA'].map(s => `<option value="${s}" ${vpp?.state === s ? 'selected' : ''} class="text-[#313949]">${s}</option>`).join('')}
                                  </select>
@@ -10215,13 +10554,12 @@ const app = {
                                  </div>
                              </div>
                         </div>
-                        <!-- DNSP -->
-                        <div class="flex flex-col gap-[4px] flex-1 min-w-0">
-                             <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                                 <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">DNSP</span>
+                        <div class="flex flex-col gap-[8px] flex-1 min-w-0">
+                             <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                 <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                                 <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">DNSP</span>
                              </div>
-                             <div class="w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                             <div class="w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
                                  <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" required
                                      class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" 
                                      placeholder="e.g. Energy Provider Name">
@@ -10229,23 +10567,21 @@ const app = {
                         </div>
                     </div>
 
-                    <!-- Description -->
-                    <div class="flex flex-col gap-[4px] w-full shrink-0">
-                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
-                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
-                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Description</span>
+                    <div class="flex flex-col gap-[8px] w-full shrink-0">
+                         <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Description</span>
                          </div>
-                         <div class="w-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] py-[8px] flex items-start transition-colors focus-within:border-[#3ec064]">
-                             <textarea name="description" required rows="4" class="w-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] resize-none font-normal leading-normal" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                         <div class="w-full bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] py-[8px] flex items-start transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
+                             <textarea name="description" required rows="4" class="w-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] resize-none font-normal leading-[20px]" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
                          </div>
                     </div>
                     
-                    <!-- Footer Buttons -->
-                    <div class="flex items-center gap-[10px] pt-[16px] mt-auto w-full">
-                         <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-white border border-[#b5bcc8] rounded-[4px] text-[14px] text-[#313949] hover:bg-gray-50 transition-colors font-normal leading-[1.42] font-['Roboto']">
+                    <div class="flex items-center gap-[12px] pt-[16px] mt-auto w-full">
+                         <button type="button" onclick="app.closeDrawer()" class="flex-1 h-[32px] px-[12px] flex items-center justify-center bg-white border border-[#e6e8ee] rounded-[4px] text-[14px] text-[#313949] hover:bg-[#f3f3f6] active:bg-[#e6e8ee] transition-colors font-medium leading-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30">
                              Cancel
                          </button>
-                         <button type="submit" id="vpp-submit-btn" class="flex-1 h-[32px] px-[8px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#35a656] transition-colors font-normal leading-[1.42] font-['Roboto']">
+                         <button type="submit" id="vpp-submit-btn" class="flex-1 h-[32px] px-[12px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#2e9f58] active:bg-[#1a6e3b] transition-colors font-medium leading-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30">
                              Submit
                          </button>
                     </div>
