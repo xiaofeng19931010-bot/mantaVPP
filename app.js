@@ -35,11 +35,11 @@ const MOCK_DATA = {
     vpps: [],
     assignedDevices: [],
     devices: [
-        { id: 101, sn: 'INV-2024-001', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way' },
-        { id: 102, sn: 'BAT-2024-002', vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd' },
-        { id: 103, sn: 'INV-2024-003', vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd' },
-        { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct' },
-        { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl' },
+        { id: 101, sn: 'INV-2024-001', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW' },
+        { id: 102, sn: 'BAT-2024-002', vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC' },
+        { id: 103, sn: 'INV-2024-003', vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD' },
+        { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA' },
+        { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW' },
     ],
     pricingRegions: [
         { id: 'NSW', name: 'New South Wales' },
@@ -707,6 +707,13 @@ const titles = {
 
 // State
 const state = {
+    addDeviceDrawer: {
+        isOpen: false,
+        searchQuery: '',
+        selectedDeviceIds: [],
+        submitting: false,
+        error: null
+    },
     currentView: 'overview',
     // nodes removed
     vpps: [...MOCK_DATA.vpps],
@@ -879,7 +886,23 @@ const app = {
     init() {
         if (!this.checkLogin()) return;
         this.loadUserInfo();
-        this.navigate('overview');
+        
+        // Check for URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const view = urlParams.get('view');
+        const sn = urlParams.get('sn');
+
+        if (view === 'der_details' && sn) {
+            // Navigate to DER Management (assuming ESS for now or generic)
+            this.navigate('der_ess');
+            // Open details modal after a short delay to allow rendering
+            setTimeout(() => {
+                this.viewDeviceDetails(sn);
+            }, 500);
+        } else {
+            this.navigate('overview');
+        }
+
         this.setupGlobalListeners();
     },
 
@@ -988,6 +1011,262 @@ const app = {
             if (icon) icon.style.transform = 'rotate(180deg)';
             if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
         }
+    },
+
+    // ==========================================
+    // Add Device Drawer
+    // ==========================================
+
+    toggleAddDeviceDrawer(isOpen) {
+        state.addDeviceDrawer.isOpen = isOpen;
+        
+        const container = document.getElementById('content-area');
+        const existingDrawer = document.getElementById('vpp-add-device-drawer');
+
+        if (isOpen) {
+            // Reset state when opening
+            state.addDeviceDrawer.searchQuery = '';
+            state.addDeviceDrawer.selectedDeviceIds = [];
+            state.addDeviceDrawer.error = null;
+            state.addDeviceDrawer.submitting = false;
+
+            // Render drawer
+            const drawerHtml = app.renderAddDeviceDrawer();
+            if (drawerHtml) {
+                if (existingDrawer) {
+                    existingDrawer.innerHTML = drawerHtml;
+                } else {
+                    const drawerContainer = document.createElement('div');
+                    drawerContainer.id = 'vpp-add-device-drawer';
+                    drawerContainer.innerHTML = drawerHtml;
+                    container.appendChild(drawerContainer);
+                }
+                if (window.lucide) lucide.createIcons();
+            }
+        } else {
+            // Close drawer
+            if (existingDrawer) {
+                existingDrawer.remove();
+            }
+        }
+    },
+
+    setAddDeviceSearch(query) {
+        state.addDeviceDrawer.searchQuery = query;
+        const existingDrawer = document.getElementById('vpp-add-device-drawer');
+        if (existingDrawer) {
+             const drawerHtml = app.renderAddDeviceDrawer();
+             existingDrawer.innerHTML = drawerHtml;
+             if (window.lucide) lucide.createIcons();
+             
+             // Restore focus
+             setTimeout(() => {
+                const input = document.getElementById('add-device-search-input');
+                if (input) {
+                    input.focus();
+                    const len = input.value.length;
+                    input.setSelectionRange(len, len);
+                }
+            }, 0);
+        }
+    },
+
+    toggleDeviceSelection(sn) {
+        const index = state.addDeviceDrawer.selectedDeviceIds.indexOf(sn);
+        let isSelected = false;
+        if (index > -1) {
+            state.addDeviceDrawer.selectedDeviceIds.splice(index, 1);
+            isSelected = false;
+        } else {
+            state.addDeviceDrawer.selectedDeviceIds.push(sn);
+            isSelected = true;
+        }
+        
+        // Update checkbox state (for row clicks)
+        const checkbox = document.getElementById(`checkbox-${sn}`);
+        if (checkbox) {
+            checkbox.checked = isSelected;
+        }
+
+        // Update Confirm button text
+        const btn = document.getElementById('btn-add-devices-confirm');
+        if (btn) {
+            btn.innerHTML = `Confirm (${state.addDeviceDrawer.selectedDeviceIds.length})`;
+        }
+    },
+
+    submitAddDevices() {
+        if (state.addDeviceDrawer.selectedDeviceIds.length === 0) {
+            state.addDeviceDrawer.error = 'Please select at least one device.';
+            // Update error display manually
+            const listContainer = document.querySelector('.animate-slide-in-right .flex-1.overflow-y-auto');
+            if (listContainer) {
+                let errorDiv = listContainer.querySelector('.bg-red-50');
+                if (!errorDiv) {
+                     errorDiv = document.createElement('div');
+                     errorDiv.className = "mb-[16px] p-[12px] bg-red-50 text-red-600 rounded-[4px] text-[14px]";
+                     listContainer.insertBefore(errorDiv, listContainer.firstChild);
+                }
+                errorDiv.innerText = state.addDeviceDrawer.error;
+            }
+            return;
+        }
+
+        state.addDeviceDrawer.submitting = true;
+        state.addDeviceDrawer.error = null;
+        
+        // Remove error if exists
+        const listContainer = document.querySelector('.animate-slide-in-right .flex-1.overflow-y-auto');
+        if (listContainer) {
+            const errorDiv = listContainer.querySelector('.bg-red-50');
+            if (errorDiv) errorDiv.remove();
+        }
+
+        // Update button state manually
+        const btn = document.getElementById('btn-add-devices-confirm');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i>Confirm (${state.addDeviceDrawer.selectedDeviceIds.length})`;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Mock API call
+        setTimeout(() => {
+            // Success scenario
+            const selectedDevices = state.devices.filter(d => state.addDeviceDrawer.selectedDeviceIds.includes(d.sn));
+            
+            // Add to assigned devices
+            // Ensure state.assignedDevices is initialized from MOCK_DATA if empty
+            if (!state.assignedDevices || state.assignedDevices.length === 0) {
+                 state.assignedDevices = [...MOCK_DATA.assignedDevices];
+            }
+
+            const currentVppId = state.selectedVppId;
+            const newDevices = selectedDevices
+                .filter(d => !state.assignedDevices.some(ad => ad.sn === d.sn))
+                .map(d => ({ ...d, vppId: currentVppId })); // Add vppId
+
+            state.assignedDevices = [...state.assignedDevices, ...newDevices];
+
+            state.addDeviceDrawer.submitting = false;
+            state.addDeviceDrawer.isOpen = false;
+            
+            // Show success message
+            alert('Add successfully'); 
+
+            app.renderVPPDetails(document.getElementById('content-area'), state.selectedVppId);
+            if (window.lucide) lucide.createIcons();
+        }, 1000);
+    },
+
+    renderAddDeviceDrawer() {
+        if (!state.addDeviceDrawer.isOpen) return '';
+
+        // Get current VPP
+        const vpp = state.vpps.find(v => v.id === state.selectedVppId) || {};
+        const vppState = vpp.state;
+
+        // Filter devices
+        let availableDevices = state.devices.filter(d => {
+            // Check state consistency
+            if (vppState && d.state !== vppState) return false;
+            return true;
+        });
+
+        // Filter by search
+        if (state.addDeviceDrawer.searchQuery) {
+            const q = state.addDeviceDrawer.searchQuery.toLowerCase();
+            availableDevices = availableDevices.filter(d => d.sn.toLowerCase().includes(q));
+        }
+
+        return `
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-black/50 z-40 transition-opacity" onclick="app.toggleAddDeviceDrawer(false)"></div>
+            
+            <!-- Drawer -->
+            <div class="fixed top-0 right-0 h-full w-[480px] bg-white z-50 shadow-2xl transform transition-transform duration-300 flex flex-col animate-slide-in-right">
+                <!-- Header -->
+                <div class="px-[24px] py-[20px] border-b border-[#e6e8ee] flex justify-between items-center">
+                    <h2 class="text-[20px] font-semibold text-[#313949]">Add DERs</h2>
+                    <button onclick="app.toggleAddDeviceDrawer(false)" class="text-[#5f646e] hover:text-[#313949]">
+                        <i data-lucide="x" class="w-[24px] h-[24px]"></i>
+                    </button>
+                </div>
+
+                <!-- Search -->
+                <div class="px-[24px] pt-[16px] pb-[8px]">
+                     <div class="bg-[#f3f3f6] rounded-[4px] flex items-center h-[40px] px-[12px] gap-[8px]">
+                        <i data-lucide="search" class="w-[20px] h-[20px] text-[#b5bcc8]"></i>
+                        <input 
+                            type="text" 
+                            id="add-device-search-input"
+                            placeholder="Search by SN" 
+                            value="${state.addDeviceDrawer.searchQuery}"
+                            oninput="app.setAddDeviceSearch(this.value)"
+                            class="bg-transparent border-none focus:outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] w-full h-full p-0"
+                            autofocus
+                        >
+                    </div>
+                </div>
+
+                <!-- List -->
+                <div class="flex-1 overflow-y-auto px-[24px] pb-[24px] pt-0">
+                    ${state.addDeviceDrawer.error ? `
+                        <div class="mb-[16px] p-[12px] bg-red-50 text-red-600 rounded-[4px] text-[14px]">
+                            ${state.addDeviceDrawer.error}
+                        </div>
+                    ` : ''}
+
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="h-[40px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
+                                <th class="w-[40px] px-[8px]">
+                                </th>
+                                <th class="px-[16px] font-medium">SN</th>
+                                <th class="px-[16px] font-medium">DER Type</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-[14px] text-[#313949]">
+                            ${availableDevices.length > 0 ? availableDevices.map(dev => {
+                                const displayType = dev.type === 'Inverter' ? 'Single PV' : (dev.type === 'Battery' ? 'Single ESS' : (dev.type === 'Hybrid' ? 'PV Plus ESS' : (dev.type || '-')));
+                                return `
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] border-b border-[#e6e8ee] last:border-0 cursor-pointer" onclick="app.toggleDeviceSelection('${dev.sn}')">
+                                    <td class="px-[8px]">
+                                        <div class="flex items-center justify-center">
+                                            <input type="checkbox" 
+                                                id="checkbox-${dev.sn}"
+                                                ${state.addDeviceDrawer.selectedDeviceIds.includes(dev.sn) ? 'checked' : ''}
+                                                class="w-[16px] h-[16px] rounded border-gray-300 text-[#0052ff] focus:ring-[#0052ff]"
+                                                onclick="event.stopPropagation(); app.toggleDeviceSelection('${dev.sn}')"
+                                            >
+                                        </div>
+                                    </td>
+                                    <td class="px-[16px] font-mono">${dev.sn}</td>
+                                    <td class="px-[16px] text-[#5f646e]">${displayType}</td>
+                                </tr>
+                            `}).join('') : `
+                                <tr>
+                                    <td colspan="3" class="py-[32px] text-center text-[#5f646e]">
+                                        No matching devices found in ${vppState || 'this region'}
+                                    </td>
+                                </tr>
+                            `}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-[24px] py-[20px] border-t border-[#e6e8ee] flex items-center gap-[12px] bg-white">
+                    <button onclick="app.toggleAddDeviceDrawer(false)" class="flex-1 h-[32px] px-[12px] flex items-center justify-center bg-white border border-[#e6e8ee] rounded-[4px] text-[14px] text-[#313949] hover:bg-[#f3f3f6] active:bg-[#e6e8ee] transition-colors font-medium leading-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30">
+                        Cancel
+                    </button>
+                    <button id="btn-add-devices-confirm" onclick="app.submitAddDevices()" class="flex-1 h-[32px] px-[12px] flex items-center justify-center bg-[#3ec064] rounded-[4px] text-[14px] text-white hover:bg-[#2e9f58] active:bg-[#1a6e3b] transition-colors font-medium leading-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:bg-[#3ec064]" ${state.addDeviceDrawer.submitting ? 'disabled' : ''}>
+                        ${state.addDeviceDrawer.submitting ? '<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i>' : ''}
+                        Confirm (${state.addDeviceDrawer.selectedDeviceIds.length})
+                    </button>
+                </div>
+            </div>
+        `;
     },
 
     toggleSidebar() {
@@ -7381,7 +7660,7 @@ const app = {
                                 </td>
                                 <td class="px-[8px] text-right">
                                     <div class="flex items-center justify-end gap-[12px]">
-                                        <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
+                                        <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -7537,7 +7816,7 @@ const app = {
                     <!-- 1-4. Status Combined Card -->
                     <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
                         <div class="flex flex-col items-center flex-1">
-                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">${filterType === 'Inverter' ? 'PV' : (filterType === 'Battery' ? 'PV ESS' : (filterType === 'EV' ? 'ESSs' : 'ESSs'))}</span>
+                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Total</span>
                              <span class="text-xl font-bold text-gray-900">${filteredDevices.length}</span>
                         </div>
                         <div class="w-px h-8 bg-gray-200"></div>
@@ -7598,7 +7877,7 @@ const app = {
             <!-- Device List -->
             <div class="flex-1 bg-white rounded-[4px] shadow-sm flex flex-col overflow-hidden">
                 <div class="flex justify-between items-center px-[16px] py-[12px] bg-white">
-                     <h2 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">${filterType === 'Inverter' ? 'PVs' : (filterType === 'Battery' ? 'PV ESS' : (filterType === 'EV' ? 'ESSs' : 'ESSs'))}</h2>
+                     <h2 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">DERs</h2>
                      <div class="flex gap-2">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b5bcc8]"></i>
@@ -9190,9 +9469,9 @@ const app = {
                                     </div>
                                     <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm px-1 w-[260px] justify-between">
                                         <select id="operation-granularity" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 cursor-pointer h-7 outline-none flex-shrink-0" onchange="app.handleGranularityChange(this.value)">
-                                            <option value="day">Day</option>
-                                            <option value="month">Month</option>
-                                            <option value="year">Year</option>
+                                            <option value="day">Daily</option>
+                                            <option value="month">Monthly</option>
+                                            <option value="year">Yearly</option>
                                             <option value="total">Total</option>
                                         </select>
                                         <span id="operation-separator" class="text-gray-300 mx-1 flex-shrink-0">|</span>
@@ -9529,6 +9808,7 @@ const app = {
                                 <tr>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">VPP Name</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Pricing Region</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Active Market</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Power</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
@@ -9572,6 +9852,9 @@ const app = {
                                             </td>
                                             <td class="px-[8px]">
                                                 <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${vpp.state || 'NSW'}</div>
+                                            </td>
+                                            <td class="px-[8px]">
+                                                <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${vpp.activeMarket || 'All'}</div>
                                             </td>
                                             <td class="px-[8px]">
                                                 <div class="flex flex-col gap-0.5">
@@ -9673,7 +9956,12 @@ const app = {
         
         state.selectedVppId = vppId; // Ensure selectedVppId is updated
 
-        const allVppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
+        // Initialize assignedDevices from MOCK_DATA if not set
+        if (!state.assignedDevices || state.assignedDevices.length === 0) {
+             state.assignedDevices = [...MOCK_DATA.assignedDevices];
+        }
+
+        const allVppDevices = state.assignedDevices.filter(d => d.vppId === vpp.id);
         const totalDevices = allVppDevices.length;
         const onlineDevices = allVppDevices.filter(d => d.status === 'online').length;
         const offlineDevices = allVppDevices.filter(d => d.status === 'offline').length;
@@ -9748,10 +10036,16 @@ const app = {
                                      <p class="font-semibold leading-[1.4] text-[20px] text-[#313949]">
                                         ${vpp.company || 'Unknown Company'}
                                      </p>
-                                     <div class="bg-[#f3f3f6] flex gap-[4px] items-center justify-center px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#5f646e]">
-                                        <p>${vpp.state || '-'}</p>
-                                        <p>•</p>
-                                        <p>${vpp.country || '-'}</p>
+                                     <div class="flex gap-[8px] items-center">
+                                         <div class="bg-[#f3f3f6] flex gap-[4px] items-center justify-center px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#5f646e]">
+                                            <p>${vpp.state || '-'}</p>
+                                            <p>•</p>
+                                            <p>${vpp.country || '-'}</p>
+                                         </div>
+                                         <div class="bg-[#f3f3f6] flex gap-[4px] items-center justify-center px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#5f646e]">
+                                            <p>Active Market:</p>
+                                            <p>${vpp.activeMarket || 'All'}</p>
+                                         </div>
                                      </div>
                                 </div>
                             </div>
@@ -9864,7 +10158,7 @@ const app = {
                     </div>
 
                     <!-- Header (Figma 168-2975) -->
-                    <div class="flex justify-between items-center px-[24px] py-[16px] bg-white">
+                    <div class="flex justify-start gap-4 items-center px-[24px] py-[16px] bg-white">
                          <!-- Tab Group -->
                          <div class="bg-[#f3f3f6] p-[4px] rounded-[4px] flex items-center">
                             <button onclick="app.setVPPDetailsTab('der-list')" class="min-w-[80px] h-[32px] flex items-center justify-center rounded-[4px] px-[16px] text-[14px] transition-all ${state.vppDetailsTab === 'der-list' ? 'bg-white font-semibold text-[#313949] shadow-sm' : 'font-normal text-[#313949] hover:bg-gray-100'}">
@@ -9893,6 +10187,13 @@ const app = {
                             </div>
                             ` : ''}
                          </div>
+
+                         ${(state.vppDetailsTab === 'der-list') ? `
+                         <button onclick="app.toggleAddDeviceDrawer(true)" class="ml-auto bg-[#0052ff] text-white px-[16px] py-[6px] rounded-[4px] hover:bg-[#0043cc] transition-colors text-[14px] font-medium flex items-center gap-[4px]">
+                            <i data-lucide="plus" class="w-[16px] h-[16px]"></i>
+                            Add
+                         </button>
+                         ` : ''}
                     </div>
                 </div>
 
@@ -9904,6 +10205,7 @@ const app = {
                             <tr class="h-[48px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
                                 <th class="px-[16px] font-medium">Status</th>
                                 <th class="px-[16px] font-medium">SN</th>
+                                <th class="px-[16px] font-medium">Type</th>
                                 <th class="px-[16px] font-medium">Manufacturer</th>
                                 <th class="px-[16px] font-medium">State</th>
                                 <th class="px-[16px] font-medium">Rated Power</th>
@@ -9933,6 +10235,7 @@ const app = {
                                     `;
                                 }
                                 const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
+                                const displayType = dev.type === 'Inverter' ? 'Single PV' : (dev.type === 'Battery' ? 'Single ESS' : (dev.type === 'Hybrid' ? 'PV Plus ESS' : (dev.type || '-')));
                                 
                                 return `
                                 <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
@@ -9943,6 +10246,7 @@ const app = {
                                         </span>
                                     </td>
                                     <td class="px-[16px] py-[12px] font-mono text-[#313949]">${dev.sn}</td>
+                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${displayType}</td>
                                     <td class="px-[16px] py-[12px] text-[#5f646e]">${dev.vendor}</td>
                                     <td class="px-[16px] py-[12px] text-[#5f646e]">${vpp.state || '-'}</td>
                                     <td class="px-[16px] py-[12px] text-[#313949] font-mono">${ratedPower}</td>
@@ -9951,14 +10255,19 @@ const app = {
                                     <td class="px-[16px] py-[12px] font-mono">${socDisplay}</td>
                                     <td class="px-[16px] py-[12px] text-[#313949] font-mono">${todayYield}</td>
                                     <td class="px-[16px] py-[12px]">
-                                        <button onclick="app.viewDeviceDetails('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#313949] transition-colors">
-                                            <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
-                                        </button>
+                                        <div class="flex items-center gap-[8px]">
+                                            <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#5f646e] hover:text-[#313949] transition-colors" title="View Details">
+                                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                            </button>
+                                            <button onclick="app.confirmRemoveDER('${dev.sn}', event)" class="text-[#5f646e] hover:text-red-600 transition-colors" title="Remove">
+                                                <i data-lucide="trash-2" class="w-[16px] h-[16px]"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             `}).join('') : `
                                 <tr>
-                                    <td colspan="9" class="py-[32px] text-center text-[#5f646e]">
+                                    <td colspan="11" class="py-[32px] text-center text-[#5f646e]">
                                         No devices available
                                     </td>
                                 </tr>
@@ -10072,6 +10381,15 @@ const app = {
         `;
         
         container.appendChild(content);
+
+        // Append Drawer
+        const drawerHtml = app.renderAddDeviceDrawer();
+        if (drawerHtml) {
+            const drawerContainer = document.createElement('div');
+            drawerContainer.id = 'vpp-add-device-drawer';
+            drawerContainer.innerHTML = drawerHtml;
+            container.appendChild(drawerContainer);
+        }
     },
 
     // ==========================================
@@ -10279,6 +10597,36 @@ const app = {
         // Default to 'Power' and 'Real-time' for initial view
         this.renderDeviceDataModalContent(sn, 'Power', 'Real-time');
         this.toggleModal(true);
+    },
+
+    openDERDetails(sn, event) {
+        if (event) event.stopPropagation();
+        window.open(`index.html?view=der_details&sn=${sn}`, '_blank');
+    },
+
+    confirmRemoveDER(sn, event) {
+        if (event) event.stopPropagation();
+        this.showConfirmModal(
+            'Remove Device?',
+            'Are you sure you want to remove this device from the VPP?',
+            () => this.removeDER(sn)
+        );
+    },
+
+    removeDER(sn) {
+        // Remove from assignedDevices in state
+        const deviceIndex = state.assignedDevices.findIndex(d => d.sn === sn);
+        if (deviceIndex > -1) {
+            state.assignedDevices.splice(deviceIndex, 1);
+            
+            // Re-render VPP details
+            this.renderVPPDetails(document.getElementById('content-area'), state.selectedVppId);
+            lucide.createIcons();
+            
+            this.showToast('Device removed successfully', 'success');
+        } else {
+             this.showToast('Device not found', 'error');
+        }
     },
 
     renderDeviceDataModalContent(sn, dataType = 'Power', timeRange = 'Real-time', startDate = null, endDate = null) {
@@ -10538,7 +10886,7 @@ const app = {
                         </div>
                     </div>
 
-                    <div class="flex flex-col md:flex-row gap-[16px] w-full shrink-0">
+                    <div class="flex flex-col gap-[16px] w-full shrink-0">
                         <div class="flex flex-col gap-[8px] flex-1 min-w-0">
                              <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
                                  <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
@@ -10548,6 +10896,21 @@ const app = {
                                  <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
                                      <option value="" disabled ${!isEdit && !vpp?.state ? 'selected' : ''}>Select Pricing Region</option>
                                      ${['NSW', 'VIC', 'QLD', 'SA'].map(s => `<option value="${s}" ${vpp?.state === s ? 'selected' : ''} class="text-[#313949]">${s}</option>`).join('')}
+                                 </select>
+                                 <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
+                                     <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="flex flex-col gap-[8px] flex-1 min-w-0">
+                             <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
+                                 <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Active Market</span>
+                             </div>
+                             <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
+                                 <select name="activeMarket" onchange="app.handleActiveMarketChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer" aria-label="Active Market">
+                                     <option value="All" ${(!isEdit || !vpp?.activeMarket || vpp?.activeMarket === 'All') ? 'selected' : ''}>All</option>
+                                     <option value="Spot" ${vpp?.activeMarket === 'Spot' ? 'selected' : ''}>Spot</option>
+                                     <option value="FCAS" ${vpp?.activeMarket === 'FCAS' ? 'selected' : ''}>FCAS</option>
                                  </select>
                                  <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-4 h-4">
                                      <img src="assets/icons/chevron-down.svg" class="w-full h-full block" alt="Arrow">
@@ -11087,6 +11450,11 @@ const app = {
         lucide.createIcons();
     },
 
+    handleActiveMarketChange(val) {
+        console.log('Active Market changed:', val);
+        // Trigger data screening or page refresh logic if needed
+    },
+
     handleVPPSubmit(e, vppId = null) {
         e.preventDefault();
         const btn = document.getElementById('vpp-submit-btn');
@@ -11105,6 +11473,7 @@ const app = {
             const address = formData.get('address');
             const dnsp = formData.get('dnsp');
             const description = formData.get('description');
+            const activeMarket = formData.get('activeMarket');
             
             if (isEdit) {
                 const vpp = state.vpps.find(v => v.id === vppId);
@@ -11117,6 +11486,7 @@ const app = {
                     vpp.address = address;
                     vpp.dnsp = dnsp;
                     vpp.description = description;
+                    vpp.activeMarket = activeMarket;
                 }
             } else {
                 const newVPP = {
@@ -11129,6 +11499,7 @@ const app = {
                     address: address,
                     dnsp: dnsp,
                     description: description,
+                    activeMarket: activeMarket || 'All',
                     capacity: '0 kWh',
                     devices: 0,
                     createdAt: Date.now()
