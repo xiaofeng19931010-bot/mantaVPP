@@ -69,7 +69,7 @@ async function callFigmaTool(url) {
         params: {
             name: "get_design_context",
                     arguments: {
-                        nodeId: "121:3086",
+                        nodeId: "875:3558",
                         clientLanguages: "javascript,html,css",
                         clientFrameworks: "vanilla javascript,html,tailwind css",
                         taskType: "CHANGE_ARTIFACT",

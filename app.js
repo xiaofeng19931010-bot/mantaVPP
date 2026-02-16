@@ -2401,14 +2401,14 @@ const app = {
                                 <thead class="bg-gray-50 text-gray-500 sticky top-0 z-10">
                                     <tr>
                                         <th class="px-6 py-3 font-medium">Settlement Date</th>
-                                        <th class="px-6 py-3 font-medium text-right">Forecast Price ($/MWh)</th>
+                                        <th class="px-6 py-3 font-medium text-left">Forecast Price ($/MWh)</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     ${forecasts.map(row => `
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-6 py-3 text-gray-900">${row.time}</td>
-                                            <td class="px-6 py-3 text-gray-900 text-right font-medium">${row.price}</td>
+                                            <td class="px-6 py-3 text-gray-900 text-left font-medium">${row.price}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -2544,7 +2544,7 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium text-left w-16">#</th>
                                     <th class="px-6 py-3 font-medium">Pricing Region</th>
                                     <th class="px-6 py-3 font-medium">Schedule Type</th>
                                     <th class="px-6 py-3 font-medium">Target Time</th>
@@ -2554,13 +2554,13 @@ const app = {
                                     <th class="px-6 py-3 font-medium">Last Modified At</th>
                                     <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
                                     <th class="px-6 py-3 font-medium">Active</th>
-                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                    <th class="px-6 py-3 font-medium text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${rules.length > 0 ? rules.map((rule, idx) => `
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-center text-gray-500">${startIdx + idx + 1}</td>
+                                        <td class="px-6 py-4 text-left text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.state}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.scheduleType}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.targetTime}</td>
@@ -2576,8 +2576,8 @@ const app = {
                                                 <span class="ml-2 text-sm text-gray-600">${rule.active ? 'Active' : 'Inactive'}</span>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
+                                        <td class="px-6 py-4 text-left">
+                                            <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
                                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                                 </button>
@@ -2724,7 +2724,7 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-4 py-3 text-center w-12">#</th>
+                                    <th class="px-4 py-3 text-left w-12">#</th>
                                     <th class="px-4 py-3">
                                         <div class="flex flex-col">
                                             <span>VPP</span>
@@ -2761,13 +2761,13 @@ const app = {
                                             <span>Tag</span>
                                         </div>
                                     </th>
-                                    <th class="px-4 py-3 text-right">Actions</th>
+                                    <th class="px-4 py-3 text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${events.length > 0 ? events.map((event, idx) => `
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-4 py-4 text-center text-gray-500">${startIdx + idx + 1}</td>
+                                        <td class="px-4 py-4 text-left text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-4 py-4 text-manta-primary font-medium cursor-pointer hover:underline">${event.vppName}</td>
                                         <td class="px-4 py-4 text-gray-900">${event.eventType}</td>
                                         <td class="px-4 py-4 text-gray-500 text-xs">${event.date}</td>
@@ -2783,8 +2783,8 @@ const app = {
                                         </td>
                                         <td class="px-4 py-4 text-gray-500 text-xs leading-tight max-w-xs">${event.notes}</td>
                                         <td class="px-4 py-4 text-gray-500">${event.serviceTag}</td>
-                                        <td class="px-4 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
+                                        <td class="px-4 py-4 text-left">
+                                            <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="View Details">
                                                     <i data-lucide="external-link" class="w-4 h-4"></i>
                                                 </button>
@@ -3120,7 +3120,7 @@ const app = {
                                         </div>
                                     </th>
                                     <th class="px-6 py-3">Active Status</th>
-                                    <th class="px-6 py-3 text-right">Actions</th>
+                                    <th class="px-6 py-3 text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -3141,8 +3141,8 @@ const app = {
                                                 </button>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
+                                        <td class="px-6 py-4 text-left">
+                                            <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
                                                     <i data-lucide="square-pen" class="w-4 h-4"></i>
                                                 </button>
@@ -3337,7 +3337,7 @@ const app = {
                                     <tr>
                                         <td class="py-3 font-medium text-gray-600 pr-4 whitespace-nowrap">${row.label}</td>
                                         ${row.values.map(val => `
-                                            <td class="px-4 py-3 text-gray-900 text-center">${val}</td>
+                                            <td class="px-4 py-3 text-gray-900 text-left">${val}</td>
                                         `).join('')}
                                     </tr>
                                 `).join('')}
@@ -3393,7 +3393,7 @@ const app = {
                                     <th class="px-6 py-3">Submission Date</th>
                                     <th class="px-6 py-3">Status</th>
                                     <th class="px-6 py-3">Total Settlement</th>
-                                    <th class="px-6 py-3 text-right">Actions</th>
+                                    <th class="px-6 py-3 text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -3410,7 +3410,7 @@ const app = {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-gray-900">${bid.totalSettlement}</td>
-                                        <td class="px-6 py-4 text-right">
+                                        <td class="px-6 py-4 text-left">
                                             <button class="text-gray-400 hover:text-green-600 transition-colors">
                                                 <i data-lucide="more-horizontal" class="w-4 h-4"></i>
                                             </button>
@@ -4371,7 +4371,7 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium text-left w-16">#</th>
                                     <th class="px-6 py-3 font-medium">Pricing Region</th>
                                     <th class="px-6 py-3 font-medium">Trigger Time</th>
                                     <th class="px-6 py-3 font-medium">Trigger Price</th>
@@ -4380,13 +4380,13 @@ const app = {
                                     <th class="px-6 py-3 font-medium">Last Modified At</th>
                                     <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
                                     <th class="px-6 py-3 font-medium">Active</th>
-                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                    <th class="px-6 py-3 font-medium text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${rules.length > 0 ? rules.map((rule, idx) => `
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-center text-gray-500">${startIdx + idx + 1}</td>
+                                        <td class="px-6 py-4 text-left text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.state}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.triggerTime}</td>
                                         <td class="px-6 py-4 font-mono text-gray-900 font-medium">$${typeof rule.triggerPrice === 'number' ? rule.triggerPrice.toFixed(2) : rule.triggerPrice} /MWh</td>
@@ -4403,8 +4403,8 @@ const app = {
                                                 <span class="text-xs ${rule.active ? 'text-green-600 font-medium' : 'text-gray-400'}">${rule.active ? 'Active' : 'Inactive'}</span>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
+                                        <td class="px-6 py-4 text-left">
+                                            <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
                                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                                 </button>
@@ -4553,14 +4553,14 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3 font-medium text-center w-16">#</th>
+                                    <th class="px-6 py-3 font-medium text-left w-16">#</th>
                                     <th class="px-6 py-3 font-medium">Time</th>
                                     <th class="px-6 py-3 font-medium">Type</th>
                                     <th class="px-6 py-3 font-medium">Value</th>
                                     <th class="px-6 py-3 font-medium">Threshold</th>
                                     <th class="px-6 py-3 font-medium">Status</th>
                                     <th class="px-6 py-3 font-medium">Details</th>
-                                    <th class="px-6 py-3 font-medium text-right">Actions</th>
+                                    <th class="px-6 py-3 font-medium text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="safety-events-tbody">
@@ -4609,7 +4609,7 @@ const app = {
         }
         return events.map((event, idx) => `
             <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 text-center text-gray-500">${idx + 1}</td>
+                <td class="px-6 py-4 text-left text-gray-500">${idx + 1}</td>
                 <td class="px-6 py-4 text-gray-900">${event.time}</td>
                 <td class="px-6 py-4 font-medium ${this.getEventColor(event.type)}">${event.type}</td>
                 <td class="px-6 py-4 text-gray-900 font-mono">${event.value}</td>
@@ -4620,7 +4620,7 @@ const app = {
                     </span>
                 </td>
                 <td class="px-6 py-4 text-gray-500 max-w-xs truncate" title="${event.details}">${event.details}</td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-left">
                     <button class="text-gray-400 hover:text-gray-600">
                         <i data-lucide="more-horizontal" class="w-4 h-4"></i>
                     </button>
@@ -5008,8 +5008,8 @@ const app = {
                                         <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Spot ($/MW)</th>
                                         <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Forecast Spot ($/MW)</th>
                                         <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Time / Forecast Spot ($/MW)</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center whitespace-nowrap">Signal By Forecast</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center whitespace-nowrap">Signal By Spot</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-left whitespace-nowrap">Signal By Forecast</th>
+                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-left whitespace-nowrap">Signal By Spot</th>
                                     </tr>
                                 </thead>
                                 <tbody id="arbitrage-tbody" class="">
@@ -5129,12 +5129,12 @@ const app = {
                                 ${forecastHtml}
                             </div>
                         </td>
-                        <td class="px-[8px] text-center">
+                        <td class="px-[8px] text-left">
                             <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.forecastSignalType]}">
                                 ${row.forecastSignalType}
                             </span>
                         </td>
-                        <td class="px-[8px] text-center">
+                        <td class="px-[8px] text-left">
                             ${row.signalType ? `
                             <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
                                 ${row.signalType}
@@ -5643,7 +5643,7 @@ const app = {
                                     <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Last Login IP</th>
                                     <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Current Login IP</th>
                                     <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Create Time</th>
-                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)] text-right">Actions</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5662,8 +5662,8 @@ const app = {
                                         <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.lastLoginIp || '-'}</td>
                                         <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.currentLoginIp || '-'}</td>
                                         <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.created || user.createTime || '-'}</td>
-                                        <td class="px-[16px] text-right">
-                                            <div class="flex items-center justify-end gap-[12px]">
+                                        <td class="px-[16px]">
+                                            <div class="flex items-center justify-start gap-[12px]">
                                                 <button onclick="app.openEditUserDrawer(${user.id})" class="text-[var(--color-neutral-bluegrey)] hover:text-[var(--color-brand-primary)] transition-colors" title="Edit">
                                                     <i data-lucide="edit-3" class="w-[16px] h-[16px]"></i>
                                                 </button>
@@ -6155,7 +6155,7 @@ const app = {
                                     <th scope="col" class="px-6 py-3">Trigger From</th>
                                     <th scope="col" class="px-6 py-3">Details</th>
                                     <th scope="col" class="px-6 py-3">Event</th>
-                                    <th scope="col" class="px-6 py-3 text-right">Actions</th>
+                                    <th scope="col" class="px-6 py-3 text-left">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -6178,8 +6178,8 @@ const app = {
                                                 ${rule.action}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-2">
+                                        <td class="px-6 py-4 text-left">
+                                            <div class="flex items-center justify-start gap-2">
                                                 <button onclick="app.toggleTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="${rule.state === 'Active' ? 'Deactivate' : 'Activate'}">
                                                     <i data-lucide="${rule.state === 'Active' ? 'pause-circle' : 'play-circle'}" class="w-4 h-4"></i>
                                                 </button>
@@ -6832,16 +6832,16 @@ const app = {
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
                                         <tr>
                                             <th class="px-4 py-2 font-medium">Pricing Region</th>
-                                            <th class="px-4 py-2 font-medium text-right">Charge</th>
-                                            <th class="px-4 py-2 font-medium text-right">Discharge</th>
+                                            <th class="px-4 py-2 font-medium text-left">Charge</th>
+                                            <th class="px-4 py-2 font-medium text-left">Discharge</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         ${data.vppEvents.map(event => `
                                             <tr class="hover:bg-gray-50 transition-colors">
                                                 <td class="px-4 py-3 font-medium text-gray-900">${event.state}</td>
-                                                <td class="px-4 py-3 text-gray-600 text-right font-mono">${event.charge}</td>
-                                                <td class="px-4 py-3 text-gray-600 text-right font-mono">${event.discharge}</td>
+                                                <td class="px-4 py-3 text-gray-600 text-left font-mono">${event.charge}</td>
+                                                <td class="px-4 py-3 text-gray-600 text-left font-mono">${event.discharge}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -7338,7 +7338,7 @@ const app = {
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Online</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Offline</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right min-w-[140px]">Actions</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="">
@@ -7371,8 +7371,8 @@ const app = {
                                                     <td class="px-[8px]">
                                                         <span class="text-[14px] font-normal text-gray-400 font-['Roboto']">${stats.inv.offline + stats.bat.offline}</span>
                                                     </td>
-                                                    <td class="px-[8px] text-right">
-                                                        <div class="flex items-center justify-end gap-[12px]">
+                                                    <td class="px-[8px]">
+                                                        <div class="flex items-center justify-start gap-[12px]">
                                                             ${s !== 'establishing' ? `
                                                             <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="View">
                                                                 <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
@@ -7635,7 +7635,7 @@ const app = {
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">State</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Actions</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="">
@@ -7654,8 +7654,8 @@ const app = {
                                 <td class="px-[8px]">
                                     <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</div>
                                 </td>
-                                <td class="px-[8px] text-right">
-                                    <div class="flex items-center justify-end gap-[12px]">
+                                <td class="px-[8px]">
+                                    <div class="flex items-center justify-start gap-[12px]">
                                         <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                         </button>
@@ -7798,86 +7798,173 @@ const app = {
 
         const title = filterType === 'All' ? 'DER Management' : `${filterType} Management`;
 
+        // Calculate metrics
+        const ratedPowerTotal = filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1);
+        const pvCapacityTotal = filteredDevices.reduce((acc, d) => acc + (d.type === 'Inverter' ? (d.capacity || 0) * 1.2 : 0), 0).toFixed(1);
+        
+        const storageDevices = filteredDevices.filter(d => d.type === 'Battery' || d.type === 'EV');
+        const totalStorage = storageDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1);
+        const currentStored = storageDevices.reduce((acc, d) => acc + ((d.capacity || 0) * (d.soc || 0) / 100), 0).toFixed(1);
+        const avgSOC = totalStorage > 0 ? Math.round((currentStored / totalStorage) * 100) : 0;
+        
+        const todayYieldTotal = filteredDevices.reduce((acc, d) => acc + ((d.capacity || 0) * 3), 0).toFixed(1);
+
         container.innerHTML = `
             <!-- Top Container -->
-            <div class="w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col gap-4 overflow-hidden">
+            <div class="w-full bg-white p-4 rounded-xl flex-1 flex flex-col gap-4 overflow-hidden">
                 <div class="flex justify-end items-center">
                     <div class="flex gap-2">
                         <!-- Actions can go here -->
                     </div>
                 </div>
 
-                <!-- Stats Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-2 ${filterType !== 'Inverter' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4">
-                    <!-- 1-4. Status Combined Card -->
-                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 md:col-span-2 lg:col-span-2">
-                        <div class="flex flex-col items-center flex-1">
-                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Total</span>
-                             <span class="text-xl font-bold text-gray-900">${filteredDevices.length}</span>
+                <!-- Stats Overview (New Design) -->
+                <div class="w-full bg-white px-[8px] py-[12px] rounded-[16px] flex flex-col gap-[16px]">
+                    <div class="flex flex-col xl:flex-row gap-[40px] items-start xl:items-center py-[8px] w-full">
+                        <!-- 1. Total & Title & Status Breakdown -->
+                        <div class="flex flex-col gap-[8px] items-start px-0 py-[0px] relative shrink-0 min-w-[300px]">
+                             <div class="flex gap-[16px] items-center py-[12px] relative shrink-0">
+                                  <!-- Icon -->
+                                  ${filterType === 'Inverter' ? `
+                                  <div class="relative shrink-0 size-[32px] flex items-center justify-center">
+                                      <div class="relative size-[24px]">
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[23px] left-1/2 rounded-[2px] top-1/2 w-[17px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%-3px)] top-1/2 w-px"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-[calc(50%-6px)] w-[17px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-1/2 w-[17px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-[calc(50%+6px)] w-[17px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%+3px)] top-1/2 w-px"></div>
+                                      </div>
+                                  </div>
+                                  ` : (filterType === 'EV' ? `
+                                  <div class="relative shrink-0 size-[32px] flex items-center justify-center">
+                                      <div class="relative shrink-0 size-[24px]">
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[22px] left-1/2 rounded-[2px] top-1/2 w-[18px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white border border-[#313949] border-solid h-[22px] left-[calc(50%-3px)] rounded-[2px] top-1/2 w-[12px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white border border-[#313949] border-solid h-[22px] left-[calc(50%+6px)] rounded-[2px] top-1/2 w-[6px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute h-[8px] left-[calc(50%-3px)] top-1/2 w-[6px]">
+                                              <svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 6 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path id="Lighting" d="M3.16564 7.83082L5.93428 3.60121C6.05259 3.43202 6.00527 3.2145 5.83962 3.09366C5.79229 3.04532 5.7213 3.02115 5.65031 3.02115H3.47327V0.362538C3.47327 0.169184 3.30763 0 3.11832 0C3 0 2.88168 0.0725075 2.83436 0.169184L0.0657245 4.39879C-0.052593 4.56798 -0.00526616 4.7855 0.160378 4.90634C0.207705 4.95468 0.278696 4.97885 0.349687 4.97885H2.52673V7.63746C2.52673 7.83082 2.69237 8 2.88168 8C3 8 3.11832 7.92749 3.16564 7.83082Z" fill="#313949"/>
+                                              </svg>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  ` : `
+                                  <div class="relative shrink-0 size-[32px]">
+                                      <!-- Battery Panel -->
+                                      <div class="contents">
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] border border-white border-solid h-[23px] left-[calc(50%-4.5px)] rounded-[2px] top-[calc(50%-0.5px)] w-[17px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%-7.5px)] top-[calc(50%-0.5px)] w-px"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-[calc(50%-4px)] top-[calc(50%-6.5px)] w-[18px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-[calc(50%-4px)] top-[calc(50%-0.5px)] w-[18px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-[calc(50%-4px)] top-[calc(50%+5.5px)] w-[18px]"></div>
+                                          <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%-1.5px)] top-[calc(50%-0.5px)] w-px"></div>
+                                      </div>
+                                      <!-- Battery Icon -->
+                                      <div class="-translate-x-1/2 -translate-y-1/2 absolute h-[17px] left-[calc(50%+5.5px)] top-[calc(50%+2.5px)] w-[13px]">
+                                          <div class="absolute inset-[-5.88%_-7.69%]">
+                                              <svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 15 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <g id="Battery">
+                                                      <rect id="Rectangle 3" x="0.5" y="0.5" width="14" height="18" rx="2.5" fill="white" stroke="white"/>
+                                                      <rect id="Rectangle 7" x="1.5" y="1.5" width="12" height="16" rx="1.5" fill="white" stroke="#313949"/>
+                                                      <rect id="Rectangle 6" x="9" y="2" width="2" height="15" fill="#313949"/>
+                                                      <path id="Lighting" d="M5.64033 12.8529L7.94599 9.15287C8.04453 9.00487 8.00502 8.81452 7.86696 8.70873C7.82751 8.66642 7.76835 8.64525 7.70919 8.64523L5.89513 8.64457L5.89428 6.31828C5.89422 6.1491 5.75614 6.00101 5.59839 6.00095C5.4998 6.00092 5.40124 6.06432 5.36183 6.1489L3.05617 9.84896C2.95764 9.99696 2.99714 10.1873 3.13521 10.2931C3.17466 10.3354 3.23382 10.3566 3.29297 10.3566L5.10703 10.3573L5.10788 12.6836C5.10795 12.8527 5.24603 13.0008 5.40377 13.0009C5.50236 13.0009 5.60093 12.9375 5.64033 12.8529Z" fill="#313949"/>
+                                                  </g>
+                                              </svg>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  `)}
+                                  <div class="flex gap-[4px] items-end relative shrink-0 text-[#313949]">
+                                       <p class="font-['Roboto'] font-extrabold leading-[1.33] text-[24px]">${filteredDevices.length}</p>
+                                       <p class="font-['Roboto'] font-semibold italic leading-[1.42] text-[16px] whitespace-pre-wrap">DERs</p>
+                                  </div>
+                             </div>
+                             
+                             <div class="h-px w-[56px] bg-[#e6e8ee] my-1"></div>
+                             
+                             <div class="flex gap-[24px] items-center px-[0px] py-[8px] relative shrink-0 h-[32px]">
+                                  <div class="flex gap-[8px] items-center relative shrink-0">
+                                       <div class="bg-[#8cda2f] h-[12px] rounded-[2px] shrink-0 w-[4px]"></div>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Online</p>
+                                       <p class="font-['Roboto'] font-medium leading-[1.42] text-[14px] text-[#8cda2f] text-right ml-1">${filteredDevices.filter(d => d.status === 'online').length}</p>
+                                  </div>
+                                  <div class="flex gap-[8px] items-center relative shrink-0">
+                                       <div class="bg-[#b5bcc8] h-[12px] rounded-[2px] shrink-0 w-[4px]"></div>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Offline</p>
+                                       <p class="font-['Roboto'] font-medium leading-[1.42] text-[14px] text-[#b5bcc8] text-right ml-1">${filteredDevices.filter(d => d.status === 'offline').length}</p>
+                                  </div>
+                                  <div class="flex gap-[8px] items-center relative shrink-0">
+                                       <div class="bg-[#ff3434] h-[12px] rounded-[2px] shrink-0 w-[4px]"></div>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Disconnected</p>
+                                       <p class="font-['Roboto'] font-medium leading-[1.42] text-[14px] text-[#ff3434] text-right ml-1">${filteredDevices.filter(d => d.status === 'disconnected').length}</p>
+                                  </div>
+                             </div>
                         </div>
-                        <div class="w-px h-8 bg-gray-200"></div>
-                        <div class="flex flex-col items-center flex-1">
-                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Online</span>
-                             <span class="text-xl font-bold text-green-600">${filteredDevices.filter(d => d.status === 'online').length}</span>
+
+                        <!-- 2. Metric Cards Container (Single Grey Bar) -->
+                        <div class="flex flex-1 flex-row flex-wrap items-center self-stretch bg-[#f3f3f6] rounded-[8px] px-[16px] py-[12px] gap-[8px]">
+                             <!-- Rated Power -->
+                             <div class="flex flex-1 flex-col gap-[8px] h-full items-center justify-center min-w-[140px] relative">
+                                  <div class="flex gap-[8px] items-center">
+                                       <p class="font-['Roboto'] font-semibold leading-[1.55] text-[18px] text-[#313949]">${ratedPowerTotal}</p>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#b5bcc8]">kW</p>
+                                  </div>
+                                  <div class="flex gap-[4px] items-center justify-center px-[12px] py-[2px] rounded-[12px]">
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Rated Power</p>
+                                  </div>
+                             </div>
+
+                             ${filterType !== 'EV' ? `
+                             <!-- PV Capacity -->
+                             <div class="flex flex-1 flex-col gap-[8px] h-full items-center justify-center min-w-[140px] relative">
+                                  <div class="flex gap-[8px] items-center">
+                                       <p class="font-['Roboto'] font-semibold leading-[1.55] text-[18px] text-[#313949]">${pvCapacityTotal}</p>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#b5bcc8]">kW</p>
+                                  </div>
+                                  <div class="flex gap-[4px] items-center justify-center px-[12px] py-[2px] rounded-[12px]">
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">PV Capacity</p>
+                                  </div>
+                             </div>
+                             ` : ''}
+
+                             ${filterType !== 'Inverter' ? `
+                             <!-- Rated Capacity (Battery/EV only) -->
+                             <div class="flex flex-1 flex-col gap-[8px] h-full items-center justify-center min-w-[140px] relative">
+                                  <div class="flex gap-[8px] items-center">
+                                       <p class="font-['Roboto'] font-semibold leading-[1.55] text-[18px] text-[#313949]">${totalStorage}</p>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#b5bcc8]">kWh</p>
+                                  </div>
+                                  <div class="flex gap-[4px] items-center justify-center px-[12px] py-[2px] rounded-[12px]">
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Rated Capacity</p>
+                                  </div>
+                             </div>
+                             ` : ''}
+
+                             ${filterType !== 'EV' ? `
+                             <!-- Today Yield -->
+                             <div class="flex flex-1 flex-col gap-[8px] h-full items-center justify-center min-w-[140px] relative">
+                                  <div class="flex gap-[8px] items-center">
+                                       <p class="font-['Roboto'] font-semibold leading-[1.55] text-[18px] text-[#313949]">${todayYieldTotal}</p>
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#b5bcc8]">kWh</p>
+                                  </div>
+                                  <div class="flex gap-[4px] items-center justify-center px-[12px] py-[2px] rounded-[12px]">
+                                       <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#5f646e]">Today Yield</p>
+                                  </div>
+                             </div>
+                             ` : ''}
                         </div>
-                        <div class="w-px h-8 bg-gray-200"></div>
-                        <div class="flex flex-col items-center flex-1">
-                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Offline</span>
-                             <span class="text-xl font-bold text-gray-400">${filteredDevices.filter(d => d.status === 'offline').length}</span>
-                        </div>
-                        <div class="w-px h-8 bg-gray-200"></div>
-                        <div class="flex flex-col items-center flex-1">
-                             <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Disconnected</span>
-                             <span class="text-xl font-bold text-red-500">${filteredDevices.filter(d => d.status === 'disconnected').length}</span>
-                        </div>
                     </div>
-
-                    <!-- 5. Rated Power -->
-                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Power</span>
-                        <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.capacity || 0), 0).toFixed(1)} kW</span>
-                    </div>
-
-                    ${filterType !== 'EV' ? `
-                    <!-- 6. PV Capacity -->
-                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">PV Capacity</span>
-                        <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + (d.type === 'Inverter' ? (d.capacity || 0) * 1.2 : 0), 0).toFixed(1)} kW</span>
-                    </div>
-                    ` : ''}
-
-                    ${filterType !== 'Inverter' ? `
-                    <!-- 7. Rated Capacity -->
-                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Rated Capacity</span>
-                        ${(() => {
-                            const storageDevices = filteredDevices.filter(d => d.type === 'Battery' || d.type === 'EV');
-                            if (!storageDevices.length) return '<span class="text-xl font-bold text-gray-900">-</span>';
-                            
-                            const totalCap = storageDevices.reduce((acc, d) => acc + (d.capacity || 0), 0);
-                            
-                            return `<span class="text-xl font-bold text-gray-900">${totalCap.toFixed(1)} kWh</span>`;
-                        })()}
-                    </div>
-                    ` : ''}
-
-                    ${filterType !== 'EV' ? `
-                    <!-- 8. Today Yield -->
-                    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2">
-                        <span class="text-xs text-gray-500 font-medium tracking-wider text-center">Today Yield</span>
-                        <span class="text-xl font-bold text-gray-900">${filteredDevices.reduce((acc, d) => acc + ((d.capacity || 0) * 3), 0).toFixed(1)} kWh</span>
-                    </div>
-                    ` : ''}
                 </div>
 
             <!-- Device List -->
-            <div class="flex-1 bg-white rounded-[4px] shadow-sm flex flex-col overflow-hidden">
-                <div class="flex justify-between items-center px-[16px] py-[12px] bg-white">
+            <div class="flex-1 bg-white rounded-[4px] flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center px-[8px] py-[12px] bg-white">
                      <h2 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">DERs</h2>
                      <div class="flex gap-2">
                         <div class="relative">
-                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b5bcc8]"></i>
-                            <input type="text" placeholder="Search" class="bg-white border border-[#e6e8ee] rounded-[4px] pl-9 pr-4 py-1.5 text-[14px] text-[#1c2026] focus:outline-none focus:border-[var(--color-brand-primary)] w-64 transition-colors placeholder:text-[#b5bcc8] font-['Roboto']">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#b5bcc8]"></i>
+                            <input type="text" placeholder="Search" class="bg-[#f3f3f6] border-none rounded-[4px] pl-10 pr-4 py-1.5 text-[14px] text-[#313949] focus:outline-none focus:ring-2 focus:ring-[#2e9f58]/20 w-[240px] transition-colors placeholder:text-[#b5bcc8] font-['Roboto']">
                         </div>
                      </div>
                 </div>
@@ -7885,24 +7972,24 @@ const app = {
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky top-0 z-10 bg-white">
                             <tr>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">NMI</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Manufacturer</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">State</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Rated Power</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Status</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SN</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">NMI</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">MANUFACTURER</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">STATE</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED POWER</th>
                                 ${filterType !== 'EV' ? `
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">PV Capacity</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PV CAPACITY</th>
                                 ` : ''}
                                 ${filterType !== 'Inverter' ? `
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Rated Capacity</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-center">SOC</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED CAPACITY</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SOC</th>
                                 ` : ''}
                                 ${filterType !== 'EV' ? `
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Today Yield</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">TODAY YIELD</th>
                                 ` : ''}
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Assigned VPP</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right">Actions</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">ASSIGNED VPP</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="">
@@ -7919,66 +8006,70 @@ const app = {
                                     const totalCap = capacity;
                                     const currentEn = (totalCap * socVal) / 100;
                                     socDisplay = `
-                                        <div class="flex flex-col items-center">
+                                        <div class="flex flex-col items-start">
                                             <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto']">${socVal}%</span>
-                                            <span class="text-[10px] text-[#b5bcc8] font-['Roboto']">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</span>
+                                            <span class="text-[10px] text-[#b5bcc8] font-['Roboto']">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)})</span>
                                         </div>
                                     `;
                                 }
                                 
                                 const todayYield = (capacity * (2 + Math.random() * 2)).toFixed(1) + ' kWh';
                                 
+                                let statusClass = 'bg-[#b5bcc8]/20 text-[#b5bcc8]'; // offline default
+                                if (dev.status === 'online') statusClass = 'bg-[#8cda2f]/20 text-[#8cda2f]';
+                                else if (dev.status === 'disconnected') statusClass = 'bg-[#ff3434]/20 text-[#ff3434]';
+
                                 return `
                                 <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
                                     <td class="px-[8px]">
-                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-['Roboto'] ${dev.status === 'online' ? 'bg-[#3ec064]/10 text-[#3ec064]' : 'bg-[#b5bcc8]/10 text-[#b5bcc8]'}">
-                                            <span class="w-[4px] h-[4px] rounded-full bg-current"></span>
+                                        <span class="inline-flex items-center justify-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-['Roboto'] min-w-[48px] ${statusClass}">
+                                            <span class="text-[10px] leading-none">•</span>
                                             ${dev.status.charAt(0).toUpperCase() + dev.status.slice(1)}
                                         </span>
                                     </td>
                                     <td class="px-[8px]">
-                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${dev.sn || '-'}</div>
+                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.sn || '-'}</div>
                                     </td>
                                     <td class="px-[8px]">
-                                        <div class="text-[14px] text-[#5f646e] font-normal font-mono">${dev.nmi || '-'}</div>
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${dev.nmi || '-'}</div>
                                     </td>
                                     <td class="px-[8px]">
-                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.vendor}</div>
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${dev.vendor}</div>
                                     </td>
                                     <td class="px-[8px]">
-                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${vpp.state || dev.mockState || '-'}</div>
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${vpp.state || dev.mockState || '-'}</div>
                                     </td>
-                                    <td class="px-[8px] text-right">
-                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${ratedPower}</div>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${ratedPower}</div>
                                     </td>
                                     ${filterType !== 'EV' ? `
-                                    <td class="px-[8px] text-right">
-                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${pvCapacity}</div>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${pvCapacity}</div>
                                     </td>
                                     ` : ''}
                                     ${filterType !== 'Inverter' ? `
-                                    <td class="px-[8px] text-right">
-                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${ratedCapacity}</div>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${ratedCapacity}</div>
                                     </td>
-                                    <td class="px-[8px] text-center">
+                                    <td class="px-[8px]">
                                         ${socDisplay}
                                     </td>
                                     ` : ''}
                                     ${filterType !== 'EV' ? `
-                                    <td class="px-[8px] text-right">
-                                        <div class="text-[14px] text-[#313949] font-normal font-mono">${todayYield}</div>
+                                    <td class="px-[8px]">
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${todayYield}</div>
                                     </td>
                                     ` : ''}
                                     <td class="px-[8px]">
                                         <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${vpp.name || '-'}</div>
                                     </td>
-                                    <td class="px-[8px] text-right">
-                                        <div class="flex items-center justify-end gap-[12px]">
+                                    <td class="px-[8px]">
+                                        <div class="flex items-center justify-start gap-[12px]">
                                             <button onclick="app.openAssignVppDrawer('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors" title="Assign VPP" aria-label="Assign VPP">
-                                                <i data-lucide="link-2" class="w-[16px] h-[16px]"></i>
+                                                <i data-lucide="link-2" class="w-[24px] h-[24px]"></i>
                                             </button>
                                             <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
-                                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                                <i data-lucide="eye" class="w-[24px] h-[24px]"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -8885,37 +8976,37 @@ const app = {
         container.innerHTML = `
             <div class="h-full overflow-y-auto bg-gray-50 pb-24">
                 <!-- Header -->
-                    <div class="bg-white border-b border-gray-200 px-8 py-6 space-y-8">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pl-2">
+                    <div class="bg-white border-b border-[#e6e8ee] px-6 py-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div>
-                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assigned VPP</div>
-                            <div class="text-sm font-semibold text-gray-900">${vpp.name || 'Unassigned'}</div>
+                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">Assigned VPP</div>
+                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${vpp.name || 'Unassigned'}</div>
                         </div>
                         <div>
-                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">NMI</div>
-                            <div class="text-sm font-semibold text-gray-900 font-mono">${device.nmi || '-'}</div>
+                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">NMI</div>
+                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto'] font-mono">${device.nmi || '-'}</div>
                         </div>
                         <div>
-                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">State</div>
-                            <div class="text-sm font-semibold text-gray-900">${vpp.state || '-'}</div>
+                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">State</div>
+                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${vpp.state || '-'}</div>
                         </div>
                         <div>
-                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Grid Status</div>
+                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">Grid Status</div>
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full ${device.status === 'online' ? 'bg-green-500' : 'bg-gray-300'}"></span>
-                                <span class="text-sm font-semibold text-gray-900">${device.status.charAt(0).toUpperCase() + device.status.slice(1)}</span>
+                                <span class="w-2 h-2 rounded-full ${device.status === 'online' ? 'bg-[#3ec064]' : 'bg-[#b5bcc8]'}"></span>
+                                <span class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${device.status.charAt(0).toUpperCase() + device.status.slice(1)}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Content -->
-                        <div class="bg-gray-50 rounded-xl p-6 space-y-6 border border-gray-100">
-                            <div class="flex flex-col mb-6">
-                                <div class="flex items-center gap-2 mb-4 px-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="network" class="w-5 h-5 text-indigo-500"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
-                                    <h3 class="text-base font-bold text-gray-900">Topology</h3>
+                        <div class="bg-[#f8f9fb] p-[8px] flex flex-col gap-[8px]">
+                            <div class="bg-white rounded-[4px] border border-[#e6e8ee] p-[16px] flex flex-col gap-[16px]">
+                                <div class="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="network" class="w-5 h-5 text-[#3ec064]"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
+                                    <h3 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">Topology</h3>
                                 </div>
-                                <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                                <div class="bg-white p-[24px] rounded-[4px] border border-[#e6e8ee] relative overflow-hidden">
                                     <style>
                                         @keyframes flow-right {
                                             0% { left: 0; opacity: 0; }
@@ -8947,31 +9038,31 @@ const app = {
                                         <div class="flex flex-col gap-16 relative">
                                             <!-- PV (Line Art Style) -->
                                             <div class="flex items-center gap-0 group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-emerald-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#064e3b]">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-[#3ec064] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2e9f58]">
                                                     <div class="flex flex-col items-center transform scale-110">
                                                         <!-- Sun -->
                                                         <div class="relative w-5 h-5 mb-1">
-                                                            <div class="absolute inset-0 border-2 border-emerald-500 rounded-full"></div>
+                                                            <div class="absolute inset-0 border-2 border-[#3ec064] rounded-full"></div>
                                                             <!-- Rays -->
-                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-emerald-500"></div>
-                                                            <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-emerald-500"></div>
-                                                            <div class="absolute top-1/2 -left-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-emerald-500"></div>
-                                                            <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-emerald-500"></div>
-                                                            <div class="absolute top-0.5 right-0.5 w-[1.5px] h-1 bg-emerald-500 rotate-45"></div>
-                                                            <div class="absolute bottom-0.5 left-0.5 w-[1.5px] h-1 bg-emerald-500 rotate-45"></div>
-                                                            <div class="absolute top-0.5 left-0.5 w-[1.5px] h-1 bg-emerald-500 -rotate-45"></div>
-                                                            <div class="absolute bottom-0.5 right-0.5 w-[1.5px] h-1 bg-emerald-500 -rotate-45"></div>
+                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-[#3ec064]"></div>
+                                                            <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-[#3ec064]"></div>
+                                                            <div class="absolute top-1/2 -left-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-[#3ec064]"></div>
+                                                            <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-[#3ec064]"></div>
+                                                            <div class="absolute top-0.5 right-0.5 w-[1.5px] h-1 bg-[#3ec064] rotate-45"></div>
+                                                            <div class="absolute bottom-0.5 left-0.5 w-[1.5px] h-1 bg-[#3ec064] rotate-45"></div>
+                                                            <div class="absolute top-0.5 left-0.5 w-[1.5px] h-1 bg-[#3ec064] -rotate-45"></div>
+                                                            <div class="absolute bottom-0.5 right-0.5 w-[1.5px] h-1 bg-[#3ec064] -rotate-45"></div>
                                                         </div>
                                                         <!-- Panel -->
-                                                        <div class="w-12 h-8 border-2 border-emerald-500 rounded-sm grid grid-cols-4 grid-rows-2 gap-[1px] bg-emerald-500">
+                                                        <div class="w-12 h-8 border-2 border-[#3ec064] rounded-sm grid grid-cols-4 grid-rows-2 gap-[1px] bg-[#3ec064]">
                                                             <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
                                                             <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
                                                         </div>
                                                         <!-- Stand -->
-                                                        <div class="w-[2px] h-2 bg-emerald-500"></div>
-                                                        <div class="w-6 h-[2px] bg-emerald-500 rounded-full"></div>
+                                                        <div class="w-[2px] h-2 bg-[#3ec064]"></div>
+                                                        <div class="w-6 h-[2px] bg-[#3ec064] rounded-full"></div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-emerald-600 tracking-wider">PV ARRAY</span>
+                                                    <span class="absolute -bottom-7 text-[12px] font-bold text-[#2e9f58] tracking-wider font-['Roboto']">PV ARRAY</span>
                                                 </div>
                                                 <!-- Connector -->
                                                 <div class="w-52 h-8 relative flex items-center justify-center">
@@ -8985,8 +9076,8 @@ const app = {
                                                         }
                                                     </style>
                                                     <!-- DC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-emerald-600 tracking-widest block leading-none">DC</span>
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3ec064]/20 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-[#2e9f58] tracking-widest block leading-none font-['Roboto']">DC</span>
                                                     </div>
 
                                                     <!-- Line SVG -->
@@ -8995,12 +9086,12 @@ const app = {
                                                             <path id="arrow-head-right" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                                                         </defs>
                                                         <!-- Background Track -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#D1FAE5" stroke-width="2" />
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-opacity="0.2" stroke-width="2" />
                                                         <!-- Flowing Current -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#10B981" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line" />
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line" />
                                                         
                                                         <!-- Moving Arrows -->
-                                                        <g class="text-emerald-500">
+                                                        <g class="text-[#3ec064]">
                                                             <path id="path-pv-inv" d="M0 12 L208 12" fill="none" stroke="none" />
                                                             <use href="#arrow-head-right">
                                                                 <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
@@ -9021,28 +9112,28 @@ const app = {
                                                     </svg>
 
                                                     <!-- Arrow -->
-                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-emerald-100 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-emerald-600 block"></i>
+                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3ec064]/20 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-[#2e9f58] block"></i>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- Battery (Line Art Style) -->
                                             <div class="flex items-center gap-0 group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-emerald-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#064e3b]">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-[#3ec064] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2e9f58]">
                                                     <div class="flex flex-col items-center transform scale-110">
-                                                        <div class="w-10 h-14 border-2 border-emerald-500 rounded-md flex flex-col justify-end p-1 gap-1 relative">
-                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-1.5 bg-emerald-500 rounded-t-sm"></div>
-                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-emerald-500 rounded-[1px] opacity-30"></div>
+                                                        <div class="w-10 h-14 border-2 border-[#3ec064] rounded-md flex flex-col justify-end p-1 gap-1 relative">
+                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-1.5 bg-[#3ec064] rounded-t-sm"></div>
+                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px]"></div>
+                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px] opacity-30"></div>
                                                             <div class="absolute top-2 left-1/2 -translate-x-1/2">
-                                                                <i data-lucide="zap" class="w-3 h-3 text-emerald-500 fill-emerald-500"></i>
+                                                                <i data-lucide="zap" class="w-3 h-3 text-[#3ec064] fill-[#3ec064]"></i>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-emerald-600 tracking-wider">BATTERY</span>
+                                                    <span class="absolute -bottom-7 text-[12px] font-bold text-[#2e9f58] tracking-wider font-['Roboto']">BATTERY</span>
                                                 </div>
                                                  <!-- Connector -->
                                                  <div class="w-52 h-8 relative flex items-center justify-center">
@@ -9056,8 +9147,8 @@ const app = {
                                                         }
                                                     </style>
                                                     <!-- DC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-emerald-100 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-emerald-600 tracking-widest block leading-none">DC</span>
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3ec064]/20 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-[#2e9f58] tracking-widest block leading-none font-['Roboto']">DC</span>
                                                     </div>
 
                                                     <!-- Line SVG -->
@@ -9066,12 +9157,12 @@ const app = {
                                                             <path id="arrow-head-bat" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                                                         </defs>
                                                         <!-- Background Track -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#D1FAE5" stroke-width="2" />
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-opacity="0.2" stroke-width="2" />
                                                         <!-- Flowing Current -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#10B981" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line-left" />
+                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line-left" />
                                                         
                                                         <!-- Moving Arrows -->
-                                                        <g class="text-emerald-500">
+                                                        <g class="text-[#3ec064]">
                                                             <path id="path-inv-bat" d="M208 12 L0 12" fill="none" stroke="none" />
                                                             <use href="#arrow-head-bat">
                                                                 <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
@@ -9092,8 +9183,8 @@ const app = {
                                                     </svg>
 
                                                     <!-- Arrow -->
-                                                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-emerald-100 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-left" class="w-3 h-3 text-emerald-600 block"></i>
+                                                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3ec064]/20 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-left" class="w-3 h-3 text-[#2e9f58] block"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -9101,22 +9192,22 @@ const app = {
 
                                         <!-- Center Column: Inverter (Line Art Style) -->
                                         <div class="flex flex-col items-center justify-center relative">
-                                            <div class="flex flex-col items-center justify-center w-52 h-52 bg-white border-2 border-cyan-500 rounded-xl relative z-20 transition-transform hover:scale-105 shadow-[6px_6px_0px_0px_#0e7490]">
-                                                <div class="absolute -top-3 bg-cyan-600 text-white text-[10px] px-3 py-0.5 rounded-full font-bold tracking-wider shadow-sm border-2 border-white">HYBRID</div>
+                                            <div class="flex flex-col items-center justify-center w-52 h-52 bg-white border border-[#06b6d4] rounded-xl relative z-20 transition-transform hover:scale-105 shadow-[6px_6px_0px_0px_#0891b2]">
+                                                <div class="absolute -top-3 bg-[#06b6d4] text-white text-[10px] px-3 py-0.5 rounded-full font-bold tracking-wider shadow-sm border border-white font-['Roboto']">HYBRID</div>
                                                 <div class="flex flex-col items-center transform scale-150">
-                                                    <div class="w-16 h-16 border-2 border-cyan-500 rounded-lg flex items-center justify-center relative overflow-hidden bg-white">
+                                                    <div class="w-16 h-16 border border-[#06b6d4] rounded-lg flex items-center justify-center relative overflow-hidden bg-white">
                                                          <div class="flex flex-col items-center gap-1">
-                                                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" class="text-cyan-500 stroke-2">
+                                                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" class="text-[#06b6d4] stroke-2">
                                                                 <path d="M2 6C2 6 5 2 8 2C11 2 14 10 17 10C20 10 22 6 22 6" stroke-linecap="round" stroke-linejoin="round"/>
                                                             </svg>
                                                             <div class="flex gap-1">
-                                                                <div class="w-5 h-[2px] bg-cyan-500 rounded-full"></div>
-                                                                <div class="w-5 h-[2px] bg-cyan-500 rounded-full"></div>
+                                                                <div class="w-5 h-[2px] bg-[#06b6d4] rounded-full"></div>
+                                                                <div class="w-5 h-[2px] bg-[#06b6d4] rounded-full"></div>
                                                             </div>
                                                          </div>
                                                     </div>
                                                 </div>
-                                                <span class="absolute -bottom-8 text-base font-bold text-cyan-700 tracking-wider">INVERTER</span>
+                                                <span class="absolute -bottom-8 text-base font-bold text-[#0e7490] tracking-wider font-['Roboto']">INVERTER</span>
                                             </div>
                                         </div>
 
@@ -9124,20 +9215,20 @@ const app = {
                                         <div class="flex flex-col gap-16 relative">
                                             <!-- Grid (Line Art Style) -->
                                             <div class="flex items-center gap-0 flex-row-reverse group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-blue-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#1e3a8a]">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border border-[#3b82f6] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2563eb]">
                                                     <div class="flex flex-col items-center transform scale-110">
                                                         <div class="flex flex-col items-center relative">
-                                                             <div class="w-12 h-[2px] bg-blue-500 rounded-full mb-1.5"></div>
-                                                             <div class="w-16 h-[2px] bg-blue-500 rounded-full mb-1"></div>
+                                                             <div class="w-12 h-[2px] bg-[#3b82f6] rounded-full mb-1.5"></div>
+                                                             <div class="w-16 h-[2px] bg-[#3b82f6] rounded-full mb-1"></div>
                                                              <div class="relative w-10 h-12">
-                                                                <div class="absolute inset-x-0 top-0 bottom-0 border-l-2 border-r-2 border-blue-500 transform scale-x-75 origin-bottom"></div>
-                                                                <div class="absolute top-1/2 inset-x-0 h-[2px] bg-blue-500"></div>
-                                                                <div class="absolute top-1/4 inset-x-1 h-[2px] bg-blue-500"></div>
-                                                                <div class="absolute bottom-0 inset-x-0 h-[2px] bg-blue-500"></div>
+                                                                <div class="absolute inset-x-0 top-0 bottom-0 border-l-[2px] border-r-[2px] border-[#3b82f6] transform scale-x-75 origin-bottom"></div>
+                                                                <div class="absolute top-1/2 inset-x-0 h-[2px] bg-[#3b82f6]"></div>
+                                                                <div class="absolute top-1/4 inset-x-1 h-[2px] bg-[#3b82f6]"></div>
+                                                                <div class="absolute bottom-0 inset-x-0 h-[2px] bg-[#3b82f6]"></div>
                                                              </div>
                                                         </div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-blue-600 tracking-wider">GRID</span>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-[#1d4ed8] tracking-wider font-['Roboto']">GRID</span>
                                                 </div>
                                                  <!-- Connector -->
                                                  <div class="w-52 h-8 relative flex items-center justify-center">
@@ -9151,8 +9242,8 @@ const app = {
                                                         }
                                                     </style>
                                                     <!-- AC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-blue-100 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-blue-600 tracking-widest block leading-none">AC</span>
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3b82f6]/20 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-[#3b82f6] tracking-widest block leading-none font-['Roboto']">AC</span>
                                                     </div>
 
                                                     <!-- Wave SVG -->
@@ -9162,16 +9253,16 @@ const app = {
                                                         </defs>
                                                         <!-- Background Track -->
                                                         <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#DBEAFE" stroke-width="2" fill="none" />
+                                                              stroke="#e6e8ee" stroke-width="2" fill="none" />
                                                         
                                                         <!-- Flowing Current -->
                                                         <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#3B82F6" stroke-width="2" fill="none"
+                                                              stroke="#3b82f6" stroke-width="2" fill="none"
                                                               stroke-dasharray="12 12" 
                                                               class="animate-flow-wave" />
 
                                                         <!-- Moving Arrows -->
-                                                        <g class="text-blue-500">
+                                                        <g class="text-[#3b82f6]">
                                                             <path id="path-inv-grid" d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" fill="none" stroke="none" />
                                                             <use href="#arrow-head-grid">
                                                                 <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
@@ -9192,27 +9283,27 @@ const app = {
                                                     </svg>
 
                                                     <!-- Arrow -->
-                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-blue-100 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-blue-600 block"></i>
+                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3b82f6]/20 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-[#3b82f6] block"></i>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- Home (Line Art Style) -->
                                             <div class="flex items-center gap-0 flex-row-reverse group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-blue-500 rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#1e3a8a]">
+                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border border-[#3b82f6] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2563eb]">
                                                     <div class="flex flex-col items-center transform scale-110">
                                                         <div class="flex flex-col items-center">
                                                             <!-- Roof -->
-                                                            <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[16px] border-b-blue-500 mb-[1px]"></div>
+                                                            <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[16px] border-b-[#3b82f6] mb-[1px]"></div>
                                                             <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[12px] border-b-white -mt-[14px] mb-[3px]"></div>
                                                             <!-- Body -->
-                                                            <div class="w-8 h-6 border-2 border-blue-500 border-t-0 flex justify-center items-end bg-white">
-                                                                <div class="w-3 h-4 border-2 border-blue-500 border-b-0 rounded-t-[1px]"></div>
+                                                            <div class="w-8 h-6 border-[2px] border-[#3b82f6] border-t-0 flex justify-center items-end bg-white">
+                                                                <div class="w-3 h-4 border-[2px] border-[#3b82f6] border-b-0 rounded-t-[1px]"></div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-blue-600 tracking-wider">HOME</span>
+                                                    <span class="absolute -bottom-7 text-xs font-bold text-[#1d4ed8] tracking-wider font-['Roboto']">HOME</span>
                                                 </div>
                                                  <!-- Connector -->
                                                  <div class="w-52 h-8 relative flex items-center justify-center">
@@ -9226,8 +9317,8 @@ const app = {
                                                         }
                                                     </style>
                                                     <!-- AC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-blue-100 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-blue-600 tracking-widest block leading-none">AC</span>
+                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3b82f6]/20 shadow-sm z-20">
+                                                        <span class="text-[8px] font-bold text-[#3b82f6] tracking-widest block leading-none font-['Roboto']">AC</span>
                                                     </div>
 
                                                     <!-- Wave SVG -->
@@ -9237,16 +9328,16 @@ const app = {
                                                         </defs>
                                                         <!-- Background Track -->
                                                         <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#DBEAFE" stroke-width="2" fill="none" />
+                                                              stroke="#e6e8ee" stroke-width="2" fill="none" />
                                                         
                                                         <!-- Flowing Current -->
                                                         <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#3B82F6" stroke-width="2" fill="none"
+                                                              stroke="#3b82f6" stroke-width="2" fill="none"
                                                               stroke-dasharray="12 12" 
                                                               class="animate-flow-wave" />
 
                                                         <!-- Moving Arrows -->
-                                                        <g class="text-blue-500">
+                                                        <g class="text-[#3b82f6]">
                                                             <path id="path-inv-home" d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" fill="none" stroke="none" />
                                                             <use href="#arrow-head-home">
                                                                 <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
@@ -9267,8 +9358,8 @@ const app = {
                                                     </svg>
 
                                                     <!-- Arrow -->
-                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-blue-100 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-blue-600 block"></i>
+                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3b82f6]/20 p-0.5 z-30 shadow-sm">
+                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-[#3b82f6] block"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -9280,49 +9371,49 @@ const app = {
                             </div>
 
 
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
                                 <!-- PV Stats Section -->
                                 <div class="flex flex-col h-full">
                                     <div class="flex items-center gap-2 mb-4 px-1">
-                                        <i data-lucide="sun" class="w-5 h-5 text-orange-500"></i>
-                                        <h3 class="text-base font-bold text-gray-900">PV</h3>
+                                        <i data-lucide="sun" class="w-5 h-5 text-[#f97316]"></i>
+                                        <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">PV</h3>
                                     </div>
-                                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex-1">
-                                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 h-full">
+                                    <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm flex-1">
+                                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-[16px] h-full">
                                             <!-- Capacity -->
                                             <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Capacity</span>
-                                                <span class="text-lg font-bold text-gray-900">${device.capacity} kW</span>
+                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Capacity</span>
+                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${device.capacity} kW</span>
                                             </div>
                                             
                                             <!-- Today Yield -->
                                             <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Today Yield</span>
-                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 4.2).toFixed(1)} kWh</span>
+                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Today Yield</span>
+                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 4.2).toFixed(1)} kWh</span>
                                             </div>
 
                                             <!-- Today Full Hours -->
                                             <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Today Full Hours</span>
-                                                <span class="text-lg font-bold text-gray-900">4.2 h</span>
+                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Today Full Hours</span>
+                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">4.2 h</span>
                                             </div>
 
                                             <!-- Month Yield -->
                                             <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Month Yield</span>
-                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 120).toFixed(1)} kWh</span>
+                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Month Yield</span>
+                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 120).toFixed(1)} kWh</span>
                                             </div>
 
                                             <!-- Annual Yield -->
                                             <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Annual Yield</span>
-                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 1.4).toFixed(2)} MWh</span>
+                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Annual Yield</span>
+                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 1.4).toFixed(2)} MWh</span>
                                             </div>
 
                                             <!-- Total Yield -->
                                             <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Total Yield</span>
-                                                <span class="text-lg font-bold text-gray-900">${(device.capacity * 5).toFixed(2)} MWh</span>
+                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Total Yield</span>
+                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 5).toFixed(2)} MWh</span>
                                             </div>
                                         </div>
                                     </div>
@@ -9331,30 +9422,30 @@ const app = {
                                 <!-- Environmental Benefits -->
                                 <div class="flex flex-col h-full">
                                     <div class="flex items-center gap-2 mb-4 px-1">
-                                        <i data-lucide="leaf" class="w-5 h-5 text-green-500"></i>
-                                        <h3 class="text-base font-bold text-gray-900">Environmental Benefits</h3>
+                                        <i data-lucide="leaf" class="w-5 h-5 text-[#3ec064]"></i>
+                                        <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Environmental Benefits</h3>
                                     </div>
-                                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex-1">
-                                        <div class="grid grid-cols-2 gap-6 h-full">
+                                    <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm flex-1">
+                                        <div class="grid grid-cols-2 gap-[16px] h-full">
                                             <!-- CO2 Reduction -->
                                             <div class="flex flex-col items-center justify-center text-center">
-                                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center text-green-600 shadow-sm ring-1 ring-green-100/50 mb-3">
+                                                <div class="w-16 h-16 rounded-[4px] bg-[#3ec064]/10 flex items-center justify-center text-[#3ec064] shadow-sm ring-1 ring-[#3ec064]/20 mb-3">
                                                     <i data-lucide="cloud-lightning" class="w-8 h-8"></i>
                                                 </div>
                                                 <div class="flex flex-col justify-center">
-                                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">CO₂ Reduction</span>
-                                                    <span class="text-2xl font-bold text-gray-900">${(device.capacity * 3.5).toFixed(1)} t</span>
+                                                    <span class="text-xs font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">CO₂ Reduction</span>
+                                                    <span class="text-2xl font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 3.5).toFixed(1)} t</span>
                                                 </div>
                                             </div>
 
                                             <!-- Trees Planted -->
                                             <div class="flex flex-col items-center justify-center text-center">
-                                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center text-green-600 shadow-sm ring-1 ring-green-100/50 mb-3">
+                                                <div class="w-16 h-16 rounded-[4px] bg-[#3ec064]/10 flex items-center justify-center text-[#3ec064] shadow-sm ring-1 ring-[#3ec064]/20 mb-3">
                                                     <i data-lucide="trees" class="w-8 h-8"></i>
                                                 </div>
                                                 <div class="flex flex-col justify-center">
-                                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Trees Planted</span>
-                                                    <span class="text-2xl font-bold text-gray-900">${Math.floor(device.capacity * 15)}</span>
+                                                    <span class="text-xs font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Trees Planted</span>
+                                                    <span class="text-2xl font-bold text-[#1c2026] font-['Roboto']">${Math.floor(device.capacity * 15)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -9363,132 +9454,132 @@ const app = {
                             </div>
 
                             <!-- Inverter Section -->
-                            <div class="flex flex-col">
+                            <div class="flex flex-col mt-[16px]">
                                 <div class="flex items-center gap-2 mb-4 px-1">
-                                    <i data-lucide="zap" class="w-5 h-5 text-yellow-500"></i>
-                                    <h3 class="text-base font-bold text-gray-900">Inverter</h3>
+                                    <i data-lucide="zap" class="w-5 h-5 text-[#eab308]"></i>
+                                    <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Inverter</h3>
                                 </div>
-                                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-[16px]">
                                         <!-- SN -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">SN</span>
-                                            <span class="text-sm font-bold text-gray-900 truncate" title="${device.sn}">${device.sn}</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">SN</span>
+                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="${device.sn}">${device.sn}</span>
                                         </div>
                                         <!-- Manufacturer -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Manufacturer</span>
-                                            <span class="text-sm font-bold text-gray-900 truncate" title="${device.vendor}">${device.vendor}</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Manufacturer</span>
+                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="${device.vendor}">${device.vendor}</span>
                                         </div>
                                         <!-- Model -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Model</span>
-                                            <span class="text-sm font-bold text-gray-900 truncate" title="${device.model || 'Unknown'}">${device.model || 'Unknown'}</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Model</span>
+                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="${device.model || 'Unknown'}">${device.model || 'Unknown'}</span>
                                         </div>
                                         <!-- Type -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Type</span>
-                                            <span class="text-sm font-bold text-gray-900">String Inverter</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Type</span>
+                                            <span class="text-sm font-bold text-[#1c2026] font-['Roboto']">String Inverter</span>
                                         </div>
                                         <!-- Rated Power -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Rated Power</span>
-                                            <span class="text-lg font-bold text-gray-900">${device.capacity} kW</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Rated Power</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${device.capacity} kW</span>
                                         </div>
                                         <!-- Input Power -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Input Power</span>
-                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 0.85).toFixed(1)} kW</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Input Power</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 0.85).toFixed(1)} kW</span>
                                         </div>
                                         <!-- Output Power -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Output Power</span>
-                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 0.8).toFixed(1)} kW</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Output Power</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 0.8).toFixed(1)} kW</span>
                                         </div>
                                         <!-- Operating mode -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Operating mode</span>
-                                            <span class="text-lg font-bold text-gray-900">Normal</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Operating mode</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">Normal</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Battery Section -->
-                            <div class="flex flex-col">
+                            <div class="flex flex-col mt-[16px]">
                                 <div class="flex items-center gap-2 mb-4 px-1">
-                                    <i data-lucide="battery-charging" class="w-5 h-5 text-blue-500"></i>
-                                    <h3 class="text-base font-bold text-gray-900">Battery</h3>
+                                    <i data-lucide="battery-charging" class="w-5 h-5 text-[#3b82f6]"></i>
+                                    <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Battery</h3>
                                 </div>
-                                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                                <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-[16px]">
                                         <!-- Model -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Model</span>
-                                            <span class="text-sm font-bold text-gray-900 truncate" title="LFP-200">LFP-200</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Model</span>
+                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="LFP-200">LFP-200</span>
                                         </div>
                                         <!-- Rated Capacity -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Rated Capacity</span>
-                                            <span class="text-lg font-bold text-gray-900">${device.capacity * 2} kWh</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Rated Capacity</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${device.capacity * 2} kWh</span>
                                         </div>
                                         <!-- Available charge -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Available charge</span>
-                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Available charge</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</span>
                                         </div>
                                         <!-- Available discharge -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Available discharge</span>
-                                            <span class="text-lg font-bold text-gray-900">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Available discharge</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</span>
                                         </div>
                                         <!-- SOC -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">SOC</span>
-                                            <span class="text-lg font-bold text-gray-900">85%</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">SOC</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">85%</span>
                                         </div>
                                         <!-- SOC floor -->
                                         <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">SOC floor</span>
-                                            <span class="text-lg font-bold text-gray-900">10%</span>
+                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">SOC floor</span>
+                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">10%</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Operation Section -->
-                            <div class="flex flex-col mb-6">
+                            <div class="flex flex-col mb-6 mt-[16px]">
                                 <div class="flex items-center justify-between mb-4 px-1">
                                     <div class="flex items-center gap-2">
-                                        <i data-lucide="activity" class="w-5 h-5 text-indigo-500"></i>
-                                        <h3 class="text-base font-bold text-gray-900">Operation</h3>
+                                        <i data-lucide="activity" class="w-5 h-5 text-[#6366f1]"></i>
+                                        <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Operation</h3>
                                     </div>
-                                    <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm px-1 w-[260px] justify-between">
-                                        <select id="operation-granularity" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 cursor-pointer h-7 outline-none flex-shrink-0" onchange="app.handleGranularityChange(this.value)">
+                                    <div class="flex items-center bg-white border border-[#e6e8ee] rounded-[4px] shadow-sm px-1 w-[260px] justify-between">
+                                        <select id="operation-granularity" class="bg-transparent border-none text-[#1c2026] text-xs focus:ring-0 block p-1 cursor-pointer h-7 outline-none flex-shrink-0 font-['Roboto']" onchange="app.handleGranularityChange(this.value)">
                                             <option value="day">Daily</option>
                                             <option value="month">Monthly</option>
                                             <option value="year">Yearly</option>
                                             <option value="total">Total</option>
                                         </select>
-                                        <span id="operation-separator" class="text-gray-300 mx-1 flex-shrink-0">|</span>
+                                        <span id="operation-separator" class="text-[#b5bcc8] mx-1 flex-shrink-0">|</span>
                                         <div class="flex items-center flex-1 justify-center">
-                                            <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors flex-shrink-0">
+                                            <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="text-[#b5bcc8] hover:text-[#5f6570] p-1 hover:bg-[#f8f9fb] rounded-full transition-colors flex-shrink-0">
                                                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                             </button>
-                                            <input type="date" id="operation-date" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer flex-1 w-full" value="${new Date().toISOString().split('T')[0]}" onchange="app.updateOperationChart()" onclick="try{this.showPicker()}catch(e){}">
-                                            <select id="operation-year-select" class="bg-transparent border-none text-gray-900 text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer appearance-none flex-1 w-full" style="display:none" onchange="document.getElementById('operation-date').value=this.value; app.updateOperationChart()">
+                                            <input type="date" id="operation-date" class="bg-transparent border-none text-[#1c2026] text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer flex-1 w-full font-['Roboto']" value="${new Date().toISOString().split('T')[0]}" onchange="app.updateOperationChart()" onclick="try{this.showPicker()}catch(e){}">
+                                            <select id="operation-year-select" class="bg-transparent border-none text-[#1c2026] text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer appearance-none flex-1 w-full font-['Roboto']" style="display:none" onchange="document.getElementById('operation-date').value=this.value; app.updateOperationChart()">
                                             </select>
-                                            <button id="operation-date-next" onclick="app.adjustDate(1)" class="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full transition-colors flex-shrink-0">
+                                            <button id="operation-date-next" onclick="app.adjustDate(1)" class="text-[#b5bcc8] hover:text-[#5f6570] p-1 hover:bg-[#f8f9fb] rounded-full transition-colors flex-shrink-0">
                                                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative">
-                                    <div class="absolute top-6 left-6 z-10 flex bg-gray-100 rounded-lg p-1">
-                                        <button onclick="app.setOperationTab('status')" id="tab-status" class="px-3 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm rounded-md transition-all">Status</button>
-                                        <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all">Generation</button>
-                                        <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all">Consumption</button>
+                                <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm relative">
+                                    <div class="absolute top-6 left-6 z-10 flex bg-[#f8f9fb] rounded-[4px] p-1">
+                                        <button onclick="app.setOperationTab('status')" id="tab-status" class="px-3 py-1 text-xs font-medium bg-white text-[#1c2026] shadow-sm rounded-[4px] transition-all font-['Roboto']">Status</button>
+                                        <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-3 py-1 text-xs font-medium text-[#5f6570] hover:text-[#1c2026] rounded-[4px] transition-all font-['Roboto']">Generation</button>
+                                        <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-3 py-1 text-xs font-medium text-[#5f6570] hover:text-[#1c2026] rounded-[4px] transition-all font-['Roboto']">Consumption</button>
                                     </div>
                                     <div id="operation-chart" class="w-full h-96"></div>
                                 </div>
@@ -9810,7 +9901,7 @@ const app = {
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Capacity</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Today Yield</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-right min-w-[140px]">Actions</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="">
@@ -9868,8 +9959,8 @@ const app = {
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.inv.pvCapacity} kW</td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.bat.cap.toFixed(1)} kWh</td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
-                                            <td class="px-[8px] text-right">
-                                                <div class="flex items-center justify-end gap-[12px]">
+                                            <td class="px-[8px]">
+                                                <div class="flex items-center justify-start gap-[12px]">
                                                     <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                                     </button>
@@ -10196,20 +10287,20 @@ const app = {
                 <!-- Content -->
                 <div class="flex-1 overflow-y-auto px-[24px]">
                     ${(state.vppDetailsTab === 'der-list') ? `
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse font-['Roboto']">
                         <thead class="sticky top-0 bg-white z-10">
-                            <tr class="h-[48px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
-                                <th class="px-[16px] font-medium">Status</th>
-                                <th class="px-[16px] font-medium">SN</th>
-                                <th class="px-[16px] font-medium">Type</th>
-                                <th class="px-[16px] font-medium">Manufacturer</th>
-                                <th class="px-[16px] font-medium">State</th>
-                                <th class="px-[16px] font-medium">Rated Power</th>
-                                <th class="px-[16px] font-medium">PV Capacity</th>
-                                <th class="px-[16px] font-medium">Rated Capacity</th>
-                                <th class="px-[16px] font-medium">SOC</th>
-                                <th class="px-[16px] font-medium">Today Yield</th>
-                                <th class="px-[16px] font-medium">Actions</th>
+                            <tr class="h-[48px] text-[12px] text-[#b5bcc8] font-normal border-b border-[#e6e8ee]">
+                                <th class="px-[8px] font-normal">Status</th>
+                                <th class="px-[8px] font-normal">SN</th>
+                                <th class="px-[8px] font-normal">Type</th>
+                                <th class="px-[8px] font-normal">Manufacturer</th>
+                                <th class="px-[8px] font-normal">State</th>
+                                <th class="px-[8px] font-normal">Rated Power</th>
+                                <th class="px-[8px] font-normal">PV Capacity</th>
+                                <th class="px-[8px] font-normal">Rated Capacity</th>
+                                <th class="px-[8px] font-normal">SOC</th>
+                                <th class="px-[8px] font-normal">Today Yield</th>
+                                <th class="px-[8px] font-normal">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-[14px] text-[#313949]">
@@ -10226,7 +10317,7 @@ const app = {
                                     socDisplay = `
                                         <div class="flex flex-col">
                                             <span class="text-[#313949]">${socVal}%</span>
-                                            <span class="text-[10px] text-[#5f646e]">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</span>
+                                            <span class="text-[10px] text-[#b5bcc8]">(${currentEn.toFixed(0)}/${totalCap.toFixed(0)} kWh)</span>
                                         </div>
                                     `;
                                 }
@@ -10234,28 +10325,28 @@ const app = {
                                 const displayType = dev.type === 'Inverter' ? 'Single PV' : (dev.type === 'Battery' ? 'Single ESS' : (dev.type === 'Hybrid' ? 'PV Plus ESS' : (dev.type || '-')));
                                 
                                 return `
-                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
-                                    <td class="px-[16px] py-[12px]">
-                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${dev.status === 'online' ? 'bg-[#e6f4d0] text-[#4b7b0f]' : 'bg-[#e6e8ee] text-[#5f646e]'}">
+                                <tr class="h-[48px] odd:bg-[#f3f3f6] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
+                                    <td class="px-[8px] py-[12px]">
+                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${dev.status === 'online' ? 'bg-[rgba(140,218,47,0.2)] text-[#8cda2f]' : 'bg-[#e6e8ee] text-[#b5bcc8]'}">
                                             <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
                                             ${dev.status}
                                         </span>
                                     </td>
-                                    <td class="px-[16px] py-[12px] font-mono text-[#313949]">${dev.sn}</td>
-                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${displayType}</td>
-                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${dev.vendor}</td>
-                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${vpp.state || '-'}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${ratedPower}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${pvCapacity}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${ratedCapacity}</td>
-                                    <td class="px-[16px] py-[12px] font-mono">${socDisplay}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${todayYield}</td>
-                                    <td class="px-[16px] py-[12px]">
+                                    <td class="px-[8px] py-[12px] font-mono text-[#313949]">${dev.sn}</td>
+                                    <td class="px-[8px] py-[12px] text-[#5f646e]">${displayType}</td>
+                                    <td class="px-[8px] py-[12px] text-[#5f646e]">${dev.vendor}</td>
+                                    <td class="px-[8px] py-[12px] text-[#5f646e]">${vpp.state || '-'}</td>
+                                    <td class="px-[8px] py-[12px] text-[#313949] font-mono">${ratedPower}</td>
+                                    <td class="px-[8px] py-[12px] text-[#313949] font-mono">${pvCapacity}</td>
+                                    <td class="px-[8px] py-[12px] text-[#313949] font-mono">${ratedCapacity}</td>
+                                    <td class="px-[8px] py-[12px] font-mono">${socDisplay}</td>
+                                    <td class="px-[8px] py-[12px] text-[#313949] font-mono">${todayYield}</td>
+                                    <td class="px-[8px] py-[12px]">
                                         <div class="flex items-center gap-[8px]">
-                                            <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#5f646e] hover:text-[#313949] transition-colors" title="View Details">
+                                            <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
                                                 <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                             </button>
-                                            <button onclick="app.confirmRemoveDER('${dev.sn}', event)" class="text-[#5f646e] hover:text-red-600 transition-colors" title="Remove">
+                                            <button onclick="app.confirmRemoveDER('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-red-600 transition-colors" title="Remove">
                                                 <i data-lucide="trash-2" class="w-[16px] h-[16px]"></i>
                                             </button>
                                         </div>

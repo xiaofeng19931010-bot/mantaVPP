@@ -11,6 +11,7 @@
     "backstopjs": "^6.3.23"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "docx": "^9.5.1",
     "eventsource": "^4.1.0",
     "pptxgenjs": "^4.0.1"
