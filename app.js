@@ -895,10 +895,6 @@ const app = {
         if (view === 'der_details' && sn) {
             // Navigate to DER Management (assuming ESS for now or generic)
             this.navigate('der_ess');
-            // Open details modal after a short delay to allow rendering
-            setTimeout(() => {
-                this.viewDeviceDetails(sn);
-            }, 500);
         } else {
             this.navigate('overview');
         }
@@ -10593,11 +10589,7 @@ const app = {
         lucide.createIcons();
     },
 
-    viewDeviceDetails(sn) {
-        // Default to 'Power' and 'Real-time' for initial view
-        this.renderDeviceDataModalContent(sn, 'Power', 'Real-time');
-        this.toggleModal(true);
-    },
+
 
     openDERDetails(sn, event) {
         if (event) event.stopPropagation();
@@ -10629,203 +10621,7 @@ const app = {
         }
     },
 
-    renderDeviceDataModalContent(sn, dataType = 'Power', timeRange = 'Real-time', startDate = null, endDate = null) {
-        const modalContent = document.getElementById('modal-content');
-        
-        // Mock data generation
-        const dataMap = {
-            'Power': { unit: 'kW', color: '#1E40AF' },
-            'Voltage': { unit: 'V', color: '#10B981' },
-            'Current': { unit: 'A', color: '#F59E0B' },
-            'Frequency': { unit: 'Hz', color: '#8B5CF6' },
-            'Temperature': { unit: '°C', color: '#F43F5E' },
-            'SOC': { unit: '%', color: '#3B82F6' }
-        };
 
-        const currentMeta = dataMap[dataType] || dataMap['Power'];
-        
-        // Generate X-Axis and Series Data
-        let xAxisData = [];
-        let seriesData = [];
-        
-        if (timeRange === 'Real-time') {
-            // Today 00:00 to 24:00 (every 4 hours for simplicity in mock)
-            xAxisData = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
-            // Generate some realistic looking curve
-            seriesData = xAxisData.map(() => Math.floor(Math.random() * 100) + 50);
-        } else {
-            // Historical
-            if (!startDate) {
-                // Default to yesterday
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                startDate = yesterday.toISOString().split('T')[0];
-                endDate = yesterday.toISOString().split('T')[0];
-            }
-            
-            // Generate hourly data for the selected range (mock)
-            // If same day, show hours. If multiple days, show days.
-            if (startDate === endDate) {
-                xAxisData = ['00:00', '06:00', '12:00', '18:00', '24:00'];
-                seriesData = xAxisData.map(() => Math.floor(Math.random() * 100) + 50);
-            } else {
-                // Mock multi-day
-                xAxisData = [startDate, endDate]; // Simplified for mock
-                seriesData = [120, 150];
-            }
-        }
-
-        // Available devices
-        const availableDevices = (state.devices && state.devices.length > 0) ? state.devices.map(d => ({
-            sn: d.sn,
-            model: d.vendor ? `${d.vendor} ${d.type}` : d.type
-        })) : [
-            { sn: 'INV-001', model: 'SG-5K-D' },
-            { sn: 'INV-002', model: 'SG-5K-D' }
-        ];
-        
-        const types = Object.keys(dataMap);
-
-        modalContent.innerHTML = `
-            <div class="p-6 bg-white rounded-xl">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                            Device Analysis
-                        </h3>
-                        <p class="text-gray-500 text-xs mt-1">Monitor device performance and historical data</p>
-                    </div>
-                    <button onclick="app.closeModal()" class="text-gray-400 hover:text-gray-900 transition-colors">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <!-- Controls -->
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <!-- Device Selector -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500 uppercase">Device</label>
-                        <div class="relative">
-                            <i data-lucide="server" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <select onchange="app.renderDeviceDataModalContent(this.value, '${dataType}', '${timeRange}', '${startDate || ''}', '${endDate || ''}')" 
-                                class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
-                                ${availableDevices.map(d => `<option value="${d.sn}" ${d.sn === sn ? 'selected' : ''}>${d.sn} - ${d.model}</option>`).join('')}
-                            </select>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-                        </div>
-                    </div>
-                    <!-- Metric Selector -->
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-semibold text-gray-500 uppercase">Metric</label>
-                        <div class="relative">
-                            <i data-lucide="activity" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <select onchange="app.renderDeviceDataModalContent('${sn}', this.value, '${timeRange}', '${startDate || ''}', '${endDate || ''}')" 
-                                class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 focus:border-manta-primary focus:ring-1 focus:ring-manta-primary outline-none transition-all appearance-none cursor-pointer">
-                                ${types.map(t => `<option value="${t}" ${t === dataType ? 'selected' : ''}>${t}</option>`).join('')}
-                            </select>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Time Range Tabs & Date Picker -->
-                <div class="flex flex-col gap-3 mb-6 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <div class="flex items-center gap-2">
-                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Real-time')" 
-                            class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeRange === 'Real-time' ? 'bg-white text-manta-primary shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
-                            Real-time
-                        </button>
-                        <button onclick="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Historical')" 
-                            class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${timeRange === 'Historical' ? 'bg-white text-manta-primary shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
-                            Historical
-                        </button>
-                    </div>
-
-                    ${timeRange === 'Historical' ? `
-                        <div class="flex items-center gap-2 pt-2 border-t border-gray-200 animate-in fade-in slide-in-from-top-1">
-                            <div class="flex-1 space-y-1">
-                                <label class="text-[10px] uppercase text-gray-400 font-semibold">Start</label>
-                                <input type="date" value="${startDate}" 
-                                    onchange="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Historical', this.value, document.getElementById('end-date-input').value)"
-                                    class="w-full bg-white border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary">
-                            </div>
-                            <div class="flex-1 space-y-1">
-                                <label class="text-[10px] uppercase text-gray-400 font-semibold">End</label>
-                                <input type="date" id="end-date-input" value="${endDate}" 
-                                    onchange="app.renderDeviceDataModalContent('${sn}', '${dataType}', 'Historical', '${startDate}', this.value)"
-                                    class="w-full bg-white border border-gray-200 rounded px-2 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-manta-primary">
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-
-                <!-- Chart -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6">
-                    <h4 class="font-bold text-gray-900 mb-4">${dataType} Trend</h4>
-                    <div id="device-chart-container" class="w-full h-[300px]"></div>
-                </div>
-
-                <!-- Stats -->
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <p class="text-xs text-gray-500 mb-1">Current</p>
-                        <p class="text-lg font-mono text-gray-900">${seriesData[seriesData.length-1]?.toFixed(1) || '-'} <span class="text-xs text-gray-500">${currentMeta.unit}</span></p>
-                    </div>
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <p class="text-xs text-gray-500 mb-1">Average</p>
-                        <p class="text-lg font-mono text-gray-900">${(seriesData.reduce((a,b)=>a+b,0)/seriesData.length).toFixed(1)} <span class="text-xs text-gray-500">${currentMeta.unit}</span></p>
-                    </div>
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <p class="text-xs text-gray-500 mb-1">Peak</p>
-                        <p class="text-lg font-mono text-gray-900">${Math.max(...seriesData).toFixed(1)} <span class="text-xs text-gray-500">${currentMeta.unit}</span></p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        lucide.createIcons();
-        
-        // Init Chart
-        setTimeout(() => {
-            const chartDom = document.getElementById('device-chart-container');
-            if (!chartDom) return;
-            const existingChart = echarts.getInstanceByDom(chartDom);
-            if (existingChart) existingChart.dispose();
-
-            const myChart = echarts.init(chartDom);
-            const option = {
-                grid: { top: 20, right: 20, bottom: 20, left: 40, containLabel: true },
-                tooltip: { trigger: 'axis' },
-                xAxis: {
-                    type: 'category',
-                    data: xAxisData,
-                    axisLine: { lineStyle: { color: '#E5E7EB' } },
-                    axisLabel: { color: '#6B7280' }
-                },
-                yAxis: {
-                    type: 'value',
-                    splitLine: { lineStyle: { color: '#E5E7EB', type: 'dashed' } },
-                    axisLabel: { color: '#6B7280' }
-                },
-                series: [{
-                    data: seriesData,
-                    type: 'line',
-                    smooth: true,
-                    symbol: 'none',
-                    lineStyle: { width: 3, color: currentMeta.color },
-                    areaStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: currentMeta.color + '80' },
-                            { offset: 1, color: currentMeta.color + '00' }
-                        ])
-                    }
-                }]
-            };
-            myChart.setOption(option);
-        }, 100);
-
-        lucide.createIcons();
-    },
 
     openVPPDrawer(vppId = null) {
         const isEdit = !!vppId;
