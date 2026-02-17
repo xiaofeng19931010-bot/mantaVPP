@@ -8484,27 +8484,26 @@ const app = {
         state.operationTab = tab;
         
         // Update Tab UI
-        const statusTab = document.getElementById('tab-status');
-        const generationTab = document.getElementById('tab-generation');
-        const consumptionTab = document.getElementById('tab-consumption');
+        const tabs = ['status', 'generation', 'consumption'];
         
-        if (statusTab && generationTab && consumptionTab) {
-            // Reset all to default style
-            const defaultStyle = "px-[12px] py-[6px] text-[12px] font-medium text-[#6B7280] hover:text-[#1F2937] rounded-[6px] font-['Manrope'] transition-all";
-            const activeStyle = "px-[12px] py-[6px] text-[12px] font-semibold text-[#1F2937] bg-white rounded-[6px] shadow-sm font-['Manrope'] transition-all";
-            
-            statusTab.className = defaultStyle;
-            generationTab.className = defaultStyle;
-            consumptionTab.className = defaultStyle;
+        const activeBtnClass = "content-stretch flex h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 bg-white shadow-sm transition-all";
+        const defaultBtnClass = "content-stretch flex h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 hover:bg-white/50 transition-all";
+        
+        const activeTextClass = "font-['Roboto'] font-semibold leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center";
+        const defaultTextClass = "font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center";
 
-            if (tab === 'status') {
-                statusTab.className = activeStyle;
-            } else if (tab === 'generation') {
-                generationTab.className = activeStyle;
-            } else if (tab === 'consumption') {
-                consumptionTab.className = activeStyle;
+        tabs.forEach(t => {
+            const btn = document.getElementById(`tab-${t}`);
+            if (btn) {
+                const isActive = t === tab;
+                btn.className = isActive ? activeBtnClass : defaultBtnClass;
+                
+                const text = btn.querySelector('p');
+                if (text) {
+                    text.className = isActive ? activeTextClass : defaultTextClass;
+                }
             }
-        }
+        });
         
         this.updateOperationChart();
     },
@@ -8512,38 +8511,53 @@ const app = {
     handleGranularityChange(granularity) {
         state.operationGranularity = granularity;
         
+        // Update Granularity Text Display
+        const textDisplay = document.getElementById('operation-granularity-text');
+        const selectEl = document.getElementById('operation-granularity');
+        if (textDisplay && selectEl) {
+             textDisplay.textContent = selectEl.options[selectEl.selectedIndex].text;
+        }
+        
         // Handle Date Input Type and Visibility
         const dateInput = document.getElementById('operation-date');
         const yearSelect = document.getElementById('operation-year-select');
-        const prevBtn = document.getElementById('operation-date-prev');
-        const nextBtn = document.getElementById('operation-date-next');
         const separator = document.getElementById('operation-separator');
+        const dateControlGroup = document.getElementById('operation-date-control-group');
         
-        if (dateInput) {
-            // Determine visibility of controls
-            const showControls = granularity !== 'total';
-            const isYear = granularity === 'year';
+        const showControls = granularity !== 'total';
+        const isYear = granularity === 'year';
 
+        // Toggle visibility of separator and date control group
+        if (dateControlGroup) dateControlGroup.style.display = showControls ? 'flex' : 'none';
+        if (separator) separator.style.display = showControls ? 'block' : 'none';
+
+        if (dateInput && showControls) {
             // Toggle Input vs Select
-            dateInput.style.display = (showControls && !isYear) ? 'block' : 'none';
-            if (yearSelect) yearSelect.style.display = (showControls && isYear) ? 'block' : 'none';
+            if (isYear) {
+                dateInput.classList.add('hidden');
+                if (yearSelect) yearSelect.classList.remove('hidden');
+            } else {
+                dateInput.classList.remove('hidden');
+                if (yearSelect) yearSelect.classList.add('hidden');
+            }
             
-            // Toggle Buttons and Separator
-            if (prevBtn) prevBtn.style.display = showControls ? 'block' : 'none';
-            if (nextBtn) nextBtn.style.display = showControls ? 'block' : 'none';
-            if (separator) separator.style.display = showControls ? 'inline' : 'none';
-
             if (granularity === 'day') {
                 dateInput.type = 'date';
-                dateInput.value = new Date().toISOString().split('T')[0];
+                if (!dateInput.value || dateInput.value.length !== 10) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
             } else if (granularity === 'month') {
                 dateInput.type = 'month';
-                dateInput.value = new Date().toISOString().slice(0, 7);
+                if (!dateInput.value || dateInput.value.length !== 7) {
+                    dateInput.value = new Date().toISOString().slice(0, 7);
+                }
             } else if (isYear) {
+                // Change input type to text to hold year value
+                dateInput.type = 'text';
+
                 // Populate Year Select if needed
                 if (yearSelect && yearSelect.options.length === 0) {
                      const currentYear = new Date().getFullYear();
-                     // Range: -10 to +10 years from now
                      for(let y = currentYear + 10; y >= currentYear - 10; y--) {
                          const opt = document.createElement('option');
                          opt.value = y;
@@ -8551,10 +8565,8 @@ const app = {
                          yearSelect.add(opt);
                      }
                 }
-                // Sync value
                 const currentVal = dateInput.value.substring(0, 4);
                 if (yearSelect) yearSelect.value = currentVal || new Date().getFullYear();
-                // Ensure input has year value for chart logic
                 dateInput.value = yearSelect ? yearSelect.value : new Date().getFullYear();
             }
         }
@@ -8564,7 +8576,6 @@ const app = {
         if (statusTab) {
             if (granularity !== 'day') {
                 statusTab.style.display = 'none';
-                // If currently on status tab, switch to generation
                 if (state.operationTab === 'status') {
                     this.setOperationTab('generation');
                 }
@@ -8573,6 +8584,25 @@ const app = {
             }
         }
         
+        this.updateOperationChart();
+    },
+
+    triggerDatePicker() {
+        const granularity = state.operationGranularity || 'day';
+        if (granularity === 'year') {
+             const sel = document.getElementById('operation-year-select');
+             if (sel) sel.showPicker ? sel.showPicker() : sel.click();
+        } else {
+             const inp = document.getElementById('operation-date');
+             if (inp) inp.showPicker ? inp.showPicker() : inp.click();
+        }
+    },
+
+    handleDateChange(val) {
+        const dateInput = document.getElementById('operation-date');
+        if (dateInput && state.operationGranularity === 'year') {
+             dateInput.value = val;
+        }
         this.updateOperationChart();
     },
 
@@ -8606,7 +8636,32 @@ const app = {
 
     updateOperationChart() {
         const dateInput = document.getElementById('operation-date');
+        const dateDisplay = document.getElementById('operation-date-display');
         const chartDom = document.getElementById('operation-chart');
+        const granularity = state.operationGranularity || 'day';
+
+        // Update Date Display Text
+        if (dateDisplay && dateInput) {
+             const val = dateInput.value;
+             if (val) {
+                 if (granularity === 'day') {
+                     // val is YYYY-MM-DD -> DD / MM / YYYY
+                     const parts = val.split('-');
+                     if (parts.length === 3) {
+                         dateDisplay.textContent = `${parts[2]} / ${parts[1]} / ${parts[0]}`;
+                     }
+                 } else if (granularity === 'month') {
+                     // val is YYYY-MM -> MM / YYYY
+                     const parts = val.split('-');
+                     if (parts.length === 2) {
+                         dateDisplay.textContent = `${parts[1]} / ${parts[0]}`;
+                     }
+                 } else if (granularity === 'year') {
+                     // val is YYYY
+                     dateDisplay.textContent = val;
+                 }
+             }
+        }
         
         if (!chartDom || typeof echarts === 'undefined') return;
         
@@ -8620,7 +8675,6 @@ const app = {
         const maxBarWidthGen = (gridWidth / yearDataCount) * 0.40;
 
         // Determine granularity and date
-        const granularity = state.operationGranularity || 'day';
         const selectedDate = dateInput ? new Date(dateInput.value) : new Date();
         
         let xAxisData = [];
@@ -8998,7 +9052,6 @@ const app = {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                     
                                     <!-- Vector Overlays -->
                                     <div class="absolute inset-[67.01%_12.3%_7.06%_59.01%]">
@@ -9073,6 +9126,7 @@ const app = {
                                             <span class="text-[12px] text-[#346aff] font-['Roboto']">AC</span>
                                         </div>
                                     </div>
+                                    </div>
                                 </div>
 
                                 <!-- Info Panel -->
@@ -9113,14 +9167,12 @@ const app = {
                             </div>
 
 
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
-                                <!-- PV Stats Section -->
                             <!-- PV ESS & Environmental Benefits Section -->
-                            <div class="content-start flex flex-wrap gap-[16px] items-start relative size-full mt-[16px]">
-                                <!-- PV ESS -->
-                                <div class="bg-[#f8f9fb] content-stretch flex flex-[1_0_0] flex-col gap-[16px] items-start min-h-px min-w-[300px] lg:min-w-[576px] p-[16px] relative rounded-[4px]">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-[16px] items-start relative size-full mt-[16px]">
+                                <!-- PV ESS (Frame 1000003628) -->
+                                <div class="bg-[#f8f9fb] content-stretch flex flex-[1_0_0] flex-col gap-[16px] items-start min-h-px min-w-[300px] p-[16px] relative rounded-[4px]">
                                     <div class="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[0px] py-[4px] relative rounded-[4px] shrink-0 w-full">
-                                        <!-- PV Icon (CSS) -->
+                                        <!-- PV Icon (Frame1) -->
                                         <div class="relative shrink-0 size-[24px]">
                                             <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[23px] left-1/2 rounded-[2px] top-1/2 w-[17px]"></div>
                                             <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%-3px)] top-1/2 w-px"></div>
@@ -9129,249 +9181,352 @@ const app = {
                                             <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-[calc(50%+6px)] w-[17px]"></div>
                                             <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%+3px)] top-1/2 w-px"></div>
                                         </div>
-                                        <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap">PV ESS</p>
+                                        <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">PV</p>
                                     </div>
                                     <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))] p-[8px] relative rounded-[8px] shrink-0 w-full">
                                         <!-- Capacity -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Capacity</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Capacity</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${device.capacity} kW</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
                                             </div>
                                         </div>
                                         <!-- Today Yield -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Today Yield</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Today Yield</p>
                                             </div>
                                             <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 4.2).toFixed(1)} kWh</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 4.2).toFixed(1)} kWh</p>
                                             </div>
                                         </div>
                                         <!-- Today Full Hours -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Today Full Hours</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Today Full Hours</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">4.2 h</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">4.2 h</p>
                                             </div>
                                         </div>
                                         <!-- Month Yield -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Month Yield</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Month Yield</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 120).toFixed(1)} kWh</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 120).toFixed(1)} kWh</p>
                                             </div>
                                         </div>
                                         <!-- Annual Yield -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Annual Yield</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Annual Yield</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 1.4).toFixed(2)} MWh</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 1.4).toFixed(2)} MWh</p>
                                             </div>
                                         </div>
                                         <!-- Total Yield -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Total Yield</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Total Yield</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 5).toFixed(2)} MWh</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 5).toFixed(2)} MWh</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Environmental Benefits -->
-                                <div class="bg-[#f8f9fb] content-stretch flex flex-[1_0_0] flex-col gap-[16px] items-start min-h-px min-w-[300px] lg:min-w-[576px] p-[16px] relative rounded-[4px]">
+                                <!-- Environmental Benefits (Frame 1000003634) -->
+                                <div class="bg-[#f8f9fb] content-stretch flex flex-[1_0_0] flex-col gap-[16px] items-start min-h-px min-w-[300px] p-[16px] relative rounded-[4px] size-full">
                                     <div class="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[0px] py-[4px] relative rounded-[4px] shrink-0 w-full">
-                                        <div class="overflow-clip relative shrink-0 size-[24px]">
+                                        <div class="relative shrink-0 size-[24px]">
                                             <div class="absolute inset-[0_12.5%]">
-                                                <img alt="" class="block max-w-none size-full" src="assets/images/env-benefits-icon.svg">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/env-benefits-icon-new.svg">
                                             </div>
                                         </div>
-                                        <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap">Environmental Benefits</p>
+                                        <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Environmental Benefits</p>
                                     </div>
                                     <div class="content-stretch flex flex-[1_0_0] items-center justify-between min-h-px min-w-px relative w-full">
                                         <!-- CO2 Reduction -->
                                         <div class="content-stretch flex flex-[1_0_0] flex-col gap-[8px] items-center min-h-px min-w-px relative">
                                             <div class="relative shrink-0 size-[48px]">
-                                                <img alt="" class="block max-w-none size-full" src="assets/images/co2-icon.svg">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/co2-icon-new.svg">
                                             </div>
                                             <div class="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 text-center w-full whitespace-pre-wrap">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e] w-full">CO₂ Reduction</p>
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] w-full">${(device.capacity * 3.5).toFixed(1)} t</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e] w-full" style="font-variation-settings: 'wdth' 100">CO₂ Reduction</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] w-full" style="font-variation-settings: 'wdth' 100">${(device.capacity * 3.5).toFixed(1)} t</p>
                                             </div>
                                         </div>
                                         <!-- Trees Planted -->
                                         <div class="content-stretch flex flex-[1_0_0] flex-col gap-[8px] items-center min-h-px min-w-px relative">
                                             <div class="relative shrink-0 size-[48px]">
-                                                <img alt="" class="block max-w-none size-full" src="assets/images/trees-icon.svg">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/trees-icon-new.svg">
                                             </div>
                                             <div class="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 text-center w-full whitespace-pre-wrap">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e] w-full">Trees Planted</p>
-                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] w-full">${Math.floor(device.capacity * 15)}</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e] w-full" style="font-variation-settings: 'wdth' 100">Trees Planted</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] w-full" style="font-variation-settings: 'wdth' 100">${Math.floor(device.capacity * 15)}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            </div>
 
-                            <!-- Inverter Section -->
-                            <div class="flex flex-col gap-[12px] p-[20px] rounded-[16px] backdrop-blur-[20px] bg-[rgba(255,255,255,0.70)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] border border-white mt-[16px]">
-                                <!-- Title -->
-                                <div class="flex items-center gap-[8px]">
-                                    <img src="assets/images/inverter-title-icon.svg" class="w-[24px] h-[24px]" />
-                                    <span class="text-[18px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Inverter</span>
+                            <!-- Inverter Section (Frame 955:17691) -->
+                            <div class="bg-[#f8f9fb] content-stretch flex flex-col gap-[16px] items-start p-[16px] relative rounded-[4px] size-full mt-[16px]">
+                                <div class="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[0px] py-[4px] relative rounded-[4px] shrink-0 w-full">
+                                    <!-- Icon -->
+                                    <div class="relative shrink-0 size-[24px]">
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#f3f3f6] border-2 border-[#f3f3f6] border-solid h-[22px] left-1/2 rounded-[2px] top-[calc(50%-1px)] w-[16px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white border border-[#313949] border-solid h-[22px] left-1/2 rounded-[2px] top-[calc(50%-1px)] w-[16px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#f3f3f6] border border-[#313949] border-solid h-[2px] left-1/2 rounded-[2px] top-[calc(50%+6px)] w-[10px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-px left-[calc(50%+3px)] rounded-[2px] top-[calc(50%-6.5px)] w-[4px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[2px] left-[calc(50%+3px)] rounded-[2px] top-[calc(50%+10px)] w-[4px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[2px] left-[calc(50%-4.5px)] rounded-[2px] top-[calc(50%+10px)] w-px"></div>
+                                    </div>
+                                    <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Inverter</p>
                                 </div>
-                                <!-- Content -->
-                                <div class="flex flex-wrap gap-y-[24px] gap-x-[40px]">
+                                
+                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-4 p-[8px] relative rounded-[8px] shrink-0 w-full">
                                     <!-- SN -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">SN</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="${device.sn}">${device.sn}</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SN</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] truncate" title="${device.sn}" style="font-variation-settings: 'wdth' 100">${device.sn}</p>
+                                        </div>
                                     </div>
                                     <!-- Manufacturer -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Manufacturer</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="${device.vendor}">${device.vendor}</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Manufacturer</p>
+                                        </div>
+                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] truncate" title="${device.vendor}" style="font-variation-settings: 'wdth' 100">${device.vendor}</p>
+                                        </div>
                                     </div>
                                     <!-- Model -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Model</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="${device.model || 'Unknown'}">${device.model || 'Unknown'}</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Model</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] truncate" title="${device.model || 'Unknown'}" style="font-variation-settings: 'wdth' 100">${device.model || 'Unknown'}</p>
+                                        </div>
                                     </div>
                                     <!-- Type -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Type</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">String Inverter</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Type</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">String Inverter</p>
+                                        </div>
                                     </div>
                                     <!-- Rated Power -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Rated Power</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${device.capacity} kW</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Power</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
+                                        </div>
                                     </div>
                                     <!-- Input Power -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Input Power</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 0.85).toFixed(1)} kW</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Input Power</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.85).toFixed(1)} kW</p>
+                                        </div>
                                     </div>
                                     <!-- Output Power -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Output Power</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 0.8).toFixed(1)} kW</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Output Power</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.8).toFixed(1)} kW</p>
+                                        </div>
                                     </div>
-                                    <!-- Operating mode -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Operating mode</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Normal</span>
-                                    </div>
+
                                 </div>
                             </div>
 
-                            <!-- Battery Section -->
-                            <div class="flex flex-col gap-[12px] p-[20px] rounded-[16px] backdrop-blur-[20px] bg-[rgba(255,255,255,0.70)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] border border-white mt-[16px]">
-                                <!-- Title -->
-                                <div class="flex items-center gap-[8px]">
-                                    <img src="assets/images/battery-title-icon.svg" class="w-[24px] h-[24px]" />
-                                    <span class="text-[18px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Battery</span>
+                            <!-- Battery Section (Frame 955:17736) -->
+                            <div class="bg-[#f8f9fb] content-stretch flex flex-col gap-[16px] items-start p-[16px] relative rounded-[4px] size-full mt-[16px]">
+                                <div class="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[0px] py-[4px] relative rounded-[4px] shrink-0 w-full">
+                                    <!-- Icon -->
+                                    <div class="relative shrink-0 size-[24px]">
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[22px] left-1/2 rounded-[2px] top-1/2 w-[18px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white border border-[#313949] border-solid h-[22px] left-[calc(50%-3px)] rounded-[2px] top-1/2 w-[12px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white border border-[#313949] border-solid h-[22px] left-[calc(50%+6px)] rounded-[2px] top-1/2 w-[6px]"></div>
+                                        <div class="-translate-x-1/2 -translate-y-1/2 absolute h-[8px] left-[calc(50%-3px)] top-1/2 w-[6px]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/battery-lightning.svg">
+                                        </div>
+                                    </div>
+                                    <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Battery</p>
                                 </div>
-                                <!-- Content -->
-                                <div class="flex flex-wrap gap-y-[24px] gap-x-[40px]">
+                                
+                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-6 p-[8px] relative rounded-[8px] shrink-0 w-full">
                                     <!-- Model -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Model</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="LFP-200">LFP-200</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Model</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[#313949]" style="font-variation-settings: 'wdth' 100">LFP-200</p>
+                                        </div>
                                     </div>
                                     <!-- Rated Capacity -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Rated Capacity</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${device.capacity * 2} kWh</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Capacity</p>
+                                        </div>
+                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity * 2} kWh</p>
+                                        </div>
                                     </div>
-                                    <!-- Available charge -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Available charge</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</span>
+                                    <!-- Available Charge -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Available Charge</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</p>
+                                        </div>
                                     </div>
-                                    <!-- Available discharge -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Available discharge</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</span>
+                                    <!-- Available Discharge -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Available Discharge</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</p>
+                                        </div>
                                     </div>
                                     <!-- SOC -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">SOC</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">85%</span>
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">85%</p>
+                                        </div>
                                     </div>
-                                    <!-- SOC floor -->
-                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
-                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">SOC floor</span>
-                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">10%</span>
+                                    <!-- SOC Floor -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC Floor</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">10%</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Operation Section -->
-                            <div class="flex flex-col gap-[20px] p-[20px] rounded-[16px] backdrop-blur-[20px] bg-[rgba(255,255,255,0.70)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] border border-white mt-[16px] mb-6">
+                            <!-- Operation Section (Figma Node 1018:6626) -->
+                            <div class="bg-[#f8f9fb] content-stretch flex flex-col gap-[16px] items-start p-[16px] relative rounded-[4px] size-full mt-[16px] mb-6">
                                 <!-- Header: Title + Controls -->
-                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-[16px]">
-                                    <!-- Title -->
-                                    <div class="flex items-center gap-[8px]">
-                                        <img src="assets/images/operation-title-icon.svg" class="w-[24px] h-[24px]" />
-                                        <span class="text-[18px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Operation</span>
+                                <div class="content-stretch flex gap-[8px] items-center justify-center px-[0px] py-[0px] relative rounded-[4px] shrink-0 w-full">
+                                    <!-- Icon -->
+                                    <div class="content-stretch flex flex-col gap-[0px] items-center justify-center p-[0px] relative rounded-[12px] shrink-0 size-[24px]">
+                                        <div class="h-[10px] relative shrink-0 w-[18px]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/operation-icon-new.svg">
+                                        </div>
                                     </div>
+                                    <!-- Title -->
+                                    <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Operation</p>
                                     
                                     <!-- Controls Group -->
-                                    <div class="flex flex-wrap items-center gap-[12px]">
-                                         <!-- Granularity Select -->
-                                         <div class="relative">
-                                             <select id="operation-granularity" class="appearance-none bg-white border border-[#E5E7EB] rounded-[8px] pl-[12px] pr-[32px] py-[6px] text-[14px] font-medium text-[#374151] font-['Manrope'] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm" onchange="app.handleGranularityChange(this.value)">
-                                                 <option value="day">Daily</option>
-                                                 <option value="month">Monthly</option>
-                                                 <option value="year">Yearly</option>
-                                                 <option value="total">Total</option>
-                                             </select>
-                                             <img src="assets/images/operation-arrow-down.svg" class="absolute right-[10px] top-1/2 -translate-y-1/2 w-[12px] h-[12px] pointer-events-none" />
-                                         </div>
+                                    <div class="bg-white border border-[#cacfd8] border-solid content-stretch flex gap-[16px] items-center px-[16px] py-[8px] relative rounded-[8px] shrink-0">
+                                        <!-- Granularity Select -->
+                                        <div class="content-stretch flex gap-[8px] items-center relative shrink-0">
+                                            <p id="operation-granularity-text" class="font-['Roboto'] font-normal leading-[24px] relative shrink-0 text-[16px] text-[#313949]" style="font-variation-settings: 'wdth' 100">Day</p>
+                                            <div class="relative w-[8px] h-[4px] pointer-events-none">
+                                                <img src="assets/images/operation-arrow-new.svg" class="block max-w-none size-full">
+                                            </div>
+                                            <select id="operation-granularity" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="app.handleGranularityChange(this.value)">
+                                                <option value="day">Day</option>
+                                                <option value="month">Month</option>
+                                                <option value="year">Year</option>
+                                                <option value="total">Total</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <!-- Separator -->
+                                        <div id="operation-separator" class="h-[16px] relative shrink-0 w-[1px]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/operation-separator.svg">
+                                        </div>
 
-                                         <!-- Date Control -->
-                                         <div class="flex items-center bg-white border border-[#E5E7EB] rounded-[8px] p-[4px] shadow-sm">
-                                             <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="p-[6px] hover:bg-gray-50 rounded-[4px] transition-colors flex-shrink-0">
-                                                 <img src="assets/images/operation-arrow-left.svg" class="w-[16px] h-[16px]" />
-                                             </button>
-                                             
-                                             <div class="relative flex items-center px-[8px] border-l border-r border-[#E5E7EB] mx-[4px]">
-                                                 <img src="assets/images/operation-calendar.svg" class="w-[16px] h-[16px] mr-[8px]" />
-                                                 <input type="date" id="operation-date" class="bg-transparent border-none text-[14px] font-medium text-[#374151] font-['Manrope'] focus:ring-0 p-0 w-[110px] cursor-pointer outline-none" value="${new Date().toISOString().split('T')[0]}" onchange="app.updateOperationChart()" onclick="try{this.showPicker()}catch(e){}">
-                                                 <select id="operation-year-select" class="bg-transparent border-none text-[14px] font-medium text-[#374151] font-['Manrope'] focus:ring-0 p-0 w-[80px] cursor-pointer appearance-none outline-none" style="display:none" onchange="document.getElementById('operation-date').value=this.value; app.updateOperationChart()">
-                                                 </select>
-                                             </div>
+                                        <!-- Date Control -->
+                                        <div id="operation-date-control-group" class="content-stretch flex gap-[8px] items-center relative shrink-0">
+                                            <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="overflow-clip relative shrink-0 size-[24px] flex items-center justify-center hover:bg-gray-50 rounded-[4px] transition-colors">
+                                                <div class="flex-none h-[4px] rotate-90 w-[8px]">
+                                                    <div class="relative size-full">
+                                                        <img alt="" class="block max-w-none size-full" src="assets/images/operation-arrow-new.svg">
+                                                    </div>
+                                                </div>
+                                            </button>
 
-                                             <button id="operation-date-next" onclick="app.adjustDate(1)" class="p-[6px] hover:bg-gray-50 rounded-[4px] transition-colors flex-shrink-0 rotate-180">
-                                                 <img src="assets/images/operation-arrow-left.svg" class="w-[16px] h-[16px]" />
-                                             </button>
-                                         </div>
+                                            <div class="content-stretch flex gap-[16px] items-center relative shrink-0">
+                                                <div class="content-stretch flex font-['Roboto'] font-normal gap-[8px] items-center leading-[24px] relative shrink-0 text-[16px] text-[#313949]">
+                                                    <div class="relative flex items-center min-w-[120px] justify-center">
+                                                        <!-- Custom Date Display -->
+                                                        <p id="operation-date-display" class="font-['Roboto'] font-normal text-[16px] text-[#313949] leading-[24px] whitespace-nowrap text-center cursor-pointer" style="font-variation-settings: 'wdth' 100" onclick="app.triggerDatePicker()">
+                                                            2026 / 02 / 17
+                                                        </p>
+                                                        
+                                                        <!-- Hidden Inputs for Pickers -->
+                                                        <input type="date" id="operation-date" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" value="${new Date().toISOString().split('T')[0]}" onchange="app.handleDateChange(this.value)" onclick="try{this.showPicker()}catch(e){}">
+                                                        <select id="operation-year-select" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 hidden" onchange="app.handleDateChange(this.value)">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="overflow-clip relative shrink-0 size-[24px] pointer-events-none">
+                                                    <img alt="" class="block max-w-none size-full" src="assets/images/operation-calendar-new.svg">
+                                                </div>
+                                            </div>
+
+                                            <button id="operation-date-next" onclick="app.adjustDate(1)" class="overflow-clip relative shrink-0 size-[24px] flex items-center justify-center hover:bg-gray-50 rounded-[4px] transition-colors">
+                                                <div class="flex-none h-[4px] -rotate-90 w-[8px]">
+                                                    <div class="relative size-full">
+                                                        <img alt="" class="block max-w-none size-full" src="assets/images/operation-arrow-new.svg">
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Chart Area -->
-                                <div class="relative w-full bg-white rounded-[12px] border border-[#E5E7EB] p-[16px] h-[420px]">
-                                    <!-- Tabs (Overlay) -->
-                                    <div class="absolute top-[16px] left-[16px] z-10 flex bg-[#F3F4F6] rounded-[8px] p-[4px]">
-                                        <button onclick="app.setOperationTab('status')" id="tab-status" class="px-[12px] py-[6px] text-[12px] font-semibold text-[#1F2937] bg-white rounded-[6px] shadow-sm font-['Manrope'] transition-all">Status</button>
-                                        <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-[12px] py-[6px] text-[12px] font-medium text-[#6B7280] hover:text-[#1F2937] rounded-[6px] font-['Manrope'] transition-all">Generation</button>
-                                        <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-[12px] py-[6px] text-[12px] font-medium text-[#6B7280] hover:text-[#1F2937] rounded-[6px] font-['Manrope'] transition-all">Consumption</button>
+                                <div class="bg-white content-stretch flex flex-col gap-[24px] items-start p-[16px] relative shrink-0 w-full rounded-[4px]">
+                                    <!-- Tabs -->
+                                    <div class="content-stretch flex gap-[8px] items-center relative shrink-0 w-full">
+                                        <div class="bg-[#f3f3f6] content-stretch flex items-center p-[4px] relative rounded-[4px] shrink-0">
+                                            <button onclick="app.setOperationTab('status')" id="tab-status" class="content-stretch flex h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 bg-white shadow-sm transition-all">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center" style="font-variation-settings: 'wdth' 100">Status</p>
+                                            </button>
+                                            <button onclick="app.setOperationTab('generation')" id="tab-generation" class="content-stretch flex h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 hover:bg-white/50 transition-all">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center" style="font-variation-settings: 'wdth' 100">Generation</p>
+                                            </button>
+                                            <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="content-stretch flex h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 hover:bg-white/50 transition-all">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center" style="font-variation-settings: 'wdth' 100">Consumption</p>
+                                            </button>
+                                        </div>
                                     </div>
                                     
-                                    <div id="operation-chart" class="w-full h-full pt-[40px]"></div>
+                                    <!-- Chart Container -->
+                                    <div class="relative shrink-0 w-full h-[360px]">
+                                         <div id="operation-chart" class="w-full h-full"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
