@@ -894,7 +894,7 @@ const app = {
 
         if (view === 'der_details' && sn) {
             // Navigate to DER Management (assuming ESS for now or generic)
-            this.navigate('der_ess');
+            this.navigate('device_details', { sn });
         } else {
             this.navigate('overview');
         }
@@ -8974,399 +8974,141 @@ const app = {
         const vpp = state.vpps.find(v => v.id === device.vppId) || {};
         
         container.innerHTML = `
-            <div class="h-full overflow-y-auto bg-gray-50 pb-24">
-                <!-- Header -->
-                    <div class="bg-white border-b border-[#e6e8ee] px-6 py-4">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div>
-                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">Assigned VPP</div>
-                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${vpp.name || 'Unassigned'}</div>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">NMI</div>
-                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto'] font-mono">${device.nmi || '-'}</div>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">State</div>
-                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${vpp.state || '-'}</div>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider mb-1 font-['Roboto']">Grid Status</div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full ${device.status === 'online' ? 'bg-[#3ec064]' : 'bg-[#b5bcc8]'}"></span>
-                                <span class="text-[14px] font-semibold text-[#1c2026] font-['Roboto']">${device.status.charAt(0).toUpperCase() + device.status.slice(1)}</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="h-full overflow-y-auto bg-white pb-24">
+                <div class="flex items-center px-[8px] py-[8px] gap-[16px]">
+                    <button onclick="app.navigate('der_ess')" class="p-[8px] rounded-[4px] hover:bg-gray-100 transition-colors flex items-center justify-center">
+                        <i data-lucide="arrow-left" class="w-[24px] h-[24px] text-[#313949]"></i>
+                    </button>
+                    <span class="text-[20px] font-bold text-[#1c2026] font-['Roboto']">${sn}</span>
+                </div>
+                <!-- Header Removed -->
+
+
 
                     <!-- Content -->
-                        <div class="bg-[#f8f9fb] p-[8px] flex flex-col gap-[8px]">
-                            <div class="bg-white rounded-[4px] border border-[#e6e8ee] p-[16px] flex flex-col gap-[16px]">
-                                <div class="flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="network" class="w-5 h-5 text-[#3ec064]"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
-                                    <h3 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">Topology</h3>
-                                </div>
-                                <div class="bg-white p-[24px] rounded-[4px] border border-[#e6e8ee] relative overflow-hidden">
-                                    <style>
-                                        @keyframes flow-right {
-                                            0% { left: 0; opacity: 0; }
-                                            10% { opacity: 1; }
-                                            90% { opacity: 1; }
-                                            100% { left: 100%; opacity: 0; }
-                                        }
-                                        @keyframes flow-left {
-                                            0% { left: 100%; opacity: 0; }
-                                            10% { opacity: 1; }
-                                            90% { opacity: 1; }
-                                            100% { left: 0%; opacity: 0; }
-                                        }
-                                        .animate-flow-right {
-                                            position: absolute;
-                                            top: 50%;
-                                            transform: translateY(-50%);
-                                            animation: flow-right 2s linear infinite;
-                                        }
-                                        .animate-flow-left {
-                                            position: absolute;
-                                            top: 50%;
-                                            transform: translateY(-50%);
-                                            animation: flow-left 2s linear infinite;
-                                        }
-                                    </style>
-                                    <div class="flex flex-row items-center justify-center relative z-10 gap-0 py-8 w-full max-w-6xl mx-auto">
-                                        <!-- Left Column: PV & Battery -->
-                                        <div class="flex flex-col gap-16 relative">
-                                            <!-- PV (Line Art Style) -->
-                                            <div class="flex items-center gap-0 group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-[#3ec064] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2e9f58]">
-                                                    <div class="flex flex-col items-center transform scale-110">
-                                                        <!-- Sun -->
-                                                        <div class="relative w-5 h-5 mb-1">
-                                                            <div class="absolute inset-0 border-2 border-[#3ec064] rounded-full"></div>
-                                                            <!-- Rays -->
-                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-[#3ec064]"></div>
-                                                            <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-[1.5px] h-1 bg-[#3ec064]"></div>
-                                                            <div class="absolute top-1/2 -left-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-[#3ec064]"></div>
-                                                            <div class="absolute top-1/2 -right-1.5 -translate-y-1/2 w-1 h-[1.5px] bg-[#3ec064]"></div>
-                                                            <div class="absolute top-0.5 right-0.5 w-[1.5px] h-1 bg-[#3ec064] rotate-45"></div>
-                                                            <div class="absolute bottom-0.5 left-0.5 w-[1.5px] h-1 bg-[#3ec064] rotate-45"></div>
-                                                            <div class="absolute top-0.5 left-0.5 w-[1.5px] h-1 bg-[#3ec064] -rotate-45"></div>
-                                                            <div class="absolute bottom-0.5 right-0.5 w-[1.5px] h-1 bg-[#3ec064] -rotate-45"></div>
-                                                        </div>
-                                                        <!-- Panel -->
-                                                        <div class="w-12 h-8 border-2 border-[#3ec064] rounded-sm grid grid-cols-4 grid-rows-2 gap-[1px] bg-[#3ec064]">
-                                                            <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
-                                                            <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
-                                                        </div>
-                                                        <!-- Stand -->
-                                                        <div class="w-[2px] h-2 bg-[#3ec064]"></div>
-                                                        <div class="w-6 h-[2px] bg-[#3ec064] rounded-full"></div>
-                                                    </div>
-                                                    <span class="absolute -bottom-7 text-[12px] font-bold text-[#2e9f58] tracking-wider font-['Roboto']">PV ARRAY</span>
-                                                </div>
-                                                <!-- Connector -->
-                                                <div class="w-52 h-8 relative flex items-center justify-center">
-                                                    <style>
-                                                        @keyframes flowLine {
-                                                            0% { stroke-dashoffset: 24; }
-                                                            100% { stroke-dashoffset: 0; }
-                                                        }
-                                                        .animate-flow-line {
-                                                            animation: flowLine 1s linear infinite;
-                                                        }
-                                                    </style>
-                                                    <!-- DC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3ec064]/20 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-[#2e9f58] tracking-widest block leading-none font-['Roboto']">DC</span>
-                                                    </div>
-
-                                                    <!-- Line SVG -->
-                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
-                                                        <defs>
-                                                            <path id="arrow-head-right" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                                                        </defs>
-                                                        <!-- Background Track -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-opacity="0.2" stroke-width="2" />
-                                                        <!-- Flowing Current -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line" />
-                                                        
-                                                        <!-- Moving Arrows -->
-                                                        <g class="text-[#3ec064]">
-                                                            <path id="path-pv-inv" d="M0 12 L208 12" fill="none" stroke="none" />
-                                                            <use href="#arrow-head-right">
-                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-pv-inv" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-right">
-                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-pv-inv" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-right">
-                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-pv-inv" />
-                                                                </animateMotion>
-                                                            </use>
-                                                        </g>
-                                                    </svg>
-
-                                                    <!-- Arrow -->
-                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3ec064]/20 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-[#2e9f58] block"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Battery (Line Art Style) -->
-                                            <div class="flex items-center gap-0 group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border-2 border-[#3ec064] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2e9f58]">
-                                                    <div class="flex flex-col items-center transform scale-110">
-                                                        <div class="w-10 h-14 border-2 border-[#3ec064] rounded-md flex flex-col justify-end p-1 gap-1 relative">
-                                                            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-1.5 bg-[#3ec064] rounded-t-sm"></div>
-                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px]"></div>
-                                                            <div class="w-full h-1.5 bg-[#3ec064] rounded-[1px] opacity-30"></div>
-                                                            <div class="absolute top-2 left-1/2 -translate-x-1/2">
-                                                                <i data-lucide="zap" class="w-3 h-3 text-[#3ec064] fill-[#3ec064]"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <span class="absolute -bottom-7 text-[12px] font-bold text-[#2e9f58] tracking-wider font-['Roboto']">BATTERY</span>
-                                                </div>
-                                                 <!-- Connector -->
-                                                 <div class="w-52 h-8 relative flex items-center justify-center">
-                                                    <style>
-                                                        @keyframes flowLineLeft {
-                                                            0% { stroke-dashoffset: 24; }
-                                                            100% { stroke-dashoffset: 0; }
-                                                        }
-                                                        .animate-flow-line-left {
-                                                            animation: flowLineLeft 1s linear infinite;
-                                                        }
-                                                    </style>
-                                                    <!-- DC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3ec064]/20 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-[#2e9f58] tracking-widest block leading-none font-['Roboto']">DC</span>
-                                                    </div>
-
-                                                    <!-- Line SVG -->
-                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
-                                                        <defs>
-                                                            <path id="arrow-head-bat" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                                                        </defs>
-                                                        <!-- Background Track -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-opacity="0.2" stroke-width="2" />
-                                                        <!-- Flowing Current -->
-                                                        <line x1="0" y1="12" x2="208" y2="12" stroke="#3ec064" stroke-width="2" stroke-dasharray="12 12" class="animate-flow-line-left" />
-                                                        
-                                                        <!-- Moving Arrows -->
-                                                        <g class="text-[#3ec064]">
-                                                            <path id="path-inv-bat" d="M208 12 L0 12" fill="none" stroke="none" />
-                                                            <use href="#arrow-head-bat">
-                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-bat" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-bat">
-                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-bat" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-bat">
-                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-bat" />
-                                                                </animateMotion>
-                                                            </use>
-                                                        </g>
-                                                    </svg>
-
-                                                    <!-- Arrow -->
-                                                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3ec064]/20 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-left" class="w-3 h-3 text-[#2e9f58] block"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Center Column: Inverter (Line Art Style) -->
-                                        <div class="flex flex-col items-center justify-center relative">
-                                            <div class="flex flex-col items-center justify-center w-52 h-52 bg-white border border-[#06b6d4] rounded-xl relative z-20 transition-transform hover:scale-105 shadow-[6px_6px_0px_0px_#0891b2]">
-                                                <div class="absolute -top-3 bg-[#06b6d4] text-white text-[10px] px-3 py-0.5 rounded-full font-bold tracking-wider shadow-sm border border-white font-['Roboto']">HYBRID</div>
-                                                <div class="flex flex-col items-center transform scale-150">
-                                                    <div class="w-16 h-16 border border-[#06b6d4] rounded-lg flex items-center justify-center relative overflow-hidden bg-white">
-                                                         <div class="flex flex-col items-center gap-1">
-                                                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" class="text-[#06b6d4] stroke-2">
-                                                                <path d="M2 6C2 6 5 2 8 2C11 2 14 10 17 10C20 10 22 6 22 6" stroke-linecap="round" stroke-linejoin="round"/>
-                                                            </svg>
-                                                            <div class="flex gap-1">
-                                                                <div class="w-5 h-[2px] bg-[#06b6d4] rounded-full"></div>
-                                                                <div class="w-5 h-[2px] bg-[#06b6d4] rounded-full"></div>
-                                                            </div>
-                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <span class="absolute -bottom-8 text-base font-bold text-[#0e7490] tracking-wider font-['Roboto']">INVERTER</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Column: Grid & Home -->
-                                        <div class="flex flex-col gap-16 relative">
-                                            <!-- Grid (Line Art Style) -->
-                                            <div class="flex items-center gap-0 flex-row-reverse group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border border-[#3b82f6] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2563eb]">
-                                                    <div class="flex flex-col items-center transform scale-110">
-                                                        <div class="flex flex-col items-center relative">
-                                                             <div class="w-12 h-[2px] bg-[#3b82f6] rounded-full mb-1.5"></div>
-                                                             <div class="w-16 h-[2px] bg-[#3b82f6] rounded-full mb-1"></div>
-                                                             <div class="relative w-10 h-12">
-                                                                <div class="absolute inset-x-0 top-0 bottom-0 border-l-[2px] border-r-[2px] border-[#3b82f6] transform scale-x-75 origin-bottom"></div>
-                                                                <div class="absolute top-1/2 inset-x-0 h-[2px] bg-[#3b82f6]"></div>
-                                                                <div class="absolute top-1/4 inset-x-1 h-[2px] bg-[#3b82f6]"></div>
-                                                                <div class="absolute bottom-0 inset-x-0 h-[2px] bg-[#3b82f6]"></div>
-                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-[#1d4ed8] tracking-wider font-['Roboto']">GRID</span>
-                                                </div>
-                                                 <!-- Connector -->
-                                                 <div class="w-52 h-8 relative flex items-center justify-center">
-                                                    <style>
-                                                        @keyframes flowWave {
-                                                            0% { stroke-dashoffset: 24; }
-                                                            100% { stroke-dashoffset: 0; }
-                                                        }
-                                                        .animate-flow-wave {
-                                                            animation: flowWave 1s linear infinite;
-                                                        }
-                                                    </style>
-                                                    <!-- AC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3b82f6]/20 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-[#3b82f6] tracking-widest block leading-none font-['Roboto']">AC</span>
-                                                    </div>
-
-                                                    <!-- Wave SVG -->
-                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
-                                                        <defs>
-                                                            <path id="arrow-head-grid" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                                                        </defs>
-                                                        <!-- Background Track -->
-                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#e6e8ee" stroke-width="2" fill="none" />
-                                                        
-                                                        <!-- Flowing Current -->
-                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#3b82f6" stroke-width="2" fill="none"
-                                                              stroke-dasharray="12 12" 
-                                                              class="animate-flow-wave" />
-
-                                                        <!-- Moving Arrows -->
-                                                        <g class="text-[#3b82f6]">
-                                                            <path id="path-inv-grid" d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" fill="none" stroke="none" />
-                                                            <use href="#arrow-head-grid">
-                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-grid" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-grid">
-                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-grid" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-grid">
-                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-grid" />
-                                                                </animateMotion>
-                                                            </use>
-                                                        </g>
-                                                    </svg>
-
-                                                    <!-- Arrow -->
-                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3b82f6]/20 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-[#3b82f6] block"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Home (Line Art Style) -->
-                                            <div class="flex items-center gap-0 flex-row-reverse group">
-                                                <div class="flex flex-col items-center justify-center w-28 h-28 bg-white border border-[#3b82f6] rounded-xl relative z-10 transition-transform hover:scale-105 shadow-[4px_4px_0px_0px_#2563eb]">
-                                                    <div class="flex flex-col items-center transform scale-110">
-                                                        <div class="flex flex-col items-center">
-                                                            <!-- Roof -->
-                                                            <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[16px] border-b-[#3b82f6] mb-[1px]"></div>
-                                                            <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[12px] border-b-white -mt-[14px] mb-[3px]"></div>
-                                                            <!-- Body -->
-                                                            <div class="w-8 h-6 border-[2px] border-[#3b82f6] border-t-0 flex justify-center items-end bg-white">
-                                                                <div class="w-3 h-4 border-[2px] border-[#3b82f6] border-b-0 rounded-t-[1px]"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <span class="absolute -bottom-7 text-xs font-bold text-[#1d4ed8] tracking-wider font-['Roboto']">HOME</span>
-                                                </div>
-                                                 <!-- Connector -->
-                                                 <div class="w-52 h-8 relative flex items-center justify-center">
-                                                    <style>
-                                                        @keyframes flowWave {
-                                                            0% { stroke-dashoffset: 24; }
-                                                            100% { stroke-dashoffset: 0; }
-                                                        }
-                                                        .animate-flow-wave {
-                                                            animation: flowWave 1s linear infinite;
-                                                        }
-                                                    </style>
-                                                    <!-- AC Label -->
-                                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-1.5 py-0.5 rounded-full border border-[#3b82f6]/20 shadow-sm z-20">
-                                                        <span class="text-[8px] font-bold text-[#3b82f6] tracking-widest block leading-none font-['Roboto']">AC</span>
-                                                    </div>
-
-                                                    <!-- Wave SVG -->
-                                                    <svg width="208" height="24" viewBox="0 0 208 24" fill="none" class="overflow-visible">
-                                                        <defs>
-                                                            <path id="arrow-head-home" d="M-3 -3 L1 0 L-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                                                        </defs>
-                                                        <!-- Background Track -->
-                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#e6e8ee" stroke-width="2" fill="none" />
-                                                        
-                                                        <!-- Flowing Current -->
-                                                        <path d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" 
-                                                              stroke="#3b82f6" stroke-width="2" fill="none"
-                                                              stroke-dasharray="12 12" 
-                                                              class="animate-flow-wave" />
-
-                                                        <!-- Moving Arrows -->
-                                                        <g class="text-[#3b82f6]">
-                                                            <path id="path-inv-home" d="M0 12 Q 13 4, 26 12 T 52 12 T 78 12 T 104 12 T 130 12 T 156 12 T 182 12 T 208 12" fill="none" stroke="none" />
-                                                            <use href="#arrow-head-home">
-                                                                <animateMotion dur="1.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-home" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-home">
-                                                                <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-home" />
-                                                                </animateMotion>
-                                                            </use>
-                                                            <use href="#arrow-head-home">
-                                                                <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" rotate="auto">
-                                                                    <mpath href="#path-inv-home" />
-                                                                </animateMotion>
-                                                            </use>
-                                                        </g>
-                                                    </svg>
-
-                                                    <!-- Arrow -->
-                                                    <div class="absolute -right-2 top-1/2 -translate-y-1/2 bg-white rounded-full border border-[#3b82f6]/20 p-0.5 z-30 shadow-sm">
-                                                        <i data-lucide="arrow-right" class="w-3 h-3 text-[#3b82f6] block"></i>
-                                                    </div>
+                        <div class="bg-white p-[8px] flex flex-col gap-[8px]">
+                            <div class="bg-white content-stretch flex flex-col lg:flex-row gap-[40px] items-center px-[40px] relative w-full rounded-[4px] border border-[#e6e8ee] overflow-hidden">
+                                <!-- Visuals -->
+                                <div class="aspect-[816/432] flex-[1_0_0] min-h-[300px] w-full relative">
+                                    <div class="-translate-x-1/2 absolute bottom-0 flex items-center justify-center left-1/2 top-0 w-full h-full max-w-[816px]">
+                                        <div class="-scale-y-100 flex-none h-full rotate-180 w-full relative">
+                                            <div class="relative size-full">
+                                                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                                                    <img alt="" class="absolute h-[164.2%] left-[0.1%] max-w-none top-[-26.19%] w-[99.96%] object-contain" src="assets/images/topology-house.png" />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+                                    <!-- Vector Overlays -->
+                                    <div class="absolute inset-[67.01%_12.3%_7.06%_59.01%]">
+                                        <div class="absolute inset-[-0.89%_-0.43%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1064.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute h-[8%] left-[54.6%] top-[39%] w-0">
+                                        <div class="absolute inset-[-2.86%_-1px]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1069.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[27.81%_45.41%_60.99%_48.55%]">
+                                        <div class="absolute inset-[-2.07%_-2.03%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1061.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute h-[8%] left-[54.6%] top-[39%] w-0">
+                                        <div class="absolute inset-[-2.86%_-1px]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1070.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[68.17%_43.14%_13.43%_19.12%]">
+                                        <div class="absolute inset-[-1.26%_-0.32%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1066.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[34.95%_28.19%_53.47%_58.03%]">
+                                        <div class="absolute inset-[-2%_-0.89%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1067.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[67.01%_12.3%_7.06%_59.01%]">
+                                        <div class="absolute inset-[-0.89%_-0.43%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1072.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[27.81%_45.41%_60.99%_48.55%]">
+                                        <div class="absolute inset-[-2.07%_-2.03%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1065.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[68.17%_43.14%_13.43%_19.12%]">
+                                        <div class="absolute inset-[-1.26%_-0.32%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1068.svg" />
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-[34.95%_28.19%_53.47%_58.03%]">
+                                        <div class="absolute inset-[-2%_-0.89%]">
+                                            <img alt="" class="block max-w-none size-full" src="assets/images/topology-vector-1071.svg" />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Labels -->
+                                    <div class="absolute bottom-[58%] left-[52.5%] flex items-center justify-center">
+                                        <div class="-rotate-[13deg] -skew-x-[13deg] flex-none scale-y-[0.97] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#3ec064] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
+                                            <span class="text-[12px] text-[#3ec064] font-['Roboto']">DC</span>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-[59%] left-[62.5%] flex items-center justify-center">
+                                        <div class="-rotate-[15deg] -skew-x-[15deg] flex-none scale-y-[0.97] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#3ec064] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
+                                            <span class="text-[12px] text-[#3ec064] font-['Roboto']">DC</span>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-[12%] left-[68.8%] flex items-center justify-center">
+                                        <div class="rotate-[18deg] scale-y-[0.95] skew-x-[18deg] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#346aff] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
+                                            <span class="text-[12px] text-[#346aff] font-['Roboto']">AC</span>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-[13.5%] left-[45.7%] flex items-center justify-center">
+                                        <div class="-rotate-[15deg] -skew-x-[15deg] flex-none scale-y-[0.97] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#346aff] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
+                                            <span class="text-[12px] text-[#346aff] font-['Roboto']">AC</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Info Panel -->
+                                <div class="backdrop-blur-[25px] bg-[rgba(255,255,255,0.7)] flex gap-0 items-start px-[16px] py-[8px] relative rounded-[8px] shrink-0 w-full lg:w-[232px]">
+                                    <div class="flex flex-col gap-[16px] items-start relative shrink-0 w-[24px]">
+                                        ${[1,2,3,4,5].map(() => `
+                                        <div class="flex flex-col h-[60px] items-center py-[8px] w-full">
+                                            <div class="size-[4px]"><img src="assets/images/topology-ellipse.svg" class="block size-full"/></div>
+                                        </div>`).join('')}
+                                    </div>
+                                    
+                                    <div class="flex flex-[1_0_0] flex-col gap-[16px] items-start relative">
+                                        <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">ASSIGNED VPP</span></div>
+                                            <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${vpp.name || 'Unassigned'}</span></div>
+                                        </div>
+                                        <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">NMI</span></div>
+                                            <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto'] font-mono">${device.nmi || '-'}</span></div>
+                                        </div>
+                                        <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">STATE</span></div>
+                                            <div class="flex items-center justify-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${vpp.state || '-'}</span></div>
+                                        </div>
+                                        <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">GRID STATUS</span></div>
+                                            <div class="flex gap-[8px] items-center h-[40px]">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] ${device.status === 'online' ? 'bg-[#8cda2f]' : 'bg-[#b5bcc8]'}"></div>
+                                                <span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${device.status.charAt(0).toUpperCase() + device.status.slice(1)}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">Operating Mode</span></div>
+                                            <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">Normal</span></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
