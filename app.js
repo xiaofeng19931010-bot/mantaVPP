@@ -8490,8 +8490,8 @@ const app = {
         
         if (statusTab && generationTab && consumptionTab) {
             // Reset all to default style
-            const defaultStyle = 'px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 rounded-md transition-all';
-            const activeStyle = 'px-3 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm rounded-md transition-all';
+            const defaultStyle = "px-[12px] py-[6px] text-[12px] font-medium text-[#6B7280] hover:text-[#1F2937] rounded-[6px] font-['Manrope'] transition-all";
+            const activeStyle = "px-[12px] py-[6px] text-[12px] font-semibold text-[#1F2937] bg-white rounded-[6px] shadow-sm font-['Manrope'] transition-all";
             
             statusTab.className = defaultStyle;
             generationTab.className = defaultStyle;
@@ -8987,7 +8987,7 @@ const app = {
 
                     <!-- Content -->
                         <div class="bg-white p-[8px] flex flex-col gap-[8px]">
-                            <div class="bg-white content-stretch flex flex-col lg:flex-row gap-[40px] items-center px-[40px] relative w-full rounded-[4px] border border-[#e6e8ee] overflow-hidden">
+                            <div class="bg-white content-stretch flex flex-col lg:flex-row gap-[40px] items-center px-[40px] relative w-full rounded-[4px] overflow-hidden">
                                 <!-- Visuals -->
                                 <div class="aspect-[816/432] flex-[1_0_0] min-h-[300px] w-full relative">
                                     <div class="-translate-x-1/2 absolute bottom-0 flex items-center justify-center left-1/2 top-0 w-full h-full max-w-[816px]">
@@ -9115,215 +9115,263 @@ const app = {
 
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
                                 <!-- PV Stats Section -->
-                                <div class="flex flex-col h-full">
-                                    <div class="flex items-center gap-2 mb-4 px-1">
-                                        <i data-lucide="sun" class="w-5 h-5 text-[#f97316]"></i>
-                                        <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">PV</h3>
+                            <!-- PV ESS & Environmental Benefits Section -->
+                            <div class="content-start flex flex-wrap gap-[16px] items-start relative size-full mt-[16px]">
+                                <!-- PV ESS -->
+                                <div class="bg-[#f8f9fb] content-stretch flex flex-[1_0_0] flex-col gap-[16px] items-start min-h-px min-w-[300px] lg:min-w-[576px] p-[16px] relative rounded-[4px]">
+                                    <div class="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[0px] py-[4px] relative rounded-[4px] shrink-0 w-full">
+                                        <!-- PV Icon (CSS) -->
+                                        <div class="relative shrink-0 size-[24px]">
+                                            <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[23px] left-1/2 rounded-[2px] top-1/2 w-[17px]"></div>
+                                            <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%-3px)] top-1/2 w-px"></div>
+                                            <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-[calc(50%-6px)] w-[17px]"></div>
+                                            <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-1/2 w-[17px]"></div>
+                                            <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-px left-1/2 top-[calc(50%+6px)] w-[17px]"></div>
+                                            <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-white h-[23px] left-[calc(50%+3px)] top-1/2 w-px"></div>
+                                        </div>
+                                        <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap">PV ESS</p>
                                     </div>
-                                    <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm flex-1">
-                                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-[16px] h-full">
-                                            <!-- Capacity -->
-                                            <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Capacity</span>
-                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${device.capacity} kW</span>
+                                    <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))] p-[8px] relative rounded-[8px] shrink-0 w-full">
+                                        <!-- Capacity -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Capacity</p>
                                             </div>
-                                            
-                                            <!-- Today Yield -->
-                                            <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Today Yield</span>
-                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 4.2).toFixed(1)} kWh</span>
+                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${device.capacity} kW</p>
                                             </div>
-
-                                            <!-- Today Full Hours -->
-                                            <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Today Full Hours</span>
-                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">4.2 h</span>
+                                        </div>
+                                        <!-- Today Yield -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Today Yield</p>
                                             </div>
-
-                                            <!-- Month Yield -->
-                                            <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Month Yield</span>
-                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 120).toFixed(1)} kWh</span>
+                                            <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 4.2).toFixed(1)} kWh</p>
                                             </div>
-
-                                            <!-- Annual Yield -->
-                                            <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Annual Yield</span>
-                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 1.4).toFixed(2)} MWh</span>
+                                        </div>
+                                        <!-- Today Full Hours -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Today Full Hours</p>
                                             </div>
-
-                                            <!-- Total Yield -->
-                                            <div class="flex flex-col justify-center">
-                                                <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Total Yield</span>
-                                                <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 5).toFixed(2)} MWh</span>
+                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">4.2 h</p>
+                                            </div>
+                                        </div>
+                                        <!-- Month Yield -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Month Yield</p>
+                                            </div>
+                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 120).toFixed(1)} kWh</p>
+                                            </div>
+                                        </div>
+                                        <!-- Annual Yield -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Annual Yield</p>
+                                            </div>
+                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 1.4).toFixed(2)} MWh</p>
+                                            </div>
+                                        </div>
+                                        <!-- Total Yield -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]">Total Yield</p>
+                                            </div>
+                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]">${(device.capacity * 5).toFixed(2)} MWh</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Environmental Benefits -->
-                                <div class="flex flex-col h-full">
-                                    <div class="flex items-center gap-2 mb-4 px-1">
-                                        <i data-lucide="leaf" class="w-5 h-5 text-[#3ec064]"></i>
-                                        <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Environmental Benefits</h3>
-                                    </div>
-                                    <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm flex-1">
-                                        <div class="grid grid-cols-2 gap-[16px] h-full">
-                                            <!-- CO2 Reduction -->
-                                            <div class="flex flex-col items-center justify-center text-center">
-                                                <div class="w-16 h-16 rounded-[4px] bg-[#3ec064]/10 flex items-center justify-center text-[#3ec064] shadow-sm ring-1 ring-[#3ec064]/20 mb-3">
-                                                    <i data-lucide="cloud-lightning" class="w-8 h-8"></i>
-                                                </div>
-                                                <div class="flex flex-col justify-center">
-                                                    <span class="text-xs font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">CO₂ Reduction</span>
-                                                    <span class="text-2xl font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 3.5).toFixed(1)} t</span>
-                                                </div>
+                                <div class="bg-[#f8f9fb] content-stretch flex flex-[1_0_0] flex-col gap-[16px] items-start min-h-px min-w-[300px] lg:min-w-[576px] p-[16px] relative rounded-[4px]">
+                                    <div class="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[0px] py-[4px] relative rounded-[4px] shrink-0 w-full">
+                                        <div class="overflow-clip relative shrink-0 size-[24px]">
+                                            <div class="absolute inset-[0_12.5%]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/env-benefits-icon.svg">
                                             </div>
-
-                                            <!-- Trees Planted -->
-                                            <div class="flex flex-col items-center justify-center text-center">
-                                                <div class="w-16 h-16 rounded-[4px] bg-[#3ec064]/10 flex items-center justify-center text-[#3ec064] shadow-sm ring-1 ring-[#3ec064]/20 mb-3">
-                                                    <i data-lucide="trees" class="w-8 h-8"></i>
-                                                </div>
-                                                <div class="flex flex-col justify-center">
-                                                    <span class="text-xs font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Trees Planted</span>
-                                                    <span class="text-2xl font-bold text-[#1c2026] font-['Roboto']">${Math.floor(device.capacity * 15)}</span>
-                                                </div>
+                                        </div>
+                                        <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap">Environmental Benefits</p>
+                                    </div>
+                                    <div class="content-stretch flex flex-[1_0_0] items-center justify-between min-h-px min-w-px relative w-full">
+                                        <!-- CO2 Reduction -->
+                                        <div class="content-stretch flex flex-[1_0_0] flex-col gap-[8px] items-center min-h-px min-w-px relative">
+                                            <div class="relative shrink-0 size-[48px]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/co2-icon.svg">
+                                            </div>
+                                            <div class="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 text-center w-full whitespace-pre-wrap">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e] w-full">CO₂ Reduction</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] w-full">${(device.capacity * 3.5).toFixed(1)} t</p>
+                                            </div>
+                                        </div>
+                                        <!-- Trees Planted -->
+                                        <div class="content-stretch flex flex-[1_0_0] flex-col gap-[8px] items-center min-h-px min-w-px relative">
+                                            <div class="relative shrink-0 size-[48px]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/trees-icon.svg">
+                                            </div>
+                                            <div class="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 text-center w-full whitespace-pre-wrap">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e] w-full">Trees Planted</p>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949] w-full">${Math.floor(device.capacity * 15)}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            </div>
 
                             <!-- Inverter Section -->
-                            <div class="flex flex-col mt-[16px]">
-                                <div class="flex items-center gap-2 mb-4 px-1">
-                                    <i data-lucide="zap" class="w-5 h-5 text-[#eab308]"></i>
-                                    <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Inverter</h3>
+                            <div class="flex flex-col gap-[12px] p-[20px] rounded-[16px] backdrop-blur-[20px] bg-[rgba(255,255,255,0.70)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] border border-white mt-[16px]">
+                                <!-- Title -->
+                                <div class="flex items-center gap-[8px]">
+                                    <img src="assets/images/inverter-title-icon.svg" class="w-[24px] h-[24px]" />
+                                    <span class="text-[18px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Inverter</span>
                                 </div>
-                                <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm">
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-[16px]">
-                                        <!-- SN -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">SN</span>
-                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="${device.sn}">${device.sn}</span>
-                                        </div>
-                                        <!-- Manufacturer -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Manufacturer</span>
-                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="${device.vendor}">${device.vendor}</span>
-                                        </div>
-                                        <!-- Model -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Model</span>
-                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="${device.model || 'Unknown'}">${device.model || 'Unknown'}</span>
-                                        </div>
-                                        <!-- Type -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Type</span>
-                                            <span class="text-sm font-bold text-[#1c2026] font-['Roboto']">String Inverter</span>
-                                        </div>
-                                        <!-- Rated Power -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Rated Power</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${device.capacity} kW</span>
-                                        </div>
-                                        <!-- Input Power -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Input Power</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 0.85).toFixed(1)} kW</span>
-                                        </div>
-                                        <!-- Output Power -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Output Power</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 0.8).toFixed(1)} kW</span>
-                                        </div>
-                                        <!-- Operating mode -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Operating mode</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">Normal</span>
-                                        </div>
+                                <!-- Content -->
+                                <div class="flex flex-wrap gap-y-[24px] gap-x-[40px]">
+                                    <!-- SN -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">SN</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="${device.sn}">${device.sn}</span>
+                                    </div>
+                                    <!-- Manufacturer -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Manufacturer</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="${device.vendor}">${device.vendor}</span>
+                                    </div>
+                                    <!-- Model -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Model</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="${device.model || 'Unknown'}">${device.model || 'Unknown'}</span>
+                                    </div>
+                                    <!-- Type -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Type</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">String Inverter</span>
+                                    </div>
+                                    <!-- Rated Power -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Rated Power</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${device.capacity} kW</span>
+                                    </div>
+                                    <!-- Input Power -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Input Power</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 0.85).toFixed(1)} kW</span>
+                                    </div>
+                                    <!-- Output Power -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Output Power</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 0.8).toFixed(1)} kW</span>
+                                    </div>
+                                    <!-- Operating mode -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Operating mode</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Normal</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Battery Section -->
-                            <div class="flex flex-col mt-[16px]">
-                                <div class="flex items-center gap-2 mb-4 px-1">
-                                    <i data-lucide="battery-charging" class="w-5 h-5 text-[#3b82f6]"></i>
-                                    <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Battery</h3>
+                            <div class="flex flex-col gap-[12px] p-[20px] rounded-[16px] backdrop-blur-[20px] bg-[rgba(255,255,255,0.70)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] border border-white mt-[16px]">
+                                <!-- Title -->
+                                <div class="flex items-center gap-[8px]">
+                                    <img src="assets/images/battery-title-icon.svg" class="w-[24px] h-[24px]" />
+                                    <span class="text-[18px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Battery</span>
                                 </div>
-                                <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm">
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-[16px]">
-                                        <!-- Model -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Model</span>
-                                            <span class="text-sm font-bold text-[#1c2026] truncate font-['Roboto']" title="LFP-200">LFP-200</span>
-                                        </div>
-                                        <!-- Rated Capacity -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Rated Capacity</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${device.capacity * 2} kWh</span>
-                                        </div>
-                                        <!-- Available charge -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Available charge</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</span>
-                                        </div>
-                                        <!-- Available discharge -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">Available discharge</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</span>
-                                        </div>
-                                        <!-- SOC -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">SOC</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">85%</span>
-                                        </div>
-                                        <!-- SOC floor -->
-                                        <div class="flex flex-col justify-center">
-                                            <span class="text-[10px] font-medium text-[#5f6570] uppercase tracking-wider mb-1 font-['Roboto']">SOC floor</span>
-                                            <span class="text-lg font-bold text-[#1c2026] font-['Roboto']">10%</span>
-                                        </div>
+                                <!-- Content -->
+                                <div class="flex flex-wrap gap-y-[24px] gap-x-[40px]">
+                                    <!-- Model -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Model</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope'] truncate" title="LFP-200">LFP-200</span>
+                                    </div>
+                                    <!-- Rated Capacity -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Rated Capacity</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${device.capacity * 2} kWh</span>
+                                    </div>
+                                    <!-- Available charge -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Available charge</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</span>
+                                    </div>
+                                    <!-- Available discharge -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">Available discharge</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</span>
+                                    </div>
+                                    <!-- SOC -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">SOC</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">85%</span>
+                                    </div>
+                                    <!-- SOC floor -->
+                                    <div class="flex flex-col gap-[4px] min-w-[120px]">
+                                        <span class="text-[14px] leading-[20px] font-medium text-[#6B7280] font-['Manrope']">SOC floor</span>
+                                        <span class="text-[16px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">10%</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Operation Section -->
-                            <div class="flex flex-col mb-6 mt-[16px]">
-                                <div class="flex items-center justify-between mb-4 px-1">
-                                    <div class="flex items-center gap-2">
-                                        <i data-lucide="activity" class="w-5 h-5 text-[#6366f1]"></i>
-                                        <h3 class="text-base font-bold text-[#1c2026] font-['Roboto']">Operation</h3>
+                            <div class="flex flex-col gap-[20px] p-[20px] rounded-[16px] backdrop-blur-[20px] bg-[rgba(255,255,255,0.70)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] border border-white mt-[16px] mb-6">
+                                <!-- Header: Title + Controls -->
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-[16px]">
+                                    <!-- Title -->
+                                    <div class="flex items-center gap-[8px]">
+                                        <img src="assets/images/operation-title-icon.svg" class="w-[24px] h-[24px]" />
+                                        <span class="text-[18px] leading-[24px] font-bold text-[#1F2937] font-['Manrope']">Operation</span>
                                     </div>
-                                    <div class="flex items-center bg-white border border-[#e6e8ee] rounded-[4px] shadow-sm px-1 w-[260px] justify-between">
-                                        <select id="operation-granularity" class="bg-transparent border-none text-[#1c2026] text-xs focus:ring-0 block p-1 cursor-pointer h-7 outline-none flex-shrink-0 font-['Roboto']" onchange="app.handleGranularityChange(this.value)">
-                                            <option value="day">Daily</option>
-                                            <option value="month">Monthly</option>
-                                            <option value="year">Yearly</option>
-                                            <option value="total">Total</option>
-                                        </select>
-                                        <span id="operation-separator" class="text-[#b5bcc8] mx-1 flex-shrink-0">|</span>
-                                        <div class="flex items-center flex-1 justify-center">
-                                            <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="text-[#b5bcc8] hover:text-[#5f6570] p-1 hover:bg-[#f8f9fb] rounded-full transition-colors flex-shrink-0">
-                                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                                            </button>
-                                            <input type="date" id="operation-date" class="bg-transparent border-none text-[#1c2026] text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer flex-1 w-full font-['Roboto']" value="${new Date().toISOString().split('T')[0]}" onchange="app.updateOperationChart()" onclick="try{this.showPicker()}catch(e){}">
-                                            <select id="operation-year-select" class="bg-transparent border-none text-[#1c2026] text-xs focus:ring-0 block p-1 h-7 outline-none text-center cursor-pointer appearance-none flex-1 w-full font-['Roboto']" style="display:none" onchange="document.getElementById('operation-date').value=this.value; app.updateOperationChart()">
-                                            </select>
-                                            <button id="operation-date-next" onclick="app.adjustDate(1)" class="text-[#b5bcc8] hover:text-[#5f6570] p-1 hover:bg-[#f8f9fb] rounded-full transition-colors flex-shrink-0">
-                                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                                            </button>
-                                        </div>
+                                    
+                                    <!-- Controls Group -->
+                                    <div class="flex flex-wrap items-center gap-[12px]">
+                                         <!-- Granularity Select -->
+                                         <div class="relative">
+                                             <select id="operation-granularity" class="appearance-none bg-white border border-[#E5E7EB] rounded-[8px] pl-[12px] pr-[32px] py-[6px] text-[14px] font-medium text-[#374151] font-['Manrope'] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm" onchange="app.handleGranularityChange(this.value)">
+                                                 <option value="day">Daily</option>
+                                                 <option value="month">Monthly</option>
+                                                 <option value="year">Yearly</option>
+                                                 <option value="total">Total</option>
+                                             </select>
+                                             <img src="assets/images/operation-arrow-down.svg" class="absolute right-[10px] top-1/2 -translate-y-1/2 w-[12px] h-[12px] pointer-events-none" />
+                                         </div>
+
+                                         <!-- Date Control -->
+                                         <div class="flex items-center bg-white border border-[#E5E7EB] rounded-[8px] p-[4px] shadow-sm">
+                                             <button id="operation-date-prev" onclick="app.adjustDate(-1)" class="p-[6px] hover:bg-gray-50 rounded-[4px] transition-colors flex-shrink-0">
+                                                 <img src="assets/images/operation-arrow-left.svg" class="w-[16px] h-[16px]" />
+                                             </button>
+                                             
+                                             <div class="relative flex items-center px-[8px] border-l border-r border-[#E5E7EB] mx-[4px]">
+                                                 <img src="assets/images/operation-calendar.svg" class="w-[16px] h-[16px] mr-[8px]" />
+                                                 <input type="date" id="operation-date" class="bg-transparent border-none text-[14px] font-medium text-[#374151] font-['Manrope'] focus:ring-0 p-0 w-[110px] cursor-pointer outline-none" value="${new Date().toISOString().split('T')[0]}" onchange="app.updateOperationChart()" onclick="try{this.showPicker()}catch(e){}">
+                                                 <select id="operation-year-select" class="bg-transparent border-none text-[14px] font-medium text-[#374151] font-['Manrope'] focus:ring-0 p-0 w-[80px] cursor-pointer appearance-none outline-none" style="display:none" onchange="document.getElementById('operation-date').value=this.value; app.updateOperationChart()">
+                                                 </select>
+                                             </div>
+
+                                             <button id="operation-date-next" onclick="app.adjustDate(1)" class="p-[6px] hover:bg-gray-50 rounded-[4px] transition-colors flex-shrink-0 rotate-180">
+                                                 <img src="assets/images/operation-arrow-left.svg" class="w-[16px] h-[16px]" />
+                                             </button>
+                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-white p-[16px] rounded-[4px] border border-[#e6e8ee] shadow-sm relative">
-                                    <div class="absolute top-6 left-6 z-10 flex bg-[#f8f9fb] rounded-[4px] p-1">
-                                        <button onclick="app.setOperationTab('status')" id="tab-status" class="px-3 py-1 text-xs font-medium bg-white text-[#1c2026] shadow-sm rounded-[4px] transition-all font-['Roboto']">Status</button>
-                                        <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-3 py-1 text-xs font-medium text-[#5f6570] hover:text-[#1c2026] rounded-[4px] transition-all font-['Roboto']">Generation</button>
-                                        <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-3 py-1 text-xs font-medium text-[#5f6570] hover:text-[#1c2026] rounded-[4px] transition-all font-['Roboto']">Consumption</button>
+
+                                <!-- Chart Area -->
+                                <div class="relative w-full bg-white rounded-[12px] border border-[#E5E7EB] p-[16px] h-[420px]">
+                                    <!-- Tabs (Overlay) -->
+                                    <div class="absolute top-[16px] left-[16px] z-10 flex bg-[#F3F4F6] rounded-[8px] p-[4px]">
+                                        <button onclick="app.setOperationTab('status')" id="tab-status" class="px-[12px] py-[6px] text-[12px] font-semibold text-[#1F2937] bg-white rounded-[6px] shadow-sm font-['Manrope'] transition-all">Status</button>
+                                        <button onclick="app.setOperationTab('generation')" id="tab-generation" class="px-[12px] py-[6px] text-[12px] font-medium text-[#6B7280] hover:text-[#1F2937] rounded-[6px] font-['Manrope'] transition-all">Generation</button>
+                                        <button onclick="app.setOperationTab('consumption')" id="tab-consumption" class="px-[12px] py-[6px] text-[12px] font-medium text-[#6B7280] hover:text-[#1F2937] rounded-[6px] font-['Manrope'] transition-all">Consumption</button>
                                     </div>
-                                    <div id="operation-chart" class="w-full h-96"></div>
+                                    
+                                    <div id="operation-chart" class="w-full h-full pt-[40px]"></div>
                                 </div>
                             </div>
                         </div>
