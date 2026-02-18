@@ -35,3 +35,12 @@ To run the project locally:
 python3 -m http.server 8083
 ```
 Then visit `http://localhost:8083`.
+
+## Product Documentation
+
+Comprehensive product documentation is available in the `Product_Package` directory:
+
+- [Product Requirements Document (PRD)](Product_Package/PRD.md): Detailed functional specs, architecture diagrams, and success metrics.
+- [Marketing Strategy](Product_Package/Marketing_Strategy.md): Value propositions, buyer personas, and competitive positioning.
+- [Presentation Structure](Product_Package/Presentation_Structure.md): Outline for executive summary and technical deep-dive slides.
+
