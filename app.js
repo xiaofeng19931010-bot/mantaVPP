@@ -824,7 +824,6 @@ const state = {
     tradingRuleVppSelections: [],
     tradingRuleVppDropdownOpen: false,
     tradingRuleVppOptions: [],
-    tradingOverviewTab: 'rules',
     fcasPriceAvailability: {
         region: 'SA',
         direction: 'Raise', // Raise or Lower
@@ -1067,6 +1066,20 @@ const app = {
         }
     },
 
+    getAvailableAddDevices() {
+        const vpp = state.vpps.find(v => v.id === state.selectedVppId) || {};
+        const vppState = vpp.state;
+        let availableDevices = state.devices.filter(d => {
+            if (vppState && d.state !== vppState) return false;
+            return true;
+        });
+        if (state.addDeviceDrawer.searchQuery) {
+            const q = state.addDeviceDrawer.searchQuery.toLowerCase();
+            availableDevices = availableDevices.filter(d => d.sn.toLowerCase().includes(q));
+        }
+        return availableDevices;
+    },
+
     toggleDeviceSelection(sn) {
         const index = state.addDeviceDrawer.selectedDeviceIds.indexOf(sn);
         let isSelected = false;
@@ -1085,6 +1098,44 @@ const app = {
         }
 
         // Update Confirm button text
+        const btn = document.getElementById('btn-add-devices-confirm');
+        if (btn) {
+            btn.innerHTML = `Confirm (${state.addDeviceDrawer.selectedDeviceIds.length})`;
+        }
+
+        const availableDevices = app.getAvailableAddDevices();
+        const selectedInList = availableDevices.filter(d => state.addDeviceDrawer.selectedDeviceIds.includes(d.sn));
+        const allSelected = availableDevices.length > 0 && selectedInList.length === availableDevices.length;
+        const someSelected = selectedInList.length > 0 && !allSelected;
+        const allCheckbox = document.getElementById('checkbox-all-devices');
+        if (allCheckbox) {
+            allCheckbox.checked = allSelected;
+            allCheckbox.indeterminate = someSelected;
+        }
+    },
+
+    toggleAllAddDevices(isChecked) {
+        const availableDevices = app.getAvailableAddDevices();
+        if (isChecked) {
+            const nextSelected = new Set(state.addDeviceDrawer.selectedDeviceIds);
+            availableDevices.forEach(d => nextSelected.add(d.sn));
+            state.addDeviceDrawer.selectedDeviceIds = Array.from(nextSelected);
+        } else {
+            const availableSet = new Set(availableDevices.map(d => d.sn));
+            state.addDeviceDrawer.selectedDeviceIds = state.addDeviceDrawer.selectedDeviceIds.filter(sn => !availableSet.has(sn));
+        }
+
+        availableDevices.forEach(d => {
+            const checkbox = document.getElementById(`checkbox-${d.sn}`);
+            if (checkbox) checkbox.checked = isChecked;
+        });
+
+        const allCheckbox = document.getElementById('checkbox-all-devices');
+        if (allCheckbox) {
+            allCheckbox.checked = isChecked && availableDevices.length > 0;
+            allCheckbox.indeterminate = false;
+        }
+
         const btn = document.getElementById('btn-add-devices-confirm');
         if (btn) {
             btn.innerHTML = `Confirm (${state.addDeviceDrawer.selectedDeviceIds.length})`;
@@ -1158,22 +1209,9 @@ const app = {
     renderAddDeviceDrawer() {
         if (!state.addDeviceDrawer.isOpen) return '';
 
-        // Get current VPP
-        const vpp = state.vpps.find(v => v.id === state.selectedVppId) || {};
-        const vppState = vpp.state;
-
-        // Filter devices
-        let availableDevices = state.devices.filter(d => {
-            // Check state consistency
-            if (vppState && d.state !== vppState) return false;
-            return true;
-        });
-
-        // Filter by search
-        if (state.addDeviceDrawer.searchQuery) {
-            const q = state.addDeviceDrawer.searchQuery.toLowerCase();
-            availableDevices = availableDevices.filter(d => d.sn.toLowerCase().includes(q));
-        }
+        const availableDevices = app.getAvailableAddDevices();
+        const selectedInList = availableDevices.filter(d => state.addDeviceDrawer.selectedDeviceIds.includes(d.sn));
+        const allSelected = availableDevices.length > 0 && selectedInList.length === availableDevices.length;
 
         return `
             <!-- Backdrop -->
@@ -1217,6 +1255,14 @@ const app = {
                         <thead>
                             <tr class="h-[40px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
                                 <th class="w-[40px] px-[8px]">
+                                    <div class="flex items-center justify-center">
+                                        <input type="checkbox"
+                                            id="checkbox-all-devices"
+                                            ${allSelected ? 'checked' : ''}
+                                            class="w-[16px] h-[16px] rounded border-gray-300 text-[#0052ff] focus:ring-[#0052ff]"
+                                            onclick="app.toggleAllAddDevices(this.checked)"
+                                        >
+                                    </div>
                                 </th>
                                 <th class="px-[16px] font-medium">SN</th>
                                 <th class="px-[16px] font-medium">DER Type</th>
@@ -1523,9 +1569,9 @@ const app = {
             this.spotMarketInterval = null;
         }
 
-        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px] overflow-y-auto";
         container.innerHTML = `
-            <div class="h-full flex flex-col bg-white rounded-[4px] overflow-hidden border border-gray-200 shadow-sm">
+            <div class="min-h-full flex flex-col">
                 <!-- Top Bar -->
                 <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
                     <div class="flex items-center gap-4">
@@ -1550,138 +1596,231 @@ const app = {
 
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <!-- Chart Settings -->
-                        <div class="relative">
-                            <button id="chart-settings-btn" title="Settings" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
-                                <i data-lucide="settings" class="w-4 h-4"></i>
-                            </button>
-                            <!-- Settings Menu -->
-                            <div id="chart-settings-menu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-2">
-                                <div class="space-y-1">
-                                    <!-- Weather -->
-                                    <label class="block cursor-pointer select-none">
-                                        <input type="checkbox" id="setting-weather" class="peer sr-only">
-                                        <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
-                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
-                                                <i data-lucide="check" class="w-3 h-3"></i>
-                                            </div>
-                                            <span class="text-sm">Weather</span>
-                                        </div>
-                                    </label>
-                                    
-                                    <!-- Arbitrage Point -->
-                                    <div class="relative group">
-                                        <label class="block cursor-pointer select-none">
-                                            <input type="checkbox" id="setting-arbitrage" class="peer sr-only">
-                                            <div class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
-                                                        <i data-lucide="check" class="w-3 h-3"></i>
-                                                    </div>
-                                                    <span class="text-sm">Arbitrage Point</span>
-                                                </div>
-                                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                                            </div>
-                                        </label>
-                                        
-                                        <!-- Sub Menu for Arbitrage Point -->
-                                         <div id="setting-arbitrage-submenu" class="hidden absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
-                                            <label class="block cursor-pointer select-none">
-                                                <input type="radio" name="arbitrage-signal" value="forecast" class="peer sr-only" checked>
-                                                <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
-                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
-                                                        <i data-lucide="check" class="w-3 h-3"></i>
-                                                    </div>
-                                                    <span class="text-sm">Signal by Forecast</span>
-                                                </div>
-                                            </label>
-                                            <label class="block cursor-pointer select-none">
-                                                <input type="radio" name="arbitrage-signal" value="spot" class="peer sr-only">
-                                                <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
-                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
-                                                        <i data-lucide="check" class="w-3 h-3"></i>
-                                                    </div>
-                                                    <span class="text-sm">Signal by Spot</span>
-                                                </div>
-                                            </label>
-                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button title="Fullscreen" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
-                            <i data-lucide="maximize" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
                 </div>
 
                 <!-- Main Content -->
-                <div class="flex flex-col flex-1 min-h-0">
-                    <!-- Top Stats Bar -->
-                    <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-8">
-                        <!-- Market Status Group -->
-                        <div class="flex items-center gap-8">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Spot</p>
-                                <div class="flex items-end gap-2">
-                                    <span id="stat-spot-price" class="text-2xl font-bold text-gray-900">0.55</span>
-                                    <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                <div class="flex flex-col gap-4">
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col h-[500px] shrink-0 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900">Spot Price</h3>
+                            <div class="flex items-center gap-2">
+                                <!-- Chart Settings -->
+                                <div class="relative">
+                                    <button id="chart-settings-btn" title="Settings" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
+                                        <i data-lucide="settings" class="w-4 h-4"></i>
+                                    </button>
+                                    <!-- Settings Menu -->
+                                    <div id="chart-settings-menu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-2">
+                                        <div class="space-y-1">
+                                            <!-- Weather -->
+                                            <label class="block cursor-pointer select-none">
+                                                <input type="checkbox" id="setting-weather" class="peer sr-only">
+                                                <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                    <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                                    </div>
+                                                    <span class="text-sm">Weather</span>
+                                                </div>
+                                            </label>
+                                            
+                                            <!-- Arbitrage Point -->
+                                            <div class="relative group">
+                                                <label class="block cursor-pointer select-none">
+                                                    <input type="checkbox" id="setting-arbitrage" class="peer sr-only">
+                                                    <div class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                        <div class="flex items-center gap-2">
+                                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                                            </div>
+                                                            <span class="text-sm">Arbitrage Point</span>
+                                                        </div>
+                                                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                                                    </div>
+                                                </label>
+                                                
+                                                <!-- Sub Menu for Arbitrage Point -->
+                                                 <div id="setting-arbitrage-submenu" class="hidden absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+                                                    <label class="block cursor-pointer select-none">
+                                                        <input type="radio" name="arbitrage-signal" value="forecast" class="peer sr-only" checked>
+                                                        <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                                            </div>
+                                                            <span class="text-sm">Signal by Forecast</span>
+                                                        </div>
+                                                    </label>
+                                                    <label class="block cursor-pointer select-none">
+                                                        <input type="radio" name="arbitrage-signal" value="spot" class="peer sr-only">
+                                                        <div class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 peer-checked:bg-gray-100 peer-checked:text-[#3ec064] peer-checked:[&_.check-icon]:opacity-100 transition-colors">
+                                                            <div class="check-icon w-4 h-4 flex items-center justify-center opacity-0 transition-opacity">
+                                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                                            </div>
+                                                            <span class="text-sm">Signal by Spot</span>
+                                                        </div>
+                                                    </label>
+                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button title="Fullscreen" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
+                                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Top Stats Bar -->
+                        <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-8">
+                            <!-- Market Status Group -->
+                            <div class="flex items-center gap-8">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Spot</p>
+                                    <div class="flex items-end gap-2">
+                                        <span id="stat-spot-price" class="text-2xl font-bold text-gray-900">0.55</span>
+                                        <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                                    </div>
+                                </div>
+                                <div class="h-8 w-px bg-gray-200"></div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Pre-Dispatch</p>
+                                    <div class="flex items-end gap-2">
+                                        <span id="stat-predispatch-price" class="text-2xl font-bold text-gray-900">0.68</span>
+                                        <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                                    </div>
+                                </div>
+                                <div class="h-8 w-px bg-gray-200"></div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Forecast Spot</p>
+                                    <div class="flex items-end gap-2">
+                                        <span id="stat-forecast-spot-price" class="text-xl font-bold text-manta-primary">0.72</span>
+                                        <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
+                                    </div>
+                                </div>
+                                <div class="h-8 w-px bg-gray-200"></div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Available Discharge</p>
+                                    <div class="flex items-end gap-2">
+                                        <span class="text-xl font-bold text-gray-900">12.5</span>
+                                        <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                    </div>
+                                </div>
+                                <div class="h-8 w-px bg-gray-200"></div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Available Charge</p>
+                                    <div class="flex items-end gap-2">
+                                        <span class="text-xl font-bold text-gray-900">8.2</span>
+                                        <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="h-8 w-px bg-gray-200"></div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Pre-Dispatch</p>
-                                <div class="flex items-end gap-2">
-                                    <span id="stat-predispatch-price" class="text-2xl font-bold text-gray-900">0.68</span>
-                                    <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+
+                            <!-- Trading Performance Group -->
+                            <div id="trading-opportunities-stats" class="hidden flex items-center gap-8">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
+                                    <p class="font-medium text-lg">3 <span class="text-gray-400 text-sm font-normal">(2 Captured)</span></p>
                                 </div>
-                            </div>
-                            <div class="h-8 w-px bg-gray-200"></div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Forecast Spot</p>
-                                <div class="flex items-end gap-2">
-                                    <span id="stat-forecast-spot-price" class="text-xl font-bold text-manta-primary">0.72</span>
-                                    <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
-                                </div>
-                            </div>
-                            <div class="h-8 w-px bg-gray-200"></div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Available Discharge</p>
-                                <div class="flex items-end gap-2">
-                                    <span class="text-xl font-bold text-gray-900">12.5</span>
-                                    <span class="text-sm text-gray-500 mb-1">MWh</span>
-                                </div>
-                            </div>
-                            <div class="h-8 w-px bg-gray-200"></div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Available Charge</p>
-                                <div class="flex items-end gap-2">
-                                    <span class="text-xl font-bold text-gray-900">8.2</span>
-                                    <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                <div class="h-8 w-px bg-gray-200"></div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
+                                    <p class="text-lg font-bold text-green-600">+$1,520</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Trading Performance Group -->
-                        <div id="trading-opportunities-stats" class="hidden flex items-center gap-8">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
-                                <p class="font-medium text-lg">3 <span class="text-gray-400 text-sm font-normal">(2 Captured)</span></p>
-                            </div>
-                            <div class="h-8 w-px bg-gray-200"></div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
-                                <p class="text-lg font-bold text-green-600">+$1,520</p>
-                            </div>
+                        <!-- Chart Area -->
+                        <div id="spot-chart-wrapper" class="flex-1 bg-white relative flex flex-col">
+                            <div id="spot-market-chart" class="w-full h-full"></div>
                         </div>
                     </div>
 
-                    <!-- Chart Area -->
-                    <div id="spot-chart-wrapper" class="flex-1 bg-white relative flex flex-col">
-                        <div id="spot-market-chart" class="w-full h-full"></div>
+                    <!-- Trading Events List -->
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Trading Events</h3>
+                        </div>
+                        <div>
+                            ${(() => {
+                                const events = MOCK_DATA.tradingEvents || [];
+                                const recentEvents = events;
+                                if (events.length === 0) {
+                                    return `
+                                        <div class="h-full flex items-center justify-center p-[20px]">
+                                            <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                                <div class="relative w-[88px] h-[88px]">
+                                                    <i data-lucide="activity" class="w-full h-full text-[#b5bcc8]"></i>
+                                                </div>
+                                                <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Events Created</p>
+                                                <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f]">Trading events will appear here once available.</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                return `
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-4 py-2 font-medium">Date</th>
+                                            <th class="px-4 py-2 font-medium">VPP</th>
+                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
+                                            <th class="px-4 py-2 font-medium">Trigger From</th>
+                                            <th class="px-4 py-2 font-medium">Trigger Condition</th>
+                                            <th class="px-4 py-2 font-medium">Event</th>
+                                            <th class="px-4 py-2 font-medium">Start Time</th>
+                                            <th class="px-4 py-2 font-medium">End Time</th>
+                                            <th class="px-4 py-2 font-medium">Rated Power</th>
+                                            <th class="px-4 py-2 font-medium">Volume</th>
+                                            <th class="px-4 py-2 font-medium">Spot</th>
+                                            <th class="px-4 py-2 font-medium">Status</th>
+                                            <th class="px-4 py-2 font-medium">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${recentEvents.map(event => {
+                                            const matchedRule = state.tradingRules.find(rule => {
+                                                const ruleNames = [];
+                                                if (rule.vpp) ruleNames.push(rule.vpp);
+                                                if (rule.applicableVpps && rule.applicableVpps.length) {
+                                                    ruleNames.push(...rule.applicableVpps.map(v => v.name).filter(Boolean));
+                                                }
+                                                return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
+                                            });
+                                            const rawTriggerType = matchedRule?.triggerType || event.triggerType;
+                                            const triggerType = rawTriggerType === 'Price' ? 'Spot Price' : (rawTriggerType === 'Arbitrage' ? 'Arbitrage Point' : rawTriggerType || '-');
+                                            const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
+                                            const startTime = timeParts[0] || '-';
+                                            const endTime = timeParts[1] || '-';
+                                            const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
+                                            const volume = event.volume || '-';
+                                            const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
+                                            return `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-gray-600">${event.date ? event.date.split(' ')[0] : '-'}</td>
+                                                <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${triggerType}</td>
+                                                <td class="px-4 py-3 text-gray-600">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${startTime}</td>
+                                                <td class="px-4 py-3 text-gray-600">${endTime}</td>
+                                                <td class="px-4 py-3 text-gray-600">${power}</td>
+                                                <td class="px-4 py-3 text-gray-600">${volume}</td>
+                                                <td class="px-4 py-3 text-gray-600">${spot}</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
+                                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>`;
+                            })()}
+                        </div>
                     </div>
 <!-- Pagination removed -->
                 </div>
@@ -2002,8 +2141,8 @@ const app = {
                         {
                             left: '50px',
                             right: '50px',
-                            height: '85%',
-                            top: '10%'
+                            top: '10%',
+                            bottom: '60px'
                         }
                     ],
                     xAxis: [
@@ -5310,36 +5449,24 @@ const app = {
         applyFilters();
     },
 
-    updateTradingOverviewTab(tab) {
-        state.tradingOverviewTab = tab;
-        this.renderTradingOverview(document.getElementById('content-area'));
-    },
-
     renderTradingOverview(container) {
         const rules = state.tradingRules;
-        const events = MOCK_DATA.tradingEvents;
         const recentRules = rules.slice(0, 5);
-        const recentEvents = events.slice(0, 5);
-        const activeTab = state.tradingOverviewTab;
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col h-full gap-4">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col min-h-0 flex-1">
                     <div class="flex flex-wrap items-center justify-between px-4 py-3 border-b border-gray-100 gap-3">
-                        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                            <button onclick="app.updateTradingOverviewTab('rules')" class="px-3 py-1.5 text-xs font-medium rounded-md ${activeTab === 'rules' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}">Trading Rules</button>
-                            <button onclick="app.updateTradingOverviewTab('events')" class="px-3 py-1.5 text-xs font-medium rounded-md ${activeTab === 'events' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}">Trading Events</button>
-                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Trading Rules</h3>
                         <div class="flex items-center gap-2">
-                            ${activeTab === 'rules' && rules.length > 0 ? `
+                            ${rules.length > 0 ? `
                                 <button onclick="app.openTradingRuleDrawer()" class="px-3 py-1.5 text-xs font-medium bg-manta-primary text-white rounded-md hover:bg-manta-dark transition-colors">New</button>
                             ` : ''}
                         </div>
                     </div>
                     <div class="flex-1 overflow-auto">
-                        ${activeTab === 'rules' ? `
-                            ${rules.length > 0 ? `
+                        ${rules.length > 0 ? `
                                 <table class="w-full text-sm text-left">
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                         <tr>
@@ -5406,82 +5533,6 @@ const app = {
                                     </div>
                                 </div>
                             `}
-                        ` : `
-                            ${events.length > 0 ? `
-                                <table class="w-full text-sm text-left">
-                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
-                                        <tr>
-                                            <th class="px-4 py-2 font-medium">Date</th>
-                                            <th class="px-4 py-2 font-medium">VPP</th>
-                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
-                                            <th class="px-4 py-2 font-medium">Trigger From</th>
-                                            <th class="px-4 py-2 font-medium">Trigger Condition</th>
-                                            <th class="px-4 py-2 font-medium">Event</th>
-                                            <th class="px-4 py-2 font-medium">Start Time</th>
-                                            <th class="px-4 py-2 font-medium">End Time</th>
-                                            <th class="px-4 py-2 font-medium">Rated Power</th>
-                                            <th class="px-4 py-2 font-medium">Volume</th>
-                                            <th class="px-4 py-2 font-medium">Spot</th>
-                                            <th class="px-4 py-2 font-medium">Status</th>
-                                            <th class="px-4 py-2 font-medium">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        ${recentEvents.map(event => {
-                                            const matchedRule = state.tradingRules.find(rule => {
-                                                const ruleNames = [];
-                                                if (rule.vpp) ruleNames.push(rule.vpp);
-                                                if (rule.applicableVpps && rule.applicableVpps.length) {
-                                                    ruleNames.push(...rule.applicableVpps.map(v => v.name).filter(Boolean));
-                                                }
-                                                return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
-                                            });
-                                            const rawTriggerType = matchedRule?.triggerType || event.triggerType;
-                                            const triggerType = rawTriggerType === 'Price' ? 'Spot Price' : (rawTriggerType === 'Arbitrage' ? 'Arbitrage Point' : rawTriggerType || '-');
-                                            const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
-                                            const startTime = timeParts[0] || '-';
-                                            const endTime = timeParts[1] || '-';
-                                            const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
-                                            const volume = event.volume || '-';
-                                            const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
-                                            return `
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-4 py-3 text-gray-600">${event.date ? event.date.split(' ')[0] : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${triggerType}</td>
-                                                <td class="px-4 py-3 text-gray-600">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${startTime}</td>
-                                                <td class="px-4 py-3 text-gray-600">${endTime}</td>
-                                                <td class="px-4 py-3 text-gray-600">${power}</td>
-                                                <td class="px-4 py-3 text-gray-600">${volume}</td>
-                                                <td class="px-4 py-3 text-gray-600">${spot}</td>
-                                                <td class="px-4 py-3">
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
-                                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `;
-                                        }).join('')}
-                                    </tbody>
-                                </table>
-                            ` : `
-                                <div class="h-full flex items-center justify-center p-[20px]">
-                                    <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
-                                        <div class="relative w-[88px] h-[88px]">
-                                            <i data-lucide="activity" class="w-full h-full text-[#b5bcc8]"></i>
-                                        </div>
-                                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Events Created</p>
-                                        <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f]">Trading events will appear here once available.</p>
-                                    </div>
-                                </div>
-                            `}
-                        `}
                     </div>
                 </div>
             </div>
@@ -7876,7 +7927,7 @@ const app = {
                      type: finalType,
                      capacity: capacity,
                      soc: isBattery ? Math.floor(Math.random() * 100) : undefined,
-                     vppId: state.vpps.length > 0 ? state.vpps[Math.floor(Math.random() * state.vpps.length)].id : null,
+                     vppId: null,
                      mockState: states[Math.floor(Math.random() * states.length)]
                  });
              }
@@ -8195,10 +8246,42 @@ const app = {
     },
 
     openAssignVppDrawer(sn) {
-        state.assignVpp = this.assignVppDefaults(sn);
+        const device = (state.devices || []).find(d => d.sn === sn);
+        let vpp = null;
+        if (device && device.vppId) {
+            vpp = (state.vpps || []).find(v => v.id === device.vppId) || 
+                  (MOCK_DATA.assignableVpps || []).find(v => v.id === device.vppId);
+        }
+
+        const defaults = this.assignVppDefaults(sn);
+        
+        if (vpp) {
+            state.assignVpp = {
+                ...defaults,
+                pricingRegion: vpp.state,
+                activeMarket: 'All',
+                assignedVppId: vpp.id
+            };
+        } else {
+            // Auto-populate pricing region from device state
+            const deviceState = device ? (device.state || device.mockState) : '';
+            state.assignVpp = {
+                ...defaults,
+                pricingRegion: deviceState || ''
+            };
+        }
+
         this.renderAssignVppDrawer();
         this.toggleDrawer(true);
         this.loadAssignVppPricingRegions();
+
+        if (state.assignVpp.pricingRegion) {
+            this.loadAssignVppMarkets(state.assignVpp.pricingRegion);
+        }
+
+        if (vpp) {
+            this.loadAssignVppList();
+        }
     },
 
     cancelAssignVpp() {
@@ -8235,7 +8318,7 @@ const app = {
             <div class="bg-white flex flex-col h-full w-full font-['Roboto']">
                 <div class="border-b border-[#e6e8ee] flex items-center justify-between px-[24px] py-[16px] shrink-0 w-full bg-white z-10">
                     <div class="flex flex-col">
-                        <p class="font-bold text-[20px] leading-normal text-[#313949]">Assign VPP</p>
+                        <p class="font-bold text-[20px] leading-normal text-[#313949]">Assign VPP <span class="text-[14px] font-normal text-[#5f646e]">(${assign.deviceSn})</span></p>
                     </div>
                     <button onclick="app.cancelAssignVpp()" class="w-[32px] h-[32px] rounded-[6px] flex items-center justify-center hover:bg-[#f3f3f6] active:bg-[#e6e8ee] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9f58]/30" aria-label="Close">
                         <i data-lucide="x" class="w-[16px] h-[16px] text-[#313949]"></i>
@@ -9806,7 +9889,10 @@ const app = {
                 <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
                     ${paginatedVPPs.map((vpp) => {
                         const isSelected = vpp.id === state.selectedVppId;
-                        const vppDevices = MOCK_DATA.assignedDevices.filter(d => d.vppId === vpp.id);
+                        const vppDevices = [
+                            ...(MOCK_DATA.assignedDevices || []),
+                            ...(state.devices || [])
+                        ].filter(d => d.vppId == vpp.id);
                         
                         const invs = vppDevices.filter(d => d.type === 'Inverter');
                         const bats = vppDevices.filter(d => d.type === 'Battery');
@@ -10106,7 +10192,10 @@ const app = {
              state.assignedDevices = [...MOCK_DATA.assignedDevices];
         }
 
-        const allVppDevices = state.assignedDevices.filter(d => d.vppId === vpp.id);
+        const allVppDevices = [
+            ...(state.assignedDevices || []),
+            ...(state.devices || [])
+        ].filter(d => d.vppId == vpp.id);
         const totalDevices = allVppDevices.length;
         const onlineDevices = allVppDevices.filter(d => d.status === 'online').length;
         const offlineDevices = allVppDevices.filter(d => d.status === 'offline').length;
@@ -10145,11 +10234,11 @@ const app = {
 
         // Content
         const content = document.createElement('div');
-        content.className = 'flex-1 flex flex-col gap-[24px] slide-up';
+        content.className = 'flex-1 flex flex-col gap-[24px] slide-up min-h-0';
         
         content.innerHTML = `
             <!-- Unified Panel -->
-            <div class="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden min-h-0">
                 <!-- Merged Header, Summary, and Tabs -->
                 <div class="flex flex-col w-full">
                     <!-- Header -->
@@ -10303,7 +10392,7 @@ const app = {
                     </div>
 
                     <!-- Header (Figma 168-2975) -->
-                    <div class="flex justify-start gap-4 items-center px-[24px] py-[16px] bg-white">
+                    <div class="flex justify-start gap-2 items-center px-[24px] py-[16px] bg-white">
                          <!-- Tab Group -->
                          <div class="bg-[#f3f3f6] p-[4px] rounded-[4px] flex items-center">
                             <button onclick="app.setVPPDetailsTab('der-list')" class="min-w-[80px] h-[32px] flex items-center justify-center rounded-[4px] px-[16px] text-[14px] transition-all ${state.vppDetailsTab === 'der-list' ? 'bg-white font-semibold text-[#313949] shadow-sm' : 'font-normal text-[#313949] hover:bg-gray-100'}">
@@ -10314,8 +10403,14 @@ const app = {
                             </button>
                          </div>
 
-                         <!-- Search Bar -->
-                         <div class="flex gap-2">
+                        <div class="ml-auto flex items-center gap-2">
+                            ${(state.vppDetailsTab === 'der-list') ? `
+                            <button onclick="app.toggleAddDeviceDrawer(true)" class="bg-[#0052ff] text-white px-[16px] py-[6px] rounded-[4px] hover:bg-[#0043cc] transition-colors text-[14px] font-medium flex items-center gap-[4px]">
+                               <i data-lucide="plus" class="w-[16px] h-[16px]"></i>
+                               Add
+                            </button>
+                            ` : ''}
+
                             ${(state.vppDetailsTab === 'der-list') ? `
                             <div class="bg-[#f3f3f6] rounded-[4px] flex items-center w-[240px] h-[32px] px-[8px] gap-[8px]">
                                 <input 
@@ -10331,19 +10426,12 @@ const app = {
                                 </div>
                             </div>
                             ` : ''}
-                         </div>
-
-                         ${(state.vppDetailsTab === 'der-list') ? `
-                         <button onclick="app.toggleAddDeviceDrawer(true)" class="ml-auto bg-[#0052ff] text-white px-[16px] py-[6px] rounded-[4px] hover:bg-[#0043cc] transition-colors text-[14px] font-medium flex items-center gap-[4px]">
-                            <i data-lucide="plus" class="w-[16px] h-[16px]"></i>
-                            Add
-                         </button>
-                         ` : ''}
+                        </div>
                     </div>
                 </div>
 
                 <!-- Content -->
-                <div class="flex-1 overflow-y-auto px-[24px]">
+                <div class="flex-1 px-[24px] overflow-y-auto min-h-0">
                     ${(state.vppDetailsTab === 'der-list') ? `
                     <table class="w-full text-left border-collapse font-['Roboto']">
                         <thead class="sticky top-0 bg-white z-10">
@@ -10383,7 +10471,7 @@ const app = {
                                 const displayType = dev.type === 'Inverter' ? 'Single PV' : (dev.type === 'Battery' ? 'Single ESS' : (dev.type === 'Hybrid' ? 'PV Plus ESS' : (dev.type || '-')));
                                 
                                 return `
-                                <tr class="h-[48px] odd:bg-[#f3f3f6] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
                                     <td class="px-[8px] py-[12px]">
                                         <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${dev.status === 'online' ? 'bg-[rgba(140,218,47,0.2)] text-[#8cda2f]' : 'bg-[#e6e8ee] text-[#b5bcc8]'}">
                                             <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
@@ -10774,8 +10862,15 @@ const app = {
 
     openVPPDrawer(vppId = null) {
         const isEdit = !!vppId;
-        const vpp = isEdit ? state.vpps.find(v => v.id === vppId) : null;
+        // Use loose equality (==) because vppId from onclick is string, but stored ID might be number
+        const vpp = isEdit ? state.vpps.find(v => v.id == vppId) : null;
         const title = isEdit ? 'Edit VPP' : 'Create a VPP';
+
+        // Check if VPP has any assigned devices in either state.devices or MOCK_DATA.assignedDevices
+        const hasDevices = isEdit && (
+            (state.devices || []).some(d => d.vppId == vppId) || 
+            (MOCK_DATA.assignedDevices || []).some(d => d.vppId == vppId)
+        );
         
         const drawerContent = document.getElementById('drawer-content');
         drawerContent.innerHTML = `
@@ -10837,8 +10932,8 @@ const app = {
                                  <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
                                  <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Pricing Region</span>
                              </div>
-                             <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
-                                 <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                             <div class="relative w-full h-[32px] ${hasDevices ? 'bg-[#f3f3f6] pointer-events-none' : 'bg-white'} border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors ${hasDevices ? '' : 'focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20'}">
+                                 <select name="state" required ${hasDevices ? 'disabled' : ''} class="w-full h-full bg-transparent border-none outline-none text-[14px] ${hasDevices ? 'text-[#b5bcc8] cursor-not-allowed' : 'text-[#313949] cursor-pointer'} appearance-none z-10 font-normal invalid:text-[#b5bcc8]">
                                      <option value="" disabled ${!isEdit && !vpp?.state ? 'selected' : ''}>Select Pricing Region</option>
                                      ${['NSW', 'VIC', 'QLD', 'SA'].map(s => `<option value="${s}" ${vpp?.state === s ? 'selected' : ''} class="text-[#313949]">${s}</option>`).join('')}
                                  </select>
@@ -10851,8 +10946,8 @@ const app = {
                              <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
                                  <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Active Market</span>
                              </div>
-                             <div class="relative w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
-                                 <select name="activeMarket" onchange="app.handleActiveMarketChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] appearance-none z-10 font-normal cursor-pointer" aria-label="Active Market">
+                             <div class="relative w-full h-[32px] ${hasDevices ? 'bg-[#f3f3f6] pointer-events-none' : 'bg-white'} border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors ${hasDevices ? '' : 'focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20'}">
+                                 <select name="activeMarket" onchange="app.handleActiveMarketChange(this.value)" ${hasDevices ? 'disabled' : ''} class="w-full h-full bg-transparent border-none outline-none text-[14px] ${hasDevices ? 'text-[#b5bcc8] cursor-not-allowed' : 'text-[#313949] cursor-pointer'} appearance-none z-10 font-normal" aria-label="Active Market">
                                      <option value="All" ${(!isEdit || !vpp?.activeMarket || vpp?.activeMarket === 'All') ? 'selected' : ''}>All</option>
                                      <option value="Spot" ${vpp?.activeMarket === 'Spot' ? 'selected' : ''}>Spot</option>
                                      <option value="FCAS" ${vpp?.activeMarket === 'FCAS' ? 'selected' : ''}>FCAS</option>
@@ -10864,11 +10959,10 @@ const app = {
                         </div>
                         <div class="flex flex-col gap-[8px] flex-1 min-w-0">
                              <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
-                                 <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
                                  <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">DNSP</span>
                              </div>
                              <div class="w-full h-[32px] bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
-                                 <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}" required
+                                 <input type="text" name="dnsp" value="${isEdit ? (vpp.dnsp || '') : ''}"
                                      class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" 
                                      placeholder="e.g. Energy Provider Name">
                              </div>
@@ -10877,11 +10971,10 @@ const app = {
 
                     <div class="flex flex-col gap-[8px] w-full shrink-0">
                          <div class="flex items-center gap-[4px] h-[16px] pl-[4px]">
-                             <span class="text-[#ff3434] text-[12px] leading-[16px]">*</span>
                              <span class="text-[#5f646e] text-[12px] font-medium leading-[16px]">Description</span>
                          </div>
                          <div class="w-full bg-white border border-[#e6e8ee] rounded-[4px] px-[8px] py-[8px] flex items-start transition-colors focus-within:border-[#2e9f58] focus-within:ring-2 focus-within:ring-[#2e9f58]/20">
-                             <textarea name="description" required rows="4" class="w-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] resize-none font-normal leading-[20px]" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
+                             <textarea name="description" rows="4" class="w-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] resize-none font-normal leading-[20px]" placeholder="Enter VPP description...">${isEdit ? vpp.description : ''}</textarea>
                          </div>
                     </div>
                     
@@ -11427,11 +11520,11 @@ const app = {
                     vpp.company = company;
                     vpp.country = country;
                     vpp.abn = abn;
-                    vpp.state = stateField;
+                    vpp.state = stateField || vpp.state;
                     vpp.address = address;
-                    vpp.dnsp = dnsp;
+                    vpp.dnsp = dnsp !== null ? dnsp : vpp.dnsp;
                     vpp.description = description;
-                    vpp.activeMarket = activeMarket;
+                    vpp.activeMarket = activeMarket || vpp.activeMarket;
                 }
             } else {
                 const newVPP = {
