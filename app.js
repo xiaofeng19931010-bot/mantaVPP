@@ -722,6 +722,7 @@ const state = {
     selectedVppId: null,
     vppDeviceTab: 'assigned', // assigned or discovery
     vppDetailsTab: 'der-list', // der-list or event-list
+    operationViewMode: 'chart', // chart or table
     assignedSearchQuery: '',
     discoverySearchQuery: '',
     assignVpp: {
@@ -8649,6 +8650,64 @@ const app = {
     },
 
     // Operation Card Methods
+    toggleOperationViewMode(mode) {
+        state.operationViewMode = mode;
+        const container = document.getElementById('operation-view-container');
+        
+        if (container) {
+            // Update Container Content
+            if (mode === 'chart') {
+                container.innerHTML = '<div id="operation-chart" class="w-full h-full"></div>';
+                setTimeout(() => this.initOperationChart(), 0);
+            } else {
+                container.innerHTML = '<div id="operation-table-container" class="w-full h-full"></div>';
+                setTimeout(() => this.renderOperationTable(), 0);
+            }
+
+            // Update Buttons Styling
+            const chartBtn = document.getElementById('operation-view-btn-chart');
+            const tableBtn = document.getElementById('operation-view-btn-table');
+            
+            const updateBtnStyle = (btn, isActive) => {
+                if (!btn) return;
+                const icon = btn.querySelector('.lucide') || btn.querySelector('[data-lucide]');
+                const span = btn.querySelector('span');
+                
+                if (isActive) {
+                    btn.classList.add('bg-white', 'shadow-sm');
+                    if (icon) {
+                        icon.classList.remove('text-[#b5bcc8]');
+                        icon.classList.add('text-[#313949]');
+                    }
+                    if (span) {
+                        span.classList.remove('font-normal', 'text-[#b5bcc8]');
+                        span.classList.add('font-semibold', 'text-[#313949]');
+                    }
+                } else {
+                    btn.classList.remove('bg-white', 'shadow-sm');
+                    if (icon) {
+                        icon.classList.remove('text-[#313949]');
+                        icon.classList.add('text-[#b5bcc8]');
+                    }
+                    if (span) {
+                        span.classList.remove('font-semibold', 'text-[#313949]');
+                        span.classList.add('font-normal', 'text-[#b5bcc8]');
+                    }
+                }
+            };
+
+            updateBtnStyle(chartBtn, mode === 'chart');
+            updateBtnStyle(tableBtn, mode === 'table');
+            
+        } else {
+            // Fallback: Full re-render if container not found
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) {
+                this.renderVPPDetails(contentArea, state.selectedVppId);
+            }
+        }
+    },
+
     setOperationTab(tab) {
         state.operationTab = tab;
         
@@ -8803,6 +8862,87 @@ const app = {
         this.updateOperationChart();
     },
 
+    getOperationData() {
+        const granularity = state.operationGranularity || 'day';
+        const tab = state.operationTab || 'status';
+        const dateInput = document.getElementById('operation-date');
+        const selectedDateStr = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+
+        // Return cached data if valid
+        if (state.operationData && 
+            state.operationData.granularity === granularity && 
+            state.operationData.tab === tab && 
+            state.operationData.date === selectedDateStr) {
+            return state.operationData;
+        }
+
+        const selectedDate = new Date(selectedDateStr);
+        let xAxisData = [];
+        let dataLength = 0;
+
+        if (granularity === 'day') {
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 5) {
+                    xAxisData.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                }
+            }
+            dataLength = xAxisData.length;
+        } else if (granularity === 'month') {
+            const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+            const monthStr = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+            xAxisData = Array.from({length: daysInMonth}, (_, i) => `${monthStr}-${(i + 1).toString().padStart(2, '0')}`);
+            dataLength = daysInMonth;
+        } else if (granularity === 'year') {
+            const yearStr = selectedDate.getFullYear();
+            xAxisData = Array.from({length: 12}, (_, i) => `${yearStr}-${(i + 1).toString().padStart(2, '0')}`);
+            dataLength = 12;
+        } else if (granularity === 'total') {
+            const currentYear = new Date().getFullYear();
+            xAxisData = Array.from({length: 5}, (_, i) => (currentYear - 4 + i).toString());
+            dataLength = 5;
+        }
+
+        const isDay = granularity === 'day';
+        const dataScale = isDay ? 1000 : 1;
+        let series = {};
+
+        if (tab === 'generation') {
+            const powerToGrid = Array.from({length: dataLength}, () => parseFloat((Math.random() * 5 * dataScale).toFixed(2)));
+            const powerToBattery = Array.from({length: dataLength}, () => parseFloat((Math.random() * 3 * dataScale).toFixed(2)));
+            const consumed = Array.from({length: dataLength}, () => parseFloat((Math.random() * 4 * dataScale).toFixed(2)));
+            const generation = powerToGrid.map((val, i) => parseFloat((val + powerToBattery[i] + consumed[i]).toFixed(2)));
+            const selfConsumption = generation.map((gen, i) => {
+                if (gen === 0) return 0;
+                const val = ((powerToBattery[i] + consumed[i]) / gen) * 100;
+                return parseFloat(val.toFixed(2));
+            });
+            series = { powerToGrid, powerToBattery, consumed, generation, selfConsumption };
+        } else if (tab === 'consumption') {
+            const fromGrid = Array.from({length: dataLength}, () => parseFloat((Math.random() * 5 * dataScale).toFixed(2)));
+            const fromBattery = Array.from({length: dataLength}, () => parseFloat((Math.random() * 3 * dataScale).toFixed(2)));
+            const directConsumption = Array.from({length: dataLength}, () => parseFloat((Math.random() * 4 * dataScale).toFixed(2)));
+            const consumption = fromGrid.map((val, i) => parseFloat((val + fromBattery[i] + directConsumption[i]).toFixed(2)));
+            const selfSufficiency = consumption.map((con, i) => {
+                if (con === 0) return 0;
+                const val = ((fromBattery[i] + directConsumption[i]) / con) * 100;
+                return parseFloat(val.toFixed(2));
+            });
+            series = { fromGrid, fromBattery, directConsumption, consumption, selfSufficiency };
+        } else {
+            const statusData = Array.from({length: dataLength}, () => {
+                const rand = Math.random();
+                if (rand > 0.9) return 'Disconnected'; 
+                if (rand > 0.8) return 'Offline'; 
+                return 'Online'; 
+            });
+            series = { statusData };
+        }
+
+        const data = { xAxisData, series, granularity, tab, date: selectedDateStr };
+        state.operationData = data;
+        return data;
+    },
+
     updateOperationChart() {
         const dateInput = document.getElementById('operation-date');
         const dateDisplay = document.getElementById('operation-date-display');
@@ -8832,6 +8972,11 @@ const app = {
              }
         }
         
+        if (state.operationViewMode === 'table') {
+            this.renderOperationTable();
+            return;
+        }
+        
         if (!chartDom || typeof echarts === 'undefined') return;
         
         const myChart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
@@ -8843,54 +8988,11 @@ const app = {
         const maxBarWidthStack = (gridWidth / yearDataCount) * 0.25;
         const maxBarWidthGen = (gridWidth / yearDataCount) * 0.40;
 
-        // Determine granularity and date
-        const selectedDate = dateInput ? new Date(dateInput.value) : new Date();
-        
-        let xAxisData = [];
-        let dataLength = 0;
-
-        // Generate Axis Data based on Granularity
-        if (granularity === 'day') {
-            xAxisData = [];
-            for (let h = 0; h < 24; h++) {
-                for (let m = 0; m < 60; m += 5) {
-                    xAxisData.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
-                }
-            }
-            dataLength = xAxisData.length;
-        } else if (granularity === 'month') {
-            const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
-            xAxisData = Array.from({length: daysInMonth}, (_, i) => `${i + 1}`);
-            dataLength = daysInMonth;
-        } else if (granularity === 'year') {
-            xAxisData = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            dataLength = 12;
-        } else if (granularity === 'total') {
-            const currentYear = new Date().getFullYear();
-            xAxisData = Array.from({length: 5}, (_, i) => (currentYear - 4 + i).toString());
-            dataLength = 5;
-        }
-
+        const { xAxisData, series } = this.getOperationData();
+        const isDay = granularity === 'day';
         let option;
         
-        const isDay = granularity === 'day';
-        const dataScale = isDay ? 1000 : 1;
-        
         if (state.operationTab === 'generation') {
-            // Mock Data for Generation
-            // Generation = Grid + Battery + Consumed
-            const powerToGrid = Array.from({length: dataLength}, () => parseFloat((Math.random() * 5 * dataScale).toFixed(2)));
-            const powerToBattery = Array.from({length: dataLength}, () => parseFloat((Math.random() * 3 * dataScale).toFixed(2)));
-            const consumed = Array.from({length: dataLength}, () => parseFloat((Math.random() * 4 * dataScale).toFixed(2)));
-            const generation = powerToGrid.map((val, i) => parseFloat((val + powerToBattery[i] + consumed[i]).toFixed(2)));
-            
-            // Calculate Self consumption = (To Battery + Direct Consumption) / Generation
-            const selfConsumption = generation.map((gen, i) => {
-                if (gen === 0) return 0;
-                const val = ((powerToBattery[i] + consumed[i]) / gen) * 100;
-                return parseFloat(val.toFixed(2));
-            });
-            
             option = {
                 title: {
                     text: isDay ? 'Generation Series' : 'Generation',
@@ -8944,7 +9046,7 @@ const app = {
                         stack: 'total',
                         ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
                         emphasis: { focus: 'series' },
-                        data: powerToGrid
+                        data: series.powerToGrid
                     },
                     {
                         name: 'To Battery',
@@ -8952,7 +9054,7 @@ const app = {
                         stack: 'total',
                         ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
                         emphasis: { focus: 'series' },
-                        data: powerToBattery
+                        data: series.powerToBattery
                     },
                     {
                         name: 'Direct consumption',
@@ -8960,13 +9062,13 @@ const app = {
                         stack: 'total',
                         ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
                         emphasis: { focus: 'series' },
-                        data: consumed
+                        data: series.consumed
                     },
                     {
                         name: 'Generation',
                         type: isDay ? 'line' : 'bar',
                         ...(isDay ? { smooth: true, showSymbol: false, lineStyle: { width: 2, color: '#E5E7EB' }, areaStyle: { color: '#E5E7EB', opacity: 0.3 }, itemStyle: { color: '#E5E7EB' }, z: 1 } : { barWidth: '40%', barMaxWidth: maxBarWidthGen, barGap: '-130%', itemStyle: { color: '#E5E7EB' }, z: 1 }),
-                        data: generation
+                        data: series.generation
                     },
                     {
                         name: 'Self consumption',
@@ -8979,25 +9081,11 @@ const app = {
                         tooltip: {
                             valueFormatter: (value) => value + ' %'
                         },
-                        data: selfConsumption
+                        data: series.selfConsumption
                     }
                 ]
             };
         } else if (state.operationTab === 'consumption') {
-            // Mock Data for Consumption
-            // Consumption = From grid + From battery + Direct consumption
-            const fromGrid = Array.from({length: dataLength}, () => parseFloat((Math.random() * 5 * dataScale).toFixed(2)));
-            const fromBattery = Array.from({length: dataLength}, () => parseFloat((Math.random() * 3 * dataScale).toFixed(2)));
-            const directConsumption = Array.from({length: dataLength}, () => parseFloat((Math.random() * 4 * dataScale).toFixed(2)));
-            const consumption = fromGrid.map((val, i) => parseFloat((val + fromBattery[i] + directConsumption[i]).toFixed(2)));
-            
-            // Calculate Self Sufficiency = (From Battery + Direct Consumption) / Consumption * 100
-            const selfSufficiency = consumption.map((con, i) => {
-                if (con === 0) return 0;
-                const val = ((fromBattery[i] + directConsumption[i]) / con) * 100;
-                return parseFloat(val.toFixed(2));
-            });
-            
             option = {
                 title: {
                     text: isDay ? 'Consumption Series' : 'Consumption',
@@ -9051,7 +9139,7 @@ const app = {
                         stack: 'total',
                         ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
                         emphasis: { focus: 'series' },
-                        data: fromGrid
+                        data: series.fromGrid
                     },
                     {
                         name: 'From battery',
@@ -9059,7 +9147,7 @@ const app = {
                         stack: 'total',
                         ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
                         emphasis: { focus: 'series' },
-                        data: fromBattery
+                        data: series.fromBattery
                     },
                     {
                         name: 'Direct consumption',
@@ -9067,13 +9155,13 @@ const app = {
                         stack: 'total',
                         ...(isDay ? { smooth: true, showSymbol: false, areaStyle: { opacity: 0.8 } } : { barWidth: '25%', barMaxWidth: maxBarWidthStack, z: 2 }),
                         emphasis: { focus: 'series' },
-                        data: directConsumption
+                        data: series.directConsumption
                     },
                     {
                         name: 'Consumption',
                         type: isDay ? 'line' : 'bar',
                         ...(isDay ? { smooth: true, showSymbol: false, lineStyle: { width: 2, color: '#E5E7EB' }, areaStyle: { color: '#E5E7EB', opacity: 0.3 }, itemStyle: { color: '#E5E7EB' }, z: 1 } : { barWidth: '40%', barMaxWidth: maxBarWidthGen, barGap: '-130%', itemStyle: { color: '#E5E7EB' }, z: 1 }),
-                        data: consumption
+                        data: series.consumption
                     },
                     {
                         name: 'Self Sufficiency',
@@ -9086,20 +9174,12 @@ const app = {
                         tooltip: {
                             valueFormatter: (value) => value + ' %'
                         },
-                        data: selfSufficiency
+                        data: series.selfSufficiency
                     }
                 ]
             };
         } else {
-            // Mock Data for Status
-            // Status: 1=Online, 0=Offline, -1=Disconnected
-            const statusData = Array.from({length: dataLength}, () => {
-                const rand = Math.random();
-                if (rand > 0.9) return 'Disconnected'; 
-                if (rand > 0.8) return 'Offline'; 
-                return 'Online'; 
-            });
-            
+            // Status
             option = {
                 tooltip: {
                     trigger: 'axis',
@@ -9139,7 +9219,7 @@ const app = {
                         name: 'Status',
                         type: 'line',
                         step: 'start',
-                        data: statusData,
+                        data: series.statusData,
                         itemStyle: {
                             color: function(params) {
                                 const status = params.value;
@@ -9172,9 +9252,79 @@ const app = {
         }
     },
 
+    renderOperationTable() {
+        const container = document.getElementById('operation-table-container');
+        if (!container) return;
+        
+        const { xAxisData, series, granularity, tab } = this.getOperationData();
+        const unit = granularity === 'day' ? 'kW' : 'kWh';
+        
+        let headers = [];
+        let rows = [];
+        
+        if (tab === 'generation') {
+            headers = ['Time', `To Grid (${unit})`, `To Battery (${unit})`, `Direct Consumption (${unit})`, `Total Generation (${unit})`, 'Self Consumption (%)'];
+            
+            rows = xAxisData.map((time, i) => [
+                time,
+                series.powerToGrid[i],
+                series.powerToBattery[i],
+                series.consumed[i],
+                series.generation[i],
+                series.selfConsumption[i] + '%'
+            ]);
+            
+        } else if (tab === 'consumption') {
+            headers = ['Time', `From Grid (${unit})`, `From Battery (${unit})`, `Direct Consumption (${unit})`, `Total Consumption (${unit})`, 'Self Sufficiency (%)'];
+            
+            rows = xAxisData.map((time, i) => [
+                time,
+                series.fromGrid[i],
+                series.fromBattery[i],
+                series.directConsumption[i],
+                series.consumption[i],
+                series.selfSufficiency[i] + '%'
+            ]);
+            
+        } else { // Status
+            headers = ['Time', 'Status'];
+            
+            rows = xAxisData.map((time, i) => [
+                time,
+                series.statusData[i]
+            ]);
+        }
+        
+        // Render Table
+        container.innerHTML = `
+            <table class="min-w-full text-left border-collapse">
+                <thead class="sticky top-0 bg-[#f9fafb] z-10">
+                    <tr>
+                        ${headers.map(h => `<th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">${h}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${rows.map(row => `
+                        <tr class="hover:bg-gray-50">
+                            ${row.map((cell, i) => {
+                                if (tab === 'status' && i === 1) {
+                                    let colorClass = 'bg-green-100 text-green-800';
+                                    if (cell === 'Offline') colorClass = 'bg-red-100 text-red-800';
+                                    if (cell === 'Disconnected') colorClass = 'bg-gray-100 text-gray-800';
+                                    return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClass}">${cell}</span></td>`;
+                                }
+                                return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${cell}</td>`;
+                            }).join('')}
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    },
+
     initOperationChart() {
-        state.operationTab = 'status'; // Default
-        state.operationGranularity = 'day'; // Default granularity
+        if (!state.operationTab) state.operationTab = 'status';
+        if (!state.operationGranularity) state.operationGranularity = 'day';
         
         const attemptInit = (count = 0) => {
             const chartDom = document.getElementById('operation-chart');
@@ -9639,7 +9789,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Title -->
-                                    <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Operation</p>
+                                    <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Operational Data</p>
                                     
                                     <!-- Controls Group -->
                                     <div class="bg-white border border-[#cacfd8] border-solid content-stretch flex gap-[16px] items-center px-[16px] py-[8px] relative rounded-[8px] shrink-0">
@@ -9705,7 +9855,7 @@ const app = {
                                 <!-- Chart Area -->
                                 <div class="bg-white content-stretch flex flex-col gap-[24px] items-start p-[16px] relative shrink-0 w-full rounded-[4px]">
                                     <!-- Tabs -->
-                                    <div class="content-stretch flex gap-[8px] items-center relative shrink-0 w-full">
+                                    <div class="content-stretch flex justify-between items-center relative shrink-0 w-full">
                                         <div class="bg-[#f3f3f6] content-stretch flex items-center p-[4px] relative rounded-[4px] shrink-0">
                                             <button onclick="app.setOperationTab('status')" id="tab-status" class="content-stretch flex h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 bg-white shadow-sm transition-all">
                                                 <p class="font-['Roboto'] font-semibold leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center" style="font-variation-settings: 'wdth' 100">Status</p>
@@ -9717,11 +9867,29 @@ const app = {
                                                 <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#313949] text-center" style="font-variation-settings: 'wdth' 100">Consumption</p>
                                             </button>
                                         </div>
+
+                                        <!-- View Switcher -->
+                                        <div id="operation-view-switcher" class="flex bg-[#f3f3f6] p-[4px] rounded-[4px] items-center">
+                                            <button id="operation-view-btn-chart" onclick="app.toggleOperationViewMode('chart')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${state.operationViewMode === 'chart' ? 'bg-white shadow-sm' : ''}">
+                                                <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
+                                                    <i data-lucide="bar-chart-2" class="w-[16px] h-[16px] ${state.operationViewMode === 'chart' ? 'text-[#313949]' : 'text-[#b5bcc8]'}"></i>
+                                                </div>
+                                                <span class="text-[14px] leading-normal ${state.operationViewMode === 'chart' ? 'font-semibold text-[#313949]' : 'font-normal text-[#b5bcc8]'}">Chart</span>
+                                            </button>
+                                            <button id="operation-view-btn-table" onclick="app.toggleOperationViewMode('table')" class="flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[12px] py-[4px] rounded-[4px] transition-all ${state.operationViewMode !== 'chart' ? 'bg-white shadow-sm' : ''}">
+                                                <div class="flex gap-[2px] items-center justify-center shrink-0 w-[24px] h-[24px]">
+                                                    <i data-lucide="table" class="w-[16px] h-[16px] ${state.operationViewMode !== 'chart' ? 'text-[#313949]' : 'text-[#b5bcc8]'}"></i>
+                                                </div>
+                                                <span class="text-[14px] leading-normal ${state.operationViewMode !== 'chart' ? 'font-semibold text-[#313949]' : 'font-normal text-[#b5bcc8]'}">Form</span>
+                                            </button>
+                                        </div>
                                     </div>
                                     
-                                    <!-- Chart Container -->
-                                    <div class="relative shrink-0 w-full h-[360px]">
-                                         <div id="operation-chart" class="w-full h-full"></div>
+                                    <!-- Chart/Table Container -->
+                                    <div id="operation-view-container" class="relative shrink-0 w-full h-[360px] overflow-auto">
+                                         ${state.operationViewMode === 'chart' 
+                                            ? '<div id="operation-chart" class="w-full h-full"></div>'
+                                            : '<div id="operation-table-container" class="w-full h-full"></div>'}
                                     </div>
                                 </div>
                             </div>
@@ -9731,10 +9899,13 @@ const app = {
 
         lucide.createIcons();
 
-        // Initialize Chart
+        // Initialize Chart or Table
         setTimeout(() => {
-            this.initOperationChart();
-
+            if (state.operationViewMode === 'table') {
+                this.renderOperationTable();
+            } else {
+                this.initOperationChart();
+            }
         }, 100);
     },
 
