@@ -1666,7 +1666,7 @@ const app = {
                         </div>
 
                         <!-- Trading Performance Group -->
-                        <div class="flex items-center gap-8">
+                        <div id="trading-opportunities-stats" class="hidden flex items-center gap-8">
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
                                 <p class="font-medium text-lg">3 <span class="text-gray-400 text-sm font-normal">(2 Captured)</span></p>
@@ -2134,10 +2134,13 @@ const app = {
 
             if (arbitrageCheckbox && arbitrageSubmenu) {
                 arbitrageCheckbox.addEventListener('change', (e) => {
+                    const tradingStats = document.getElementById('trading-opportunities-stats');
                     if (e.target.checked) {
                         arbitrageSubmenu.classList.remove('hidden');
+                        if (tradingStats) tradingStats.classList.remove('hidden');
                     } else {
                         arbitrageSubmenu.classList.add('hidden');
+                        if (tradingStats) tradingStats.classList.add('hidden');
                     }
                     updateChart(); // Trigger chart update to show/hide signals
                 });
@@ -5354,14 +5357,24 @@ const app = {
                                         ${recentRules.map(rule => `
                                             <tr class="hover:bg-gray-50 transition-colors">
                                                 <td class="px-4 py-3 text-gray-900 font-medium">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType || '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || '-')}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.action || '-'}</td>
                                                 <td class="px-4 py-3">
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${rule.state === 'Inactive' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">${rule.state === 'Inactive' ? 'Inactive' : 'Active'}</span>
                                                 </td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => `<div class="truncate max-w-[200px]" title="${v.name}">${v.name}</div>`).filter(Boolean).join('') : (rule.vpp || '-')}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => `<div>${v.ignoreTimeEnabled ? `${v.ignoreTimeStart} - ${v.ignoreTimeEnd}` : '-'}</div>`).join('') : '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => {
+                                                    if (!v.ignoreTimeEnabled || !v.ignoreTimeStart || !v.ignoreTimeEnd) return '<div>-</div>';
+                                                    let content = `${v.ignoreTimeStart} - ${v.ignoreTimeEnd}`;
+                                                    const frequency = v.ignoreFrequency || 'Everyday';
+                                                    content += ` (${frequency}`;
+                                                    if (frequency === 'Custom' && v.ignoreDateStart && v.ignoreDateEnd) {
+                                                        content += `: ${v.ignoreDateStart} To ${v.ignoreDateEnd}`;
+                                                    }
+                                                    content += ')';
+                                                    return `<div>${content}</div>`;
+                                                }).join('') : '-'}</td>
                                                 <td class="px-4 py-3">
                                                     <div class="flex items-center gap-2">
                                                         <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
@@ -5383,7 +5396,7 @@ const app = {
                                             <i data-lucide="scroll-text" class="w-full h-full text-[#b5bcc8]"></i>
                                         </div>
                                         <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Rules Created</p>
-                                        <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f]">Create a rule to automate VPP actions.</p>
+
                                         <button onclick="app.openTradingRuleDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[6px] h-[40px] px-[24px] rounded-[6px] text-white transition-colors min-w-[100px]">
                                             <div class="w-[20px] h-[20px] flex items-center justify-center">
                                                 <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
@@ -6171,7 +6184,16 @@ const app = {
                                         <td class="px-6 py-4">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || 'Spot Price')}</td>
                                         <td class="px-6 py-4">
                                             ${rule.triggerType === 'Price' ? `Spot Price ${rule.condition} $${rule.price}` : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType)}
-                                            ${rule.applicableVpps && rule.applicableVpps.some(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd) ? `<div class="text-xs text-gray-400 mt-1">${rule.applicableVpps.filter(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd).map(v => `Ignore ${v.name || 'VPP'}: ${v.ignoreTimeStart} - ${v.ignoreTimeEnd}`).join('<br>')}</div>` : ''}
+                                            ${rule.applicableVpps && rule.applicableVpps.some(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd) ? `<div class="text-xs text-gray-400 mt-1">${rule.applicableVpps.filter(v => v.ignoreTimeEnabled && v.ignoreTimeStart && v.ignoreTimeEnd).map(v => {
+                                                let content = `Ignore ${v.name || 'VPP'}: ${v.ignoreTimeStart} - ${v.ignoreTimeEnd}`;
+                                                const frequency = v.ignoreFrequency || 'Everyday';
+                                                content += ` (${frequency}`;
+                                                if (frequency === 'Custom' && v.ignoreDateStart && v.ignoreDateEnd) {
+                                                    content += `: ${v.ignoreDateStart} To ${v.ignoreDateEnd}`;
+                                                }
+                                                content += ')';
+                                                return content;
+                                            }).join('<br>')}</div>` : ''}
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
@@ -6382,7 +6404,7 @@ const app = {
                              <div class="relative flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
                                  <input type="number" name="price" id="trigger-price-input" value="${rule ? rule.price || '' : ''}" step="0.01" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="0.00" ${!rule || rule.triggerType === 'Price' ? 'required' : ''} style="display: ${!rule || rule.triggerType === 'Price' ? 'block' : 'none'}">
                                  
-                                 <select name="arbitrageSignal" id="trigger-arbitrage-select" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'block' : 'none'}" ${rule && rule.triggerType === 'Arbitrage' ? 'required' : ''}>
+                                 <select name="arbitrageSignal" id="trigger-arbitrage-select" onchange="app.handleArbitrageSignalChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'block' : 'none'}" ${rule && rule.triggerType === 'Arbitrage' ? 'required' : ''}>
                                      <option value="Discharge" ${rule && rule.arbitrageSignal === 'Discharge' ? 'selected' : ''}>Discharge</option>
                                      <option value="Charge" ${rule && rule.arbitrageSignal === 'Charge' ? 'selected' : ''}>Charge</option>
                                      <option value="Abnormal" ${rule && rule.arbitrageSignal === 'Abnormal' ? 'selected' : ''}>Abnormal</option>
@@ -6398,13 +6420,13 @@ const app = {
                     </div>
 
                     <!-- Action -->
-                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                    <div class="flex flex-col gap-[4px] w-full shrink-0" id="rule-action-container" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'none' : 'flex'}">
                          <div class="flex gap-0 items-center h-[16px] pl-[4px]">
                              <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
                              <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Event</span>
                          </div>
                          <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                             <select name="action" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                             <select name="action" id="rule-action-select" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
                                  <option value="Discharge" ${!rule || rule.action === 'Discharge' ? 'selected' : ''}>Discharge</option>
                                  <option value="Charge" ${rule && rule.action === 'Charge' ? 'selected' : ''}>Charge</option>
                                  <option value="Stop" ${rule && rule.action === 'Stop' ? 'selected' : ''}>Stop</option>
@@ -6497,14 +6519,40 @@ const app = {
                     <input type="checkbox" class="accent-[#3ec064]" ${vpp.ignoreTimeEnabled ? 'checked' : ''} onchange="app.toggleRuleVppIgnore(${vpp.id}, this.checked)">
                     <span class="text-[12px] text-[#5f646e]">Add Ignore Time</span>
                 </label>
-                <div id="rule-vpp-ignore-${vpp.id}" class="flex gap-2 items-center mt-[6px]" style="display: ${vpp.ignoreTimeEnabled ? 'flex' : 'none'}">
-                    <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                        <input type="time" value="${vpp.ignoreTimeStart || ''}" onchange="app.updateRuleVppIgnoreTime(${vpp.id}, 'start', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                <div id="rule-vpp-ignore-${vpp.id}" class="flex flex-col gap-2 mt-[6px]" style="display: ${vpp.ignoreTimeEnabled ? 'flex' : 'none'}">
+                    <div class="flex gap-2 items-center">
+                        <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="time" value="${vpp.ignoreTimeStart || ''}" onchange="app.updateRuleVppIgnoreDetail(${vpp.id}, 'start', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                        <span class="text-gray-400">-</span>
+                        <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="time" value="${vpp.ignoreTimeEnd || ''}" onchange="app.updateRuleVppIgnoreDetail(${vpp.id}, 'end', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                        </div>
+                        <div class="w-[120px] h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <select onchange="app.updateRuleVppIgnoreDetail(${vpp.id}, 'frequency', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] font-normal">
+                                <option value="Everyday" ${!vpp.ignoreFrequency || vpp.ignoreFrequency === 'Everyday' ? 'selected' : ''}>Everyday</option>
+                                <option value="Monday" ${vpp.ignoreFrequency === 'Monday' ? 'selected' : ''}>Monday</option>
+                                <option value="Tuesday" ${vpp.ignoreFrequency === 'Tuesday' ? 'selected' : ''}>Tuesday</option>
+                                <option value="Wednesday" ${vpp.ignoreFrequency === 'Wednesday' ? 'selected' : ''}>Wednesday</option>
+                                <option value="Thursday" ${vpp.ignoreFrequency === 'Thursday' ? 'selected' : ''}>Thursday</option>
+                                <option value="Friday" ${vpp.ignoreFrequency === 'Friday' ? 'selected' : ''}>Friday</option>
+                                <option value="Saturday" ${vpp.ignoreFrequency === 'Saturday' ? 'selected' : ''}>Saturday</option>
+                                <option value="Sunday" ${vpp.ignoreFrequency === 'Sunday' ? 'selected' : ''}>Sunday</option>
+                                <option value="Custom" ${vpp.ignoreFrequency === 'Custom' ? 'selected' : ''}>Custom</option>
+                            </select>
+                        </div>
                     </div>
-                    <span class="text-gray-400">-</span>
-                    <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                        <input type="time" value="${vpp.ignoreTimeEnd || ''}" onchange="app.updateRuleVppIgnoreTime(${vpp.id}, 'end', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal">
+                    ${vpp.ignoreFrequency === 'Custom' ? `
+                    <div class="flex gap-2 items-center">
+                         <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="${vpp.ignoreDateStart ? 'date' : 'text'}" lang="en-GB" onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')" value="${vpp.ignoreDateStart || ''}" onchange="app.updateRuleVppIgnoreDetail(${vpp.id}, 'dateStart', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="Start Date">
+                        </div>
+                        <span class="text-gray-400">To</span>
+                        <div class="flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input type="${vpp.ignoreDateEnd ? 'date' : 'text'}" lang="en-GB" onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')" value="${vpp.ignoreDateEnd || ''}" onchange="app.updateRuleVppIgnoreDetail(${vpp.id}, 'dateEnd', this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="End Date">
+                        </div>
                     </div>
+                    ` : ''}
                 </div>
             </div>
         `).join('');
@@ -6545,7 +6593,10 @@ const app = {
                     name: vpp.name,
                     ignoreTimeEnabled: false,
                     ignoreTimeStart: '',
-                    ignoreTimeEnd: ''
+                    ignoreTimeEnd: '',
+                    ignoreFrequency: 'Everyday',
+                    ignoreDateStart: '',
+                    ignoreDateEnd: ''
                 });
             }
         }
@@ -6559,16 +6610,34 @@ const app = {
             if (!enabled) {
                 vpp.ignoreTimeStart = '';
                 vpp.ignoreTimeEnd = '';
+                vpp.ignoreFrequency = 'Everyday';
+                vpp.ignoreDateStart = '';
+                vpp.ignoreDateEnd = '';
             }
             this.syncRuleVppUi();
         }
     },
 
-    updateRuleVppIgnoreTime(vppId, field, value) {
+    updateRuleVppIgnoreDetail(vppId, field, value) {
         const vpp = state.tradingRuleVppSelections.find(v => v.id === vppId);
         if (vpp) {
             if (field === 'start') vpp.ignoreTimeStart = value;
             if (field === 'end') vpp.ignoreTimeEnd = value;
+            if (field === 'frequency') {
+                vpp.ignoreFrequency = value;
+                this.syncRuleVppUi(); // Re-render to show/hide custom date inputs
+            }
+            if (field === 'dateStart') vpp.ignoreDateStart = value;
+            if (field === 'dateEnd') vpp.ignoreDateEnd = value;
+        }
+    },
+
+    handleArbitrageSignalChange(signal) {
+        const actionSelect = document.getElementById('rule-action-select');
+        if (actionSelect) {
+            if (signal === 'Discharge') actionSelect.value = 'Discharge';
+            else if (signal === 'Charge') actionSelect.value = 'Charge';
+            else if (signal === 'Abnormal') actionSelect.value = 'Stop';
         }
     },
 
@@ -6577,6 +6646,20 @@ const app = {
         // Ensure the main field container is visible
         if (priceField) {
             priceField.style.display = 'flex';
+        }
+
+        // Toggle Event container visibility
+        const actionContainer = document.getElementById('rule-action-container');
+        if (actionContainer) {
+            actionContainer.style.display = type === 'Arbitrage' ? 'none' : 'flex';
+        }
+
+        // Trigger update if switching to Arbitrage
+        if (type === 'Arbitrage') {
+            const arbitrageSelect = document.getElementById('trigger-arbitrage-select');
+            if (arbitrageSelect) {
+                this.handleArbitrageSignalChange(arbitrageSelect.value);
+            }
         }
 
         // 1. Update Source Select Options
@@ -6678,7 +6761,10 @@ const app = {
                     name: v.name,
                     ignoreTimeEnabled: v.ignoreTimeEnabled,
                     ignoreTimeStart: v.ignoreTimeStart,
-                    ignoreTimeEnd: v.ignoreTimeEnd
+                    ignoreTimeEnd: v.ignoreTimeEnd,
+                    ignoreFrequency: v.ignoreFrequency,
+                    ignoreDateStart: v.ignoreDateStart,
+                    ignoreDateEnd: v.ignoreDateEnd
                 })),
                 updatedAt: new Date().toISOString()
             };
@@ -9043,8 +9129,8 @@ const app = {
                         <div class="bg-white p-[8px] flex flex-col gap-[8px]">
                             <div class="bg-white content-stretch flex flex-col lg:flex-row gap-[40px] items-center px-[40px] relative w-full rounded-[4px] overflow-hidden">
                                 <!-- Visuals -->
-                                <div class="aspect-[816/432] flex-[1_0_0] min-h-[300px] w-full relative">
-                                    <div class="-translate-x-1/2 absolute bottom-0 flex items-center justify-center left-1/2 top-0 w-full h-full max-w-[816px]">
+                                <div class="aspect-[816/432] w-full max-w-[816px] relative mx-auto">
+                                    <div class="relative w-full h-full">
                                         <div class="-scale-y-100 flex-none h-full rotate-180 w-full relative">
                                             <div class="relative size-full">
                                                 <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -9214,7 +9300,7 @@ const app = {
                                         <!-- Month Yield -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Month Yield</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">MTD Yield</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
                                                 <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 120).toFixed(1)} kWh</p>
@@ -9223,7 +9309,7 @@ const app = {
                                         <!-- Annual Yield -->
                                         <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
                                             <div class="flex gap-[0px] items-center relative shrink-0">
-                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Annual Yield</p>
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">YTD Yield</p>
                                             </div>
                                             <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
                                                 <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 1.4).toFixed(2)} MWh</p>
@@ -9291,9 +9377,9 @@ const app = {
                                     <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Inverter</p>
                                 </div>
                                 
-                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-4 p-[8px] relative rounded-[8px] shrink-0 w-full">
+                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:flex lg:justify-between lg:flex-nowrap p-[8px] relative rounded-[8px] shrink-0 w-full">
                                     <!-- SN -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SN</p>
                                         </div>
@@ -9302,7 +9388,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Manufacturer -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Manufacturer</p>
                                         </div>
@@ -9311,7 +9397,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Model -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Model</p>
                                         </div>
@@ -9320,7 +9406,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Type -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Type</p>
                                         </div>
@@ -9329,7 +9415,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Rated Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Power</p>
                                         </div>
@@ -9338,7 +9424,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Input Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Input Power</p>
                                         </div>
@@ -9347,7 +9433,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Output Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Output Power</p>
                                         </div>
@@ -9374,9 +9460,9 @@ const app = {
                                     <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Battery</p>
                                 </div>
                                 
-                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-6 p-[8px] relative rounded-[8px] shrink-0 w-full">
+                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:flex lg:justify-between lg:flex-nowrap p-[8px] relative rounded-[8px] shrink-0 w-full">
                                     <!-- Model -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Model</p>
                                         </div>
@@ -9385,7 +9471,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Rated Capacity -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Capacity</p>
                                         </div>
@@ -9393,8 +9479,44 @@ const app = {
                                             <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity * 2} kWh</p>
                                         </div>
                                     </div>
+                                    <!-- Rated Charge Power -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Charge Power</p>
+                                        </div>
+                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
+                                        </div>
+                                    </div>
+                                    <!-- Rated Discharge Power -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Discharge Power</p>
+                                        </div>
+                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
+                                        </div>
+                                    </div>
+                                    <!-- SOC Floor -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC Floor</p>
+                                        </div>
+                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">10%</p>
+                                        </div>
+                                    </div>
+                                    <!-- Active Power -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                        <div class="flex gap-[0px] items-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Active Power</p>
+                                        </div>
+                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.6).toFixed(1)} kW</p>
+                                        </div>
+                                    </div>
                                     <!-- Available Charge -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Available Charge</p>
                                         </div>
@@ -9403,7 +9525,7 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Available Discharge -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Available Discharge</p>
                                         </div>
@@ -9412,21 +9534,12 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- SOC -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC</p>
                                         </div>
                                         <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">85%</p>
-                                        </div>
-                                    </div>
-                                    <!-- SOC Floor -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC Floor</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">10%</p>
                                         </div>
                                     </div>
                                 </div>
@@ -9449,14 +9562,14 @@ const app = {
                                     <div class="bg-white border border-[#cacfd8] border-solid content-stretch flex gap-[16px] items-center px-[16px] py-[8px] relative rounded-[8px] shrink-0">
                                         <!-- Granularity Select -->
                                         <div class="content-stretch flex gap-[8px] items-center relative shrink-0">
-                                            <p id="operation-granularity-text" class="font-['Roboto'] font-normal leading-[24px] relative shrink-0 text-[16px] text-[#313949]" style="font-variation-settings: 'wdth' 100">Day</p>
+                                            <p id="operation-granularity-text" class="font-['Roboto'] font-normal leading-[24px] relative shrink-0 text-[16px] text-[#313949]" style="font-variation-settings: 'wdth' 100">Daily</p>
                                             <div class="relative w-[8px] h-[4px] pointer-events-none">
                                                 <img src="assets/images/operation-arrow-new.svg" class="block max-w-none size-full">
                                             </div>
                                             <select id="operation-granularity" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="app.handleGranularityChange(this.value)">
-                                                <option value="day">Day</option>
-                                                <option value="month">Month</option>
-                                                <option value="year">Year</option>
+                                                <option value="day">Daily</option>
+                                                <option value="month">Monthly</option>
+                                                <option value="year">Yearly</option>
                                                 <option value="total">Total</option>
                                             </select>
                                         </div>
