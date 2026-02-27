@@ -93,28 +93,31 @@ const MOCK_DATA = {
         }))
     ],
 
-    tradingEvents: [
-        { id: 1, vppName: 'SA VPP', state: 'SA', triggerType: 'Actual', eventType: 'Discharge', price: 180.10733, date: '12/01/2026 (+11:00)', timeRange: '19:10:47 - 19:30:00', power: 576.03, status: 'Completed' },
-        { id: 2, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 411.19, status: 'Completed' },
-        { id: 3, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 344.09265, date: '10/01/2026 (+11:00)', timeRange: '20:31:08 - 21:00:00', power: 10.00, status: 'Completed' },
-        { id: 4, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 411.19, status: 'Completed' },
-        { id: 5, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 6951.66847, date: '10/01/2026 (+11:00)', timeRange: '20:01:28 - 20:30:00', power: 10.00, status: 'Completed' },
-        { id: 6, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:35:48 - 20:00:00', power: 10.00, status: 'Completed' },
-        { id: 7, vppName: 'NSW VPP', state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 20:00:00', power: 411.19, status: 'Completed' },
-        { id: 8, vppName: "Jeff's VPP", state: 'NSW', triggerType: 'Actual', eventType: 'Discharge', price: 11862.30384, date: '10/01/2026 (+11:00)', timeRange: '19:31:05 - 19:31:06', power: 10.00, status: 'Completed' },
-        ...Array.from({ length: 15 }, (_, i) => ({
-            id: i + 9,
-            vppName: `VPP ${i + 1}`,
+    tradingEvents: Array.from({ length: 45 }, (_, i) => {
+        const d = new Date();
+        const daysAgo = Math.floor(i / 5); // 5 items per day
+        d.setDate(d.getDate() - daysAgo);
+        
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        const dateStr = `${day}/${month}/${year} (+11:00)`;
+        
+        const vppNames = ['SA VPP', 'NSW VPP', "Jeff's VPP", 'QLD VPP', 'VIC VPP'];
+        
+        return {
+            id: i + 1,
+            vppName: vppNames[i % vppNames.length],
             state: ['NSW', 'VIC', 'QLD', 'SA'][i % 4],
             triggerType: 'Actual',
             eventType: i % 2 === 0 ? 'Charge' : 'Discharge',
-            price: Math.random() * 1000,
-            date: '12/01/2026 (+11:00)',
-            timeRange: '12:00:00 - 12:30:00',
-            power: Math.random() * 500,
-            status: i % 5 === 0 ? 'Pending' : 'Completed'
-        }))
-    ],
+            price: parseFloat((Math.random() * 1000).toFixed(2)), // Ensure number
+            date: dateStr,
+            timeRange: `${String(10 + (i % 8)).padStart(2, '0')}:00:00 - ${String(10 + (i % 8))}:30:00`,
+            power: parseFloat((Math.random() * 500).toFixed(2)), // Ensure number
+            status: i % 10 === 0 ? 'Pending' : 'Completed'
+        };
+    }),
 
     capGraph: {
         metrics: {
@@ -814,7 +817,40 @@ const state = {
             itemsPerPage: 10
         }
     },
-    tradingRules: [], // Store created rules
+    tradingRules: [
+        {
+            id: 1,
+            vpp: 'SA VPP',
+            state: 'Active',
+            region: 'SA',
+            triggerType: 'Price',
+            priceSource: 'Spot',
+            condition: '>=',
+            price: '100',
+            action: 'Discharge',
+            createdAt: '2026-02-20T08:00:00.000Z',
+            updatedAt: '2026-02-21T09:30:00.000Z',
+            applicableVpps: [
+                { id: 'vpp-005', name: 'SA VPP', ignoreTimeEnabled: true, ignoreTimeStart: '10:00', ignoreTimeEnd: '14:00', ignoreFrequency: 'Everyday' }
+            ]
+        },
+        {
+            id: 2,
+            vpp: 'NSW VPP',
+            state: 'Inactive',
+            region: 'NSW',
+            triggerType: 'Arbitrage',
+            priceSource: 'Signal by Spot',
+            arbitrageSignal: 'High',
+            action: 'Charge',
+            createdAt: '2026-02-22T10:15:00.000Z',
+            updatedAt: '2026-02-22T10:15:00.000Z',
+            applicableVpps: [
+                { id: 'vpp-001', name: 'NSW VPP' }
+            ]
+        }
+    ], // Store created rules
+    tradingOverviewSearch: '',
     tradingRulesList: {
         state: 'All',
         vppName: '',
@@ -1255,7 +1291,7 @@ const app = {
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="h-[40px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
-                                <th class="w-[40px] px-[8px]">
+                                <th class="w-[40px] px-[8px] whitespace-nowrap">
                                     <div class="flex items-center justify-center">
                                         <input type="checkbox"
                                             id="checkbox-all-devices"
@@ -1265,8 +1301,8 @@ const app = {
                                         >
                                     </div>
                                 </th>
-                                <th class="px-[16px] font-medium">SN</th>
-                                <th class="px-[16px] font-medium">DER Type</th>
+                                <th class="px-[16px] font-medium whitespace-nowrap">SN</th>
+                                <th class="px-[16px] font-medium whitespace-nowrap">DER Type</th>
                             </tr>
                         </thead>
                         <tbody class="text-[14px] text-[#313949]">
@@ -1572,7 +1608,7 @@ const app = {
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px] overflow-y-auto";
         container.innerHTML = `
-            <div class="min-h-full flex flex-col">
+            <div class="min-h-full flex flex-col gap-4">
                 <!-- Top Bar -->
                 <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
                     <div class="flex items-center gap-4">
@@ -1601,7 +1637,7 @@ const app = {
 
                 <!-- Main Content -->
                 <div class="flex flex-col gap-4">
-                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col h-[500px] shrink-0 overflow-hidden">
+                    <div id="spot-price-card" class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col h-[500px] shrink-0 overflow-hidden transition-all duration-300">
                         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                             <h3 class="text-lg font-semibold text-gray-900">Spot Price</h3>
                             <div class="flex items-center gap-2">
@@ -1665,7 +1701,7 @@ const app = {
                                     </div>
                                 </div>
 
-                                <button title="Fullscreen" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
+                                <button id="spot-fullscreen-btn" title="Fullscreen" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
                                     <i data-lucide="maximize" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -1740,88 +1776,7 @@ const app = {
                         <div class="px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg font-semibold text-gray-900">Trading Events</h3>
                         </div>
-                        <div>
-                            ${(() => {
-                                const events = MOCK_DATA.tradingEvents || [];
-                                const recentEvents = events;
-                                if (events.length === 0) {
-                                    return `
-                                        <div class="h-full flex items-center justify-center p-[20px]">
-                                            <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
-                                                <div class="relative w-[88px] h-[88px]">
-                                                    <i data-lucide="activity" class="w-full h-full text-[#b5bcc8]"></i>
-                                                </div>
-                                                <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Events Created</p>
-                                                <p class="font-['Roboto'] text-[13px] leading-[18px] text-[#7a828f]">Trading events will appear here once available.</p>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                                return `
-                                <table class="w-full text-sm text-left">
-                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
-                                        <tr>
-                                            <th class="px-4 py-2 font-medium">Date</th>
-                                            <th class="px-4 py-2 font-medium">VPP</th>
-                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
-                                            <th class="px-4 py-2 font-medium">Trigger From</th>
-                                            <th class="px-4 py-2 font-medium">Trigger Condition</th>
-                                            <th class="px-4 py-2 font-medium">Event</th>
-                                            <th class="px-4 py-2 font-medium">Start Time</th>
-                                            <th class="px-4 py-2 font-medium">End Time</th>
-                                            <th class="px-4 py-2 font-medium">Rated Power</th>
-                                            <th class="px-4 py-2 font-medium">Volume</th>
-                                            <th class="px-4 py-2 font-medium">Spot</th>
-                                            <th class="px-4 py-2 font-medium">Status</th>
-                                            <th class="px-4 py-2 font-medium">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        ${recentEvents.map(event => {
-                                            const matchedRule = state.tradingRules.find(rule => {
-                                                const ruleNames = [];
-                                                if (rule.vpp) ruleNames.push(rule.vpp);
-                                                if (rule.applicableVpps && rule.applicableVpps.length) {
-                                                    ruleNames.push(...rule.applicableVpps.map(v => v.name).filter(Boolean));
-                                                }
-                                                return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
-                                            });
-                                            const rawTriggerType = matchedRule?.triggerType || event.triggerType;
-                                            const triggerType = rawTriggerType === 'Price' ? 'Spot Price' : (rawTriggerType === 'Arbitrage' ? 'Arbitrage Point' : rawTriggerType || '-');
-                                            const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
-                                            const startTime = timeParts[0] || '-';
-                                            const endTime = timeParts[1] || '-';
-                                            const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
-                                            const volume = event.volume || '-';
-                                            const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
-                                            return `
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-4 py-3 text-gray-600">${event.date ? event.date.split(' ')[0] : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${triggerType}</td>
-                                                <td class="px-4 py-3 text-gray-600">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600">${startTime}</td>
-                                                <td class="px-4 py-3 text-gray-600">${endTime}</td>
-                                                <td class="px-4 py-3 text-gray-600">${power}</td>
-                                                <td class="px-4 py-3 text-gray-600">${volume}</td>
-                                                <td class="px-4 py-3 text-gray-600">${spot}</td>
-                                                <td class="px-4 py-3">
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
-                                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `;
-                                        }).join('')}
-                                    </tbody>
-                                </table>`;
-                            })()}
-                        </div>
+                        <div id="trading-events-list"></div>
                     </div>
 <!-- Pagination removed -->
                 </div>
@@ -1847,7 +1802,7 @@ const app = {
             const today = new Date();
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const yesterdayStr = [yesterday.getFullYear(), String(yesterday.getMonth()+1).padStart(2,'0'), String(yesterday.getDate()).padStart(2,'0')].join('-');
             
             if (datePicker) {
                 datePicker.max = yesterdayStr;
@@ -2042,11 +1997,108 @@ const app = {
                 return { timestamps, prices, predictions, dispatchPrices, tradingPrices, forecastTradingPrices, signals, forecastSignals, spotSignals };
             }
 
-            function updateChart() {
-                const dateStr = currentMode === 'realtime' 
-                    ? new Date().toISOString().split('T')[0] 
-                    : (datePicker ? datePicker.value : new Date().toISOString().split('T')[0]);
+            const renderEvents = (dateStr) => {
+                const eventsContainer = document.getElementById('trading-events-list');
+                if (!eventsContainer) return;
                 
+                // dateStr format: YYYY-MM-DD
+                // event.date format: DD/MM/YYYY (+HH:MM)
+                const [year, month, day] = dateStr.split('-');
+                const formattedDate = `${day}/${month}/${year}`;
+                
+                const allEvents = MOCK_DATA.tradingEvents || [];
+                const recentEvents = allEvents.filter(e => e.date && e.date.startsWith(formattedDate));
+
+                if (recentEvents.length === 0) {
+                    eventsContainer.innerHTML = `
+                        <div class="h-full flex items-center justify-center p-[20px]">
+                            <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                <div class="relative w-[88px] h-[88px]">
+                                    <img src="./assets/icons/empty-state.svg" alt="No Events" class="w-full h-full">
+                                </div>
+                                <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Event</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    eventsContainer.innerHTML = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Date</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">VPP</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Pricing Region</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Trigger From</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Trigger Condition</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Event</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Start Time</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">End Time</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Rated Power</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Volume</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Spot</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Status</th>
+                                    <th class="px-4 py-2 font-medium whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                            ${recentEvents.map(event => {
+                                const matchedRule = state.tradingRules.find(rule => {
+                                    const ruleNames = [];
+                                    if (rule.vpp) ruleNames.push(rule.vpp);
+                                    if (rule.applicableVpps && rule.applicableVpps.length) {
+                                        ruleNames.push(...rule.applicableVpps.map(v => v.name).filter(Boolean));
+                                    }
+                                    return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
+                                });
+                                const rawTriggerType = matchedRule?.triggerType || event.triggerType;
+                                const triggerType = rawTriggerType === 'Price' ? 'Spot Price' : (rawTriggerType === 'Arbitrage' ? 'Arbitrage Point' : rawTriggerType || '-');
+                                const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
+                                const startTime = timeParts[0] || '-';
+                                const endTime = timeParts[1] || '-';
+                                const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
+                                const volume = event.volume || '-';
+                                const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
+                                return `
+                                <tr class="group hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-gray-600">${event.date ? event.date.split(' ')[0] : '-'}</td>
+                                    <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
+                                    <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
+                                    <td class="px-4 py-3 text-gray-600">${triggerType}</td>
+                                    <td class="px-4 py-3 text-gray-600">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
+                                    <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
+                                    <td class="px-4 py-3 text-gray-600">${startTime}</td>
+                                    <td class="px-4 py-3 text-gray-600">${endTime}</td>
+                                    <td class="px-4 py-3 text-gray-600">${power}</td>
+                                    <td class="px-4 py-3 text-gray-600">${volume}</td>
+                                    <td class="px-4 py-3 text-gray-600">${spot}</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
+                                    </td>
+                                    <td class="px-4 py-3 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                                        <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                            }).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+                }
+                lucide.createIcons();
+            };
+
+            function updateChart() {
+                const today = new Date();
+                const todayStr = [today.getFullYear(), String(today.getMonth()+1).padStart(2,'0'), String(today.getDate()).padStart(2,'0')].join('-');
+                const dateStr = currentMode === 'realtime' 
+                    ? todayStr
+                    : (datePicker ? datePicker.value : todayStr);
+                
+                renderEvents(dateStr);
+
                 currentData = generateData(dateStr, currentMode === 'realtime');
                 
                 // Update Market Status Stats
@@ -2138,11 +2190,31 @@ const app = {
                     axisPointer: {
                         link: { xAxisIndex: 'all' }
                     },
+                    dataZoom: [
+                        {
+                            type: 'inside',
+                            zoomOnMouseWheel: true,
+                            moveOnMouseWheel: true,
+                            moveOnMouseMove: true
+                        }
+                    ],
+                    legend: {
+                        data: ['Pre-Dispatch', 'Forecast Spot', 'Spot'],
+                        top: 10,
+                        left: 'center',
+                        icon: 'circle',
+                        itemWidth: 8,
+                        itemHeight: 8,
+                        textStyle: {
+                            fontSize: 12,
+                            color: '#6b7280'
+                        }
+                    },
                     grid: [
                         {
                             left: '50px',
                             right: '50px',
-                            top: '10%',
+                            top: '60px',
                             bottom: '60px'
                         }
                     ],
@@ -2284,6 +2356,52 @@ const app = {
                     }
                     updateChart(); // Trigger chart update to show/hide signals
                 });
+            }
+
+            // Fullscreen Logic
+            const fullscreenBtn = document.getElementById('spot-fullscreen-btn');
+            const spotCard = document.getElementById('spot-price-card');
+            
+            if (fullscreenBtn && spotCard) {
+                const toggleFullscreen = () => {
+                    const isFullscreen = spotCard.classList.contains('fixed');
+                    
+                    if (!isFullscreen) {
+                        // Enter Fullscreen
+                        spotCard.classList.remove('h-[500px]', 'shrink-0', 'rounded-lg', 'border', 'shadow-sm');
+                        spotCard.classList.add('fixed', 'inset-0', 'z-[100]', 'w-full', 'h-full', 'rounded-none');
+                        fullscreenBtn.innerHTML = '<i data-lucide="minimize" class="w-4 h-4"></i>';
+                    } else {
+                        // Exit Fullscreen
+                        spotCard.classList.remove('fixed', 'inset-0', 'z-[100]', 'w-full', 'h-full', 'rounded-none');
+                        spotCard.classList.add('h-[500px]', 'shrink-0', 'rounded-lg', 'border', 'shadow-sm');
+                        fullscreenBtn.innerHTML = '<i data-lucide="maximize" class="w-4 h-4"></i>';
+                    }
+                    
+                    lucide.createIcons({ root: fullscreenBtn });
+                    
+                    // Trigger resize after transition to ensure DOM update
+                    setTimeout(() => {
+                        myChart.resize();
+                    }, 350);
+                };
+
+                fullscreenBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFullscreen();
+                });
+
+                // ESC key handler
+                const escHandler = (e) => {
+                    if (!document.body.contains(spotCard)) {
+                        document.removeEventListener('keydown', escHandler);
+                        return;
+                    }
+                    if (e.key === 'Escape' && spotCard.classList.contains('fixed')) {
+                        toggleFullscreen();
+                    }
+                };
+                document.addEventListener('keydown', escHandler);
             }
 
             // Weather Popup Logic
@@ -2543,8 +2661,8 @@ const app = {
                             <table class="w-full text-sm text-left">
                                 <thead class="bg-gray-50 text-gray-500 sticky top-0 z-10">
                                     <tr>
-                                        <th class="px-6 py-3 font-medium">Settlement Date</th>
-                                        <th class="px-6 py-3 font-medium text-left">Forecast Price ($/MWh)</th>
+                                        <th class="px-6 py-3 font-medium whitespace-nowrap">Settlement Date</th>
+                                        <th class="px-6 py-3 font-medium text-left whitespace-nowrap">Forecast Price ($/MWh)</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -2687,22 +2805,22 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3 font-medium text-left w-16">#</th>
-                                    <th class="px-6 py-3 font-medium">Pricing Region</th>
-                                    <th class="px-6 py-3 font-medium">Schedule Type</th>
-                                    <th class="px-6 py-3 font-medium">Target Time</th>
-                                    <th class="px-6 py-3 font-medium">Trigger Price</th>
-                                    <th class="px-6 py-3 font-medium">Target Capacity</th>
-                                    <th class="px-6 py-3 font-medium">VPP Name</th>
-                                    <th class="px-6 py-3 font-medium">Last Modified At</th>
-                                    <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
-                                    <th class="px-6 py-3 font-medium">Active</th>
-                                    <th class="px-6 py-3 font-medium text-left">Actions</th>
+                                    <th class="px-6 py-3 font-medium text-left w-16 whitespace-nowrap">#</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Pricing Region</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Schedule Type</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Target Time</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Trigger Price</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Target Capacity</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">VPP Name</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Last Modified At</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Number of Events Triggered</th>
+                                    <th class="px-6 py-3 font-medium whitespace-nowrap">Active</th>
+                                    <th class="px-6 py-3 font-medium text-left whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${rules.length > 0 ? rules.map((rule, idx) => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
+                                    <tr class="group hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 text-left text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.state}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.scheduleType}</td>
@@ -2719,7 +2837,7 @@ const app = {
                                                 <span class="ml-2 text-sm text-gray-600">${rule.active ? 'Active' : 'Inactive'}</span>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-left">
+                                        <td class="px-6 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
                                                     <i data-lucide="pencil" class="w-4 h-4"></i>
@@ -2867,49 +2985,49 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-4 py-3 text-left w-12">#</th>
-                                    <th class="px-4 py-3">
+                                    <th class="px-4 py-3 text-left w-12 whitespace-nowrap">#</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>VPP</span>
                                             <span>Name</span>
                                         </div>
                                     </th>
-                                    <th class="px-4 py-3">
+                                    <th class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>Event</span>
                                             <span>Type</span>
                                         </div>
                                     </th>
-                                    <th class="px-4 py-3">Date</th>
-                                    <th class="px-4 py-3">Start Time - End Time</th>
-                                    <th class="px-4 py-3">Power</th>
-                                    <th class="px-4 py-3">
+                                    <th class="px-4 py-3 whitespace-nowrap">Date</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">Start Time - End Time</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">Power</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>Spot</span>
                                             <span>Price</span>
                                         </div>
                                     </th>
-                                    <th class="px-4 py-3">Volume</th>
-                                    <th class="px-4 py-3">
+                                    <th class="px-4 py-3 whitespace-nowrap">Volume</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>VPP</span>
                                             <span>Income</span>
                                         </div>
                                     </th>
-                                    <th class="px-4 py-3">Status</th>
-                                    <th class="px-4 py-3 w-48">Notes</th>
-                                    <th class="px-4 py-3">
+                                    <th class="px-4 py-3 whitespace-nowrap">Status</th>
+                                    <th class="px-4 py-3 w-48 whitespace-nowrap">Notes</th>
+                                    <th class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>Service</span>
                                             <span>Tag</span>
                                         </div>
                                     </th>
-                                    <th class="px-4 py-3 text-left">Actions</th>
+                                    <th class="px-4 py-3 text-left whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${events.length > 0 ? events.map((event, idx) => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
+                                    <tr class="group hover:bg-gray-50 transition-colors">
                                         <td class="px-4 py-4 text-left text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-4 py-4 text-manta-primary font-medium cursor-pointer hover:underline">${event.vppName}</td>
                                         <td class="px-4 py-4 text-gray-900">${event.eventType}</td>
@@ -2926,7 +3044,7 @@ const app = {
                                         </td>
                                         <td class="px-4 py-4 text-gray-500 text-xs leading-tight max-w-xs">${event.notes}</td>
                                         <td class="px-4 py-4 text-gray-500">${event.serviceTag}</td>
-                                        <td class="px-4 py-4 text-left">
+                                        <td class="px-4 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="View Details">
                                                     <i data-lucide="external-link" class="w-4 h-4"></i>
@@ -3072,19 +3190,19 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-4 w-16"></th>
-                                    <th class="px-6 py-4">Event ID</th>
-                                    <th class="px-6 py-4">NMI</th>
-                                    <th class="px-6 py-4">Event Type</th>
-                                    <th class="px-6 py-4">Date</th>
-                                    <th class="px-6 py-4">Start Time - End Time</th>
-                                    <th class="px-6 py-4">From</th>
-                                    <th class="px-6 py-4">Is Settle</th>
-                                    <th class="px-6 py-4">Quantity</th>
-                                    <th class="px-6 py-4">Spot Price</th>
-                                    <th class="px-6 py-4">Revenue</th>
-                                    <th class="px-6 py-4">Owner Profit</th>
-                                    <th class="px-6 py-4">Net Profit</th>
+                                    <th class="px-6 py-4 w-16 whitespace-nowrap"></th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Event ID</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">NMI</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Event Type</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Date</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Start Time - End Time</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">From</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Is Settle</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Quantity</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Spot Price</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Revenue</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Owner Profit</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Net Profit</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -3240,35 +3358,35 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3">FCAS Group Name</th>
-                                    <th class="px-6 py-3">DERs(Online/Total)</th>
-                                    <th class="px-6 py-3">Pricing Region</th>
-                                    <th class="px-6 py-3">
+                                    <th class="px-6 py-3 whitespace-nowrap">FCAS Group Name</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">DERs(Online/Total)</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Pricing Region</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>Inverter</span>
                                             <span>Size</span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-3">
+                                    <th class="px-6 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>SOC (Current /</span>
                                             <span>Total)</span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-3">Service Tag</th>
-                                    <th class="px-6 py-3">
+                                    <th class="px-6 py-3 whitespace-nowrap">Service Tag</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">
                                         <div class="flex flex-col">
                                             <span>Number of Events</span>
                                             <span>Triggered</span>
                                         </div>
                                     </th>
-                                    <th class="px-6 py-3">Active Status</th>
-                                    <th class="px-6 py-3 text-left">Actions</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Active Status</th>
+                                    <th class="px-6 py-3 text-left whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${groups.length > 0 ? groups.map(group => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
+                                    <tr class="group hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 text-gray-900 font-medium">${group.name}</td>
                                         <td class="px-6 py-4 text-gray-900">${group.onlineDers}/${group.totalDers}</td>
                                         <td class="px-6 py-4 text-gray-900">${group.state}</td>
@@ -3284,7 +3402,7 @@ const app = {
                                                 </button>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-left">
+                                        <td class="px-6 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
                                                     <i data-lucide="square-pen" class="w-4 h-4"></i>
@@ -3529,19 +3647,19 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-500 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-3">Trading Period</th>
-                                    <th class="px-6 py-3">DUID</th>
-                                    <th class="px-6 py-3">Service Type</th>
-                                    <th class="px-6 py-3">Max Availability</th>
-                                    <th class="px-6 py-3">Submission Date</th>
-                                    <th class="px-6 py-3">Status</th>
-                                    <th class="px-6 py-3">Total Settlement</th>
-                                    <th class="px-6 py-3 text-left">Actions</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Trading Period</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">DUID</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Service Type</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Max Availability</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Submission Date</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Status</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Total Settlement</th>
+                                    <th class="px-6 py-3 text-left whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${currentBids.length > 0 ? currentBids.map(bid => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
+                                    <tr class="group hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 text-gray-900">${bid.tradingPeriod}</td>
                                         <td class="px-6 py-4 text-gray-900">${bid.duid}</td>
                                         <td class="px-6 py-4 text-gray-900">${bid.serviceType}</td>
@@ -3553,7 +3671,7 @@ const app = {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-gray-900">${bid.totalSettlement}</td>
-                                        <td class="px-6 py-4 text-left">
+                                        <td class="px-6 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <button class="text-gray-400 hover:text-green-600 transition-colors">
                                                 <i data-lucide="more-horizontal" class="w-4 h-4"></i>
                                             </button>
@@ -3627,6 +3745,14 @@ const app = {
                 trigger: 'axis',
                 axisPointer: { type: 'cross' }
             },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    zoomOnMouseWheel: true,
+                    moveOnMouseWheel: true,
+                    moveOnMouseMove: true
+                }
+            ],
             xAxis: {
                 type: 'category',
                 data: data.map(item => item.time),
@@ -3807,19 +3933,19 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-4 w-16"></th>
-                                    <th class="px-6 py-4">VPP Name</th>
-                                    <th class="px-6 py-4">Event Type</th>
-                                    <th class="px-6 py-4">Date</th>
-                                    <th class="px-6 py-4">Start Time - End Time</th>
-                                    <th class="px-6 py-4">Power</th>
-                                    <th class="px-6 py-4">Spot Price</th>
-                                    <th class="px-6 py-4">Volume</th>
-                                    <th class="px-6 py-4">VPP Income</th>
-                                    <th class="px-6 py-4">Status</th>
-                                    <th class="px-6 py-4 w-64">Notes</th>
-                                    <th class="px-6 py-4">Service Tag</th>
-                                    <th class="px-6 py-4">Actions</th>
+                                    <th class="px-6 py-4 w-16 whitespace-nowrap"></th>
+                                    <th class="px-6 py-4 whitespace-nowrap">VPP Name</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Event Type</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Date</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Start Time - End Time</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Power</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Spot Price</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Volume</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">VPP Income</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Status</th>
+                                    <th class="px-6 py-4 w-64 whitespace-nowrap">Notes</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Service Tag</th>
+                                    <th class="px-6 py-4 whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -3846,7 +3972,7 @@ const app = {
                                         </td>
                                         <td class="px-6 py-4 text-gray-500 text-xs leading-relaxed">${event.notes}</td>
                                         <td class="px-6 py-4 text-gray-500">${event.serviceTag}</td>
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
                                                     <i data-lucide="external-link" class="w-4 h-4"></i>
@@ -3996,19 +4122,19 @@ const app = {
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
                                 <tr>
-                                    <th class="px-6 py-4 w-16"></th>
-                                    <th class="px-6 py-4">SN</th>
-                                    <th class="px-6 py-4">Event Type</th>
-                                    <th class="px-6 py-4">Date</th>
-                                    <th class="px-6 py-4">Start Time - End Time</th>
-                                    <th class="px-6 py-4">From</th>
-                                    <th class="px-6 py-4">Power</th>
-                                    <th class="px-6 py-4">Spot Price</th>
-                                    <th class="px-6 py-4">Volume</th>
-                                    <th class="px-6 py-4">VPP Income</th>
-                                    <th class="px-6 py-4 w-64">Notes</th>
-                                    <th class="px-6 py-4">Status</th>
-                                    <th class="px-6 py-4">Actions</th>
+                                    <th class="px-6 py-4 w-16 whitespace-nowrap"></th>
+                                    <th class="px-6 py-4 whitespace-nowrap">SN</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Event Type</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Date</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Start Time - End Time</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">From</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Power</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Spot Price</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Volume</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">VPP Income</th>
+                                    <th class="px-6 py-4 w-64 whitespace-nowrap">Notes</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Status</th>
+                                    <th class="px-6 py-4 whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -4032,7 +4158,7 @@ const app = {
                                                 ${event.status}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
                                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -4063,6 +4189,14 @@ const app = {
                 trigger: 'axis',
                 axisPointer: { type: 'cross' }
             },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    zoomOnMouseWheel: true,
+                    moveOnMouseWheel: true,
+                    moveOnMouseMove: true
+                }
+            ],
             legend: {
                 data: ['Available capacity', 'SOC'],
                 top: 0
@@ -4523,12 +4657,12 @@ const app = {
                                     <th class="px-6 py-3 font-medium">Last Modified At</th>
                                     <th class="px-6 py-3 font-medium">Number of Events Triggered</th>
                                     <th class="px-6 py-3 font-medium">Active</th>
-                                    <th class="px-6 py-3 font-medium text-left">Actions</th>
+                                    <th class="px-6 py-3 font-medium text-left sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${rules.length > 0 ? rules.map((rule, idx) => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
+                                    <tr class="group hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 text-left text-gray-500">${startIdx + idx + 1}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.state}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.triggerTime}</td>
@@ -4546,7 +4680,7 @@ const app = {
                                                 <span class="text-xs ${rule.active ? 'text-green-600 font-medium' : 'text-gray-400'}">${rule.active ? 'Active' : 'Inactive'}</span>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-left">
+                                        <td class="px-6 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center justify-start gap-2">
                                                 <button class="p-1 text-gray-400 hover:text-manta-primary transition-colors" title="Edit">
                                                     <i data-lucide="pencil" class="w-4 h-4"></i>
@@ -4703,7 +4837,7 @@ const app = {
                                     <th class="px-6 py-3 font-medium">Threshold</th>
                                     <th class="px-6 py-3 font-medium">Status</th>
                                     <th class="px-6 py-3 font-medium">Details</th>
-                                    <th class="px-6 py-3 font-medium text-left">Actions</th>
+                                    <th class="px-6 py-3 font-medium text-left sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="safety-events-tbody">
@@ -4751,7 +4885,7 @@ const app = {
             return `<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">No safety events recorded</td></tr>`;
         }
         return events.map((event, idx) => `
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="group hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4 text-left text-gray-500">${idx + 1}</td>
                 <td class="px-6 py-4 text-gray-900">${event.time}</td>
                 <td class="px-6 py-4 font-medium ${this.getEventColor(event.type)}">${event.type}</td>
@@ -4763,7 +4897,7 @@ const app = {
                     </span>
                 </td>
                 <td class="px-6 py-4 text-gray-500 max-w-xs truncate" title="${event.details}">${event.details}</td>
-                <td class="px-6 py-4 text-left">
+                <td class="px-6 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                     <button class="text-gray-400 hover:text-gray-600">
                         <i data-lucide="more-horizontal" class="w-4 h-4"></i>
                     </button>
@@ -5452,20 +5586,38 @@ const app = {
 
     renderTradingOverview(container) {
         const rules = state.tradingRules;
-        const recentRules = rules.slice(0, 5);
+        const searchTerm = (state.tradingOverviewSearch || '').toLowerCase();
+        
+        const filteredRules = rules.filter(rule => {
+            if (!searchTerm) return true;
+            const region = rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-');
+            return region.toLowerCase().includes(searchTerm);
+        });
+
+        const displayRules = filteredRules.slice(0, 5);
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
             <div class="flex flex-col h-full gap-4">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col min-h-0 flex-1">
-                    <div class="flex flex-wrap items-center justify-between px-4 py-3 border-b border-gray-100 gap-3">
-                        <h3 class="text-lg font-semibold text-gray-900">Trading Rules</h3>
-                        <div class="flex items-center gap-2">
-                            ${rules.length > 0 ? `
+                    ${rules.length > 0 ? `
+                        <div class="flex flex-wrap items-center justify-between px-4 py-3 border-b border-gray-100 gap-3">
+                            <h3 class="text-lg font-semibold text-gray-900">Trading Rules</h3>
+                            <div class="flex items-center gap-2">
                                 <button onclick="app.openTradingRuleDrawer()" class="px-3 py-1.5 text-xs font-medium bg-manta-primary text-white rounded-md hover:bg-manta-dark transition-colors">New</button>
-                            ` : ''}
+                                <div class="relative">
+                                    <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Pricing Region" 
+                                        value="${state.tradingOverviewSearch || ''}"
+                                        oninput="app.handleTradingOverviewSearch(this.value)"
+                                        class="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-manta-primary w-40"
+                                    >
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    ` : ''}
                     <div class="flex-1 overflow-auto">
                         ${rules.length > 0 ? `
                                 <table class="w-full text-sm text-left">
@@ -5477,13 +5629,15 @@ const app = {
                                             <th class="px-4 py-2 font-medium">Event</th>
                                             <th class="px-4 py-2 font-medium">Status</th>
                                             <th class="px-4 py-2 font-medium">Applicable VPP</th>
-                                            <th class="px-4 py-2 font-medium">Ignore Time</th>
-                                            <th class="px-4 py-2 font-medium">Actions</th>
+                                            <th class="px-4 py-2 font-medium">Ignore</th>
+                                            <th class="px-4 py-2 font-medium">Created</th>
+                                            <th class="px-4 py-2 font-medium">Updated</th>
+                                            <th class="px-4 py-2 font-medium sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
-                                        ${recentRules.map(rule => `
-                                            <tr class="hover:bg-gray-50 transition-colors">
+                                        ${displayRules.map(rule => `
+                                            <tr class="group hover:bg-gray-50 transition-colors">
                                                 <td class="px-4 py-3 text-gray-900 font-medium">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || '-')}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`}</td>
@@ -5503,7 +5657,9 @@ const app = {
                                                     content += ')';
                                                     return `<div>${content}</div>`;
                                                 }).join('') : '-'}</td>
-                                                <td class="px-4 py-3">
+                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${rule.createdAt ? new Date(rule.createdAt).toLocaleString() : '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${rule.updatedAt ? new Date(rule.updatedAt).toLocaleString() : '-'}</td>
+                                                <td class="px-4 py-3 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                     <div class="flex items-center gap-2">
                                                         <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
                                                             <i data-lucide="edit-3" class="w-4 h-4"></i>
@@ -5518,14 +5674,14 @@ const app = {
                                     </tbody>
                                 </table>
                             ` : `
-                                <div class="h-full flex items-center justify-center p-[20px]">
-                                    <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[366px] flex flex-col items-center text-center gap-[10px]">
+                                <div class="h-full p-[20px] flex flex-col">
+                                    <div class="bg-[#f3f3f6] flex flex-1 flex-col gap-[10px] items-center justify-center rounded-[6px] w-full px-[16px] py-[16px]">
                                         <div class="relative w-[88px] h-[88px]">
-                                            <i data-lucide="scroll-text" class="w-full h-full text-[#b5bcc8]"></i>
+                                            <img src="assets/icons/empty-state.svg" alt="Empty State" class="w-full h-full block">
                                         </div>
-                                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Rules Created</p>
+                                        <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949] text-center">No Rules Created</p>
 
-                                        <button onclick="app.openTradingRuleDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[6px] h-[40px] px-[24px] rounded-[6px] text-white transition-colors min-w-[100px]">
+                                        <button onclick="app.openTradingRuleDrawer()" class="bg-[#3ec064] hover:bg-[#35a656] flex items-center justify-center gap-[6px] h-[40px] px-[24px] py-[4px] rounded-[6px] text-white transition-colors min-w-[100px]">
                                             <div class="w-[20px] h-[20px] flex items-center justify-center">
                                                 <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
                                             </div>
@@ -5539,6 +5695,21 @@ const app = {
             </div>
         `;
         lucide.createIcons();
+    },
+
+    handleTradingOverviewSearch(value) {
+        state.tradingOverviewSearch = value;
+        const contentArea = document.getElementById('content-area');
+        this.renderTradingOverview(contentArea);
+        
+        // Restore focus
+        setTimeout(() => {
+            const input = contentArea.querySelector('input[placeholder="Pricing Region"]');
+            if (input) {
+                input.focus();
+                input.setSelectionRange(value.length, value.length);
+            }
+        }, 0);
     },
 
     renderAccount(container) {
@@ -5708,7 +5879,7 @@ const app = {
                                     <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Last Login IP</th>
                                     <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Current Login IP</th>
                                     <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Create Time</th>
-                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)]">Actions</th>
+                                    <th class="h-[48px] px-[16px] text-[12px] font-normal text-[var(--color-neutral-lightgrey)] border-b border-[var(--color-neutral-line)] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5727,7 +5898,7 @@ const app = {
                                         <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.lastLoginIp || '-'}</td>
                                         <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.currentLoginIp || '-'}</td>
                                         <td class="px-[16px] text-[14px] font-normal text-[var(--color-neutral-black)] font-['Roboto']">${user.created || user.createTime || '-'}</td>
-                                        <td class="px-[16px]">
+                                        <td class="px-[16px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center justify-start gap-[12px]">
                                                 <button onclick="app.openEditUserDrawer(${user.id})" class="text-[var(--color-neutral-bluegrey)] hover:text-[var(--color-brand-primary)] transition-colors" title="Edit">
                                                     <i data-lucide="edit-3" class="w-[16px] h-[16px]"></i>
@@ -6220,12 +6391,12 @@ const app = {
                                     <th scope="col" class="px-6 py-3">Trigger From</th>
                                     <th scope="col" class="px-6 py-3">Details</th>
                                     <th scope="col" class="px-6 py-3">Event</th>
-                                    <th scope="col" class="px-6 py-3 text-left">Actions</th>
+                                    <th scope="col" class="px-6 py-3 text-left sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${currentRules.length > 0 ? currentRules.map(rule => `
-                                    <tr class="bg-white border-b hover:bg-gray-50 transition-colors">
+                                    <tr class="bg-white border-b hover:bg-gray-50 transition-colors group">
                                         <td class="px-6 py-4 font-medium text-gray-900">#${rule.id}</td>
                                         <td class="px-6 py-4 text-gray-900">${rule.vpp}</td>
                                         <td class="px-6 py-4">
@@ -6252,7 +6423,7 @@ const app = {
                                                 ${rule.action}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-left">
+                                        <td class="px-6 py-4 text-left sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div class="flex items-center justify-start gap-2">
                                                 <button onclick="app.toggleTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="${rule.state === 'Active' ? 'Deactivate' : 'Activate'}">
                                                     <i data-lucide="${rule.state === 'Active' ? 'pause-circle' : 'play-circle'}" class="w-4 h-4"></i>
@@ -6389,12 +6560,12 @@ const app = {
                                  <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Pricing Region</span>
                              </div>
                              <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                                <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
-                                    <option value="NSW" ${!rule || rule.state === 'NSW' ? 'selected' : ''}>NSW</option>
-                                    <option value="VIC" ${rule && rule.state === 'VIC' ? 'selected' : ''}>VIC</option>
-                                    <option value="QLD" ${rule && rule.state === 'QLD' ? 'selected' : ''}>QLD</option>
-                                    <option value="SA" ${rule && rule.state === 'SA' ? 'selected' : ''}>SA</option>
-                                    <option value="WA" ${rule && rule.state === 'WA' ? 'selected' : ''}>WA</option>
+                                <select name="state" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8] disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50" ${rule && (rule.triggerType === 'Price' || rule.triggerType === 'Arbitrage') ? 'disabled' : ''}>
+                                    <option value="NSW" ${!rule || rule.region === 'NSW' ? 'selected' : ''}>NSW</option>
+                                    <option value="VIC" ${rule && rule.region === 'VIC' ? 'selected' : ''}>VIC</option>
+                                    <option value="QLD" ${rule && rule.region === 'QLD' ? 'selected' : ''}>QLD</option>
+                                    <option value="SA" ${rule && rule.region === 'SA' ? 'selected' : ''}>SA</option>
+                                    <option value="WA" ${rule && rule.region === 'WA' ? 'selected' : ''}>WA</option>
                                 </select>
                                 <div class="absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[16px] h-[16px]">
                                     <i data-lucide="chevron-down" class="w-[12px] h-[12px] text-[#313949]"></i>
@@ -6407,7 +6578,7 @@ const app = {
                                 <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Trigger From</span>
                              </div>
                              <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                               <select name="triggerType" required onchange="app.handleTriggerTypeChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                               <select name="triggerType" required onchange="app.handleTriggerTypeChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8] disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50" ${rule && (rule.triggerType === 'Price' || rule.triggerType === 'Arbitrage') ? 'disabled' : ''}>
                                     <option value="Price" ${!rule || rule.triggerType === 'Price' ? 'selected' : ''}>Price</option>
                                     <option value="Arbitrage" ${rule && rule.triggerType === 'Arbitrage' ? 'selected' : ''}>Arbitrage Point</option>
                                 </select>
@@ -6456,7 +6627,7 @@ const app = {
                              <div class="relative flex-1 h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
                                  <input type="number" name="price" id="trigger-price-input" value="${rule ? rule.price || '' : ''}" step="0.01" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal" placeholder="0.00" ${!rule || rule.triggerType === 'Price' ? 'required' : ''} style="display: ${!rule || rule.triggerType === 'Price' ? 'block' : 'none'}">
                                  
-                                 <select name="arbitrageSignal" id="trigger-arbitrage-select" onchange="app.handleArbitrageSignalChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'block' : 'none'}" ${rule && rule.triggerType === 'Arbitrage' ? 'required' : ''}>
+                                 <select name="arbitrageSignal" id="trigger-arbitrage-select" onchange="app.handleArbitrageSignalChange(this.value)" class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8] disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50" style="display: ${rule && rule.triggerType === 'Arbitrage' ? 'block' : 'none'}" ${rule && rule.triggerType === 'Arbitrage' ? 'disabled' : ''}>
                                      <option value="Discharge" ${rule && rule.arbitrageSignal === 'Discharge' ? 'selected' : ''}>Discharge</option>
                                      <option value="Charge" ${rule && rule.arbitrageSignal === 'Charge' ? 'selected' : ''}>Charge</option>
                                      <option value="Abnormal" ${rule && rule.arbitrageSignal === 'Abnormal' ? 'selected' : ''}>Abnormal</option>
@@ -6478,7 +6649,7 @@ const app = {
                              <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Event</span>
                          </div>
                          <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
-                             <select name="action" id="rule-action-select" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8]">
+                             <select name="action" id="rule-action-select" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] appearance-none z-10 font-normal cursor-pointer invalid:text-[#b5bcc8] disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50" ${rule && rule.triggerType === 'Price' ? 'disabled' : ''}>
                                  <option value="Discharge" ${!rule || rule.action === 'Discharge' ? 'selected' : ''}>Discharge</option>
                                  <option value="Charge" ${rule && rule.action === 'Charge' ? 'selected' : ''}>Charge</option>
                                  <option value="Stop" ${rule && rule.action === 'Stop' ? 'selected' : ''}>Stop</option>
@@ -6769,10 +6940,17 @@ const app = {
         const formData = new FormData(form);
         const submitBtn = document.getElementById('rule-submit-btn');
 
-        // Validation
-        const triggerType = formData.get('triggerType');
-        const price = formData.get('price');
+        // Get ruleId and find existing rule
         const ruleId = formData.get('ruleId');
+        let existingRule = null;
+        if (ruleId) {
+            existingRule = state.tradingRules.find(r => r.id == ruleId);
+        }
+
+        // Validation
+        // Use existing rule's triggerType if formData is missing (disabled field)
+        const triggerType = formData.get('triggerType') || (existingRule ? existingRule.triggerType : null);
+        const price = formData.get('price');
         const selections = state.tradingRuleVppSelections;
 
         if (!selections.length) {
@@ -6797,17 +6975,23 @@ const app = {
             const primaryVpp = selections[0];
 
             const status = formData.get('status') || 'Active';
+            
+            // Handle potentially disabled fields
+            const region = formData.get('state') || (existingRule ? existingRule.region : null);
+            const action = formData.get('action') || (existingRule ? existingRule.action : null);
+            const arbitrageSignal = formData.get('arbitrageSignal') || (existingRule ? existingRule.arbitrageSignal : null);
+
             const ruleData = {
                 vppId: primaryVpp ? primaryVpp.id : null,
                 vpp: vppNames.length ? vppNames.join(', ') : 'Unknown VPP',
                 state: status,
-                region: formData.get('state'),
+                region: region,
                 triggerType: triggerType,
                 priceSource: formData.get('priceSource'),
-                arbitrageSignal: formData.get('arbitrageSignal'),
+                arbitrageSignal: arbitrageSignal,
                 condition: formData.get('condition'),
                 price: price,
-                action: formData.get('action'),
+                action: action,
                 applicableVpps: selections.map(v => ({
                     id: v.id,
                     name: v.name,
@@ -7476,7 +7660,7 @@ const app = {
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Online</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Offline</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px]">Actions</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="">
@@ -7509,7 +7693,7 @@ const app = {
                                                     <td class="px-[8px]">
                                                         <span class="text-[14px] font-normal text-gray-400 font-['Roboto']">${stats.inv.offline + stats.bat.offline}</span>
                                                     </td>
-                                                    <td class="px-[8px]">
+                                                    <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                         <div class="flex items-center justify-start gap-[12px]">
                                                             ${s !== 'establishing' ? `
                                                             <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="View">
@@ -7773,7 +7957,7 @@ const app = {
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">State</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Actions</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="">
@@ -7792,7 +7976,7 @@ const app = {
                                 <td class="px-[8px]">
                                     <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</div>
                                 </td>
-                                <td class="px-[8px]">
+                                <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                     <div class="flex items-center justify-start gap-[12px]">
                                         <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                             <i data-lucide="eye" class="w-4 h-4"></i>
@@ -8127,7 +8311,7 @@ const app = {
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">TODAY YIELD</th>
                                 ` : ''}
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">ASSIGNED VPP</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Actions</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="">
@@ -8201,7 +8385,7 @@ const app = {
                                     <td class="px-[8px]">
                                         <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${vpp.name || '-'}</div>
                                     </td>
-                                    <td class="px-[8px]">
+                                    <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                         <div class="flex items-center justify-start gap-[12px]">
                                             <button onclick="app.openAssignVppDrawer('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors" title="Assign VPP" aria-label="Assign VPP">
                                                 <i data-lucide="link-2" class="w-[24px] h-[24px]"></i>
@@ -8881,16 +9065,18 @@ const app = {
         let dataLength = 0;
 
         if (granularity === 'day') {
+            const dateStr = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
             for (let h = 0; h < 24; h++) {
                 for (let m = 0; m < 60; m += 5) {
-                    xAxisData.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                    xAxisData.push(`${dateStr} ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
                 }
             }
             dataLength = xAxisData.length;
         } else if (granularity === 'month') {
             const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+            const year = selectedDate.getFullYear();
             const monthStr = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
-            xAxisData = Array.from({length: daysInMonth}, (_, i) => `${monthStr}-${(i + 1).toString().padStart(2, '0')}`);
+            xAxisData = Array.from({length: daysInMonth}, (_, i) => `${year}-${monthStr}-${(i + 1).toString().padStart(2, '0')}`);
             dataLength = daysInMonth;
         } else if (granularity === 'year') {
             const yearStr = selectedDate.getFullYear();
@@ -8994,15 +9180,18 @@ const app = {
         
         if (state.operationTab === 'generation') {
             option = {
-                title: {
-                    text: isDay ? 'Generation Series' : 'Generation',
-                    left: '2%',
-                    top: '2%'
-                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: { type: isDay ? 'line' : 'shadow' }
                 },
+                dataZoom: [
+                    {
+                        type: 'inside',
+                        zoomOnMouseWheel: true,
+                        moveOnMouseWheel: true,
+                        moveOnMouseMove: true
+                    }
+                ],
                 legend: {
                     data: ['To Grid', 'To Battery', 'Direct consumption', 'Self consumption'],
                     top: '6%',
@@ -9087,15 +9276,18 @@ const app = {
             };
         } else if (state.operationTab === 'consumption') {
             option = {
-                title: {
-                    text: isDay ? 'Consumption Series' : 'Consumption',
-                    left: '2%',
-                    top: '2%'
-                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: { type: isDay ? 'line' : 'shadow' }
                 },
+                dataZoom: [
+                    {
+                        type: 'inside',
+                        zoomOnMouseWheel: true,
+                        moveOnMouseWheel: true,
+                        moveOnMouseMove: true
+                    }
+                ],
                 legend: {
                     data: ['From grid', 'From battery', 'Direct consumption', 'Self Sufficiency'],
                     top: '6%',
@@ -9297,28 +9489,30 @@ const app = {
         
         // Render Table
         container.innerHTML = `
-            <table class="min-w-full text-left border-collapse">
-                <thead class="sticky top-0 bg-[#f9fafb] z-10">
-                    <tr>
-                        ${headers.map(h => `<th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">${h}</th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    ${rows.map(row => `
-                        <tr class="hover:bg-gray-50">
-                            ${row.map((cell, i) => {
-                                if (tab === 'status' && i === 1) {
-                                    let colorClass = 'bg-green-100 text-green-800';
-                                    if (cell === 'Offline') colorClass = 'bg-red-100 text-red-800';
-                                    if (cell === 'Disconnected') colorClass = 'bg-gray-100 text-gray-800';
-                                    return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClass}">${cell}</span></td>`;
-                                }
-                                return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${cell}</td>`;
-                            }).join('')}
+            <div class="overflow-x-auto w-full">
+                <table class="min-w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-[#f9fafb] z-10">
+                        <tr>
+                            ${headers.map(h => `<th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 whitespace-nowrap">${h}</th>`).join('')}
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${rows.map(row => `
+                            <tr class="hover:bg-gray-50">
+                                ${row.map((cell, i) => {
+                                    if (tab === 'status' && i === 1) {
+                                        let colorClass = 'bg-green-100 text-green-800';
+                                        if (cell === 'Offline') colorClass = 'bg-red-100 text-red-800';
+                                        if (cell === 'Disconnected') colorClass = 'bg-gray-100 text-gray-800';
+                                        return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClass}">${cell}</span></td>`;
+                                    }
+                                    return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${cell}</td>`;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
     },
 
@@ -10216,7 +10410,7 @@ const app = {
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Capacity</th>
                                     <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Today Yield</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px]">Actions</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="">
@@ -10274,7 +10468,7 @@ const app = {
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.inv.pvCapacity} kW</td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${stats.bat.cap.toFixed(1)} kWh</td>
                                             <td class="px-[8px] text-[14px] font-normal text-[#1c2026] font-['Roboto']">${(stats.inv.cap * (2 + Math.random() * 2)).toFixed(1)} kWh</td>
-                                            <td class="px-[8px]">
+                                            <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                 <div class="flex items-center justify-start gap-[12px]">
                                                     <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
@@ -10617,7 +10811,7 @@ const app = {
                                 <th class="px-[8px] font-normal">Rated Capacity</th>
                                 <th class="px-[8px] font-normal">SOC</th>
                                 <th class="px-[8px] font-normal">Today Yield</th>
-                                <th class="px-[8px] font-normal">Actions</th>
+                                <th class="px-[8px] font-normal sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-[14px] text-[#313949]">
@@ -10642,7 +10836,7 @@ const app = {
                                 const displayType = dev.type === 'Inverter' ? 'Single PV' : (dev.type === 'Battery' ? 'Single ESS' : (dev.type === 'Hybrid' ? 'PV Plus ESS' : (dev.type || '-')));
                                 
                                 return `
-                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee] last:border-0">
                                     <td class="px-[8px] py-[12px]">
                                         <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${dev.status === 'online' ? 'bg-[rgba(140,218,47,0.2)] text-[#8cda2f]' : 'bg-[#e6e8ee] text-[#b5bcc8]'}">
                                             <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
@@ -10658,7 +10852,7 @@ const app = {
                                     <td class="px-[8px] py-[12px] text-[#313949] font-mono">${ratedCapacity}</td>
                                     <td class="px-[8px] py-[12px] font-mono">${socDisplay}</td>
                                     <td class="px-[8px] py-[12px] text-[#313949] font-mono">${todayYield}</td>
-                                    <td class="px-[8px] py-[12px]">
+                                    <td class="px-[8px] py-[12px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                         <div class="flex items-center gap-[8px]">
                                             <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
                                                 <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
@@ -10691,12 +10885,12 @@ const app = {
                                 <th class="px-[16px] font-medium">VPP Income</th>
                                 <th class="px-[16px] font-medium">Status</th>
                                 <th class="px-[16px] font-medium">Notes</th>
-                                <th class="px-[16px] font-medium">Actions</th>
+                                <th class="px-[16px] font-medium sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-[14px] text-[#313949]">
                             ${MOCK_DATA.tradingEvents.map(event => `
-                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] last:border-0">
+                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee] last:border-0">
                                     <td class="px-[16px] py-[12px] text-[#313949]">${event.date.split(' ')[0]}</td>
                                     <td class="px-[16px] py-[12px] text-[#5f646e]">${event.timeRange}</td>
                                     <td class="px-[16px] py-[12px] text-[#313949]">${event.eventType}</td>
@@ -10711,7 +10905,7 @@ const app = {
                                         </span>
                                     </td>
                                     <td class="px-[16px] py-[12px] text-[#5f646e] max-w-xs truncate" title="${event.notes}">${event.notes || '-'}</td>
-                                    <td class="px-[16px] py-[12px]">
+                                    <td class="px-[16px] py-[12px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                         <button class="text-[#b5bcc8] hover:text-[#313949] transition-colors">
                                             <i data-lucide="external-link" class="w-[16px] h-[16px]"></i>
                                         </button>
