@@ -1756,7 +1756,7 @@ const app = {
                             <div id="trading-opportunities-stats" class="hidden flex items-center gap-8">
                                 <div>
                                     <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
-                                    <p class="font-medium text-lg">3 <span class="text-gray-400 text-sm font-normal">(2 Captured)</span></p>
+                                    <p class="font-medium text-lg">3</p>
                                 </div>
                                 <div class="h-8 w-px bg-gray-200"></div>
                                 <div>
@@ -2124,6 +2124,14 @@ const app = {
                 const arbitrageEnabled = document.getElementById('setting-arbitrage')?.checked;
                 const selectedArbitrage = document.querySelector('input[name="arbitrage-signal"]:checked');
                 const signalType = selectedArbitrage ? selectedArbitrage.value : 'forecast';
+                const signalVisibleMaxIndex = (() => {
+                    if (currentMode !== 'realtime') return currentData.timestamps.length - 1;
+                    const now = new Date();
+                    return Math.min(
+                        currentData.timestamps.length - 1,
+                        (now.getHours() * 12) + Math.floor(now.getMinutes() / 5)
+                    );
+                })();
                 
                 const rawSignals = (arbitrageEnabled && (signalType === 'forecast' ? currentData.forecastSignals : currentData.spotSignals)) || [];
                 const displaySignals = [];
@@ -2131,10 +2139,69 @@ const app = {
                 
                 if (rawSignals) {
                     rawSignals.forEach(signal => {
+                        const signalIndex = currentData.timestamps.indexOf(signal.coord[0]);
+                        if (signalIndex > signalVisibleMaxIndex) return;
                         if (signal.type !== lastType) {
                             displaySignals.push(signal);
                             lastType = signal.type;
                         }
+                    });
+                }
+
+                const signalRanges = [];
+                const signalOverlays = [];
+                if (displaySignals.length > 0) {
+                    const toRgba = (color, alpha) => {
+                        if (!color || typeof color !== 'string') return `rgba(107, 114, 128, ${alpha})`;
+                        if (color.startsWith('#') && (color.length === 7 || color.length === 4)) {
+                            let r;
+                            let g;
+                            let b;
+                            if (color.length === 7) {
+                                r = parseInt(color.slice(1, 3), 16);
+                                g = parseInt(color.slice(3, 5), 16);
+                                b = parseInt(color.slice(5, 7), 16);
+                            } else {
+                                r = parseInt(color[1] + color[1], 16);
+                                g = parseInt(color[2] + color[2], 16);
+                                b = parseInt(color[3] + color[3], 16);
+                            }
+                            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                        }
+                        return color;
+                    };
+
+                    displaySignals.forEach((signal, index) => {
+                        const startIndex = currentData.timestamps.indexOf(signal.coord[0]);
+                        if (startIndex < 0 || startIndex > signalVisibleMaxIndex) return;
+                        const endIndex = index < displaySignals.length - 1
+                            ? Math.min(
+                                signalVisibleMaxIndex,
+                                Math.max(startIndex, currentData.timestamps.indexOf(displaySignals[index + 1].coord[0]) - 1)
+                            )
+                            : signalVisibleMaxIndex;
+                        const start = currentData.timestamps[startIndex];
+                        const end = currentData.timestamps[endIndex];
+
+                        signalRanges.push({
+                            startIndex,
+                            endIndex,
+                            type: signal.type,
+                            color: signal.itemStyle.color
+                        });
+
+                        signalOverlays.push([
+                            {
+                                name: signal.type,
+                                xAxis: start,
+                                itemStyle: {
+                                    color: toRgba(signal.itemStyle.color, 0.14)
+                                }
+                            },
+                            {
+                                xAxis: end
+                            }
+                        ]);
                     });
                 }
 
@@ -2174,12 +2241,11 @@ const app = {
                             }
                             
                             // Add Arbitrage Signal
-                            const currentTimestamp = params[0].axisValue;
-                            const signal = displaySignals.find(s => s.coord[0] === currentTimestamp);
-                            if (signal) {
+                            const signalRange = signalRanges.find(range => dataIndex >= range.startIndex && dataIndex <= range.endIndex);
+                            if (signalRange) {
                                 html += `<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between gap-4 text-xs">
                                     <span class="font-bold text-gray-600">Signal</span>
-                                    <span class="font-bold" style="color:${signal.itemStyle.color}">${signal.type}</span>
+                                    <span class="font-bold" style="color:${signalRange.color}">${signalRange.type}</span>
                                 </div>`;
                             }
 
@@ -2275,23 +2341,12 @@ const app = {
                             barGap: '-175%', // -100% - (75-30)/2/30 * 100% = -175%
                             z: 1,
                             showSymbol: false,
-                            markPoint: {
-                                data: displaySignals,
-                                symbol: 'pin',
-                                symbolSize: 40,
+                            markArea: {
+                                silent: true,
                                 label: {
-                                    show: true,
-                                    formatter: function(params) {
-                                        return params.data.value;
-                                    },
-                                    color: '#fff',
-                                    fontSize: 12,
-                                    fontWeight: 'bold'
+                                    show: false
                                 },
-                                itemStyle: {
-                                    shadowBlur: 10,
-                                    shadowColor: 'rgba(0,0,0,0.3)'
-                                }
+                                data: signalOverlays
                             }
                         },
                     ]
@@ -9946,16 +10001,14 @@ const app = {
                                     <!-- Input Power -->
                                     <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Input Power</p>
                                         </div>
                                         <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.85).toFixed(1)} kW</p>
                                         </div>
                                     </div>
-                                    <!-- Output Power -->
+                                    <!-- Active Power -->
                                     <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Output Power</p>
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Active Power</p>
                                         </div>
                                         <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.8).toFixed(1)} kW</p>
@@ -9980,18 +10033,9 @@ const app = {
                                     <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Battery</p>
                                 </div>
                                 
-                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:flex lg:justify-between lg:flex-nowrap p-[8px] relative rounded-[8px] shrink-0 w-full">
-                                    <!-- Model -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Model</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.4] relative shrink-0 text-[20px] text-[#313949]" style="font-variation-settings: 'wdth' 100">LFP-200</p>
-                                        </div>
-                                    </div>
+                                <div class="backdrop-blur-[25px] grid grid-cols-4 gap-[8px] p-[8px] relative rounded-[8px] shrink-0 w-full">
                                     <!-- Rated Capacity -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-1 row-start-1">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Capacity</p>
                                         </div>
@@ -10000,34 +10044,16 @@ const app = {
                                         </div>
                                     </div>
                                     <!-- Rated Charge Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-2 row-start-1">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Charge Power</p>
                                         </div>
-                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                        <div class="flex gap-[0px] h-[40px] items-center justify-start relative shrink-0">
                                             <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
-                                        </div>
-                                    </div>
-                                    <!-- Rated Discharge Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Discharge Power</p>
-                                        </div>
-                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
-                                        </div>
-                                    </div>
-                                    <!-- SOC Floor -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC Floor</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">10%</p>
                                         </div>
                                     </div>
                                     <!-- Active Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-1 row-start-2">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Active Power</p>
                                         </div>
@@ -10035,31 +10061,61 @@ const app = {
                                             <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.6).toFixed(1)} kW</p>
                                         </div>
                                     </div>
-                                    <!-- Available Charge -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
+                                    <!-- Rated Discharge Power -->
+                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-2 row-start-2">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Available Charge</p>
+                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Discharge Power</p>
                                         </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 2 * 0.8).toFixed(1)} kWh</p>
-                                        </div>
-                                    </div>
-                                    <!-- Available Discharge -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Available Discharge</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 2 * 0.15).toFixed(1)} kWh</p>
+                                        <div class="flex gap-[0px] h-[40px] items-center justify-start relative shrink-0">
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
                                         </div>
                                     </div>
                                     <!-- SOC -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">SOC</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">85%</p>
+                                    <div class="flex flex-col gap-[0px] items-center min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 justify-center col-start-3 row-start-1 col-span-2 row-span-2 justify-self-end mr-[205px]">
+                                        <div class="relative w-[150px] h-[150px] flex items-center justify-center">
+                                            <!-- Ring Background -->
+                                            <svg class="absolute w-full h-full overflow-visible" viewBox="0 0 36 36">
+                                                <!-- Background Circle -->
+                                                <path class="text-gray-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                                                
+                                                <!-- SOC Min Region (Red) 0-10% -->
+                                                <path class="text-red-500" stroke-dasharray="10, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                                                
+                                                <!-- SOC Remaining (Green) 10-85% -->
+                                                <path class="text-[#3ec064]" stroke-dasharray="75, 100" stroke-dashoffset="-10" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                                                
+                                                <!-- SOC Max Region (Red) 90-100% -->
+                                                <path class="text-red-500" stroke-dasharray="10, 100" stroke-dashoffset="-90" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                                                
+                                                <!-- SOC Min Indicator -->
+                                                <g>
+                                                    <line x1="28.6" y1="3.5" x2="34" y2="-2" stroke="#ef4444" stroke-width="0.3" />
+                                                    <text x="39" y="-2" fill="#ef4444" text-anchor="start" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">SOC Min: 10%</text>
+                                                </g>
+                                                
+                                                <!-- SOC Max Indicator -->
+                                                <g>
+                                                    <line x1="7.4" y1="3.5" x2="2" y2="-2" stroke="#ef4444" stroke-width="0.3" />
+                                                    <text x="-4" y="-2" fill="#ef4444" text-anchor="end" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">SOC Max: 90%</text>
+                                                </g>
+
+                                                <!-- Available Discharge Indicator (Green region) -->
+                                                <g>
+                                                    <line x1="32" y1="22" x2="38" y2="35" stroke="#3b82f6" stroke-width="0.3" />
+                                                    <text x="39" y="35" fill="#3b82f6" text-anchor="start" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">Available Discharge: ${(device.capacity * 2 * 0.15).toFixed(1)} kWh</text>
+                                                </g>
+
+                                                <!-- Available Charge Indicator (Gray region - Empty part) -->
+                                                <g>
+                                                    <line x1="3.5" y1="7.5" x2="-4" y2="35" stroke="#3ec064" stroke-width="0.3" />
+                                                    <text x="-5" y="35" fill="#3ec064" text-anchor="end" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">Available Charge: ${(device.capacity * 2 * 0.8).toFixed(1)} kWh</text>
+                                                </g>
+                                            </svg>
+                                            <!-- Center Text -->
+                                            <div class="flex flex-col items-center justify-center">
+                                                <p class="font-['Roboto'] font-normal leading-none text-[16px] text-[#5f646e]">SOC</p>
+                                                <p class="font-['Roboto'] font-semibold leading-none text-[24px] text-[#313949]">85%</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -11513,6 +11569,7 @@ const app = {
         const allManufacturers = [
             'Sungrow',
             'Huawei', 
+            'SAJ',
             'Growatt',
             'Ginlong (Solis)',
             'GoodWe',
@@ -11575,16 +11632,13 @@ const app = {
                                 <span class="text-[#5f646e] text-[12px] leading-normal">Manufacturer Cloud</span>
                             </div>
                             <div class="h-[32px]">
-                                <select name="manufacturers" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] text-[14px] text-[#313949] focus:border-[#3ec064] outline-none appearance-none transition-colors">
+                                <select name="manufacturers" onchange="app.handleManufacturerChange(this.value)" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] text-[14px] text-[#313949] focus:border-[#3ec064] outline-none appearance-none transition-colors">
                                     ${manufacturers.length > 0 ? manufacturers.map(m => `
                                         <option value="${m}">${m}</option>
                                     `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
                                 </select>
                             </div>
                         </div>
-
-                        <!-- Connection Mode Radio -->
-
 
                         <!-- Credentials -->
                         <div id="cloud-credentials" class="flex flex-col gap-[16px] pt-[4px]">
@@ -11615,6 +11669,42 @@ const app = {
                                             <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SAJ Options (Encryption & Signature) -->
+                        <div id="saj-options" class="flex flex-col gap-[16px] hidden">
+                            <!-- Signature -->
+                            <div class="flex flex-col gap-[4px]">
+                                <div class="flex items-center h-[16px] pl-[4px]">
+                                    <span class="text-[#5f646e] text-[12px] leading-normal">Signature</span>
+                                </div>
+                                <div class="flex items-center gap-[24px] h-[32px]">
+                                    <label class="flex items-center gap-[8px] cursor-pointer">
+                                        <input type="radio" name="signature" value="yes" class="accent-[#3ec064] w-[16px] h-[16px]">
+                                        <span class="text-[14px] text-[#313949] font-normal">Yes</span>
+                                    </label>
+                                    <label class="flex items-center gap-[8px] cursor-pointer">
+                                        <input type="radio" name="signature" value="no" checked class="accent-[#3ec064] w-[16px] h-[16px]">
+                                        <span class="text-[14px] text-[#313949] font-normal">No</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- Encryption -->
+                            <div class="flex flex-col gap-[4px]">
+                                <div class="flex items-center h-[16px] pl-[4px]">
+                                    <span class="text-[#5f646e] text-[12px] leading-normal">Encryption</span>
+                                </div>
+                                <div class="flex items-center gap-[24px] h-[32px]">
+                                    <label class="flex items-center gap-[8px] cursor-pointer">
+                                        <input type="radio" name="encryption" value="yes" class="accent-[#3ec064] w-[16px] h-[16px]">
+                                        <span class="text-[14px] text-[#313949] font-normal">Yes</span>
+                                    </label>
+                                    <label class="flex items-center gap-[8px] cursor-pointer">
+                                        <input type="radio" name="encryption" value="no" checked class="accent-[#3ec064] w-[16px] h-[16px]">
+                                        <span class="text-[14px] text-[#313949] font-normal">No</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -11777,6 +11867,17 @@ const app = {
             scadaSection.classList.remove('hidden');
         } else if (type === 'edge') {
             edgeSection.classList.remove('hidden');
+        }
+    },
+
+    handleManufacturerChange(manufacturer) {
+        const sajOptions = document.getElementById('saj-options');
+        if (sajOptions) {
+            if (manufacturer === 'SAJ') {
+                sajOptions.classList.remove('hidden');
+            } else {
+                sajOptions.classList.add('hidden');
+            }
         }
     },
 
