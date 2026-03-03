@@ -113,7 +113,7 @@ const MOCK_DATA = {
             eventType: i % 2 === 0 ? 'Charge' : 'Discharge',
             price: parseFloat((Math.random() * 1000).toFixed(2)), // Ensure number
             date: dateStr,
-            timeRange: `${String(10 + (i % 8)).padStart(2, '0')}:00:00 - ${String(10 + (i % 8))}:30:00`,
+            timeRange: `${String(10 + (i % 8)).padStart(2, '0')}:00 - ${String(10 + (i % 8))}:30`,
             power: parseFloat((Math.random() * 500).toFixed(2)), // Ensure number
             status: i % 10 === 0 ? 'Pending' : 'Completed'
         };
@@ -856,7 +856,8 @@ const state = {
         vppName: '',
         triggerType: 'All',
         currentPage: 1,
-        itemsPerPage: 10
+        itemsPerPage: 10,
+        expandedHistoryRuleId: null
     },
     tradingRuleVppSelections: [],
     tradingRuleVppDropdownOpen: false,
@@ -1949,7 +1950,7 @@ const app = {
 
                     // Generate Forecast Signals (can cover future)
                     if (i % 25 === 0 && random() > 0.6) {
-                        const types = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
+                        const types = ['Discharge', 'Normal', 'Charge', 'Abnormal'];
                         const type = types[Math.floor(random() * types.length)];
                         
                         let color, value;
@@ -1957,7 +1958,6 @@ const app = {
                             case 'Discharge': color = '#EF4444'; value = 'D'; break; // Red
                             case 'Charge': color = '#10B981'; value = 'C'; break;    // Green
                             case 'Normal': color = '#9CA3AF'; value = 'N'; break;    // Gray
-                            case 'FCAS': color = '#8B5CF6'; value = 'F'; break;      // Purple
                             case 'Abnormal': color = '#F59E0B'; value = 'A'; break;  // Amber
                         }
 
@@ -1972,7 +1972,7 @@ const app = {
 
                     // Generate Spot Signals (historical/realtime up to now)
                     if (i % 35 === 0 && random() > 0.6 && (!isRealtime || i <= currentTimeIndex)) {
-                        const types = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
+                        const types = ['Discharge', 'Normal', 'Charge', 'Abnormal'];
                         const type = types[Math.floor(random() * types.length)];
                         
                         let color, value;
@@ -1980,7 +1980,6 @@ const app = {
                             case 'Discharge': color = '#EF4444'; value = 'D'; break; // Red
                             case 'Charge': color = '#10B981'; value = 'C'; break;    // Green
                             case 'Normal': color = '#9CA3AF'; value = 'N'; break;    // Gray
-                            case 'FCAS': color = '#8B5CF6'; value = 'F'; break;      // Purple
                             case 'Abnormal': color = '#F59E0B'; value = 'A'; break;  // Amber
                         }
 
@@ -5122,7 +5121,7 @@ const app = {
                     eventType: Math.random() > 0.5 ? 'Charge' : 'Discharge',
                     price: Math.random() * 15000,
                     date: new Date().toLocaleDateString() + ' (+11:00)',
-                    timeRange: new Date().toLocaleTimeString() + ' - ' + new Date(Date.now() + 1800000).toLocaleTimeString(),
+                    timeRange: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date(Date.now() + 1800000).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
                     power: Math.random() * 1000
                 };
                 
@@ -5151,7 +5150,7 @@ const app = {
             now.setSeconds(0);
             now.setMilliseconds(0);
 
-            const signalTypes = ['Discharge', 'Normal', 'Charge', 'FCAS', 'Abnormal'];
+            const signalTypes = ['Discharge', 'Normal', 'Charge', 'Abnormal'];
             
             // Generate 3 days worth of data points (every 5 minutes)
             // Start from -1 to include the next 5-minute interval
@@ -5260,12 +5259,6 @@ const app = {
                                 <i data-lucide="battery-charging" class="w-5 h-5 fill-current"></i>
                             </div>
                             <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">Charge</span>
-                        </div>
-                        <div id="filter-fcas" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
-                            <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shadow-sm border border-purple-100 group-hover:bg-purple-100 transition-colors">
-                                <i data-lucide="shield" class="w-5 h-5 fill-current"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 group-hover:text-purple-700 transition-colors">FCAS</span>
                         </div>
                         <div id="filter-abnormal" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
                             <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 shadow-sm border border-red-100 group-hover:bg-red-100 transition-colors">
@@ -5386,7 +5379,6 @@ const app = {
                     'Discharge': 'bg-green-100 text-green-700 border-green-200',
                     'Normal': 'bg-gray-100 text-gray-700 border-gray-200',
                     'Charge': 'bg-blue-100 text-blue-700 border-blue-200',
-                    'FCAS': 'bg-purple-100 text-purple-700 border-purple-200',
                     'Abnormal': 'bg-red-100 text-red-700 border-red-200'
                 };
                 
@@ -5543,7 +5535,7 @@ const app = {
         }
 
         // Add Signal Filter Listeners
-        const filters = ['discharge', 'normal', 'charge', 'fcas', 'abnormal'];
+        const filters = ['discharge', 'normal', 'charge', 'abnormal'];
         
         filters.forEach(filter => {
             const btn = document.getElementById(`filter-${filter}`);
@@ -5582,6 +5574,86 @@ const app = {
 
         // Initial Render
         applyFilters();
+    },
+
+    formatDateTimeWithoutSeconds(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    },
+
+    renderHistoryRows(rule) {
+        // Mock history data based on the current rule
+        const historyItems = [
+            {
+                condition: rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${parseFloat(rule.price) + 10} $/MW` : `${rule.priceSource} = Low`,
+                status: 'Inactive',
+                applicableVpps: rule.applicableVpps,
+                ignore: '-',
+                updatedAt: new Date(new Date(rule.updatedAt).getTime() - 86400000).toISOString() // 1 day ago
+            },
+            {
+                condition: rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${parseFloat(rule.price) + 20} $/MW` : `${rule.priceSource} = High`,
+                status: 'Active',
+                applicableVpps: rule.applicableVpps,
+                ignore: '12:00 - 15:00 (Everyday)',
+                updatedAt: new Date(new Date(rule.updatedAt).getTime() - 172800000).toISOString() // 2 days ago
+            }
+        ];
+
+        // Format Current Values for Comparison
+        const currentRegion = rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-');
+        const currentTriggerFrom = rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || '-');
+        const currentCondition = rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`;
+        const currentEvent = rule.action || '-';
+        const currentStatus = rule.state === 'Inactive' ? 'Inactive' : 'Active';
+        const createdText = app.formatDateTimeWithoutSeconds(rule.createdAt);
+
+        return historyItems.map(item => {
+            // Determine if values changed relative to current rule (simplified for mock)
+            // If value matches current rule, it is considered "unchanged" -> bg-gray-50
+            const isConditionChanged = item.condition !== currentCondition;
+            const isStatusChanged = item.status !== currentStatus;
+            
+            // For VPPs, mock data uses same object reference, so we treat as unchanged
+            const isVppsChanged = false; 
+
+            // For Ignore, mock data is simple string vs complex HTML, treat as changed for demo
+            // Or if item.ignore is '-' and current has no ignore, maybe same?
+            // To demonstrate the feature, let's say Item 1 (Inactive) has different ignore, Item 2 has different ignore.
+            const isIgnoreChanged = true;
+
+            return `
+            <tr class="bg-white border-b border-gray-100">
+                <td class="px-4 py-3 bg-gray-50 text-gray-900 font-medium">${currentRegion}</td>
+                <td class="px-4 py-3 bg-gray-50 text-gray-600">${currentTriggerFrom}</td>
+                <td class="px-4 py-3 ${isConditionChanged ? 'bg-white' : 'bg-gray-50'} text-gray-600">${item.condition}</td>
+                <td class="px-4 py-3 bg-gray-50 text-gray-600">${currentEvent}</td>
+                <td class="px-4 py-3 ${isStatusChanged ? 'bg-white' : 'bg-gray-50'}">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${item.status === 'Inactive' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">${item.status}</span>
+                </td>
+                <td class="px-4 py-3 text-gray-600 ${isVppsChanged ? 'bg-white' : 'bg-gray-50'}">
+                    ${item.applicableVpps && item.applicableVpps.length ? item.applicableVpps.map(v => `<div class="truncate max-w-[200px]" title="${v.name}">${v.name}</div>`).filter(Boolean).join('') : '-'}
+                </td>
+                <td class="px-4 py-3 text-gray-600 ${isIgnoreChanged ? 'bg-white' : 'bg-gray-50'}">${item.ignore}</td>
+                <td class="px-4 py-3 bg-gray-50 text-gray-600 whitespace-nowrap">${createdText}</td>
+                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(item.updatedAt)}</td>
+                <td class="px-4 py-3 bg-gray-50 sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                    <div class="flex items-center">
+                        <button class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View Events">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join('');
     },
 
     renderTradingOverview(container) {
@@ -5657,12 +5729,18 @@ const app = {
                                                     content += ')';
                                                     return `<div>${content}</div>`;
                                                 }).join('') : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${rule.createdAt ? new Date(rule.createdAt).toLocaleString() : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${rule.updatedAt ? new Date(rule.updatedAt).toLocaleString() : '-'}</td>
+                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.createdAt)}</td>
+                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.updatedAt)}</td>
                                                 <td class="px-4 py-3 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                     <div class="flex items-center gap-2">
                                                         <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
                                                             <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                        </button>
+                                                        <button onclick="app.viewDetails(${rule.id})" class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View Details">
+                                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                                        </button>
+                                                        <button onclick="app.viewHistory(${rule.id})" class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View History">
+                                                            <i data-lucide="${state.tradingRulesList.expandedHistoryRuleId === rule.id ? 'chevron-up' : 'history'}" class="w-4 h-4"></i>
                                                         </button>
                                                         <button onclick="app.deleteTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-red-600 transition-colors" title="Delete">
                                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -5670,6 +5748,7 @@ const app = {
                                                     </div>
                                                 </td>
                                             </tr>
+                                            ${state.tradingRulesList.expandedHistoryRuleId === rule.id ? app.renderHistoryRows(rule) : ''}
                                         `).join('')}
                                     </tbody>
                                 </table>
@@ -6326,7 +6405,7 @@ const app = {
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-full bg-white rounded-xl border border-gray-200 shadow-sm p-8">
                     <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                        <i data-lucide="scroll-text" class="w-8 h-8 text-gray-400"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-400"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">No Rules Created</h3>
                     <p class="text-gray-500 text-sm mb-6 max-w-sm text-center">Get started by creating your first trading rule to automate your VPP operations.</p>
@@ -7066,6 +7145,20 @@ const app = {
                 }
             }
         );
+    },
+
+    viewDetails(id) {
+        this.showToast('Viewing details for rule ' + id, 'info');
+    },
+
+    viewHistory(id) {
+        if (state.tradingRulesList.expandedHistoryRuleId === id) {
+            state.tradingRulesList.expandedHistoryRuleId = null;
+        } else {
+            state.tradingRulesList.expandedHistoryRuleId = id;
+        }
+        const contentArea = document.getElementById('content-area');
+        this.renderTradingOverview(contentArea);
     },
 
     renderOverview(container) {

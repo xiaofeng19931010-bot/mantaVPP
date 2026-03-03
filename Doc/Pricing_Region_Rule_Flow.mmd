@@ -1,0 +1,56 @@
+graph TD
+    style StartEvent_1 fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+    StartEvent_1(("T0触发"))
+    style Gateway_Merge fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px
+    Gateway_Merge{"?"}
+    style Task_1 fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_1["Pricing Region 过滤 Rule"]
+    style Gateway_1 fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px
+    Gateway_1{"条件成立?"}
+    style Timer_1 fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    Timer_1(("5 min"))
+    style Gateway_2 fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px
+    Gateway_2{"Rule Count?"}
+    style Timer_2 fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    Timer_2(("5 min"))
+    style Gateway_3 fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px
+    Gateway_3{"DER Executing?"}
+    style Task_LatestRule_1 fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_LatestRule_1["Latest Rule"]
+    style Task_NewEvent_1 fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_NewEvent_1["生成新的 Executing 事件"]
+    style Timer_End_1 fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    Timer_End_1(("5 min"))
+    style Task_CloseOld fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_CloseOld["结束原事件"]
+    style Task_LatestRule_2 fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_LatestRule_2["Latest Rule"]
+    style Task_NewEvent_2 fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_NewEvent_2["生成新的 Executing 事件"]
+    style Timer_End_2 fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    Timer_End_2(("5 min"))
+    style Task_KeepOld fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    Task_KeepOld["保持原事件"]
+    style Timer_End_3 fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    Timer_End_3(("5 min"))
+    StartEvent_1 --> Gateway_Merge
+    Gateway_Merge --> Task_1
+    Task_1 --> Gateway_1
+    Gateway_1 -- "条件成立" --> Gateway_2
+    Gateway_1 -- "条件不成立" --> Timer_1
+    Timer_1 --> Gateway_Merge
+    Gateway_2 -- "=1 或 (>1 且 Type=1)" --> Gateway_3
+    Gateway_2 -- ">1 且 Type>1" --> Timer_2
+    Timer_2 --> Gateway_Merge
+    Gateway_3 -- "不存在" --> Task_LatestRule_1
+    Task_LatestRule_1 --> Task_NewEvent_1
+    Task_NewEvent_1 --> Timer_End_1
+    Timer_End_1 --> Gateway_Merge
+    Gateway_3 -- "存在且 Type≠当前" --> Task_CloseOld
+    Task_CloseOld --> Task_LatestRule_2
+    Task_LatestRule_2 --> Task_NewEvent_2
+    Task_NewEvent_2 --> Timer_End_2
+    Timer_End_2 --> Gateway_Merge
+    Gateway_3 -- "存在且 Type=当前" --> Task_KeepOld
+    Task_KeepOld --> Timer_End_3
+    Timer_End_3 --> Gateway_Merge
