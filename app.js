@@ -8498,8 +8498,8 @@ const app = {
                         <thead class="sticky top-0 z-10 bg-white">
                             <tr>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Status</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SN</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">NMI</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SN</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">MANUFACTURER</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">STATE</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED POWER</th>
@@ -8553,10 +8553,10 @@ const app = {
                                         </span>
                                     </td>
                                     <td class="px-[8px]">
-                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.sn || '-'}</div>
+                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${dev.nmi || '-'}</div>
                                     </td>
                                     <td class="px-[8px]">
-                                        <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${dev.nmi || '-'}</div>
+                                        <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.sn || '-'}</div>
                                     </td>
                                     <td class="px-[8px]">
                                         <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${dev.vendor}</div>
