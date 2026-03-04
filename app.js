@@ -5750,6 +5750,7 @@ const app = {
                                 <table class="w-full text-sm text-left">
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                         <tr>
+                                            <th class="px-4 py-2 font-medium">Name</th>
                                             <th class="px-4 py-2 font-medium">Pricing Region</th>
                                             <th class="px-4 py-2 font-medium">Trigger From</th>
                                             <th class="px-4 py-2 font-medium">Trigger Condition</th>
@@ -5759,12 +5760,14 @@ const app = {
                                             <th class="px-4 py-2 font-medium">Ignore</th>
                                             <th class="px-4 py-2 font-medium">Created</th>
                                             <th class="px-4 py-2 font-medium">Updated</th>
+                                            <th class="px-4 py-2 font-medium">Description</th>
                                             <th class="px-4 py-2 font-medium sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         ${displayRules.map(rule => `
                                             <tr class="group hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-gray-900 font-medium">${rule.name || '-'}</td>
                                                 <td class="px-4 py-3 text-gray-900 font-medium">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || '-')}</td>
                                                 <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`}</td>
@@ -5786,6 +5789,7 @@ const app = {
                                                 }).join('') : '-'}</td>
                                                 <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.createdAt)}</td>
                                                 <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.updatedAt)}</td>
+                                                <td class="px-4 py-3 text-gray-600 max-w-[220px] truncate" title="${rule.description || '-'}">${rule.description || '-'}</td>
                                                 <td class="px-4 py-3 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                     <div class="flex items-center gap-2">
                                                         <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
@@ -6687,6 +6691,16 @@ const app = {
                 <form onsubmit="app.handleTradingRuleSubmit(event)" class="flex flex-col flex-1 px-[24px] py-[16px] gap-[16px] overflow-y-auto">
                     <input type="hidden" name="ruleId" value="${rule ? rule.id : ''}">
                     
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#ff3434] text-[12px] leading-normal">*</span>
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal ml-1">Name</span>
+                         </div>
+                         <div class="relative w-full h-[32px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] flex items-center transition-colors focus-within:border-[#3ec064]">
+                            <input name="name" value="${rule ? (rule.name || '') : ''}" required class="w-full h-full bg-transparent border-none outline-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50" placeholder="Please input name" ${rule ? 'disabled' : ''}>
+                         </div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-[12px] w-full">
                         <div class="flex flex-col gap-[4px] w-full shrink-0">
                              <div class="flex gap-0 items-center h-[16px] pl-[4px]">
@@ -6829,6 +6843,15 @@ const app = {
                          </div>
                          <div id="rule-vpp-selections" class="flex flex-col gap-[8px]">
                              ${this.renderRuleVppSelections()}
+                         </div>
+                    </div>
+
+                    <div class="flex flex-col gap-[4px] w-full shrink-0">
+                         <div class="flex gap-0 items-center h-[16px] pl-[4px]">
+                             <span class="text-[#5f646e] text-[12px] font-normal leading-normal">Description</span>
+                         </div>
+                         <div class="relative w-full min-h-[72px] bg-white border border-[#cacfd8] rounded-[4px] px-[8px] py-[6px] flex items-start transition-colors focus-within:border-[#3ec064]">
+                            <textarea name="description" class="w-full min-h-[58px] bg-transparent border-none outline-none resize-none text-[14px] text-[#313949] placeholder-[#b5bcc8] font-normal leading-[1.4]" placeholder="Please input discription">${rule ? (rule.description || '') : ''}</textarea>
                          </div>
                     </div>
                     
@@ -7097,6 +7120,12 @@ const app = {
             return;
         }
 
+        const ruleName = formData.get('name') || (existingRule ? existingRule.name : null);
+        if (!ruleName) {
+            this.showToast('Please input rule name', 'error');
+            return;
+        }
+
         // Loading State
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
@@ -7114,10 +7143,13 @@ const app = {
             const region = formData.get('state') || (existingRule ? existingRule.region : null);
             const action = formData.get('action') || (existingRule ? existingRule.action : null);
             const arbitrageSignal = formData.get('arbitrageSignal') || (existingRule ? existingRule.arbitrageSignal : null);
+            const description = formData.get('description') || '';
 
             const ruleData = {
                 vppId: primaryVpp ? primaryVpp.id : null,
                 vpp: vppNames.length ? vppNames.join(', ') : 'Unknown VPP',
+                name: ruleName,
+                description: description,
                 state: status,
                 region: region,
                 triggerType: triggerType,
