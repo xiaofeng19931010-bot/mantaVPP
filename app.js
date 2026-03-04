@@ -9848,7 +9848,7 @@ const app = {
                                 <!-- Info Panel -->
                                 <div class="backdrop-blur-[25px] bg-[rgba(255,255,255,0.7)] flex gap-0 items-start px-[16px] py-[8px] relative rounded-[8px] shrink-0 w-full lg:w-[232px]">
                                     <div class="flex flex-col gap-[16px] items-start relative shrink-0 w-[24px]">
-                                        ${[1,2,3,4,5].map(() => `
+                                        ${[1,2,3,4].map(() => `
                                         <div class="flex flex-col h-[60px] items-center py-[8px] w-full">
                                             <div class="size-[4px]"><img src="assets/images/topology-ellipse.svg" class="block size-full"/></div>
                                         </div>`).join('')}
@@ -9858,10 +9858,6 @@ const app = {
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
                                             <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">ASSIGNED VPP</span></div>
                                             <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${vpp.name || 'Unassigned'}</span></div>
-                                        </div>
-                                        <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
-                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">NMI</span></div>
-                                            <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto'] font-mono">${device.nmi || '-'}</span></div>
                                         </div>
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
                                             <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">STATE</span></div>
