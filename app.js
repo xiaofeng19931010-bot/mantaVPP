@@ -9749,7 +9749,7 @@ const app = {
                     <button onclick="app.navigate('der_ess')" class="p-[8px] rounded-[4px] hover:bg-gray-100 transition-colors flex items-center justify-center">
                         <i data-lucide="arrow-left" class="w-[24px] h-[24px] text-[#313949]"></i>
                     </button>
-                    <span class="text-[20px] font-bold text-[#1c2026] font-['Roboto']">${sn}</span>
+                    <span class="text-[20px] font-bold text-[#1c2026] font-['Roboto']">${device.nmi || '-'}</span>
                 </div>
                 <!-- Header Removed -->
 
