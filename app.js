@@ -9801,22 +9801,22 @@ const app = {
                                     <!-- Labels -->
                                     <div class="absolute bottom-[58%] left-[52.5%] flex items-center justify-center">
                                         <div class="-rotate-[13deg] -skew-x-[13deg] flex-none scale-y-[0.97] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#3ec064] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
-                                            <span class="text-[12px] text-[#3ec064] font-['Roboto']">DC</span>
+                                            <span class="text-[12px] text-[#3ec064] font-['Roboto']">${(device.capacity * 0.82).toFixed(1)} kW</span>
                                         </div>
                                     </div>
                                     <div class="absolute bottom-[59%] left-[62.5%] flex items-center justify-center">
                                         <div class="-rotate-[15deg] -skew-x-[15deg] flex-none scale-y-[0.97] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#3ec064] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
-                                            <span class="text-[12px] text-[#3ec064] font-['Roboto']">DC</span>
+                                            <span class="text-[12px] text-[#3ec064] font-['Roboto']">${(device.capacity * 0.35).toFixed(1)} kW</span>
                                         </div>
                                     </div>
                                     <div class="absolute bottom-[12%] left-[68.8%] flex items-center justify-center">
                                         <div class="rotate-[18deg] scale-y-[0.95] skew-x-[18deg] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#346aff] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
-                                            <span class="text-[12px] text-[#346aff] font-['Roboto']">AC</span>
+                                            <span class="text-[12px] text-[#346aff] font-['Roboto']">${(device.capacity * 0.15).toFixed(1)} kW</span>
                                         </div>
                                     </div>
                                     <div class="absolute bottom-[13.5%] left-[45.7%] flex items-center justify-center">
                                         <div class="-rotate-[15deg] -skew-x-[15deg] flex-none scale-y-[0.97] backdrop-blur-[4px] bg-[rgba(255,255,255,0.7)] border border-[#346aff] flex h-[16px] items-center justify-center px-[8px] rounded-[12px]">
-                                            <span class="text-[12px] text-[#346aff] font-['Roboto']">AC</span>
+                                            <span class="text-[12px] text-[#346aff] font-['Roboto']">${(device.capacity * 0.52).toFixed(1)} kW</span>
                                         </div>
                                     </div>
                                     </div>
