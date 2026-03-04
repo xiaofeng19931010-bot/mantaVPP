@@ -9871,7 +9871,7 @@ const app = {
                                             <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">GRID STATUS</span></div>
                                             <div class="flex gap-[8px] items-center h-[40px]">
                                                 <div class="h-[12px] w-[4px] rounded-[2px] ${device.status === 'online' ? 'bg-[#8cda2f]' : 'bg-[#b5bcc8]'}"></div>
-                                                <span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${device.status.charAt(0).toUpperCase() + device.status.slice(1)}</span>
+                                                <span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${device.status === 'online' ? 'On-Grid' : 'Off-Grid'}</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
