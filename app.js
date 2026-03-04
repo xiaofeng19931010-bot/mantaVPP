@@ -35,11 +35,11 @@ const MOCK_DATA = {
     vpps: [],
     assignedDevices: [],
     devices: [
-        { id: 101, sn: 'INV-2024-001', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW' },
-        { id: 102, sn: 'BAT-2024-002', vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC' },
-        { id: 103, sn: 'INV-2024-003', vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD' },
-        { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA' },
-        { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW' },
+        { id: 101, sn: 'INV-2024-001', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW', inverterType: 'Hybrid' },
+        { id: 102, sn: 'BAT-2024-002', vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC', inverterType: 'Hybrid' },
+        { id: 103, sn: 'INV-2024-003', vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD', inverterType: 'Grid-Tied' },
+        { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA', inverterType: 'Hybrid' },
+        { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW', inverterType: 'AC-Coupled' },
     ],
     pricingRegions: [
         { id: 'NSW', name: 'New South Wales' },
@@ -1556,9 +1556,9 @@ const app = {
         } else if (['der_ess', 'der_pv', 'der_ev'].includes(viewName)) {
             // Filter devices by type for submenu items
             let type = 'All';
-            if (viewName === 'der_ess') type = 'Battery';
-            if (viewName === 'der_pv') type = 'Inverter'; // Assuming PV corresponds to Inverter or similar
-            if (viewName === 'der_ev') type = 'EV'; // Assuming EV type exists
+            if (viewName === 'der_ess') type = 'PV Plus ESS';
+            if (viewName === 'der_pv') type = 'Single PV';
+            if (viewName === 'der_ev') type = 'Single ESS';
             
             this.renderDERManagement(contentArea, type);
         } else if (viewName === 'vpp_details') {
@@ -8267,7 +8267,13 @@ const app = {
         container.className = "w-full flex-1 bg-[#f8f9fb] p-[8px] flex flex-col overflow-hidden";
         
         let filteredDevices = [...(state.devices || [])];
-        if (filterType !== 'All') {
+        if (filterType === 'PV Plus ESS') {
+            filteredDevices = filteredDevices.filter(d => ['Hybrid', 'AC-Coupled'].includes(d.inverterType));
+        } else if (filterType === 'Single PV') {
+            filteredDevices = filteredDevices.filter(d => d.inverterType === 'Grid-Tied');
+        } else if (filterType === 'Single ESS') {
+            filteredDevices = filteredDevices.filter(d => d.inverterType === 'Hybrid');
+        } else if (filterType !== 'All') {
             filteredDevices = filteredDevices.filter(d => d.type === filterType);
         }
 
@@ -8278,9 +8284,25 @@ const app = {
              const states = ['NSW', 'VIC', 'QLD', 'SA', 'WA'];
              
              for (let i = 0; i < 15; i++) {
-                 const type = Math.random() > 0.5 ? 'Inverter' : 'Battery';
-                 // If specific filter is active, force that type
-                 const finalType = filterType !== 'All' ? filterType : type;
+                 let type = Math.random() > 0.5 ? 'Inverter' : 'Battery';
+                 let inverterType = 'String Inverter';
+
+                 if (filterType === 'PV Plus ESS') {
+                     type = Math.random() > 0.5 ? 'Inverter' : 'Battery';
+                     inverterType = Math.random() > 0.5 ? 'Hybrid' : 'AC-Coupled';
+                 } else if (filterType === 'Single PV') {
+                     type = 'Inverter';
+                     inverterType = 'Grid-Tied';
+                 } else if (filterType === 'Single ESS') {
+                     type = 'Battery'; 
+                     inverterType = 'Hybrid';
+                 } else if (filterType !== 'All') {
+                     type = filterType;
+                     if (type === 'Inverter') inverterType = ['Grid-Tied', 'Hybrid', 'AC-Coupled'][Math.floor(Math.random()*3)];
+                     if (type === 'Battery') inverterType = ['Hybrid', 'AC-Coupled'][Math.floor(Math.random()*2)];
+                 }
+
+                 const finalType = type;
                  const isBattery = finalType === 'Battery';
                  const capacity = Math.floor(Math.random() * 50) + 5;
                  
@@ -8290,6 +8312,7 @@ const app = {
                      vendor: manufacturers[Math.floor(Math.random() * manufacturers.length)],
                      status: statuses[Math.floor(Math.random() * statuses.length)],
                      type: finalType,
+                     inverterType: inverterType,
                      capacity: capacity,
                      soc: isBattery ? Math.floor(Math.random() * 100) : undefined,
                      vppId: null,
@@ -8327,7 +8350,7 @@ const app = {
                         <div class="flex flex-col gap-[8px] items-start px-0 py-[0px] relative shrink-0 min-w-[300px]">
                              <div class="flex gap-[16px] items-center py-[12px] relative shrink-0">
                                   <!-- Icon -->
-                                  ${filterType === 'Inverter' ? `
+                                  ${(filterType === 'Inverter' || filterType === 'Single PV') ? `
                                   <div class="relative shrink-0 size-[32px] flex items-center justify-center">
                                       <div class="relative size-[24px]">
                                           <div class="-translate-x-1/2 -translate-y-1/2 absolute bg-[#313949] h-[23px] left-1/2 rounded-[2px] top-1/2 w-[17px]"></div>
@@ -8430,7 +8453,7 @@ const app = {
                              </div>
                              ` : ''}
 
-                             ${filterType !== 'Inverter' ? `
+                             ${(filterType !== 'Inverter' && filterType !== 'Single PV') ? `
                              <!-- Rated Capacity (Battery/EV only) -->
                              <div class="flex flex-1 flex-col gap-[8px] h-full items-center justify-center min-w-[140px] relative">
                                   <div class="flex gap-[8px] items-center">
@@ -8483,7 +8506,7 @@ const app = {
                                 ${filterType !== 'EV' ? `
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PV CAPACITY</th>
                                 ` : ''}
-                                ${filterType !== 'Inverter' ? `
+                                ${(filterType !== 'Inverter' && filterType !== 'Single PV') ? `
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED CAPACITY</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SOC</th>
                                 ` : ''}
@@ -8549,7 +8572,7 @@ const app = {
                                         <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${pvCapacity}</div>
                                     </td>
                                     ` : ''}
-                                    ${filterType !== 'Inverter' ? `
+                                    ${(filterType !== 'Inverter' && filterType !== 'Single PV') ? `
                                     <td class="px-[8px]">
                                         <div class="text-[14px] text-[#1c2026] font-normal font-['Roboto']">${ratedCapacity}</div>
                                     </td>
@@ -10018,7 +10041,7 @@ const app = {
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Type</p>
                                         </div>
                                         <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">String Inverter</p>
+                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.inverterType || 'String Inverter'}</p>
                                         </div>
                                     </div>
                                     <!-- Rated Power -->
