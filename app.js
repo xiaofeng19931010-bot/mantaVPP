@@ -5305,7 +5305,7 @@ const app = {
                     <div class="h-px w-full bg-[#e6e8ee]"></div>
 
                     <!-- Filter Tabs -->
-                    <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0 w-fit">
+                    <div class="bg-[#f3f3f6] flex gap-[4px] items-center p-[4px] relative rounded-[4px] shrink-0 w-fit">
                         ${['All', 'Discharge', 'Normal', 'Charge', 'Abnormal'].map(type => {
                             const isActive = (activeFilter === type) || (type === 'All' && !activeFilter);
                             const icon = type === 'All' ? 'layout-grid' : 
@@ -5317,11 +5317,11 @@ const app = {
                             const onClick = `app.updateArbitrageState('arbitrage.activeFilter', ${value ? `'${value}'` : 'null'})`;
                             
                             return `
-                            <button onclick="${onClick}" class="${isActive ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all group">
-                                <div class="flex items-center justify-center relative shrink-0 size-[24px] mr-1">
+                            <button onclick="${onClick}" class="${isActive ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 transition-all group">
+                                <div class="flex items-center justify-center relative shrink-0 size-[24px]">
                                     <i data-lucide="${icon}" class="w-4 h-4 text-[#313949]"></i>
                                 </div>
-                                <p class="${isActive ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">${type}</p>
+                                <p class="font-semibold font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">${type}</p>
                             </button>
                             `;
                         }).join('')}
