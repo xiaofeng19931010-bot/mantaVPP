@@ -908,7 +908,10 @@ const state = {
     },
     arbitrage: {
         currentPage: 1,
-        itemsPerPage: 10
+        itemsPerPage: 10,
+        currentMode: 'realtime',
+        dateRange: { start: null, end: null },
+        activeFilter: null
     },
     currentUser: {
         company: 'Manta Energy',
@@ -5193,161 +5196,174 @@ const app = {
     },
 
     renderArbitragePoints(container) {
+        // Use state from app state
+        const { currentPage, itemsPerPage, currentMode, dateRange, activeFilter } = state.arbitrage;
+
         // Mock Data
-        const generateData = () => {
-            const data = [];
-            // Generate data for the last 3 days to cover "Yesterday" and "Today" scenarios
-            const now = new Date();
-            // Round down to nearest 5 minutes
-            const minutes = now.getMinutes();
-            const roundedMinutes = Math.floor(minutes / 5) * 5;
-            now.setMinutes(roundedMinutes);
-            now.setSeconds(0);
-            now.setMilliseconds(0);
+        if (!state.arbitrage.data) {
+            const generateData = () => {
+                const data = [];
+                // Generate data for the last 3 days to cover "Yesterday" and "Today" scenarios
+                const now = new Date();
+                // Round down to nearest 5 minutes
+                const minutes = now.getMinutes();
+                const roundedMinutes = Math.floor(minutes / 5) * 5;
+                now.setMinutes(roundedMinutes);
+                now.setSeconds(0);
+                now.setMilliseconds(0);
 
-            const signalTypes = ['Discharge', 'Normal', 'Charge', 'Abnormal'];
-            
-            // Generate 3 days worth of data points (every 5 minutes)
-            // Start from -1 to include the next 5-minute interval
-            for (let i = -1; i < 864; i++) {
-                const settlementTime = new Date(now.getTime() - i * 5 * 60000);
-                const isFuture = i < 0;
+                const signalTypes = ['Discharge', 'Normal', 'Charge', 'Abnormal'];
+                
+                // Generate 3 days worth of data points (every 5 minutes)
+                // Start from -1 to include the next 5-minute interval
+                for (let i = -1; i < 864; i++) {
+                    const settlementTime = new Date(now.getTime() - i * 5 * 60000);
+                    const isFuture = i < 0;
 
-                const forecasts = [];
-                for (let j = 1; j <= 4; j++) {
-                    forecasts.push({
-                        time: new Date(settlementTime.getTime() + j * 5 * 60000),
-                        price: (Math.random() * 200 - 50).toFixed(2)
+                    const forecasts = [];
+                    for (let j = 1; j <= 4; j++) {
+                        forecasts.push({
+                            time: new Date(settlementTime.getTime() + j * 5 * 60000),
+                            price: (Math.random() * 200 - 50).toFixed(2)
+                        });
+                    }
+
+                    // Determine signal based on time of day
+                    const hour = settlementTime.getHours();
+                    let baseSignal = 'Normal';
+                    
+                    if (hour >= 11 && hour <= 14) {
+                        baseSignal = 'Charge';
+                    } else if (hour >= 20 && hour <= 22) {
+                        baseSignal = 'Discharge';
+                    }
+
+                    // 100% follow the base signal to ensure strict continuity
+                    const finalSignal = baseSignal; 
+
+                    data.push({
+                        settlementTime: settlementTime,
+                        forecasts: forecasts,
+                        forecastStatus: Math.random() > 0.2, // true = success/green
+                        forecastSignalType: finalSignal, // Forecast matches signal for now
+                        actualStatus: Math.random() > 0.1,
+                        signalType: isFuture ? null : finalSignal,
+                        spotPrice: isFuture ? null : (Math.random() * 200 - 50).toFixed(2),
+                        forecastPrice: (Math.random() * 200 - 50).toFixed(2)
                     });
                 }
+                return data;
+            };
+            state.arbitrage.data = generateData();
+        }
 
-                // Determine signal based on time of day
-                const hour = settlementTime.getHours();
-                let baseSignal = 'Normal';
-                
-                if (hour >= 11 && hour <= 14) {
-                    baseSignal = 'Charge';
-                } else if (hour >= 20 && hour <= 22) {
-                    baseSignal = 'Discharge';
-                }
+        const allData = state.arbitrage.data;
 
-                // 100% follow the base signal to ensure strict continuity
-                const finalSignal = baseSignal; 
-
-                data.push({
-                    settlementTime: settlementTime,
-                    forecasts: forecasts,
-                    forecastStatus: Math.random() > 0.2, // true = success/green
-                    forecastSignalType: finalSignal, // Forecast matches signal for now
-                    actualStatus: Math.random() > 0.1,
-                    signalType: isFuture ? null : finalSignal,
-                    spotPrice: isFuture ? null : (Math.random() * 200 - 50).toFixed(2),
-                    forecastPrice: (Math.random() * 200 - 50).toFixed(2)
-                });
-            }
-            return data;
-        };
-
-        const allData = generateData();
-        // Initial filter state
-        let currentMode = 'realtime'; // 'realtime' or 'historical'
-        let dateRange = { start: null, end: null };
-
-        container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
+        container.className = "w-full h-full bg-[#f8f9fb] p-[8px] overflow-hidden flex flex-col";
         container.innerHTML = `
-            <div class="flex flex-col h-full space-y-4">
-                <!-- Combined Overview and Table Section -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden">
-                    <!-- Top Controls -->
-                    <div class="p-4 border-b border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-medium text-gray-500">Pricing Region:</span>
-                                    <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
-                                        <option>NSW</option>
-                                        <option>VIC</option>
-                                        <option>QLD</option>
-                                        <option>SA</option>
-                                        <option>TAS</option>
-                                    </select>
-                                </div>
-                                <!-- Tab Switcher -->
-                                <div class="flex p-1 bg-gray-100 rounded-lg">
-                                    <button id="arbitrage-tab-realtime" class="px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all">Real-time</button>
-                                    <button id="arbitrage-tab-historical" class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Historical</button>
-                                </div>
-
-                                <!-- Date Picker (Hidden by default) -->
-                                <div id="arbitrage-date-picker-container" class="hidden animate-in fade-in slide-in-from-left-2 flex items-center gap-2">
-                                    <span class="text-sm font-medium text-gray-500">Time:</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="relative">
-                                             <input id="arbitrage-date-start" type="date" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
-                                        </div>
-                                        <span class="text-gray-400">-</span>
-                                        <div class="relative">
-                                             <input id="arbitrage-date-end" type="date" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+            <div class="bg-white flex flex-col items-start p-4 relative rounded-[4px] w-full h-full">
+                <!-- Header Section -->
+                <div class="flex flex-col gap-4 items-start relative shrink-0 w-full mb-4">
+                    <!-- Top Bar -->
+                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative shrink-0 w-full">
+                        <div class="flex flex-1 gap-4 items-center min-h-px min-w-px relative">
+                            <div class="flex gap-4 items-center relative shrink-0">
+                                <div class="flex gap-2 items-center relative shrink-0">
+                                    <p class="font-['Roboto'] font-normal text-[14px] text-[#313949] text-center whitespace-nowrap">Pricing Region:</p>
+                                    <div class="flex flex-col gap-1 h-[40px] items-start justify-end relative shrink-0 w-[102px]">
+                                        <div class="bg-white border border-[#cacfd8] flex h-[40px] items-center justify-between px-2 py-0 relative rounded-[4px] shrink-0 w-full">
+                                            <select class="appearance-none bg-transparent border-none w-full text-[14px] text-[#313949] focus:outline-none">
+                                                <option>NSW</option>
+                                                <option>VIC</option>
+                                                <option>QLD</option>
+                                                <option>SA</option>
+                                                <option>TAS</option>
+                                            </select>
+                                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#313949] absolute right-2 pointer-events-none"></i>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
+                                    <button onclick="app.updateArbitrageState('arbitrage.currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
+                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
+                                    </button>
+                                    <button onclick="app.updateArbitrageState('arbitrage.currentMode', 'historical')" class="${currentMode === 'historical' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
+                                        <p class="${currentMode === 'historical' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Historical</p>
+                                    </button>
+                                </div>
+                                ${currentMode === 'historical' ? `
+                                <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                                     <input type="date" value="${dateRange.start || ''}" onchange="const val = this.value; const dr = state.arbitrage.dateRange; dr.start = val; app.updateArbitrageState('arbitrage.dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                     <span class="text-[#b5bcc8]">-</span>
+                                     <input type="date" value="${dateRange.end || ''}" onchange="const val = this.value; const dr = state.arbitrage.dateRange; dr.end = val; app.updateArbitrageState('arbitrage.dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                </div>
+                                ` : ''}
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Signal Filters -->
-                    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 p-4 bg-gray-50/30">
-                        <div id="filter-discharge" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
-                            <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 shadow-sm border border-green-100 group-hover:bg-green-100 transition-colors">
-                                <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 group-hover:text-green-700 transition-colors">Discharge</span>
-                        </div>
-                        <div id="filter-normal" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
-                            <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 shadow-sm border border-gray-200 group-hover:bg-gray-100 transition-colors">
-                                <i data-lucide="minus" class="w-5 h-5 fill-current"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Normal</span>
-                        </div>
-                        <div id="filter-charge" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
-                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 group-hover:bg-blue-100 transition-colors">
-                                <i data-lucide="battery-charging" class="w-5 h-5 fill-current"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">Charge</span>
-                        </div>
-                        <div id="filter-abnormal" class="cursor-pointer bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center gap-3 transition-all hover:shadow-md hover:scale-[1.02] group">
-                            <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 shadow-sm border border-red-100 group-hover:bg-red-100 transition-colors">
-                                <i data-lucide="alert-triangle" class="w-5 h-5 fill-current"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 group-hover:text-red-700 transition-colors">Abnormal</span>
                         </div>
                     </div>
                     
-                    <!-- Table -->
-                    <div class="flex-1 p-6 min-h-0 overflow-hidden">
-                        <div class="h-full overflow-auto bg-white">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="sticky top-0 z-10 bg-white">
-                                    <tr>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Time</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Spot ($/MW)</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] whitespace-nowrap">Forecast Spot ($/MW)</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Time / Forecast Spot ($/MW)</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-left whitespace-nowrap">Signal By Forecast</th>
-                                        <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] text-left whitespace-nowrap">Signal By Spot</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="arbitrage-tbody" class="">
-                                    <!-- Content rendered by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div class="h-px w-full bg-[#e6e8ee]"></div>
 
-                    <!-- Pagination Header -->
-                    <div id="arbitrage-pagination" class="border-t border-gray-100 p-4 flex items-center justify-between">
-                        <!-- Pagination controls rendered by JS -->
+                    <!-- Filter Tabs -->
+                    <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0 w-fit">
+                        ${['All', 'Discharge', 'Normal', 'Charge', 'Abnormal'].map(type => {
+                            const isActive = (activeFilter === type) || (type === 'All' && !activeFilter);
+                            const icon = type === 'All' ? 'layout-grid' : 
+                                         type === 'Discharge' ? 'zap' :
+                                         type === 'Normal' ? 'minus' :
+                                         type === 'Charge' ? 'battery-charging' : 'alert-triangle';
+                            
+                            const value = type === 'All' ? null : type;
+                            const onClick = `app.updateArbitrageState('arbitrage.activeFilter', ${value ? `'${value}'` : 'null'})`;
+                            
+                            return `
+                            <button onclick="${onClick}" class="${isActive ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all group">
+                                <div class="flex items-center justify-center relative shrink-0 size-[24px] mr-1">
+                                    <i data-lucide="${icon}" class="w-4 h-4 text-[#313949]"></i>
+                                </div>
+                                <p class="${isActive ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">${type}</p>
+                            </button>
+                            `;
+                        }).join('')}
                     </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="flex flex-col items-start relative shrink-0 w-full flex-1 overflow-hidden rounded-[4px] border border-[#e6e8ee]">
+                     <div class="w-full h-full overflow-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 z-10 bg-white shadow-sm">
+                                <tr>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME</p>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SPOT ($/MW)</p>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">FORECAST SPOT ($/MW)</p>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">FORECAST SEQUENCE</p>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY FORECAST</p>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY SPOT</p>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="arbitrage-tbody">
+                                <!-- Data Rows -->
+                            </tbody>
+                        </table>
+                     </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="arbitrage-pagination" class="w-full border-t border-[#e6e8ee] p-4 flex items-center justify-between bg-white rounded-b-[4px] mt-auto">
+                     <!-- Controls -->
                 </div>
             </div>
         `;
@@ -5375,10 +5391,10 @@ const app = {
 
             paginationContainer.innerHTML = `
                 <div class="flex items-center gap-4">
-                    <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                    <span class="text-sm text-gray-500 font-['Roboto']">Total ${totalItems}</span>
                     <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-500">Rows per page:</span>
-                        <select onchange="app.updateArbitrageState('arbitrage.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                        <span class="text-sm text-gray-500 font-['Roboto']">Rows per page:</span>
+                        <select onchange="app.updateArbitrageState('arbitrage.itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary h-[24px]">
                             <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
                             <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
                             <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
@@ -5403,9 +5419,6 @@ const app = {
             if (window.lucide) window.lucide.createIcons();
         };
 
-        // Tab Switching Logic moved below renderTableBody
-
-
         // Table Rendering & Filtering Logic
         const renderTableBody = (filteredData) => {
             const tbody = document.getElementById('arbitrage-tbody');
@@ -5413,43 +5426,37 @@ const app = {
             
             tbody.innerHTML = filteredData.map((row, idx) => {
                 const timeStr = `${row.settlementTime.getHours()}:${row.settlementTime.getMinutes().toString().padStart(2, '0')}`;
-                // const dateStr = '13/01/2026 (+10:00)'; // Removed hardcoded date
-
                 
                 const forecastHtml = row.forecasts.map(f => {
                     const fTime = `${f.time.getHours()}:${f.time.getMinutes().toString().padStart(2, '0')}`;
                     return `
-                        <div class="flex flex-col min-w-[140px] justify-center h-full py-1">
-                            <span class="text-[14px] font-medium text-gray-900 leading-tight">${fTime}</span>
-                            <span class="text-[12px] text-gray-500 leading-tight mt-0.5">${f.price}</span>
+                        <div class="flex flex-col min-w-[120px] justify-center h-full py-1 border border-[#e6e8ee] border-b-0 border-t-0 first:border-l-0 last:border-r-0">
+                            <span class="text-[14px] font-normal text-[#313949] font-['Roboto'] text-center leading-tight">${fTime}</span>
+                            <span class="text-[14px] font-normal text-[#313949] font-['Roboto'] text-center leading-tight mt-0.5">${f.price}</span>
                         </div>
                     `;
                 }).join('');
 
-                const statusClass = (status) => status ? 
-                    'bg-green-100 text-green-500 border-green-200' : 
-                    'bg-red-100 text-red-500 border-red-200';
-                
                 const signalColors = {
-                    'Discharge': 'bg-green-100 text-green-700 border-green-200',
-                    'Normal': 'bg-gray-100 text-gray-700 border-gray-200',
-                    'Charge': 'bg-blue-100 text-blue-700 border-blue-200',
-                    'Abnormal': 'bg-red-100 text-red-700 border-red-200'
+                    'Discharge': 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]', // Green
+                    'Normal': 'bg-[#f3f4f6] text-[#4b5563] border-[#e5e7eb]', // Gray
+                    'Charge': 'bg-[#eff6ff] text-[#3b82f6] border-[#dbeafe]', // Blue
+                    'Abnormal': 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]' // Red
                 };
                 
                 return `
                     <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] animate-in fade-in slide-in-from-bottom-1 duration-300">
-                        <td class="px-[8px] whitespace-nowrap">
-                            <div class="text-[14px] font-semibold text-[#1c2026] font-['Roboto'] leading-tight">${timeStr}</div>
+                        <td class="px-[8px] whitespace-nowrap bg-white/50">
+                            <div class="text-[14px] font-normal text-[#313949] font-['Roboto'] leading-tight">${timeStr}</div>
+                        </td>
+                        <td class="px-[8px] whitespace-nowrap bg-[#f9fafb]">
+                            <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto'] leading-tight">${row.spotPrice || '-'}</div>
                         </td>
                         <td class="px-[8px] whitespace-nowrap">
-                            <div class="text-[12px] text-gray-500 font-['Roboto'] leading-tight">${row.spotPrice || '-'}</div>
-                        </td>
-                        <td class="px-[8px] whitespace-nowrap">
-                            <div class="text-[12px] text-gray-500 font-['Roboto'] leading-tight">${row.forecastPrice || '-'}</div>
+                            <div class="text-[14px] font-normal text-[#313949] font-['Roboto'] leading-tight">${row.forecastPrice || '-'}</div>
                         </td>
                         <td class="px-[8px]">
-                            <div class="flex gap-8 overflow-x-auto pb-1 no-scrollbar">
+                            <div class="flex overflow-x-auto pb-0 no-scrollbar">
                                 ${forecastHtml}
                             </div>
                         </td>
@@ -5472,9 +5479,6 @@ const app = {
             // Re-initialize Lucide icons for new content
             if (window.lucide) window.lucide.createIcons();
         };
-
-        // Filter & Tab Logic
-        let activeFilter = null;
 
         const applyFilters = () => {
             let filtered = [];
@@ -5514,13 +5518,13 @@ const app = {
             filtered.sort((a, b) => b.settlementTime - a.settlementTime);
 
             // Pagination Logic
-            const { currentPage, itemsPerPage } = state.arbitrage;
             const totalItems = filtered.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             const validCurrentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
 
             // Sync state if needed
-            if (state.arbitrage.currentPage !== validCurrentPage) {
+            if (currentPage !== validCurrentPage) {
+                // Don't trigger re-render loop
                 state.arbitrage.currentPage = validCurrentPage;
             }
 
@@ -5532,102 +5536,15 @@ const app = {
             updatePaginationControls(totalItems, totalPages, validCurrentPage, itemsPerPage);
         };
 
-        // Tab Switching Logic
-        const tabRealtime = document.getElementById('arbitrage-tab-realtime');
-        const tabHistorical = document.getElementById('arbitrage-tab-historical');
-        const datePickerContainer = document.getElementById('arbitrage-date-picker-container');
-        const dateStartInput = document.getElementById('arbitrage-date-start');
-        const dateEndInput = document.getElementById('arbitrage-date-end');
-
-        if (tabRealtime && tabHistorical && datePickerContainer) {
-            const updateTabs = (isRealtime) => {
-                currentMode = isRealtime ? 'realtime' : 'historical';
-                
-                if (isRealtime) {
-                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
-                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
-                    datePickerContainer.classList.add('hidden');
-                } else {
-                    tabRealtime.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
-                    tabHistorical.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
-                    datePickerContainer.classList.remove('hidden');
-                    
-                    // Initialize default dates if needed (Yesterday)
-                    if (!dateRange.start) {
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        const yStr = yesterday.toISOString().split('T')[0];
-                        
-                        if (dateStartInput) dateStartInput.value = yStr;
-                        if (dateEndInput) dateEndInput.value = yStr;
-                        
-                        dateRange.start = yStr;
-                        dateRange.end = yStr;
-                        
-                        // Set max to today
-                        const todayStr = new Date().toISOString().split('T')[0];
-                        if (dateStartInput) dateStartInput.max = todayStr;
-                        if (dateEndInput) dateEndInput.max = todayStr;
-                    }
-                }
-                applyFilters();
-            };
-
-            tabRealtime.addEventListener('click', () => updateTabs(true));
-            tabHistorical.addEventListener('click', () => updateTabs(false));
-            
-            // Date Picker Listeners
-            if (dateStartInput && dateEndInput) {
-                dateStartInput.addEventListener('change', (e) => {
-                    dateRange.start = e.target.value;
-                    applyFilters();
-                });
-                dateEndInput.addEventListener('change', (e) => {
-                    dateRange.end = e.target.value;
-                    applyFilters();
-                });
-            }
+        // Initialize default dates if needed
+        if (currentMode === 'historical' && !dateRange.start) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yStr = yesterday.toISOString().split('T')[0];
+            state.arbitrage.dateRange = { start: yStr, end: yStr };
         }
 
-        // Add Signal Filter Listeners
-        const filters = ['discharge', 'normal', 'charge', 'abnormal'];
-        
-        filters.forEach(filter => {
-            const btn = document.getElementById(`filter-${filter}`);
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    const filterName = filter.charAt(0).toUpperCase() + filter.slice(1);
-                    
-                    if (activeFilter === filterName) {
-                        // Clear Filter
-                        activeFilter = null;
-                        // Reset styles
-                        filters.forEach(f => {
-                             const el = document.getElementById(`filter-${f}`);
-                             el.classList.remove('ring-2', 'ring-manta-primary', 'bg-gray-50');
-                             el.classList.add('bg-white');
-                        });
-                    } else {
-                        // Apply Filter
-                        activeFilter = filterName;
-                        // Update styles
-                        filters.forEach(f => {
-                             const el = document.getElementById(`filter-${f}`);
-                             if (f === filter) {
-                                 el.classList.add('ring-2', 'ring-manta-primary', 'bg-gray-50');
-                                 el.classList.remove('bg-white');
-                             } else {
-                                 el.classList.remove('ring-2', 'ring-manta-primary', 'bg-gray-50');
-                                 el.classList.add('bg-white');
-                             }
-                        });
-                    }
-                    applyFilters();
-                });
-            }
-        });
-
-        // Initial Render
+        // Apply filters
         applyFilters();
     },
 
