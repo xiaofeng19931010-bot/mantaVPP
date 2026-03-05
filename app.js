@@ -5339,21 +5339,21 @@ const app = {
 
                 <!-- Table Section -->
                 <div class="flex flex-col items-start relative shrink-0 w-full flex-1 overflow-hidden rounded-[4px] border border-[#e6e8ee]">
-                     <div class="w-full h-full overflow-auto">
+                     <div class="w-full h-full overflow-auto bg-white">
                         <table class="w-full text-left border-collapse">
                             <thead class="sticky top-0 z-10 bg-white shadow-sm">
                                 <tr>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[120px]">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[120px]">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SPOT ($/MW)</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[152px]">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">FORECAST SPOT ($/MW)</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">FORECAST SEQUENCE</p>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[191px]">
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME / FORECAST SPOT ($/MW)</p>
                                     </th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY FORECAST</p>
@@ -5439,9 +5439,9 @@ const app = {
                 const forecastHtml = row.forecasts.map(f => {
                     const fTime = `${f.time.getHours()}:${f.time.getMinutes().toString().padStart(2, '0')}`;
                     return `
-                        <div class="flex flex-col min-w-[120px] justify-center h-full py-1 border border-[#e6e8ee] border-b-0 border-t-0 first:border-l-0 last:border-r-0">
-                            <span class="text-[14px] font-normal text-[#313949] font-['Roboto'] text-center leading-tight">${fTime}</span>
-                            <span class="text-[14px] font-normal text-[#313949] font-['Roboto'] text-center leading-tight mt-0.5">${f.price}</span>
+                        <div class="flex flex-col font-['Roboto'] font-normal gap-0 h-[48px] items-start justify-center min-h-[40px] p-[8px] relative shrink-0 w-[191px] whitespace-nowrap border-b border-[#e6e8ee]">
+                            <p class="leading-[1.42] relative shrink-0 text-[14px] text-[#1c2026]">${fTime}</p>
+                            <p class="leading-[1.33] relative shrink-0 text-[12px] text-[#b5bcc8]">${f.price}</p>
                         </div>
                     `;
                 }).join('');
@@ -5454,32 +5454,42 @@ const app = {
                 };
                 
                 return `
-                    <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors border-b border-[#e6e8ee] animate-in fade-in slide-in-from-bottom-1 duration-300">
-                        <td class="px-[8px] whitespace-nowrap bg-white/50">
-                            <div class="text-[14px] font-normal text-[#313949] font-['Roboto'] leading-tight">${timeStr}</div>
+                    <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300">
+                        <td class="p-0 border-b border-[#e6e8ee] bg-[#f3f3f6] align-top">
+                            <div class="flex h-[48px] items-center min-h-[40px] p-[8px]">
+                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949]">${timeStr}</p>
+                            </div>
                         </td>
-                        <td class="px-[8px] whitespace-nowrap bg-[#f9fafb]">
-                            <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto'] leading-tight">${row.spotPrice || '-'}</div>
+                        <td class="p-0 border-b border-[#e6e8ee] align-top">
+                            <div class="flex h-[48px] items-center min-h-[40px] p-[8px]">
+                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#1c2026]">${row.spotPrice || '-'}</p>
+                            </div>
                         </td>
-                        <td class="px-[8px] whitespace-nowrap">
-                            <div class="text-[14px] font-normal text-[#313949] font-['Roboto'] leading-tight">${row.forecastPrice || '-'}</div>
+                        <td class="p-0 border-b border-[#e6e8ee] bg-[#f3f3f6] align-top">
+                            <div class="flex h-[48px] items-center min-h-[40px] p-[8px]">
+                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#1c2026]">${row.forecastPrice || '-'}</p>
+                            </div>
                         </td>
-                        <td class="px-[8px]">
-                            <div class="flex overflow-x-auto pb-0 no-scrollbar">
+                        <td class="p-0 align-top">
+                            <div class="flex flex-col">
                                 ${forecastHtml}
                             </div>
                         </td>
-                        <td class="px-[8px] text-left">
-                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.forecastSignalType]}">
-                                ${row.forecastSignalType}
-                            </span>
+                        <td class="px-[8px] text-left border-b border-[#e6e8ee] align-top">
+                            <div class="flex h-[48px] items-center">
+                                <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.forecastSignalType]}">
+                                    ${row.forecastSignalType}
+                                </span>
+                            </div>
                         </td>
-                        <td class="px-[8px] text-left">
-                            ${row.signalType ? `
-                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
-                                ${row.signalType}
-                            </span>
-                            ` : '<span class="text-gray-400">-</span>'}
+                        <td class="px-[8px] text-left border-b border-[#e6e8ee] align-top">
+                            <div class="flex h-[48px] items-center">
+                                ${row.signalType ? `
+                                <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
+                                    ${row.signalType}
+                                </span>
+                                ` : '<span class="text-gray-400">-</span>'}
+                            </div>
                         </td>
                     </tr>
                 `;
