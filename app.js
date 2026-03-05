@@ -1614,25 +1614,30 @@ const app = {
         container.innerHTML = `
             <div class="min-h-full flex flex-col gap-4">
                 <!-- Top Bar -->
-                <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-gray-500">Pricing Region:</span>
-                            <select id="spot-region-select" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
-                                <option>NSW</option>
-                                <option>VIC</option>
-                                <option>QLD</option>
-                                <option>SA</option>
-                                <option>TAS</option>
-                            </select>
-                        </div>
-                        <div class="flex p-1 bg-gray-100 rounded-lg">
-                            <button id="spot-tab-realtime" class="px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all">Real-time</button>
-                            <button id="spot-tab-historical" class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Historical</button>
-                        </div>
-                        <div id="spot-date-picker-container" class="hidden flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
-                            <span class="text-sm font-medium text-gray-500">Date:</span>
-                            <input type="date" id="spot-date-picker" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-manta-primary focus:border-manta-primary block p-2">
+                <div class="bg-white p-[16px] rounded-[4px]">
+                    <div class="flex gap-[16px] h-[40px] items-center px-[8px]">
+                        <div class="flex items-center gap-[16px]">
+                            <div class="flex items-center gap-[8px]">
+                                <span class="font-['Roboto'] font-normal text-[14px] text-[#313949] leading-[1.42] whitespace-nowrap">Pricing Region:</span>
+                                <div class="relative w-[102px]">
+                                    <select id="spot-region-select" class="appearance-none bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] h-[40px] w-full px-[8px] pr-[28px] focus:outline-none focus:border-[#3ec064]">
+                                        <option>NSW</option>
+                                        <option>VIC</option>
+                                        <option>QLD</option>
+                                        <option>SA</option>
+                                        <option>TAS</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-[#313949] absolute right-[8px] top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="bg-[#f3f3f6] flex gap-[4px] items-center p-[4px] rounded-[4px]">
+                                <button id="spot-tab-realtime" class="bg-white h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] shadow-sm transition-all font-['Roboto'] font-semibold text-[14px] text-[#313949]">Real-time</button>
+                                <button id="spot-tab-historical" class="h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] transition-all hover:bg-white/50 font-['Roboto'] font-normal text-[14px] text-[#313949]">Historical</button>
+                            </div>
+                            <div id="spot-date-picker-container" class="hidden flex items-center gap-[8px] animate-in fade-in slide-in-from-left-2">
+                                <span class="font-['Roboto'] font-normal text-[14px] text-[#313949] leading-[1.42] whitespace-nowrap">Date:</span>
+                                <input type="date" id="spot-date-picker" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] h-[40px] px-[8px] focus:outline-none focus:border-[#3ec064]">
+                            </div>
                         </div>
 
                     </div>
@@ -1641,14 +1646,19 @@ const app = {
 
                 <!-- Main Content -->
                 <div class="flex flex-col gap-4">
-                    <div id="spot-price-card" class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col h-[500px] shrink-0 overflow-hidden transition-all duration-300">
-                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Spot Price</h3>
-                            <div class="flex items-center gap-2">
+                    <div id="spot-price-card" class="bg-white rounded-lg shadow-sm flex flex-col h-[500px] shrink-0 overflow-hidden transition-all duration-300">
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center gap-[8px] min-w-0 flex-1">
+                                <div class="flex items-center justify-center rounded-[12px] size-[24px] shrink-0">
+                                    <img src="http://localhost:3845/assets/5ed8ffaaf567174969bd36dc3605395d659d99e3.svg" alt="" class="w-[18px] h-[10px]">
+                                </div>
+                                <h3 class="font-['Roboto'] font-semibold text-[20px] leading-[1.4] text-[#313949] min-w-0">Spot Price</h3>
+                            </div>
+                            <div class="flex items-center gap-[8px]">
                                 <!-- Chart Settings -->
                                 <div class="relative">
-                                    <button id="chart-settings-btn" title="Settings" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
-                                        <i data-lucide="settings" class="w-4 h-4"></i>
+                                    <button id="chart-settings-btn" title="Settings" class="bg-white rounded-[16px] size-[32px] flex items-center justify-center transition-colors hover:bg-gray-100">
+                                        <img src="http://localhost:3845/assets/e18cf0d24b0274abefe21b5679abbf934905b4ed.svg" alt="" class="w-[20px] h-[20px]">
                                     </button>
                                     <!-- Settings Menu -->
                                     <div id="chart-settings-menu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-2">
@@ -1705,66 +1715,80 @@ const app = {
                                     </div>
                                 </div>
 
-                                <button id="spot-fullscreen-btn" title="Fullscreen" class="p-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center">
-                                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                                <button id="spot-fullscreen-btn" title="Fullscreen" class="size-[32px] flex items-center justify-center rounded-[4px] transition-colors hover:bg-gray-100">
+                                    <img src="http://localhost:3845/assets/8e87f7e2fa192bebfe72a888bf5d943917011f6d.svg" alt="" class="w-[20px] h-[20px]">
                                 </button>
                             </div>
                         </div>
                         <!-- Top Stats Bar -->
-                        <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-8">
-                            <!-- Market Status Group -->
-                            <div class="flex items-center gap-8">
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Spot</p>
-                                    <div class="flex items-end gap-2">
-                                        <span id="stat-spot-price" class="text-2xl font-bold text-gray-900">0.55</span>
-                                        <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                        <div class="bg-[#f3f3f6] mx-[16px] px-[16px] py-[12px] rounded-[8px] flex flex-nowrap items-stretch gap-[8px]">
+                            <div class="flex flex-nowrap items-stretch gap-[8px] flex-1">
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                        <span id="stat-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.55</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Spot</span>
                                     </div>
                                 </div>
-                                <div class="h-8 w-px bg-gray-200"></div>
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Pre-Dispatch</p>
-                                    <div class="flex items-end gap-2">
-                                        <span id="stat-predispatch-price" class="text-2xl font-bold text-gray-900">0.68</span>
-                                        <span class="text-sm text-gray-500 mb-1">$/MWh</span>
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                        <span id="stat-predispatch-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.68</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Pre-Dispatch</span>
                                     </div>
                                 </div>
-                                <div class="h-8 w-px bg-gray-200"></div>
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Forecast Spot</p>
-                                    <div class="flex items-end gap-2">
-                                        <span id="stat-forecast-spot-price" class="text-xl font-bold text-manta-primary">0.72</span>
-                                        <span class="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">↑ 5.2%</span>
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center justify-center gap-[4px] min-h-px min-w-px">
+                                        <span id="stat-forecast-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#3ec064] whitespace-nowrap">0.72</span>
+                                        <div class="bg-[#e4f9e7] min-w-[48px] px-[4px] py-0 rounded-[12px] flex items-center justify-center gap-0">
+                                            <img src="http://localhost:3845/assets/b0f141311f6e2711e406db9a787b6d042bec5579.svg" alt="" class="w-[12px] h-[12px]">
+                                            <span class="font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#3ec064] text-center flex-1">5.2%</span>
+                                        </div>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Forecast Spot</span>
                                     </div>
                                 </div>
-                                <div class="h-8 w-px bg-gray-200"></div>
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Available Discharge</p>
-                                    <div class="flex items-end gap-2">
-                                        <span class="text-xl font-bold text-gray-900">12.5</span>
-                                        <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                        <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">12.5</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">MWh</span>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Discharge</span>
                                     </div>
                                 </div>
-                                <div class="h-8 w-px bg-gray-200"></div>
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Available Charge</p>
-                                    <div class="flex items-end gap-2">
-                                        <span class="text-xl font-bold text-gray-900">8.2</span>
-                                        <span class="text-sm text-gray-500 mb-1">MWh</span>
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                        <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">8.2</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">MWh</span>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Charge</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Trading Performance Group -->
-                            <div id="trading-opportunities-stats" class="hidden flex items-center gap-8">
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Trading Opportunities</p>
-                                    <p class="font-medium text-lg">3</p>
+                            <div id="trading-opportunities-stats" class="hidden flex flex-nowrap items-stretch gap-[8px]">
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center gap-[8px] min-h-px min-w-px">
+                                        <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949] whitespace-nowrap">3</span>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Trading Opportunities</span>
+                                    </div>
                                 </div>
-                                <div class="h-8 w-px bg-gray-200"></div>
-                                <div>
-                                    <p class="text-sm text-gray-500 mb-1">Est. Revenue</p>
-                                    <p class="text-lg font-bold text-green-600">+$1,520</p>
+                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                    <div class="flex items-center gap-[8px] min-h-px min-w-px">
+                                        <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#3ec064] whitespace-nowrap">+$1,520</span>
+                                    </div>
+                                    <div class="px-[12px] py-[2px] rounded-[12px]">
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Est. Revenue</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1776,9 +1800,11 @@ const app = {
                     </div>
 
                     <!-- Trading Events List -->
-                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">Trading Events</h3>
+                    <div class="bg-white rounded-[4px] p-[16px] flex flex-col gap-[8px] overflow-hidden">
+                        <div class="w-full flex items-center">
+                            <div class="bg-white h-[32px] px-[8px] py-[4px] rounded-[4px] flex items-center justify-center">
+                                <h3 class="font-['Roboto'] font-semibold text-[16px] leading-[1.5] text-[#313949] text-center whitespace-nowrap">Trading Events</h3>
+                            </div>
                         </div>
                         <div id="trading-events-list"></div>
                     </div>
@@ -2025,25 +2051,25 @@ const app = {
                 } else {
                     eventsContainer.innerHTML = `
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0 z-10">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Date</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">VPP</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Pricing Region</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Trigger From</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Trigger Condition</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Event</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Start Time</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">End Time</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Rated Power</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Volume</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Spot</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap">Status</th>
-                                    <th class="px-4 py-2 font-medium whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Pricing Region</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Event</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Rated Power</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Volume</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Spot</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody>
                             ${recentEvents.map(event => {
                                 const matchedRule = state.tradingRules.find(rule => {
                                     const ruleNames = [];
@@ -2062,24 +2088,27 @@ const app = {
                                 const volume = event.volume || '-';
                                 const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
                                 return `
-                                <tr class="group hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 text-gray-600">${event.date ? event.date.split(' ')[0] : '-'}</td>
-                                    <td class="px-4 py-3 text-gray-900 font-medium">${event.vppName || '-'}</td>
-                                    <td class="px-4 py-3 text-gray-600">${event.state || '-'}</td>
-                                    <td class="px-4 py-3 text-gray-600">${triggerType}</td>
-                                    <td class="px-4 py-3 text-gray-600">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
-                                    <td class="px-4 py-3 text-gray-600">${event.eventType || '-'}</td>
-                                    <td class="px-4 py-3 text-gray-600">${startTime}</td>
-                                    <td class="px-4 py-3 text-gray-600">${endTime}</td>
-                                    <td class="px-4 py-3 text-gray-600">${power}</td>
-                                    <td class="px-4 py-3 text-gray-600">${volume}</td>
-                                    <td class="px-4 py-3 text-gray-600">${spot}</td>
-                                    <td class="px-4 py-3">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${event.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${event.status || '-'}</span>
+                                <tr class="group h-[48px] ${event.status === 'Pending' ? 'bg-[#f3f3f6]' : 'bg-white'}">
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.date ? event.date.split(' ')[0] : '-'}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">${event.vppName || '-'}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.state || '-'}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${triggerType}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.eventType || '-'}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${startTime}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${endTime}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${power}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${volume}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${spot}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
+                                        <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${event.status === 'Completed' ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]' : 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'}">
+                                            <span>•</span>
+                                            <span>${event.status || '-'}</span>
+                                        </span>
                                     </td>
-                                    <td class="px-4 py-3 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-                                        <button class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="View Details">
-                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${event.status === 'Pending' ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
+                                        <button class="w-[24px] h-[24px] rounded-[4px] flex items-center justify-center text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
+                                            <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -2595,8 +2624,8 @@ const app = {
             if (realTimeTab && historicalTab) {
                 realTimeTab.addEventListener('click', () => {
                     currentMode = 'realtime';
-                    realTimeTab.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
-                    historicalTab.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    realTimeTab.className = "bg-white h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] shadow-sm transition-all font-['Roboto'] font-semibold text-[14px] text-[#313949]";
+                    historicalTab.className = "h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] transition-all hover:bg-white/50 font-['Roboto'] font-normal text-[14px] text-[#313949]";
                     if (datePickerContainer) datePickerContainer.classList.add('hidden');
                     updateChart();
                     startRefreshInterval();
@@ -2604,8 +2633,8 @@ const app = {
 
                 historicalTab.addEventListener('click', () => {
                     currentMode = 'historical';
-                    historicalTab.className = "px-3 py-1.5 text-sm font-medium text-gray-900 bg-white rounded shadow-sm transition-all";
-                    realTimeTab.className = "px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors";
+                    historicalTab.className = "bg-white h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] shadow-sm transition-all font-['Roboto'] font-semibold text-[14px] text-[#313949]";
+                    realTimeTab.className = "h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] transition-all hover:bg-white/50 font-['Roboto'] font-normal text-[14px] text-[#313949]";
                     if (datePickerContainer) datePickerContainer.classList.remove('hidden');
                     updateChart();
                     stopRefreshInterval();
@@ -5338,27 +5367,27 @@ const app = {
                 </div>
 
                 <!-- Table Section -->
-                <div class="flex flex-col items-start relative shrink-0 w-full flex-1 overflow-hidden rounded-[4px] border border-[#e6e8ee]">
-                     <div class="w-full h-full overflow-auto bg-white">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="sticky top-0 z-10 bg-white shadow-sm">
+                <div class="flex flex-col items-start relative shrink-0 w-full rounded-[4px] border border-transparent">
+                     <div class="w-full h-full overflow-visible">
+                        <table class="w-full min-w-[980px] text-left border-collapse table-fixed">
+                            <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[120px]">
+                                    <th class="h-[48px] w-[120px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[120px]">
+                                    <th class="h-[48px] w-[120px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SPOT ($/MW)</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[152px]">
+                                    <th class="h-[48px] w-[152px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">FORECAST SPOT ($/MW)</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white min-w-[191px]">
+                                    <th class="h-[48px] min-w-[191px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME / FORECAST SPOT ($/MW)</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                    <th class="h-[48px] w-[160px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY FORECAST</p>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] bg-white">
+                                    <th class="h-[48px] w-[160px] px-[8px] border-b border-[#e6e8ee] bg-white">
                                         <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY SPOT</p>
                                     </th>
                                 </tr>
@@ -5371,7 +5400,7 @@ const app = {
                 </div>
                 
                 <!-- Pagination -->
-                <div id="arbitrage-pagination" class="w-full border-t border-[#e6e8ee] p-4 flex items-center justify-between bg-white rounded-b-[4px] mt-auto">
+                <div id="arbitrage-pagination" class="w-full p-4 flex items-center justify-between bg-white rounded-b-[4px] mt-auto">
                      <!-- Controls -->
                 </div>
             </div>
@@ -5439,9 +5468,9 @@ const app = {
                 const forecastHtml = row.forecasts.map(f => {
                     const fTime = `${f.time.getHours()}:${f.time.getMinutes().toString().padStart(2, '0')}`;
                     return `
-                        <div class="flex flex-col font-['Roboto'] font-normal gap-0 h-[48px] items-start justify-center min-h-[40px] p-[8px] relative shrink-0 w-[191px] whitespace-nowrap border-b border-[#e6e8ee]">
-                            <p class="leading-[1.42] relative shrink-0 text-[14px] text-[#1c2026]">${fTime}</p>
-                            <p class="leading-[1.33] relative shrink-0 text-[12px] text-[#b5bcc8]">${f.price}</p>
+                        <div class="flex flex-col flex-1 min-w-0 justify-center h-[32px] px-[8px]">
+                            <span class="text-[14px] font-normal text-[#1c2026] font-['Roboto'] leading-[1.42]">${fTime}</span>
+                            <span class="text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] leading-[1.33]">${f.price}</span>
                         </div>
                     `;
                 }).join('');
@@ -5453,43 +5482,35 @@ const app = {
                     'Abnormal': 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]' // Red
                 };
                 
+                const rowBg = idx === 0 ? 'bg-[#f3f3f6]' : 'bg-white';
+
                 return `
-                    <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300">
-                        <td class="p-0 border-b border-[#e6e8ee] bg-[#f3f3f6] align-top">
-                            <div class="flex h-[48px] items-center min-h-[40px] p-[8px]">
-                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#313949]">${timeStr}</p>
-                            </div>
+                    <tr class="h-[48px] ${rowBg} transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300">
+                        <td class="px-[8px] whitespace-nowrap border-b border-[#e6e8ee] align-middle">
+                            <div class="text-[14px] font-normal text-[#313949] font-['Roboto'] leading-[1.42]">${timeStr}</div>
                         </td>
-                        <td class="p-0 border-b border-[#e6e8ee] align-top">
-                            <div class="flex h-[48px] items-center min-h-[40px] p-[8px]">
-                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#1c2026]">${row.spotPrice || '-'}</p>
-                            </div>
+                        <td class="px-[8px] whitespace-nowrap border-b border-[#e6e8ee] align-middle">
+                            <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto'] leading-[1.42]">${row.spotPrice || '-'}</div>
                         </td>
-                        <td class="p-0 border-b border-[#e6e8ee] bg-[#f3f3f6] align-top">
-                            <div class="flex h-[48px] items-center min-h-[40px] p-[8px]">
-                                <p class="font-['Roboto'] font-normal leading-[1.42] text-[14px] text-[#1c2026]">${row.forecastPrice || '-'}</p>
-                            </div>
+                        <td class="px-[8px] whitespace-nowrap border-b border-[#e6e8ee] align-middle">
+                            <div class="text-[14px] font-normal text-[#1c2026] font-['Roboto'] leading-[1.42]">${row.forecastPrice || '-'}</div>
                         </td>
-                        <td class="p-0 align-top">
-                            <div class="flex flex-col">
+                        <td class="px-[8px] border-b border-[#e6e8ee] align-middle">
+                            <div class="flex flex-nowrap w-full overflow-visible">
                                 ${forecastHtml}
                             </div>
                         </td>
-                        <td class="px-[8px] text-left border-b border-[#e6e8ee] align-top">
-                            <div class="flex h-[48px] items-center">
-                                <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.forecastSignalType]}">
-                                    ${row.forecastSignalType}
-                                </span>
-                            </div>
+                        <td class="px-[8px] text-left border-b border-[#e6e8ee] align-middle">
+                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.forecastSignalType]}">
+                                ${row.forecastSignalType}
+                            </span>
                         </td>
-                        <td class="px-[8px] text-left border-b border-[#e6e8ee] align-top">
-                            <div class="flex h-[48px] items-center">
-                                ${row.signalType ? `
-                                <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
-                                    ${row.signalType}
-                                </span>
-                                ` : '<span class="text-gray-400">-</span>'}
-                            </div>
+                        <td class="px-[8px] text-left border-b border-[#e6e8ee] align-middle">
+                            ${row.signalType ? `
+                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium border ${signalColors[row.signalType]}">
+                                ${row.signalType}
+                            </span>
+                            ` : '<span class="text-gray-400">-</span>'}
                         </td>
                     </tr>
                 `;
