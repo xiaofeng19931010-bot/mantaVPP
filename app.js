@@ -926,6 +926,7 @@ const app = {
     init() {
         if (!this.checkLogin()) return;
         this.loadUserInfo();
+        this.startHeaderClock();
         
         // Check for URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -1017,6 +1018,34 @@ const app = {
                 }
             }
         });
+    },
+
+    startHeaderClock() {
+        const clockEl = document.getElementById('header-clock');
+        if (!clockEl) return;
+
+        const updateTime = () => {
+            // Target format: DD-MM-YYYY HH:mm:ss (AEST GMT+10:00)
+            const now = new Date();
+            
+            // Calculate AEST (UTC+10)
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const offset = 10 * 60 * 60 * 1000;
+            const aestTime = new Date(utcTime + offset);
+            
+            const day = String(aestTime.getDate()).padStart(2, '0');
+            const month = String(aestTime.getMonth() + 1).padStart(2, '0');
+            const year = aestTime.getFullYear();
+            
+            const hours = String(aestTime.getHours()).padStart(2, '0');
+            const minutes = String(aestTime.getMinutes()).padStart(2, '0');
+            const seconds = String(aestTime.getSeconds()).padStart(2, '0');
+            
+            clockEl.textContent = `${day}-${month}-${year} ${hours}:${minutes}:${seconds} (AEST GMT+10:00)`;
+        };
+
+        updateTime(); // Initial call
+        setInterval(updateTime, 1000); // Update every second
     },
 
     toggleSubmenu(id, element) {
@@ -2064,7 +2093,7 @@ const app = {
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Rated Power</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Volume</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Spot</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue（$）</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                 </tr>
@@ -4917,7 +4946,7 @@ const app = {
                             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium text-left w-16">#</th>
-                                    <th class="px-6 py-3 font-medium">Time</th>
+                                    <th class="px-6 py-3 font-medium">Local Time</th>
                                     <th class="px-6 py-3 font-medium">Type</th>
                                     <th class="px-6 py-3 font-medium">Value</th>
                                     <th class="px-6 py-3 font-medium">Threshold</th>
@@ -9342,7 +9371,12 @@ const app = {
             option = {
                 tooltip: {
                     trigger: 'axis',
-                    axisPointer: { type: isDay ? 'line' : 'shadow' }
+                    axisPointer: { type: isDay ? 'line' : 'shadow' },
+                    formatter: function (params) {
+                        const timeText = isDay ? app.formatLocalTimeWithOffset(params[0].axisValue) : params[0].axisValue;
+                        const lines = params.map(param => `${param.marker}${param.seriesName}: ${param.value}`);
+                        return [timeText, ...lines].join('<br/>');
+                    }
                 },
                 dataZoom: [
                     {
@@ -9438,7 +9472,12 @@ const app = {
             option = {
                 tooltip: {
                     trigger: 'axis',
-                    axisPointer: { type: isDay ? 'line' : 'shadow' }
+                    axisPointer: { type: isDay ? 'line' : 'shadow' },
+                    formatter: function (params) {
+                        const timeText = isDay ? app.formatLocalTimeWithOffset(params[0].axisValue) : params[0].axisValue;
+                        const lines = params.map(param => `${param.marker}${param.seriesName}: ${param.value}`);
+                        return [timeText, ...lines].join('<br/>');
+                    }
                 },
                 dataZoom: [
                     {
@@ -9537,8 +9576,9 @@ const app = {
                     trigger: 'axis',
                     formatter: function (params) {
                         const status = params[0].value;
-                        const color = status === 'Online' ? '#10B981' : (status === 'Offline' ? '#EF4444' : '#9CA3AF');
-                        return `${params[0].axisValue}<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>${status}`;
+                        const color = status === 'Online' ? '#10B981' : (status === 'Disconnected' ? '#EF4444' : '#9CA3AF');
+                        const timeText = app.formatLocalTimeWithOffset(params[0].axisValue);
+                        return `${timeText}<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>${status}`;
                     }
                 },
                 legend: {
@@ -9576,7 +9616,7 @@ const app = {
                             color: function(params) {
                                 const status = params.value;
                                 if (status === 'Online') return '#10B981';
-                                if (status === 'Offline') return '#EF4444';
+                                if (status === 'Disconnected') return '#EF4444';
                                 return '#9CA3AF';
                             }
                         },
@@ -9604,21 +9644,115 @@ const app = {
         }
     },
 
+    formatAestTime(timeValue) {
+        if (!timeValue || typeof timeValue !== 'string') return '';
+        let date;
+        if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$/.test(timeValue)) {
+            date = new Date(timeValue.replace(' ', 'T') + ':00');
+        } else if (/^\d{4}-\d{2}-\d{2}$/.test(timeValue)) {
+            date = new Date(timeValue + 'T00:00:00');
+        } else {
+            date = new Date(timeValue);
+        }
+        if (Number.isNaN(date.getTime())) return timeValue;
+        const parts = new Intl.DateTimeFormat('zh-CN', {
+            timeZone: 'Australia/Sydney',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }).formatToParts(date);
+        const year = parts.find(part => part.type === 'year')?.value || '';
+        const month = parts.find(part => part.type === 'month')?.value || '';
+        const day = parts.find(part => part.type === 'day')?.value || '';
+        const hour = parts.find(part => part.type === 'hour')?.value || '';
+        const minute = parts.find(part => part.type === 'minute')?.value || '';
+        const shortYear = year.slice(-2);
+        return `${shortYear}-${month}-${day} ${hour}:${minute}`;
+    },
+
+    formatLocalTime(timeValue) {
+        if (!timeValue || typeof timeValue !== 'string') return '';
+        let date;
+        if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$/.test(timeValue)) {
+            date = new Date(timeValue.replace(' ', 'T') + ':00');
+        } else if (/^\d{4}-\d{2}-\d{2}$/.test(timeValue)) {
+            date = new Date(timeValue + 'T00:00:00');
+        } else {
+            date = new Date(timeValue);
+        }
+        if (Number.isNaN(date.getTime())) return timeValue;
+        const parts = new Intl.DateTimeFormat('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }).formatToParts(date);
+        const year = parts.find(part => part.type === 'year')?.value || '';
+        const month = parts.find(part => part.type === 'month')?.value || '';
+        const day = parts.find(part => part.type === 'day')?.value || '';
+        const hour = parts.find(part => part.type === 'hour')?.value || '';
+        const minute = parts.find(part => part.type === 'minute')?.value || '';
+        const shortYear = year.slice(-2);
+        return `${shortYear}-${month}-${day} ${hour}:${minute}`;
+    },
+
+    formatLocalTimeWithOffset(timeValue) {
+        if (!timeValue || typeof timeValue !== 'string') return '';
+        let date;
+        if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}$/.test(timeValue)) {
+            date = new Date(timeValue.replace(' ', 'T') + ':00');
+        } else if (/^\d{4}-\d{2}-\d{2}$/.test(timeValue)) {
+            date = new Date(timeValue + 'T00:00:00');
+        } else {
+            date = new Date(timeValue);
+        }
+        if (Number.isNaN(date.getTime())) return timeValue;
+        const parts = new Intl.DateTimeFormat('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }).formatToParts(date);
+        const year = parts.find(part => part.type === 'year')?.value || '';
+        const month = parts.find(part => part.type === 'month')?.value || '';
+        const day = parts.find(part => part.type === 'day')?.value || '';
+        const hour = parts.find(part => part.type === 'hour')?.value || '';
+        const minute = parts.find(part => part.type === 'minute')?.value || '';
+        const shortYear = year.slice(-2);
+        const offsetMinutes = -date.getTimezoneOffset();
+        const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+        const absOffset = Math.abs(offsetMinutes);
+        const offsetHours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+        const offsetMins = String(absOffset % 60).padStart(2, '0');
+        return `${shortYear}-${month}-${day} ${hour}:${minute} (GMT${offsetSign}${offsetHours}:${offsetMins})`;
+    },
+
     renderOperationTable() {
         const container = document.getElementById('operation-table-container');
         if (!container) return;
         
         const { xAxisData, series, granularity, tab } = this.getOperationData();
         const unit = granularity === 'day' ? 'kW' : 'kWh';
+        const showAestTime = granularity === 'day';
         
         let headers = [];
         let rows = [];
         
+        const timeHeader = showAestTime ? 'Local Time' : 'Time';
+
         if (tab === 'generation') {
-            headers = ['Time', `To Grid (${unit})`, `To Battery (${unit})`, `Direct Consumption (${unit})`, `Total Generation (${unit})`, 'Self Consumption (%)'];
+            headers = [timeHeader, ...(showAestTime ? ['AEST Time'] : []), `To Grid (${unit})`, `To Battery (${unit})`, `Direct Consumption (${unit})`, `Total Generation (${unit})`, 'Self Consumption (%)'];
             
             rows = xAxisData.map((time, i) => [
-                time,
+                ...(showAestTime ? [this.formatLocalTime(time)] : [time]),
+                ...(showAestTime ? [this.formatAestTime(time)] : []),
                 series.powerToGrid[i],
                 series.powerToBattery[i],
                 series.consumed[i],
@@ -9627,10 +9761,11 @@ const app = {
             ]);
             
         } else if (tab === 'consumption') {
-            headers = ['Time', `From Grid (${unit})`, `From Battery (${unit})`, `Direct Consumption (${unit})`, `Total Consumption (${unit})`, 'Self Sufficiency (%)'];
+            headers = [timeHeader, ...(showAestTime ? ['AEST Time'] : []), `From Grid (${unit})`, `From Battery (${unit})`, `Direct Consumption (${unit})`, `Total Consumption (${unit})`, 'Self Sufficiency (%)'];
             
             rows = xAxisData.map((time, i) => [
-                time,
+                ...(showAestTime ? [this.formatLocalTime(time)] : [time]),
+                ...(showAestTime ? [this.formatAestTime(time)] : []),
                 series.fromGrid[i],
                 series.fromBattery[i],
                 series.directConsumption[i],
@@ -9639,10 +9774,11 @@ const app = {
             ]);
             
         } else { // Status
-            headers = ['Time', 'Status'];
+            headers = [timeHeader, ...(showAestTime ? ['AEST Time'] : []), 'Status'];
             
             rows = xAxisData.map((time, i) => [
-                time,
+                ...(showAestTime ? [this.formatLocalTime(time)] : [time]),
+                ...(showAestTime ? [this.formatAestTime(time)] : []),
                 series.statusData[i]
             ]);
         }
@@ -9660,10 +9796,11 @@ const app = {
                         ${rows.map(row => `
                             <tr class="hover:bg-gray-50">
                                 ${row.map((cell, i) => {
-                                    if (tab === 'status' && i === 1) {
+                                    const statusColumnIndex = row.length - 1;
+                                    if (tab === 'status' && i === statusColumnIndex) {
                                         let colorClass = 'bg-green-100 text-green-800';
-                                        if (cell === 'Offline') colorClass = 'bg-red-100 text-red-800';
-                                        if (cell === 'Disconnected') colorClass = 'bg-gray-100 text-gray-800';
+                                        if (cell === 'Offline') colorClass = 'bg-gray-100 text-gray-800';
+                                        if (cell === 'Disconnected') colorClass = 'bg-red-100 text-red-800';
                                         return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClass}">${cell}</span></td>`;
                                     }
                                     return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${cell}</td>`;
@@ -9829,7 +9966,10 @@ const app = {
                                         </div>
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
                                             <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">Operating Mode</span></div>
-                                            <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">Normal</span></div>
+                                            <div class="flex gap-[8px] items-center h-[40px]">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
+                                                <span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">Normal</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -9867,7 +10007,8 @@ const app = {
                                             <div class="flex gap-[0px] items-center relative shrink-0">
                                                 <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Today Yield</p>
                                             </div>
-                                            <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
+                                            <div class="flex gap-[8px] h-[40px] items-center justify-start relative shrink-0">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
                                                 <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 4.2).toFixed(1)} kWh</p>
                                             </div>
                                         </div>
@@ -9876,7 +10017,8 @@ const app = {
                                             <div class="flex gap-[0px] items-center relative shrink-0">
                                                 <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Today Full Hours</p>
                                             </div>
-                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                            <div class="flex gap-[8px] h-[40px] items-center justify-start relative shrink-0">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
                                                 <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">4.2 h</p>
                                             </div>
                                         </div>
@@ -9960,7 +10102,7 @@ const app = {
                                     <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Inverter</p>
                                 </div>
                                 
-                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:flex lg:justify-between lg:flex-nowrap p-[8px] relative rounded-[8px] shrink-0 w-full">
+                                <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 lg:grid-cols-7 lg:gap-[16px] p-[8px] relative rounded-[8px] shrink-0 w-full">
                                     <!-- SN -->
                                     <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0">
                                         <div class="flex gap-[0px] items-center relative shrink-0">
@@ -10018,7 +10160,8 @@ const app = {
                                         <div class="flex gap-[0px] items-center relative shrink-0">
                                             <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Active Power</p>
                                         </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                        <div class="flex gap-[8px] h-[40px] items-center justify-start relative shrink-0">
+                                            <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
                                             <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.8).toFixed(1)} kW</p>
                                         </div>
                                     </div>
@@ -10041,88 +10184,136 @@ const app = {
                                     <p class="flex-[1_0_0] font-['Roboto'] font-semibold leading-[1.4] min-h-px min-w-px relative text-[20px] text-[#313949] whitespace-pre-wrap" style="font-variation-settings: 'wdth' 100">Battery</p>
                                 </div>
                                 
-                                <div class="backdrop-blur-[25px] grid grid-cols-4 gap-[8px] p-[8px] relative rounded-[8px] shrink-0 w-full">
-                                    <!-- Rated Capacity -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-1 row-start-1">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Capacity</p>
+                                <div class="content-stretch flex flex-col lg:flex-row items-start justify-between relative shrink-0 w-full gap-8">
+                                    <!-- Metrics Grid (Left) -->
+                                    <div class="backdrop-blur-[25px] gap-x-[8px] gap-y-[8px] grid grid-cols-2 p-[8px] relative rounded-[8px] shrink-0 w-full lg:w-[50%]">
+                                        <!-- Rated Capacity -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Capacity</p>
+                                            </div>
+                                            <div class="flex gap-[0px] h-[40px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity * 2} kWh</p>
+                                            </div>
                                         </div>
-                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity * 2} kWh</p>
+                                        <!-- Rated Charge Power -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Charge Power</p>
+                                            </div>
+                                            <div class="flex gap-[8px] h-[40px] items-center justify-start relative shrink-0">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
+                                            </div>
+                                        </div>
+                                        <!-- Active Power -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Active Power</p>
+                                            </div>
+                                            <div class="flex gap-[8px] h-[40px] items-center justify-start relative shrink-0">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.6).toFixed(1)} kW</p>
+                                            </div>
+                                        </div>
+                                        <!-- Rated Discharge Power -->
+                                        <div class="flex flex-col gap-[0px] items-start min-w-[120px] px-[0px] relative shrink-0">
+                                            <div class="flex gap-[0px] items-center relative shrink-0">
+                                                <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Discharge Power</p>
+                                            </div>
+                                            <div class="flex gap-[8px] h-[40px] items-center justify-start relative shrink-0">
+                                                <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
+                                                <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <!-- Rated Charge Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-2 row-start-1">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Charge Power</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center justify-start relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
-                                        </div>
-                                    </div>
-                                    <!-- Active Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-1 row-start-2">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Active Power</p>
-                                        </div>
-                                        <div class="flex flex-col gap-[0px] h-[40px] items-center justify-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${(device.capacity * 0.6).toFixed(1)} kW</p>
-                                        </div>
-                                    </div>
-                                    <!-- Rated Discharge Power -->
-                                    <div class="flex flex-col gap-[0px] items-start min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 col-start-2 row-start-2">
-                                        <div class="flex gap-[0px] items-center relative shrink-0">
-                                            <p class="font-['Roboto'] font-normal leading-[1.42] relative shrink-0 text-[14px] text-[#5f646e]" style="font-variation-settings: 'wdth' 100">Rated Discharge Power</p>
-                                        </div>
-                                        <div class="flex gap-[0px] h-[40px] items-center justify-start relative shrink-0">
-                                            <p class="font-['Roboto'] font-semibold leading-[1.55] relative shrink-0 text-[18px] text-[#313949]" style="font-variation-settings: 'wdth' 100">${device.capacity} kW</p>
-                                        </div>
-                                    </div>
-                                    <!-- SOC -->
-                                    <div class="flex flex-col gap-[0px] items-center min-w-[120px] lg:min-w-0 px-[0px] relative shrink-0 justify-center col-start-3 row-start-1 col-span-2 row-span-2 justify-self-end mr-[205px]">
-                                        <div class="relative w-[150px] h-[150px] flex items-center justify-center">
-                                            <!-- Ring Background -->
-                                            <svg class="absolute w-full h-full overflow-visible" viewBox="0 0 36 36">
-                                                <!-- Background Circle -->
-                                                <path class="text-gray-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
-                                                
-                                                <!-- SOC Min Region (Red) 0-10% -->
-                                                <path class="text-red-500" stroke-dasharray="10, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
-                                                
-                                                <!-- SOC Remaining (Green) 10-85% -->
-                                                <path class="text-[#3ec064]" stroke-dasharray="75, 100" stroke-dashoffset="-10" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
-                                                
-                                                <!-- SOC Max Region (Red) 90-100% -->
-                                                <path class="text-red-500" stroke-dasharray="10, 100" stroke-dashoffset="-90" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
-                                                
-                                                <!-- SOC Min Indicator -->
-                                                <g>
-                                                    <line x1="28.6" y1="3.5" x2="34" y2="-2" stroke="#ef4444" stroke-width="0.3" />
-                                                    <text x="39" y="-2" fill="#ef4444" text-anchor="start" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">SOC Min: 10%</text>
-                                                </g>
-                                                
-                                                <!-- SOC Max Indicator -->
-                                                <g>
-                                                    <line x1="7.4" y1="3.5" x2="2" y2="-2" stroke="#ef4444" stroke-width="0.3" />
-                                                    <text x="-4" y="-2" fill="#ef4444" text-anchor="end" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">SOC Max: 90%</text>
-                                                </g>
 
-                                                <!-- Available Discharge Indicator (Green region) -->
-                                                <g>
-                                                    <line x1="32" y1="22" x2="38" y2="35" stroke="#3b82f6" stroke-width="0.3" />
-                                                    <text x="39" y="35" fill="#3b82f6" text-anchor="start" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">Available Discharge: ${(device.capacity * 2 * 0.15).toFixed(1)} kWh</text>
-                                                </g>
+                                    <!-- Battery Visualization (Right) -->
+                                    <div class="relative shrink-0 w-full lg:w-[50%] flex justify-center">
+                                        <div class="relative h-[144px] w-full max-w-[571px]">
+                                            <div class="absolute left-1/2 top-0 -translate-x-1/2 origin-top scale-[0.82] sm:scale-[0.9] md:scale-[0.95] lg:scale-[1] w-[571px] h-[144px]">
+                                                <!-- Central Battery Graphic -->
+                                                <div class="-translate-x-1/2 absolute content-stretch flex items-center left-1/2 top-[38px]">
+                                            <div class="bg-[#f3f3f6] border-[1.167px] border-[#cacfd8] border-solid content-stretch flex gap-[2.333px] items-center overflow-clip p-[7px] relative rounded-[11.667px] shrink-0">
+                                                <!-- Cell 1 (Top) -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] overflow-clip relative rounded-bl-[9px] rounded-tl-[9px] shrink-0 w-[23.333px]">
+                                                    <div class="absolute bg-gradient-to-b from-[#ff545e] to-[#d70518] h-[65px] left-0 rounded-bl-[9px] rounded-tl-[9px] top-0 w-[10px]"></div>
+                                                    <div class="absolute bg-gradient-to-b from-[#8cda2f] to-[#69ba07] h-[65px] left-[10px] top-0 w-[13.33px]"></div>
+                                                </div>
+                                                <!-- Cell 2 -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] overflow-clip relative rounded-[4.667px] shrink-0 w-[23.333px]">
+                                                    <div class="absolute bg-gradient-to-b from-[#8cda2f] to-[#69ba07] h-[65px] left-0 top-0 w-[12px]"></div>
+                                                </div>
+                                                <!-- Cell 3 -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] rounded-[4.667px] shrink-0 w-[23.333px]"></div>
+                                                <!-- Cell 4 -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] rounded-[4.667px] shrink-0 w-[23.333px]"></div>
+                                                <!-- Cell 5 -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] shrink-0 w-[23.333px]"></div>
+                                                <!-- Cell 6 -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] rounded-[4.667px] shrink-0 w-[23.333px]"></div>
+                                                <!-- Cell 7 (Bottom) -->
+                                                <div class="bg-[#e6e8ee] h-[65.333px] overflow-clip relative rounded-br-[9px] rounded-tr-[9px] shrink-0 w-[23.333px]">
+                                                    <div class="absolute bg-gradient-to-b from-[#ec981c] to-[#f28022] h-[65px] left-[13.17px] rounded-br-[9px] rounded-tr-[9px] top-0 w-[10px]"></div>
+                                                </div>
+                                            </div>
+                                            <!-- Battery Terminal -->
+                                            <div class="bg-[#cacfd8] border-[#cacfd8] border-b-[1.167px] border-r-[1.167px] border-solid border-t-[1.167px] h-[28px] rounded-br-[4.667px] rounded-tr-[4.667px] shrink-0 w-[7px]"></div>
+                                        </div>
 
-                                                <!-- Available Charge Indicator (Gray region - Empty part) -->
-                                                <g>
-                                                    <line x1="3.5" y1="7.5" x2="-4" y2="35" stroke="#3ec064" stroke-width="0.3" />
-                                                    <text x="-5" y="35" fill="#3ec064" text-anchor="end" alignment-baseline="middle" font-size="3" font-family="Roboto" font-weight="normal">Available Charge: ${(device.capacity * 2 * 0.8).toFixed(1)} kWh</text>
-                                                </g>
-                                            </svg>
-                                            <!-- Center Text -->
-                                            <div class="flex flex-col items-center justify-center">
-                                                <p class="font-['Roboto'] font-normal leading-none text-[16px] text-[#5f646e]">SOC</p>
-                                                <p class="font-['Roboto'] font-semibold leading-none text-[24px] text-[#313949]">85%</p>
+                                        <!-- Available Charge Label (Top Right) -->
+                                        <div class="absolute bg-white border border-[#b5bcc8] border-solid flex items-center justify-center left-[395px] top-[12px] px-[8px] rounded-[12px]">
+                                            <p class="font-['Roboto'] font-normal leading-[1.55] text-[12px] text-[#b5bcc8] text-center whitespace-nowrap">Available Charge: ${(device.capacity * 2 * 0.8).toFixed(1)} kWh</p>
+                                        </div>
+                                        <!-- Connector Line (Charge) -->
+                                        <div class="absolute h-[24.5px] left-[148px] top-[21.5px] w-[51.5px]">
+                                            <div class="absolute inset-[-2.04%_-0.97%_0_0]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/vector-1566.svg">
+                                            </div>
+                                        </div>
+
+                                        <!-- SOC Max Label (Bottom Right) -->
+                                        <div class="absolute bg-white border border-[#ec981c] border-solid flex items-center justify-center left-[416px] top-[120px] px-[8px] rounded-[12px]">
+                                            <p class="font-['Roboto'] font-normal leading-[1.55] text-[12px] text-[#ec981c] text-center whitespace-nowrap">SOC Max: 90%</p>
+                                        </div>
+                                        <!-- Connector Line (SOC Max) -->
+                                        <div class="absolute h-[20px] left-[365px] top-[110px] w-[52.5px]">
+                                            <div class="absolute inset-[0_0_-2.5%_-0.95%]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/vector-1568.svg">
+                                            </div>
+                                        </div>
+
+                                        <!-- Available Discharge Label (Bottom Left) -->
+                                        <div class="absolute bg-white border border-[#8cda2f] border-solid flex items-center justify-center left-[11.5px] top-[120px] px-[8px] rounded-[12px]">
+                                            <p class="font-['Roboto'] font-normal leading-[1.55] text-[12px] text-[#8cda2f] text-center whitespace-nowrap">Available Discharge: ${(device.capacity * 2 * 0.15).toFixed(1)} kWh</p>
+                                        </div>
+                                        <!-- Connector Line (Discharge) -->
+                                        <div class="absolute h-[19.5px] left-[188px] top-[110px] w-[16.5px]">
+                                            <div class="absolute inset-[0_-3.03%_-2.56%_0]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/vector-1567.svg">
+                                            </div>
+                                        </div>
+
+                                        <!-- SOC Min Label (Top Left) -->
+                                        <div class="absolute bg-white border border-[#ff3434] border-solid flex items-center justify-center left-[57px] top-[12px] px-[8px] rounded-[12px]">
+                                            <p class="font-['Roboto'] font-normal leading-[1.55] text-[12px] text-[#ff3434] text-center whitespace-nowrap">SOC Min: 10%</p>
+                                        </div>
+                                        <!-- Connector Line (SOC Min) -->
+                                        <div class="absolute h-[23px] left-[361.5px] top-[22px] w-[34px]">
+                                            <div class="absolute inset-[-2.17%_0_0_-1.47%]">
+                                                <img alt="" class="block max-w-none size-full" src="assets/images/vector-1569.svg">
+                                            </div>
+                                        </div>
+
+                                                <!-- SOC Value Label (Top Center) -->
+                                                <div class="-translate-x-1/2 absolute flex gap-[2px] items-center left-1/2 top-[4px]">
+                                                    <div class="relative shrink-0 size-[20px]">
+                                                        <img alt="" class="absolute block max-w-none size-full" src="assets/images/battery-lightning.svg">
+                                                    </div>
+                                                    <p class="font-['Roboto'] font-semibold leading-[0] relative shrink-0 text-[18px] text-[#313949] whitespace-nowrap">
+                                                        <span class="font-normal text-[14px]">SOC</span> 85%
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
