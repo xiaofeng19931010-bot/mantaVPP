@@ -176,10 +176,10 @@ const MOCK_DATA = {
     ],
 
     capEvents: [
-        { id: 1, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '04:30:40 - 05:00:00', power: '931.32 kW', spotPrice: '$1.58092 /MWh', volume: '32.63989 kWh', vppIncome: '-$0.05', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
-        { id: 2, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '04:01:05 - 04:30:00', power: '935.92 kW', spotPrice: '-$30.50 /MWh', volume: '154.568 kWh', vppIncome: '$4.72', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
-        { id: 3, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '03:30:48 - 04:00:00', power: '935.92 kW', spotPrice: '-$21.69 /MWh', volume: '22.68890 kWh', vppIncome: '$0.49', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
-        { id: 4, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '03:20:48 - 03:30:00', power: '935.92 kW', spotPrice: '-$4.337 /MWh', volume: '22.29479 kWh', vppIncome: '$0.10', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 1, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '04:30:40 - 05:00:00', power: '931.32 kW', spotPrice: '$1.58092', volume: '32.63989 kWh', vppIncome: '-$0.05', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 2, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '04:01:05 - 04:30:00', power: '935.92 kW', spotPrice: '-$30.50', volume: '154.568 kWh', vppIncome: '$4.72', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 3, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '03:30:48 - 04:00:00', power: '935.92 kW', spotPrice: '-$21.69', volume: '22.68890 kWh', vppIncome: '$0.49', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
+        { id: 4, vppName: 'SA VPP', eventType: 'Charge', date: '30/11/2023 (+11:00)', timeRange: '03:20:48 - 03:30:00', power: '935.92 kW', spotPrice: '-$4.337', volume: '22.29479 kWh', vppIncome: '$0.10', status: 'Partially Success', notes: 'The device(s) in group failed to schedule.', serviceTag: '' },
         ...Array.from({ length: 15 }, (_, i) => ({
             id: i + 5,
             vppName: `VPP ${i + 1}`,
@@ -187,7 +187,7 @@ const MOCK_DATA = {
             date: '12/01/2026 (+11:00)',
             timeRange: '12:00:00 - 12:30:00',
             power: (Math.random() * 1000).toFixed(2) + ' kW',
-            spotPrice: '$' + (Math.random() * 200).toFixed(2) + ' /MWh',
+            spotPrice: '$' + (Math.random() * 200).toFixed(2),
             volume: (Math.random() * 100).toFixed(2) + ' kWh',
             vppIncome: '$' + (Math.random() * 10).toFixed(2),
             status: ['Success', 'Partially Success', 'Failed'][i % 3],
@@ -246,7 +246,7 @@ const MOCK_DATA = {
             date: '12/01/2026 (+11:00)',
             timeRange: '19:10:47 - 19:30:00',
             power: '576.03 kW',
-            spotPrice: '$180.10733 /MWh',
+            spotPrice: '$180.10733',
             volume: '',
             vppIncome: '',
             status: 'Partially Success',
@@ -260,7 +260,7 @@ const MOCK_DATA = {
             date: '10/01/2026 (+11:00)',
             timeRange: '20:31:08 - 21:00:00',
             power: '411.19 kW',
-            spotPrice: '$344.09265 /MWh',
+            spotPrice: '$344.09265',
             volume: '13.68855 kWh',
             vppIncome: '$4.71',
             status: 'Partially Success',
@@ -274,7 +274,7 @@ const MOCK_DATA = {
             date: '10/01/2026 (+11:00)',
             timeRange: '20:31:08 - 21:00:00',
             power: '10.00 kW',
-            spotPrice: '$344.09265 /MWh',
+            spotPrice: '$344.09265',
             volume: '0.00000 kWh',
             vppIncome: '$0.00',
             status: 'Success',
@@ -288,7 +288,7 @@ const MOCK_DATA = {
             date: '10/01/2026 (+11:00)',
             timeRange: '20:01:28 - 20:30:00',
             power: '411.19 kW',
-            spotPrice: '$6,951.66... /MWh',
+            spotPrice: '$6,951.66...',
             volume: '12.25886 kWh',
             vppIncome: '$85.22',
             status: 'Partially Success',
@@ -302,7 +302,7 @@ const MOCK_DATA = {
             date: '10/01/2026 (+11:00)',
             timeRange: '20:01:28 - 20:30:00',
             power: '10.00 kW',
-            spotPrice: '$6,951.66... /MWh',
+            spotPrice: '$6,951.66...',
             volume: '0.00000 kWh',
             vppIncome: '$0.00',
             status: 'Success',
@@ -316,7 +316,7 @@ const MOCK_DATA = {
             date: '10/01/2026 (+11:00)',
             timeRange: '19:35:48 - 20:00:00',
             power: '10.00 kW',
-            spotPrice: '$11,862.3... /MWh',
+            spotPrice: '$11,862.3...',
             volume: '0.00000 kWh',
             vppIncome: '$0.00',
             status: 'Success',
@@ -330,7 +330,7 @@ const MOCK_DATA = {
             date: '10/01/2026 (+11:00)',
             timeRange: '19:31:05 - 20:00:00',
             power: '411.19 kW',
-            spotPrice: '$11,862.3... /MWh',
+            spotPrice: '$11,862.3...',
             volume: '14.30293 kWh',
             vppIncome: '$169.67',
             status: 'Partially Success',
@@ -348,7 +348,7 @@ const MOCK_DATA = {
             timeRange: '19:30:00 - 20:00:00',
             from: 'User',
             power: '5.00 kW',
-            spotPrice: '$58.156... /MWh',
+            spotPrice: '$58.156...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -362,7 +362,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '4.99 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -376,7 +376,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '4.60 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -390,7 +390,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '5.00 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -404,7 +404,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '5.00 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -418,7 +418,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '5.00 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -432,7 +432,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '5.00 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -446,7 +446,7 @@ const MOCK_DATA = {
             timeRange: '19:10:47 - 19:30:00',
             from: 'System',
             power: '5.00 kW',
-            spotPrice: '$180.10... /MWh',
+            spotPrice: '$180.10...',
             volume: '',
             vppIncome: '',
             notes: '',
@@ -911,7 +911,9 @@ const state = {
         itemsPerPage: 10,
         currentMode: 'realtime',
         dateRange: { start: null, end: null },
-        activeFilter: null
+        activeFilter: null,
+        viewBy: 'calendar',
+        settlementRange: { start: null, end: null }
     },
     currentUser: {
         company: 'Manta Energy',
@@ -1664,7 +1666,6 @@ const app = {
                                 <button id="spot-tab-historical" class="h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] transition-all hover:bg-white/50 font-['Roboto'] font-normal text-[14px] text-[#313949]">Historical</button>
                             </div>
                             <div id="spot-date-picker-container" class="hidden flex items-center gap-[8px] animate-in fade-in slide-in-from-left-2">
-                                <span class="font-['Roboto'] font-normal text-[14px] text-[#313949] leading-[1.42] whitespace-nowrap">Date:</span>
                                 <input type="date" id="spot-date-picker" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] h-[40px] px-[8px] focus:outline-none focus:border-[#3ec064]">
                             </div>
                         </div>
@@ -2083,17 +2084,15 @@ const app = {
                         <table class="w-full text-left border-collapse">
                             <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Pricing Region</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Event</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Rated Power</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Volume</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue（$）</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
                                     <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                 </tr>
@@ -2115,12 +2114,11 @@ const app = {
                                 const endTime = timeParts[1] || '-';
                                 const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
                                 const volume = event.volume || '-';
-                                const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)} /MWh` : (event.spot || '-');
+                                const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)}` : (event.spot || '-');
+                                const displayStatus = event.status === 'Pending' ? 'Partially Completed' : (event.status || '-');
                                 return `
                                 <tr class="group h-[48px] ${event.status === 'Pending' ? 'bg-[#f3f3f6]' : 'bg-white'}">
-                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.date ? event.date.split(' ')[0] : '-'}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">${event.vppName || '-'}</td>
-                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.state || '-'}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${triggerType}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.eventType || '-'}</td>
@@ -2132,7 +2130,7 @@ const app = {
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
                                         <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${event.status === 'Completed' ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]' : 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'}">
                                             <span>•</span>
-                                            <span>${event.status || '-'}</span>
+                                            <span>${displayStatus}</span>
                                         </span>
                                     </td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${event.status === 'Pending' ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
@@ -2840,9 +2838,35 @@ const app = {
         if (parts.length === 2) {
             state[parts[0]][parts[1]] = value;
             if (parts[0] === 'arbitrage') {
+                if (parts[1] === 'viewBy' && value === 'settlement') {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const range = state.arbitrage.settlementRange || { start: null, end: null };
+                    const baseStart = range.start || state.arbitrage.dateRange.start || todayStr;
+                    const baseEnd = range.end || state.arbitrage.dateRange.end || baseStart;
+                    state.arbitrage.settlementRange = { start: baseStart, end: baseEnd };
+                    state.arbitrage.dateRange = { start: baseStart, end: baseEnd };
+                }
                 this.renderArbitragePoints(document.getElementById('content-area'));
             }
         }
+    },
+
+    updateArbitrageSettlementRange(field, value) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const currentRange = state.arbitrage.settlementRange || { start: null, end: null };
+        const nextRange = { ...currentRange, [field]: value || todayStr };
+        if (nextRange.start && nextRange.end) {
+            if (nextRange.start > nextRange.end) {
+                if (field === 'start') {
+                    nextRange.end = nextRange.start;
+                } else {
+                    nextRange.start = nextRange.end;
+                }
+            }
+        }
+        state.arbitrage.settlementRange = nextRange;
+        state.arbitrage.dateRange = { start: nextRange.start, end: nextRange.end };
+        this.renderArbitragePoints(document.getElementById('content-area'));
     },
 
     renderCapRules(container) {
@@ -3969,81 +3993,46 @@ const app = {
         
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
-                <!-- Filters Section -->
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <div class="flex items-end gap-4">
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
-                            <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
-                                <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
-                                <input type="text" placeholder="-" class="w-full text-sm outline-none bg-transparent">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col gap-6 p-6">
+                    <!-- Filters Section -->
+                    <div>
+                        <div class="flex items-end gap-4">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
+                                <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
+                                    <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+                                    <input type="text" placeholder="-" class="w-full text-sm outline-none bg-transparent">
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
-                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                <option>All</option>
-                                <option>Success</option>
-                                <option>Partially Success</option>
-                                <option>Failed</option>
-                            </select>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
-                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                <option>All</option>
-                                <option>Discharge</option>
-                                <option>Charge</option>
-                            </select>
-                        </div>
-                         <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
-                            <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
-                        </div>
-                        <button class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
-                            Search
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Table Section -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
-                     <div class="flex items-center justify-end px-6 py-4 gap-4 border-b border-gray-100">
-                         <div class="flex items-center gap-4">
-                             <span class="text-sm text-gray-500">Total ${totalItems}</span>
-                             <div class="flex items-center gap-2">
-                                <span class="text-sm text-gray-500">Rows per page:</span>
-                                <select onchange="app.updateReportsVppEventsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
-                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
-                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
-                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
-                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                    <option>All</option>
+                                    <option>Success</option>
+                                    <option>Partially Success</option>
+                                    <option>Failed</option>
                                 </select>
                             </div>
-                         </div>
-                         
-                         <!-- Pagination Controls -->
-                         <div class="flex items-center gap-2 text-sm">
-                            <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
+                                    <option>All</option>
+                                    <option>Discharge</option>
+                                    <option>Charge</option>
+                                </select>
+                            </div>
+                             <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
+                            </div>
+                            <button class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                                Search
                             </button>
-                            ${pages.map(pageNum => {
-                                if (pageNum === '...') {
-                                    return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
-                                }
-                                return `<button onclick="app.updateReportsVppEventsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
-                            }).join('')}
-                            <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                            </button>
-                         </div>
-                         
-                         <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
-                             <span>Go to</span>
-                             <input type="text" value="${validCurrentPage}" onchange="app.updateReportsVppEventsState('currentPage', Number(this.value))" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
-                         </div>
-                     </div>
+                        </div>
+                    </div>
 
+                    <!-- Table Section -->
+                    <div class="flex flex-col flex-1 overflow-hidden border border-gray-200 rounded-xl min-h-[320px]">
                     <div class="flex-1 overflow-auto">
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
@@ -4101,6 +4090,40 @@ const app = {
                                 `).join('')}
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mt-auto flex items-center justify-end px-6 py-4 gap-4 border-t border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
+                            <div class="flex items-center gap-2">
+                               <span class="text-sm text-gray-500">Rows per page:</span>
+                               <select onchange="app.updateReportsVppEventsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
+                                   <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                                   <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+                                   <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                                   <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                               </select>
+                           </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-sm">
+                           <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                               <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                           </button>
+                           ${pages.map(pageNum => {
+                               if (pageNum === '...') {
+                                   return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
+                               }
+                               return `<button onclick="app.updateReportsVppEventsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
+                           }).join('')}
+                           <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+                               <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                           </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
+                            <span>Go to</span>
+                            <input type="text" value="${validCurrentPage}" onchange="app.updateReportsVppEventsState('currentPage', Number(this.value))" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5255,7 +5278,7 @@ const app = {
 
     renderArbitragePoints(container) {
         // Use state from app state
-        const { currentPage, itemsPerPage, currentMode, dateRange, activeFilter } = state.arbitrage;
+        const { currentPage, itemsPerPage, currentMode, dateRange, activeFilter, viewBy, settlementRange } = state.arbitrage;
 
         // Mock Data
         if (!state.arbitrage.data) {
@@ -5316,6 +5339,12 @@ const app = {
         }
 
         const allData = state.arbitrage.data;
+        const resolvedViewBy = viewBy || 'calendar';
+        const todayStr = new Date().toISOString().split('T')[0];
+        const resolvedSettlementRange = {
+            start: settlementRange?.start || dateRange.start || todayStr,
+            end: settlementRange?.end || dateRange.end || settlementRange?.start || dateRange.start || todayStr
+        };
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px] overflow-hidden flex flex-col";
         container.innerHTML = `
@@ -5323,7 +5352,7 @@ const app = {
                 <!-- Header Section -->
                 <div class="flex flex-col gap-4 items-start relative shrink-0 w-full mb-4">
                     <!-- Top Bar -->
-                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative shrink-0 w-full">
+                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative shrink-0 w-full justify-between">
                         <div class="flex flex-1 gap-4 items-center min-h-px min-w-px relative">
                             <div class="flex gap-4 items-center relative shrink-0">
                                 <div class="flex gap-2 items-center relative shrink-0">
@@ -5341,6 +5370,18 @@ const app = {
                                         </div>
                                     </div>
                                 </div>
+                                <div class="flex gap-2 items-center relative shrink-0">
+                                    <p class="font-['Roboto'] font-normal text-[14px] text-[#313949] text-center whitespace-nowrap">View By:</p>
+                                    <div class="flex flex-col gap-1 h-[40px] items-start justify-end relative shrink-0 w-[156px]">
+                                    <div class="bg-white border border-[#cacfd8] flex h-[40px] items-center justify-between px-2 py-0 relative rounded-[4px] shrink-0 w-full">
+                                            <select class="appearance-none bg-transparent border-none w-full text-[14px] text-[#313949] focus:outline-none" onchange="app.updateArbitrageState('arbitrage.viewBy', this.value)">
+                                                <option value="calendar" ${resolvedViewBy === 'calendar' ? 'selected' : ''}>Calendar Date</option>
+                                                <option value="settlement" ${resolvedViewBy === 'settlement' ? 'selected' : ''}>Settlement Date</option>
+                                            </select>
+                                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#313949] absolute right-2 pointer-events-none"></i>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
                                     <button onclick="app.updateArbitrageState('arbitrage.currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
                                         <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
@@ -5350,14 +5391,30 @@ const app = {
                                     </button>
                                 </div>
                                 ${currentMode === 'historical' ? `
+                                ${resolvedViewBy === 'settlement' ? `
+                                <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                                     <input type="date" value="${resolvedSettlementRange.start}" onchange="app.updateArbitrageSettlementRange('start', this.value)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                     <span class="text-[#b5bcc8]">-</span>
+                                     <input type="date" value="${resolvedSettlementRange.end}" onchange="app.updateArbitrageSettlementRange('end', this.value)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                </div>
+                                ` : `
                                 <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
                                      <input type="date" value="${dateRange.start || ''}" onchange="const val = this.value; const dr = state.arbitrage.dateRange; dr.start = val; app.updateArbitrageState('arbitrage.dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
                                      <span class="text-[#b5bcc8]">-</span>
                                      <input type="date" value="${dateRange.end || ''}" onchange="const val = this.value; const dr = state.arbitrage.dateRange; dr.end = val; app.updateArbitrageState('arbitrage.dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
                                 </div>
+                                `}
                                 ` : ''}
                             </div>
                         </div>
+                        ${resolvedViewBy === 'settlement' ? `
+                        <div class="relative group">
+                            <button class="w-[20px] h-[20px] rounded-full border border-[#cacfd8] text-[#6b7280] flex items-center justify-center text-[12px] hover:bg-[#f3f3f6] transition-colors">?</button>
+                            <div class="absolute right-0 top-[28px] z-10 hidden group-hover:block bg-[#1f2937] text-white text-[12px] leading-[1.4] px-2 py-1 rounded-[4px] whitespace-nowrap shadow-lg">
+                                Settlement Date daily cycle runs from 4:00 AM to 4:00 AM the next day.
+                            </div>
+                        </div>
+                        ` : ''}
                     </div>
                     
                     <div class="h-px w-full bg-[#e6e8ee]"></div>
@@ -5568,8 +5625,19 @@ const app = {
                 filtered = allData.filter(d => d.settlementTime >= todayStart && d.settlementTime <= futureLimit);
             } else {
                 // Historical
-                const start = dateRange.start ? new Date(dateRange.start) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-                const end = dateRange.end ? new Date(dateRange.end) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                const rangeStart = resolvedViewBy === 'settlement' ? resolvedSettlementRange.start : dateRange.start;
+                const rangeEnd = resolvedViewBy === 'settlement' ? resolvedSettlementRange.end : dateRange.end;
+                const start = rangeStart ? new Date(rangeStart) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                const end = rangeEnd ? new Date(rangeEnd) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                
+                if (resolvedViewBy === 'settlement') {
+                    const endPlusOne = new Date(end.getTime());
+                    endPlusOne.setDate(endPlusOne.getDate() + 1);
+                    start.setHours(4, 0, 0, 0);
+                    endPlusOne.setHours(4, 0, 0, 0);
+                    endPlusOne.setMilliseconds(endPlusOne.getMilliseconds() - 1);
+                    filtered = allData.filter(d => d.settlementTime >= start && d.settlementTime <= endPlusOne);
+                }
                 
                 // Set times to cover full days
                 start.setHours(0, 0, 0, 0);
@@ -5605,12 +5673,19 @@ const app = {
             updatePaginationControls(totalItems, totalPages, validCurrentPage, itemsPerPage);
         };
 
-        // Initialize default dates if needed
         if (currentMode === 'historical' && !dateRange.start) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yStr = yesterday.toISOString().split('T')[0];
-            state.arbitrage.dateRange = { start: yStr, end: yStr };
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (resolvedViewBy === 'settlement') {
+                const baseStart = state.arbitrage.settlementRange?.start || todayStr;
+                const baseEnd = state.arbitrage.settlementRange?.end || baseStart;
+                state.arbitrage.settlementRange = { start: baseStart, end: baseEnd };
+                state.arbitrage.dateRange = { start: baseStart, end: baseEnd };
+            } else {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yStr = yesterday.toISOString().split('T')[0];
+                state.arbitrage.dateRange = { start: yStr, end: yStr };
+            }
         }
 
         // Apply filters
@@ -5627,6 +5702,13 @@ const app = {
             hour: '2-digit',
             minute: '2-digit'
         });
+    },
+
+    addDaysToDate(dateString, days) {
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return '';
+        date.setDate(date.getDate() + days);
+        return date.toISOString().split('T')[0];
     },
 
     renderHistoryRows(rule) {
@@ -5672,6 +5754,7 @@ const app = {
 
             return `
             <tr class="bg-white border-b border-gray-100">
+                <td class="px-4 py-3 bg-gray-50 text-gray-900 font-medium">${rule.name || '-'}</td>
                 <td class="px-4 py-3 bg-gray-50 text-gray-900 font-medium">${currentRegion}</td>
                 <td class="px-4 py-3 bg-gray-50 text-gray-600">${currentTriggerFrom}</td>
                 <td class="px-4 py-3 ${isConditionChanged ? 'bg-white' : 'bg-gray-50'} text-gray-600">${item.condition}</td>
@@ -5685,6 +5768,7 @@ const app = {
                 <td class="px-4 py-3 text-gray-600 ${isIgnoreChanged ? 'bg-white' : 'bg-gray-50'}">${item.ignore}</td>
                 <td class="px-4 py-3 bg-gray-50 text-gray-600 whitespace-nowrap">${createdText}</td>
                 <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(item.updatedAt)}</td>
+                <td class="px-4 py-3 bg-gray-50 text-gray-600 max-w-[220px] truncate" title="${rule.description || '-'}">${rule.description || '-'}</td>
                 <td class="px-4 py-3 bg-gray-50 sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                     <div class="flex items-center">
                         <button class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View Events">
@@ -11249,7 +11333,7 @@ const app = {
                                     <td class="px-[16px] py-[12px]">
                                         <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${event.status === 'Success' ? 'bg-[#e6f4d0] text-[#4b7b0f]' : event.status === 'Partially Success' ? 'bg-[#fff7ed] text-[#c2410c]' : 'bg-[#e6e8ee] text-[#5f646e]'}">
                                             <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
-                                            ${event.status}
+                                            ${event.status === 'Pending' ? 'Partially Completed' : event.status}
                                         </span>
                                     </td>
                                     <td class="px-[16px] py-[12px] text-[#5f646e] max-w-xs truncate" title="${event.notes}">${event.notes || '-'}</td>
