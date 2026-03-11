@@ -804,6 +804,15 @@ const state = {
         currentPage: 1,
         itemsPerPage: 10
     },
+    spotTradingEventsFilters: {
+        eventTypes: [],
+        statuses: [],
+        eventOptions: [],
+        statusOptions: [],
+        eventTypesAll: true,
+        statusesAll: true,
+        openMenu: null
+    },
     fcasGroups: {
         groupName: '',
         state: 'All',
@@ -859,6 +868,18 @@ const state = {
         itemsPerPage: 10,
         expandedHistoryRuleId: null
     },
+    tradingRulesFilters: {
+        regions: [],
+        events: [],
+        statuses: [],
+        regionOptions: [],
+        eventOptions: [],
+        statusOptions: [],
+        regionsAll: true,
+        eventsAll: true,
+        statusesAll: true,
+        openMenu: null
+    },
     tradingRuleVppSelections: [],
     tradingRuleVppDropdownOpen: false,
     tradingRuleVppOptions: [],
@@ -878,8 +899,40 @@ const state = {
         status: 'All',
         eventType: 'All',
         vppName: '',
+        search: '',
+        selectedEventIndex: null,
+        currentMode: 'realtime',
+        dateRange: { start: null, end: null },
         currentPage: 1,
         itemsPerPage: 10
+    },
+    reportsVppEventsDetails: {
+        status: 'All',
+        search: ''
+    },
+    reportsVppEventsDetailsDerTableFilters: {
+        statuses: [],
+        regions: [],
+        events: [],
+        statusOptions: [],
+        regionOptions: [],
+        eventOptions: [],
+        statusesAll: true,
+        regionsAll: true,
+        eventsAll: true,
+        openMenu: null
+    },
+    reportsVppEventsTableFilters: {
+        statuses: [],
+        regions: [],
+        events: [],
+        statusOptions: [],
+        regionOptions: [],
+        eventOptions: [],
+        statusesAll: true,
+        regionsAll: true,
+        eventsAll: true,
+        openMenu: null
     },
     reportsDerEvents: {
         timeRange: '',
@@ -887,8 +940,23 @@ const state = {
         status: 'All',
         from: 'All',
         sn: '',
+        search: '',
+        currentMode: 'realtime',
+        dateRange: { start: null, end: null },
         currentPage: 1,
         itemsPerPage: 10
+    },
+    reportsDerEventsTableFilters: {
+        statuses: [],
+        regions: [],
+        events: [],
+        statusOptions: [],
+        regionOptions: [],
+        eventOptions: [],
+        statusesAll: true,
+        regionsAll: true,
+        eventsAll: true,
+        openMenu: null
     },
     reportsVppEventItems: {
         month: '',
@@ -2064,39 +2132,105 @@ const app = {
                 
                 const allEvents = MOCK_DATA.tradingEvents || [];
                 const recentEvents = allEvents.filter(e => e.date && e.date.startsWith(formattedDate));
+                const eventFilterOptions = Array.from(new Set(recentEvents.map(event => event.eventType).filter(Boolean)));
+                const statusFilterOptions = ['Completed', 'Executing', 'Partially Completed', 'Incompleted'];
+                state.spotTradingEventsFilters.eventOptions = eventFilterOptions;
+                state.spotTradingEventsFilters.statusOptions = statusFilterOptions;
+                const { eventTypes, statuses, openMenu, eventTypesAll, statusesAll } = state.spotTradingEventsFilters;
+                const isEventMenuOpen = openMenu === 'event';
+                const isStatusMenuOpen = openMenu === 'status';
+                const matchStatus = (status) => {
+                    if (statusesAll) return true;
+                    const normalized = status === 'Pending' ? 'Partially Completed' : status;
+                    if (normalized === 'Partially Completed') return statuses.includes('Partially Completed');
+                    if (normalized === 'Completed' || normalized === 'Success') return statuses.includes('Completed');
+                    if (normalized === 'Executing') return statuses.includes('Executing');
+                    if (normalized === 'Incompleted' || normalized === 'Failed') return statuses.includes('Incompleted');
+                    return statuses.includes(normalized);
+                };
+                const filteredEvents = recentEvents.filter(event => {
+                    const eventMatches = eventTypesAll || eventTypes.includes(event.eventType);
+                    const statusMatches = matchStatus(event.status);
+                    return eventMatches && statusMatches;
+                });
+                const tableHeader = `
+                            <thead class="sticky top-0 z-10 bg-white">
+                                <tr>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                        <div class="flex items-center gap-2 relative">
+                                            <span>Status</span>
+                                            <button onclick="app.toggleSpotTradingEventsFilter('status')" data-spot-trading-events-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            </button>
+                                            <div id="spot-trading-events-status-menu" data-spot-trading-events-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${isStatusMenuOpen ? '' : 'hidden'}">
+                                                ${statusFilterOptions.map(option => `
+                                                <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                    <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateSpotTradingEventsFilter('statuses', '${option}', this.checked)">
+                                                    <span class="text-xs text-gray-600">${option}</span>
+                                                </label>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                        <div class="flex items-center gap-2 relative">
+                                            <span>Event</span>
+                                            <button onclick="app.toggleSpotTradingEventsFilter('event')" data-spot-trading-events-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            </button>
+                                            <div id="spot-trading-events-event-menu" data-spot-trading-events-menu="event" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${isEventMenuOpen ? '' : 'hidden'}">
+                                                ${eventFilterOptions.map(option => `
+                                                <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                    <input type="checkbox" class="accent-[#3ec064]" ${(eventTypesAll || eventTypes.includes(option)) ? 'checked' : ''} onchange="app.updateSpotTradingEventsFilter('eventTypes', '${option}', this.checked)">
+                                                    <span class="text-xs text-gray-600">${option}</span>
+                                                </label>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
+                                </tr>
+                            </thead>
+                `;
 
-                if (recentEvents.length === 0) {
+                if (filteredEvents.length === 0) {
                     eventsContainer.innerHTML = `
-                        <div class="h-full flex items-center justify-center p-[20px]">
-                            <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
-                                <div class="relative w-[88px] h-[88px]">
-                                    <img src="./assets/icons/empty-state.svg" alt="No Events" class="w-full h-full">
-                                </div>
-                                <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Event</p>
-                            </div>
-                        </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            ${tableHeader}
+                            <tbody>
+                                <tr>
+                                    <td colspan="12" class="p-[20px]">
+                                        <div class="h-full flex items-center justify-center">
+                                            <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                                <div class="relative w-[88px] h-[88px]">
+                                                    <img src="./assets/icons/empty-state.svg" alt="No Events" class="w-full h-full">
+                                                </div>
+                                                <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Event</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     `;
                 } else {
                     eventsContainer.innerHTML = `
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <thead class="sticky top-0 z-10 bg-white">
-                                <tr>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Event</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
-                                </tr>
-                            </thead>
+                            ${tableHeader}
                             <tbody>
-                            ${recentEvents.map(event => {
+                            ${filteredEvents.map(event => {
                                 const matchedRule = state.tradingRules.find(rule => {
                                     const ruleNames = [];
                                     if (rule.vpp) ruleNames.push(rule.vpp);
@@ -2106,17 +2240,48 @@ const app = {
                                     return ruleNames.some(name => name.toLowerCase() === String(event.vppName || '').toLowerCase());
                                 });
                                 const rawTriggerType = matchedRule?.triggerType || event.triggerType;
-                                const triggerType = rawTriggerType === 'Price' ? 'Spot Price' : (rawTriggerType === 'Arbitrage' ? 'Arbitrage Point' : rawTriggerType || '-');
+                                const triggerType = rawTriggerType === 'Price'
+                                    ? 'Price'
+                                    : rawTriggerType === 'Arbitrage'
+                                        ? 'Arbitrage Point'
+                                        : rawTriggerType === 'User'
+                                            ? 'User'
+                                            : (event.from === 'User' ? 'User' : (rawTriggerType || '-'));
                                 const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
                                 const startTime = timeParts[0] || '-';
                                 const endTime = timeParts[1] || '-';
                                 const power = typeof event.power === 'number' ? `${event.power.toFixed(2)} kW` : (event.power || '-');
                                 const volume = event.volume || '-';
-                                const spot = typeof event.price === 'number' ? `$${event.price.toFixed(2)}` : (event.spot || '-');
+                                const parseNumber = (value) => {
+                                    const num = parseFloat(String(value ?? '').replace(/[^0-9.-]/g, ''));
+                                    return Number.isFinite(num) ? num : null;
+                                };
+                                const toMwh = (value) => {
+                                    if (!value) return null;
+                                    const raw = String(value);
+                                    const num = parseNumber(raw);
+                                    if (num === null) return null;
+                                    if (/mwh/i.test(raw)) return num;
+                                    if (/kwh/i.test(raw)) return num / 1000;
+                                    return num;
+                                };
+                                const avgPriceNum = typeof event.price === 'number' ? event.price : parseNumber(event.spot);
+                                const avgPrice = avgPriceNum !== null ? `$${avgPriceNum.toFixed(2)}` : (event.spot || '-');
+                                const estRevenue = (() => {
+                                    const volumeMwh = toMwh(volume);
+                                    if (avgPriceNum === null || volumeMwh === null || volumeMwh === 0) return '-';
+                                    return `$${(avgPriceNum * volumeMwh).toFixed(2)}`;
+                                })();
                                 const displayStatus = event.status === 'Pending' ? 'Partially Completed' : (event.status || '-');
                                 return `
                                 <tr class="group h-[48px] ${event.status === 'Pending' ? 'bg-[#f3f3f6]' : 'bg-white'}">
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">${event.vppName || '-'}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
+                                        <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${event.status === 'Completed' ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]' : 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'}">
+                                            <span>•</span>
+                                            <span>${displayStatus}</span>
+                                        </span>
+                                    </td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${triggerType}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${matchedRule ? (matchedRule.triggerType === 'Price' ? `${matchedRule.priceSource} ${matchedRule.condition} ${matchedRule.price} $/MW` : `${matchedRule.priceSource} = ${matchedRule.arbitrageSignal}`) : '-'}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.eventType || '-'}</td>
@@ -2124,13 +2289,8 @@ const app = {
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${endTime}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${power}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${volume}</td>
-                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${spot}</td>
-                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
-                                        <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${event.status === 'Completed' ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]' : 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'}">
-                                            <span>•</span>
-                                            <span>${displayStatus}</span>
-                                        </span>
-                                    </td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${avgPrice}</td>
+                                    <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${estRevenue}</td>
                                     <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${event.status === 'Pending' ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
                                         <button class="w-[24px] h-[24px] rounded-[4px] flex items-center justify-center text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
                                             <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
@@ -2154,6 +2314,7 @@ const app = {
                     : (datePicker ? datePicker.value : todayStr);
                 
                 renderEvents(dateStr);
+                this.spotTradingEventsDateStr = dateStr;
 
                 currentData = generateData(dateStr, currentMode === 'realtime');
                 
@@ -2411,6 +2572,27 @@ const app = {
                 
                 myChart.setOption(option);
             }
+
+            this.renderSpotTradingEventsList = renderEvents;
+
+            if (this.spotTradingEventsOutsideClickHandler) {
+                document.removeEventListener('click', this.spotTradingEventsOutsideClickHandler);
+            }
+            this.spotTradingEventsOutsideClickHandler = (event) => {
+                const eventMenu = document.getElementById('spot-trading-events-event-menu');
+                const statusMenu = document.getElementById('spot-trading-events-status-menu');
+                const eventButton = document.querySelector('[data-spot-trading-events-filter="event"]');
+                const statusButton = document.querySelector('[data-spot-trading-events-filter="status"]');
+                if (!eventMenu || !statusMenu) return;
+                const target = event.target;
+                if (eventMenu.contains(target) || statusMenu.contains(target) || (eventButton && eventButton.contains(target)) || (statusButton && statusButton.contains(target))) {
+                    return;
+                }
+                eventMenu.classList.add('hidden');
+                statusMenu.classList.add('hidden');
+                state.spotTradingEventsFilters.openMenu = null;
+            };
+            document.addEventListener('click', this.spotTradingEventsOutsideClickHandler);
 
             // Arbitrage Signal Interaction
             const arbitrageRadios = document.querySelectorAll('input[name="arbitrage-signal"]');
@@ -3373,7 +3555,29 @@ const app = {
                 </div>
             </div>
         `;
-        
+
+        if (this.reportsVppEventsTableOutsideClickHandler) {
+            document.removeEventListener('click', this.reportsVppEventsTableOutsideClickHandler);
+        }
+        this.reportsVppEventsTableOutsideClickHandler = (event) => {
+            const statusMenu = document.getElementById('reports-vpp-events-table-status-menu');
+            const regionMenu = document.getElementById('reports-vpp-events-table-region-menu');
+            const eventMenu = document.getElementById('reports-vpp-events-table-event-menu');
+            const statusButton = document.querySelector('[data-reports-vpp-events-table-filter="status"]');
+            const regionButton = document.querySelector('[data-reports-vpp-events-table-filter="region"]');
+            const eventButton = document.querySelector('[data-reports-vpp-events-table-filter="event"]');
+            if (!statusMenu || !regionMenu || !eventMenu) return;
+            const target = event.target;
+            if (statusMenu.contains(target) || regionMenu.contains(target) || eventMenu.contains(target) || (statusButton && statusButton.contains(target)) || (regionButton && regionButton.contains(target)) || (eventButton && eventButton.contains(target))) {
+                return;
+            }
+            statusMenu.classList.add('hidden');
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsVppEventsTableFilters.openMenu = null;
+        };
+        document.addEventListener('click', this.reportsVppEventsTableOutsideClickHandler);
+
         lucide.createIcons({
             root: container
         });
@@ -3573,7 +3777,29 @@ const app = {
                 </div>
             </div>
         `;
-        
+
+        if (this.reportsVppEventsTableOutsideClickHandler) {
+            document.removeEventListener('click', this.reportsVppEventsTableOutsideClickHandler);
+        }
+        this.reportsVppEventsTableOutsideClickHandler = (event) => {
+            const statusMenu = document.getElementById('reports-vpp-events-table-status-menu');
+            const regionMenu = document.getElementById('reports-vpp-events-table-region-menu');
+            const eventMenu = document.getElementById('reports-vpp-events-table-event-menu');
+            const statusButton = document.querySelector('[data-reports-vpp-events-table-filter="status"]');
+            const regionButton = document.querySelector('[data-reports-vpp-events-table-filter="region"]');
+            const eventButton = document.querySelector('[data-reports-vpp-events-table-filter="event"]');
+            if (!statusMenu || !regionMenu || !eventMenu) return;
+            const target = event.target;
+            if (statusMenu.contains(target) || regionMenu.contains(target) || eventMenu.contains(target) || (statusButton && statusButton.contains(target)) || (regionButton && regionButton.contains(target)) || (eventButton && eventButton.contains(target))) {
+                return;
+            }
+            statusMenu.classList.add('hidden');
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsVppEventsTableFilters.openMenu = null;
+        };
+        document.addEventListener('click', this.reportsVppEventsTableOutsideClickHandler);
+
         lucide.createIcons({
             root: container
         });
@@ -3924,13 +4150,726 @@ const app = {
         this.renderReportsVppEvents(document.getElementById('content-area'));
     },
 
+    updateReportsVppEventsDetailsState(key, value) {
+        state.reportsVppEventsDetails[key] = value;
+        this.renderReportsVppEvents(document.getElementById('content-area'));
+    },
+
+    openReportsVppEventsDetails(absoluteIndex) {
+        const events = Array.isArray(this.reportsVppEventsFilteredAll) ? this.reportsVppEventsFilteredAll : [];
+        const index = Number(absoluteIndex);
+        const event = Number.isFinite(index) ? events[index] : null;
+        if (!event) return;
+        state.reportsVppEvents.selectedEventIndex = index;
+        state.reportsVppEventsTableFilters.openMenu = null;
+        this.renderReportsVppEvents(document.getElementById('content-area'));
+    },
+
+    closeReportsVppEventsDetails() {
+        state.reportsVppEvents.selectedEventIndex = null;
+        state.reportsVppEventsTableFilters.openMenu = null;
+        state.reportsVppEventsDetailsDerTableFilters.openMenu = null;
+        if (this.reportsVppEventsDetailsDerTableOutsideClickHandler) {
+            document.removeEventListener('click', this.reportsVppEventsDetailsDerTableOutsideClickHandler);
+            this.reportsVppEventsDetailsDerTableOutsideClickHandler = null;
+        }
+        this.renderReportsVppEvents(document.getElementById('content-area'));
+    },
+
+    openReportsVppEventsDetailsExportConfirm() {
+        const existing = document.getElementById('reports-vpp-events-details-export-modal');
+        if (existing) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'reports-vpp-events-details-export-modal';
+        overlay.className = 'fixed inset-0 z-50 flex items-center justify-center';
+        overlay.innerHTML = `
+            <div class="absolute inset-0 bg-black/30"></div>
+            <div class="relative bg-white rounded-lg shadow-lg w-[420px] max-w-[calc(100vw-32px)] p-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="text-[16px] font-semibold text-[#313949] font-['Roboto']">Export</div>
+                        <div class="text-[14px] text-[#4b5563] font-['Roboto']">Are you sure you want to export data with the current filters?</div>
+                    </div>
+                    <button onclick="app.closeReportsVppEventsDetailsExportConfirm()" class="w-8 h-8 rounded-md flex items-center justify-center text-[#9ca3af] hover:bg-gray-100 hover:text-[#313949] transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-end gap-2 mt-5">
+                    <button onclick="app.closeReportsVppEventsDetailsExportConfirm()" class="h-[32px] px-4 rounded-[4px] bg-[#f3f3f6] text-[#313949] text-[14px] font-['Roboto'] font-semibold hover:bg-[#e6e8ee] transition-colors">Cancel</button>
+                    <button onclick="app.confirmReportsVppEventsDetailsExportConfirm()" class="h-[32px] px-4 rounded-[4px] bg-[#2e9f58] text-white text-[14px] font-['Roboto'] font-semibold hover:bg-[#257f46] transition-colors">Confirm</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons({ root: overlay });
+        }
+    },
+
+    closeReportsVppEventsDetailsExportConfirm() {
+        const overlay = document.getElementById('reports-vpp-events-details-export-modal');
+        if (overlay) overlay.remove();
+    },
+
+    confirmReportsVppEventsDetailsExportConfirm() {
+        this.exportReportsVppEventsDetailsToExcel();
+        this.closeReportsVppEventsDetailsExportConfirm();
+    },
+
+    exportReportsVppEventsDetailsToExcel() {
+        const events = Array.isArray(this.reportsVppEventsFilteredAll) ? this.reportsVppEventsFilteredAll : [];
+        const index = state.reportsVppEvents.selectedEventIndex;
+        const event = index !== null && index !== undefined ? events[index] : null;
+        const filename = `VPP Event Details.xls`;
+
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const formatAestDate = (value) => {
+            if (!value) return '-';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                const [year, month, day] = raw.split('-');
+                return `${day}-${month}-${year}`;
+            }
+            return value;
+        };
+
+        const rowsHtml = event ? `
+            <tr>
+                <td>${escapeHtml(formatAestDate(event.date))}</td>
+                <td>${escapeHtml(event.vppName || '-')}</td>
+                <td>${escapeHtml(event.eventType || '-')}</td>
+                <td>${escapeHtml(event.power || '-')}</td>
+                <td>${escapeHtml(event.volume || '-')}</td>
+                <td>${escapeHtml(event.vppIncome || '-')}</td>
+                <td>${escapeHtml(event.notes || '-')}</td>
+            </tr>
+        ` : '';
+
+        const html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head><meta charset="UTF-8"></head>
+                <body>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>VPP</th>
+                                <th>Event</th>
+                                <th>Participated Power</th>
+                                <th>Est. Volume</th>
+                                <th>Est. Revenue</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml || '<tr><td colspan="7">No Event</td></tr>'}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+    },
+
+    openReportsVppEventsExportConfirm() {
+        const existing = document.getElementById('reports-vpp-events-export-modal');
+        if (existing) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'reports-vpp-events-export-modal';
+        overlay.className = 'fixed inset-0 z-50 flex items-center justify-center';
+        overlay.innerHTML = `
+            <div class="absolute inset-0 bg-black/30"></div>
+            <div class="relative bg-white rounded-lg shadow-lg w-[420px] max-w-[calc(100vw-32px)] p-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="text-[16px] font-semibold text-[#313949] font-['Roboto']">Export</div>
+                        <div class="text-[14px] text-[#4b5563] font-['Roboto']">Are you sure you want to export data with the current filters?</div>
+                    </div>
+                    <button onclick="app.closeReportsVppEventsExportConfirm()" class="w-8 h-8 rounded-md flex items-center justify-center text-[#9ca3af] hover:bg-gray-100 hover:text-[#313949] transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-end gap-2 mt-5">
+                    <button onclick="app.closeReportsVppEventsExportConfirm()" class="h-[32px] px-4 rounded-[4px] bg-[#f3f3f6] text-[#313949] text-[14px] font-['Roboto'] font-semibold hover:bg-[#e6e8ee] transition-colors">Cancel</button>
+                    <button onclick="app.confirmReportsVppEventsExportConfirm()" class="h-[32px] px-4 rounded-[4px] bg-[#2e9f58] text-white text-[14px] font-['Roboto'] font-semibold hover:bg-[#257f46] transition-colors">Confirm</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons({ root: overlay });
+        }
+    },
+
+    closeReportsVppEventsExportConfirm() {
+        const overlay = document.getElementById('reports-vpp-events-export-modal');
+        if (overlay) overlay.remove();
+    },
+
+    confirmReportsVppEventsExportConfirm() {
+        this.exportReportsVppEventsToExcel();
+        this.closeReportsVppEventsExportConfirm();
+    },
+
+    exportReportsVppEventsToExcel() {
+        const events = Array.isArray(this.reportsVppEventsFilteredAll) ? this.reportsVppEventsFilteredAll : [];
+        const rawDateLabel = this.reportsVppEventsExportDateLabel || '';
+        const dateLabel = String(rawDateLabel).replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
+        const filename = `VPP Events${dateLabel ? ' ' + dateLabel : ''}.xls`;
+
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const formatAestDate = (value) => {
+            if (!value) return '-';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                const [year, month, day] = raw.split('-');
+                return `${day}-${month}-${year}`;
+            }
+            return value;
+        };
+
+        const normalizeStatusLabel = (status) => {
+            if (status === 'Partially Success') return 'Partially Completed';
+            if (status === 'Success') return 'Completed';
+            if (status === 'Failed') return 'Incompleted';
+            return status || '-';
+        };
+
+        const getPricingRegion = (event) => {
+            if (event?.pricingRegion) return event.pricingRegion;
+            if (event?.region) return event.region;
+            if (event?.vppName) {
+                const match = String(event.vppName).match(/^(NSW|VIC|QLD|SA|WA)\b/);
+                if (match) return match[1];
+            }
+            return '-';
+        };
+
+        const rowsHtml = events.map(event => {
+            const timeParts = event.timeRange ? String(event.timeRange).split(' - ') : [];
+            const startTime = timeParts[0] || '-';
+            const endTime = timeParts[1] || '-';
+            const parseNum = (value) => {
+                const num = parseFloat(String(value ?? '').replace(/[^0-9.-]/g, ''));
+                return Number.isFinite(num) ? num : null;
+            };
+            const toMwh = (value) => {
+                if (!value) return null;
+                const raw = String(value);
+                const num = parseNum(raw);
+                if (num === null) return null;
+                if (/mwh/i.test(raw)) return num;
+                if (/kwh/i.test(raw)) return num / 1000;
+                return num;
+            };
+            const revenue = parseNum(event.vppIncome);
+            const volumeMwh = toMwh(event.volume);
+            const avgPrice = revenue !== null && volumeMwh !== null && volumeMwh !== 0 ? `$${(revenue / volumeMwh).toFixed(2)}` : '-';
+            return `
+                <tr>
+                    <td>${escapeHtml(formatAestDate(event.date))}</td>
+                    <td>${escapeHtml(normalizeStatusLabel(event.status))}</td>
+                    <td>${escapeHtml(getPricingRegion(event))}</td>
+                    <td>${escapeHtml(event.vppName || '-')}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>${escapeHtml(event.eventType || '-')}</td>
+                    <td>${escapeHtml(startTime)}</td>
+                    <td>${escapeHtml(endTime)}</td>
+                    <td>${escapeHtml(event.power || '-')}</td>
+                    <td>${escapeHtml(event.volume || '-')}</td>
+                    <td>${escapeHtml(avgPrice)}</td>
+                    <td>${escapeHtml(event.vppIncome || '-')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head><meta charset="UTF-8"></head>
+                <body>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Pricing Region</th>
+                                <th>VPP</th>
+                                <th>Trigger From</th>
+                                <th>Trigger Condition</th>
+                                <th>Event</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Participated Power</th>
+                                <th>Est. Volume</th>
+                                <th>Avg.Price</th>
+                                <th>Est. Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml || '<tr><td colspan="13">No Event</td></tr>'}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+    },
+
+    toggleReportsVppEventsTableFilter(menu) {
+        const statusMenu = document.getElementById('reports-vpp-events-table-status-menu');
+        const regionMenu = document.getElementById('reports-vpp-events-table-region-menu');
+        const eventMenu = document.getElementById('reports-vpp-events-table-event-menu');
+        if (!statusMenu || !regionMenu || !eventMenu) return;
+        if (menu === 'status') {
+            const isHidden = statusMenu.classList.contains('hidden');
+            statusMenu.classList.toggle('hidden');
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsVppEventsTableFilters.openMenu = isHidden ? 'status' : null;
+            return;
+        }
+        if (menu === 'region') {
+            const isHidden = regionMenu.classList.contains('hidden');
+            regionMenu.classList.toggle('hidden');
+            statusMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsVppEventsTableFilters.openMenu = isHidden ? 'region' : null;
+            return;
+        }
+        if (menu === 'event') {
+            const isHidden = eventMenu.classList.contains('hidden');
+            eventMenu.classList.toggle('hidden');
+            statusMenu.classList.add('hidden');
+            regionMenu.classList.add('hidden');
+            state.reportsVppEventsTableFilters.openMenu = isHidden ? 'event' : null;
+        }
+    },
+
+    updateReportsVppEventsTableFilter(key, value, checked) {
+        const list = state.reportsVppEventsTableFilters[key];
+        const options = key === 'regions'
+            ? state.reportsVppEventsTableFilters.regionOptions
+            : key === 'events'
+                ? state.reportsVppEventsTableFilters.eventOptions
+                : state.reportsVppEventsTableFilters.statusOptions;
+        const allKey = key === 'regions' ? 'regionsAll' : key === 'events' ? 'eventsAll' : 'statusesAll';
+        const isDefaultAll = state.reportsVppEventsTableFilters[allKey];
+        if (checked === false) {
+            if (isDefaultAll) {
+                state.reportsVppEventsTableFilters[key] = options.filter(item => item !== value);
+                state.reportsVppEventsTableFilters[allKey] = false;
+            } else {
+                state.reportsVppEventsTableFilters[key] = list.filter(item => item !== value);
+            }
+        } else {
+            if (!list.includes(value)) {
+                state.reportsVppEventsTableFilters[key] = [...list, value];
+            }
+        }
+        if (state.reportsVppEventsTableFilters[key].length === options.length && options.length > 0) {
+            state.reportsVppEventsTableFilters[key] = [];
+            state.reportsVppEventsTableFilters[allKey] = true;
+        } else if (state.reportsVppEventsTableFilters[key].length === 0 && !isDefaultAll) {
+            state.reportsVppEventsTableFilters[allKey] = false;
+        }
+        this.renderReportsVppEvents(document.getElementById('content-area'));
+    },
+
+    toggleSpotTradingEventsFilter(menu) {
+        const eventMenu = document.getElementById('spot-trading-events-event-menu');
+        const statusMenu = document.getElementById('spot-trading-events-status-menu');
+        if (!eventMenu || !statusMenu) return;
+        if (menu === 'event') {
+            const isHidden = eventMenu.classList.contains('hidden');
+            eventMenu.classList.toggle('hidden');
+            statusMenu.classList.add('hidden');
+            state.spotTradingEventsFilters.openMenu = isHidden ? 'event' : null;
+            return;
+        }
+        if (menu === 'status') {
+            const isHidden = statusMenu.classList.contains('hidden');
+            statusMenu.classList.toggle('hidden');
+            eventMenu.classList.add('hidden');
+            state.spotTradingEventsFilters.openMenu = isHidden ? 'status' : null;
+        }
+    },
+
+    toggleTradingRulesFilter(menu) {
+        const regionMenu = document.getElementById('trading-rules-region-menu');
+        const eventMenu = document.getElementById('trading-rules-event-menu');
+        const statusMenu = document.getElementById('trading-rules-status-menu');
+        if (!regionMenu || !eventMenu || !statusMenu) return;
+        if (menu === 'region') {
+            const isHidden = regionMenu.classList.contains('hidden');
+            regionMenu.classList.toggle('hidden');
+            eventMenu.classList.add('hidden');
+            statusMenu.classList.add('hidden');
+            state.tradingRulesFilters.openMenu = isHidden ? 'region' : null;
+            return;
+        }
+        if (menu === 'event') {
+            const isHidden = eventMenu.classList.contains('hidden');
+            eventMenu.classList.toggle('hidden');
+            regionMenu.classList.add('hidden');
+            statusMenu.classList.add('hidden');
+            state.tradingRulesFilters.openMenu = isHidden ? 'event' : null;
+            return;
+        }
+        if (menu === 'status') {
+            const isHidden = statusMenu.classList.contains('hidden');
+            statusMenu.classList.toggle('hidden');
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.tradingRulesFilters.openMenu = isHidden ? 'status' : null;
+        }
+    },
+
+    updateTradingRulesFilter(key, value, checked) {
+        const list = state.tradingRulesFilters[key];
+        const options = key === 'regions'
+            ? state.tradingRulesFilters.regionOptions
+            : key === 'events'
+                ? state.tradingRulesFilters.eventOptions
+                : state.tradingRulesFilters.statusOptions;
+        const allKey = key === 'regions' ? 'regionsAll' : key === 'events' ? 'eventsAll' : 'statusesAll';
+        const isDefaultAll = state.tradingRulesFilters[allKey];
+        if (checked === false) {
+            if (isDefaultAll) {
+                state.tradingRulesFilters[key] = options.filter(item => item !== value);
+                state.tradingRulesFilters[allKey] = false;
+            } else {
+                state.tradingRulesFilters[key] = list.filter(item => item !== value);
+            }
+        } else {
+            if (!list.includes(value)) {
+                state.tradingRulesFilters[key] = [...list, value];
+            }
+        }
+        if (state.tradingRulesFilters[key].length === options.length && options.length > 0) {
+            state.tradingRulesFilters[key] = [];
+            state.tradingRulesFilters[allKey] = true;
+        } else if (state.tradingRulesFilters[key].length === 0 && !isDefaultAll) {
+            state.tradingRulesFilters[allKey] = false;
+        }
+        this.renderTradingOverview(document.getElementById('content-area'));
+    },
+
+    updateSpotTradingEventsFilter(key, value, checked) {
+        const list = state.spotTradingEventsFilters[key];
+        const options = key === 'eventTypes' ? state.spotTradingEventsFilters.eventOptions : state.spotTradingEventsFilters.statusOptions;
+        const allKey = key === 'eventTypes' ? 'eventTypesAll' : 'statusesAll';
+        const isDefaultAll = state.spotTradingEventsFilters[allKey];
+        if (checked === false) {
+            if (isDefaultAll) {
+                state.spotTradingEventsFilters[key] = options.filter(item => item !== value);
+                state.spotTradingEventsFilters[allKey] = false;
+            } else {
+                state.spotTradingEventsFilters[key] = list.filter(item => item !== value);
+            }
+        } else {
+            if (!list.includes(value)) {
+                state.spotTradingEventsFilters[key] = [...list, value];
+            }
+        }
+        if (state.spotTradingEventsFilters[key].length === options.length && options.length > 0) {
+            state.spotTradingEventsFilters[key] = [];
+            state.spotTradingEventsFilters[allKey] = true;
+        } else if (state.spotTradingEventsFilters[key].length === 0 && !isDefaultAll) {
+            state.spotTradingEventsFilters[allKey] = false;
+        }
+        const datePicker = document.getElementById('spot-date-picker');
+        const today = new Date();
+        const todayStr = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-');
+        const dateStr = this.spotTradingEventsDateStr || (datePicker ? datePicker.value : '') || todayStr;
+        if (typeof this.renderSpotTradingEventsList === 'function') {
+            this.renderSpotTradingEventsList(dateStr);
+            return;
+        }
+        this.renderSpotMarket(document.getElementById('content-area'));
+    },
+
     updateReportsDerEventsState(key, value) {
         state.reportsDerEvents[key] = value;
         this.renderReportsDerEvents(document.getElementById('content-area'));
     },
 
+    toggleReportsDerEventsTableFilter(menu) {
+        const statusMenu = document.getElementById('reports-der-events-table-status-menu');
+        const regionMenu = document.getElementById('reports-der-events-table-region-menu');
+        const eventMenu = document.getElementById('reports-der-events-table-event-menu');
+        if (!statusMenu || !regionMenu || !eventMenu) return;
+        if (menu === 'status') {
+            const isHidden = statusMenu.classList.contains('hidden');
+            statusMenu.classList.toggle('hidden');
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsDerEventsTableFilters.openMenu = isHidden ? 'status' : null;
+            return;
+        }
+        if (menu === 'region') {
+            const isHidden = regionMenu.classList.contains('hidden');
+            regionMenu.classList.toggle('hidden');
+            statusMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsDerEventsTableFilters.openMenu = isHidden ? 'region' : null;
+            return;
+        }
+        if (menu === 'event') {
+            const isHidden = eventMenu.classList.contains('hidden');
+            eventMenu.classList.toggle('hidden');
+            statusMenu.classList.add('hidden');
+            regionMenu.classList.add('hidden');
+            state.reportsDerEventsTableFilters.openMenu = isHidden ? 'event' : null;
+        }
+    },
+
+    toggleReportsVppEventsDetailsDerTableFilter(menu) {
+        const statusMenu = document.getElementById('reports-vpp-events-details-der-table-status-menu');
+        if (!statusMenu) return;
+        if (menu !== 'status') return;
+        const isHidden = statusMenu.classList.contains('hidden');
+        statusMenu.classList.toggle('hidden');
+        state.reportsVppEventsDetailsDerTableFilters.openMenu = isHidden ? 'status' : null;
+    },
+
+    updateReportsDerEventsTableFilter(key, value, checked) {
+        const list = state.reportsDerEventsTableFilters[key];
+        const options = key === 'regions'
+            ? state.reportsDerEventsTableFilters.regionOptions
+            : key === 'events'
+                ? state.reportsDerEventsTableFilters.eventOptions
+                : state.reportsDerEventsTableFilters.statusOptions;
+        const allKey = key === 'regions' ? 'regionsAll' : key === 'events' ? 'eventsAll' : 'statusesAll';
+        const isDefaultAll = state.reportsDerEventsTableFilters[allKey];
+        if (checked === false) {
+            if (isDefaultAll) {
+                state.reportsDerEventsTableFilters[key] = options.filter(item => item !== value);
+                state.reportsDerEventsTableFilters[allKey] = false;
+            } else {
+                state.reportsDerEventsTableFilters[key] = list.filter(item => item !== value);
+            }
+        } else {
+            if (!list.includes(value)) {
+                state.reportsDerEventsTableFilters[key] = [...list, value];
+            }
+        }
+        if (state.reportsDerEventsTableFilters[key].length === options.length && options.length > 0) {
+            state.reportsDerEventsTableFilters[key] = [];
+            state.reportsDerEventsTableFilters[allKey] = true;
+        } else if (state.reportsDerEventsTableFilters[key].length === 0 && !isDefaultAll) {
+            state.reportsDerEventsTableFilters[allKey] = false;
+        }
+        this.renderReportsDerEvents(document.getElementById('content-area'));
+    },
+
+    updateReportsVppEventsDetailsDerTableFilter(key, value, checked) {
+        const list = state.reportsVppEventsDetailsDerTableFilters[key];
+        const options = key === 'regions'
+            ? state.reportsVppEventsDetailsDerTableFilters.regionOptions
+            : key === 'events'
+                ? state.reportsVppEventsDetailsDerTableFilters.eventOptions
+                : state.reportsVppEventsDetailsDerTableFilters.statusOptions;
+        const allKey = key === 'regions' ? 'regionsAll' : key === 'events' ? 'eventsAll' : 'statusesAll';
+        const isDefaultAll = state.reportsVppEventsDetailsDerTableFilters[allKey];
+        if (checked === false) {
+            if (isDefaultAll) {
+                state.reportsVppEventsDetailsDerTableFilters[key] = options.filter(item => item !== value);
+                state.reportsVppEventsDetailsDerTableFilters[allKey] = false;
+            } else {
+                state.reportsVppEventsDetailsDerTableFilters[key] = list.filter(item => item !== value);
+            }
+        } else {
+            if (!list.includes(value)) {
+                state.reportsVppEventsDetailsDerTableFilters[key] = [...list, value];
+            }
+        }
+        if (state.reportsVppEventsDetailsDerTableFilters[key].length === options.length && options.length > 0) {
+            state.reportsVppEventsDetailsDerTableFilters[key] = [];
+            state.reportsVppEventsDetailsDerTableFilters[allKey] = true;
+        } else if (state.reportsVppEventsDetailsDerTableFilters[key].length === 0 && !isDefaultAll) {
+            state.reportsVppEventsDetailsDerTableFilters[allKey] = false;
+        }
+        this.renderReportsVppEvents(document.getElementById('content-area'));
+    },
+
+    openReportsDerEventsExportConfirm() {
+        const existing = document.getElementById('reports-der-events-export-modal');
+        if (existing) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'reports-der-events-export-modal';
+        overlay.className = 'fixed inset-0 z-50 flex items-center justify-center';
+        overlay.innerHTML = `
+            <div class="absolute inset-0 bg-black/30"></div>
+            <div class="relative bg-white rounded-lg shadow-lg w-[420px] max-w-[calc(100vw-32px)] p-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="text-[16px] font-semibold text-[#313949] font-['Roboto']">Export</div>
+                        <div class="text-[14px] text-[#4b5563] font-['Roboto']">Are you sure you want to export data with the current filters?</div>
+                    </div>
+                    <button onclick="app.closeReportsDerEventsExportConfirm()" class="w-8 h-8 rounded-md flex items-center justify-center text-[#9ca3af] hover:bg-gray-100 hover:text-[#313949] transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-end gap-2 mt-5">
+                    <button onclick="app.closeReportsDerEventsExportConfirm()" class="h-[32px] px-4 rounded-[4px] bg-[#f3f3f6] text-[#313949] text-[14px] font-['Roboto'] font-semibold hover:bg-[#e6e8ee] transition-colors">Cancel</button>
+                    <button onclick="app.confirmReportsDerEventsExportConfirm()" class="h-[32px] px-4 rounded-[4px] bg-[#2e9f58] text-white text-[14px] font-['Roboto'] font-semibold hover:bg-[#257f46] transition-colors">Confirm</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons({ root: overlay });
+        }
+    },
+
+    closeReportsDerEventsExportConfirm() {
+        const overlay = document.getElementById('reports-der-events-export-modal');
+        if (overlay) overlay.remove();
+    },
+
+    confirmReportsDerEventsExportConfirm() {
+        this.exportReportsDerEventsToExcel();
+        this.closeReportsDerEventsExportConfirm();
+    },
+
+    exportReportsDerEventsToExcel() {
+        const events = Array.isArray(this.reportsDerEventsFilteredAll) ? this.reportsDerEventsFilteredAll : [];
+        const rawDateLabel = this.reportsDerEventsExportDateLabel || '';
+        const dateLabel = String(rawDateLabel).replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
+        const filename = `DER Events${dateLabel ? ' ' + dateLabel : ''}.xls`;
+
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const formatAestDate = (value) => {
+            if (!value) return '-';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                const [year, month, day] = raw.split('-');
+                return `${day}-${month}-${year}`;
+            }
+            return value;
+        };
+
+        const normalizeStatusLabel = (status) => {
+            if (status === 'Partially Success') return 'Partially Completed';
+            if (status === 'Success') return 'Completed';
+            if (status === 'Failed') return 'Incompleted';
+            return status || '-';
+        };
+
+        const rowsHtml = events.map(event => `
+            <tr>
+                <td>${escapeHtml(event.id)}</td>
+                <td>${escapeHtml(event.sn || '-')}</td>
+                <td>${escapeHtml(event.eventType || '-')}</td>
+                <td>${escapeHtml(formatAestDate(event.date))}</td>
+                <td>${escapeHtml(event.timeRange || '-')}</td>
+                <td>${escapeHtml(event.from || '-')}</td>
+                <td>${escapeHtml(event.power || '-')}</td>
+                <td>${escapeHtml(event.spotPrice || '-')}</td>
+                <td>${escapeHtml(event.volume || '-')}</td>
+                <td>${escapeHtml(event.vppIncome || '-')}</td>
+                <td>${escapeHtml(event.notes || '-')}</td>
+                <td>${escapeHtml(normalizeStatusLabel(event.status))}</td>
+            </tr>
+        `).join('');
+
+        const html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head><meta charset="UTF-8"></head>
+                <body>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>SN</th>
+                                <th>Event Type</th>
+                                <th>Date</th>
+                                <th>Start Time - End Time</th>
+                                <th>From</th>
+                                <th>Power</th>
+                                <th>Spot Price</th>
+                                <th>Volume</th>
+                                <th>VPP Income</th>
+                                <th>Notes</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml || '<tr><td colspan="12">No Event</td></tr>'}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+    },
+
     renderReportsVppEvents(container) {
-        const { currentPage, itemsPerPage } = state.reportsVppEvents;
+        const { currentPage, itemsPerPage, currentMode, dateRange } = state.reportsVppEvents;
         
         // Mock data expansion for pagination demo
         let allEvents = [...MOCK_DATA.reportsVppEvents];
@@ -3939,13 +4878,492 @@ const app = {
              allEvents = [...allEvents, ...MOCK_DATA.reportsVppEvents.map((e, i) => ({...e, id: allEvents.length + 1 + i}))];
         }
 
-        const totalItems = allEvents.length;
+        const normalizeDateKey = (value) => {
+            if (!value) return '';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+            return '';
+        };
+
+        const formatAestDate = (value) => {
+            if (!value) return '-';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                const [year, month, day] = raw.split('-');
+                return `${day}-${month}-${year}`;
+            }
+            return value;
+        };
+
+        const eventDateKeys = allEvents.map(event => normalizeDateKey(event.date)).filter(Boolean);
+        const maxDateKey = eventDateKeys.reduce((maxKey, key) => key > maxKey ? key : maxKey, '');
+        const startValue = dateRange?.start || maxDateKey;
+        const endValue = dateRange?.end || maxDateKey;
+        this.reportsVppEventsExportDateLabel = currentMode === 'historical'
+            ? (startValue && endValue ? (startValue === endValue ? startValue : `${startValue}-${endValue}`) : (startValue || endValue || maxDateKey))
+            : maxDateKey;
+
+        let filteredEvents = allEvents;
+        if (currentMode === 'realtime') {
+            if (maxDateKey) {
+                filteredEvents = allEvents.filter(event => normalizeDateKey(event.date) === maxDateKey);
+            }
+        } else {
+            if (startValue || endValue) {
+                filteredEvents = allEvents.filter(event => {
+                    const key = normalizeDateKey(event.date);
+                    if (!key) return false;
+                    if (startValue && key < startValue) return false;
+                    if (endValue && key > endValue) return false;
+                    return true;
+                });
+            }
+        }
+
+        const statusFilter = state.reportsVppEvents.status || 'All';
+        const matchStatus = (status) => {
+            if (statusFilter === 'All') return true;
+            if (statusFilter === 'Completed') return status === 'Completed' || status === 'Success';
+            if (statusFilter === 'Executing') return status === 'Executing';
+            if (statusFilter === 'Partially Completed') return status === 'Partially Completed' || status === 'Partially Success';
+            if (statusFilter === 'Incompleted') return status === 'Incompleted' || status === 'Failed';
+            return status === statusFilter;
+        };
+
+        filteredEvents = filteredEvents.filter(event => matchStatus(event.status));
+
+        const getPricingRegion = (event) => {
+            if (event?.pricingRegion) return event.pricingRegion;
+            if (event?.region) return event.region;
+            if (event?.vppName) {
+                const match = event.vppName.match(/^(NSW|VIC|QLD|SA|WA)\b/);
+                if (match) return match[1];
+            }
+            return '-';
+        };
+
+        const normalizeStatusLabel = (status) => {
+            if (status === 'Partially Success') return 'Partially Completed';
+            if (status === 'Success') return 'Completed';
+            if (status === 'Failed') return 'Incompleted';
+            return status || '-';
+        };
+
+        const searchTerm = (state.reportsVppEvents.search || '').trim().toLowerCase();
+        if (searchTerm) {
+            filteredEvents = filteredEvents.filter(event => {
+                const region = getPricingRegion(event);
+                const haystack = [
+                    event.date,
+                    region,
+                    event.vppName,
+                    event.eventType,
+                    normalizeStatusLabel(event.status),
+                    event.timeRange,
+                    event.power,
+                    event.volume,
+                    event.vppIncome,
+                    event.notes
+                ].filter(Boolean).join(' ').toLowerCase();
+                return haystack.includes(searchTerm);
+            });
+        }
+
+        const tableStatusOptions = ['Completed', 'Executing', 'Partially Completed', 'Incompleted'];
+        const tableRegionOptions = Array.from(new Set(filteredEvents.map(event => getPricingRegion(event)).filter(Boolean)));
+        const tableEventOptions = Array.from(new Set(filteredEvents.map(event => event.eventType || '-').filter(Boolean)));
+
+        state.reportsVppEventsTableFilters.statusOptions = tableStatusOptions;
+        state.reportsVppEventsTableFilters.regionOptions = tableRegionOptions;
+        state.reportsVppEventsTableFilters.eventOptions = tableEventOptions;
+
+        state.reportsVppEventsTableFilters.statuses = state.reportsVppEventsTableFilters.statuses.filter(item => tableStatusOptions.includes(item));
+        state.reportsVppEventsTableFilters.regions = state.reportsVppEventsTableFilters.regions.filter(item => tableRegionOptions.includes(item));
+        state.reportsVppEventsTableFilters.events = state.reportsVppEventsTableFilters.events.filter(item => tableEventOptions.includes(item));
+
+        if (state.reportsVppEventsTableFilters.statuses.length === tableStatusOptions.length && tableStatusOptions.length > 0) {
+            state.reportsVppEventsTableFilters.statuses = [];
+            state.reportsVppEventsTableFilters.statusesAll = true;
+        }
+        if (state.reportsVppEventsTableFilters.regions.length === tableRegionOptions.length && tableRegionOptions.length > 0) {
+            state.reportsVppEventsTableFilters.regions = [];
+            state.reportsVppEventsTableFilters.regionsAll = true;
+        }
+        if (state.reportsVppEventsTableFilters.events.length === tableEventOptions.length && tableEventOptions.length > 0) {
+            state.reportsVppEventsTableFilters.events = [];
+            state.reportsVppEventsTableFilters.eventsAll = true;
+        }
+
+        const { statuses, regions, events: eventFilters, statusesAll, regionsAll, eventsAll, openMenu } = state.reportsVppEventsTableFilters;
+        filteredEvents = filteredEvents.filter(event => {
+            const statusLabel = normalizeStatusLabel(event.status);
+            const statusMatches = statusesAll ? true : statuses.includes(statusLabel);
+            const region = getPricingRegion(event);
+            const regionMatches = regionsAll ? true : regions.includes(region);
+            const eventType = event.eventType || '-';
+            const eventMatches = eventsAll ? true : eventFilters.includes(eventType);
+            return statusMatches && regionMatches && eventMatches;
+        });
+
+        this.reportsVppEventsFilteredAll = filteredEvents;
+
+        const selectedIndex = state.reportsVppEvents.selectedEventIndex;
+        if (selectedIndex !== null && selectedIndex !== undefined) {
+            const event = filteredEvents[selectedIndex];
+            if (!event) {
+                state.reportsVppEvents.selectedEventIndex = null;
+            } else {
+                const timeParts = event.timeRange ? String(event.timeRange).split(' - ') : [];
+                const startTime = timeParts[0] || '-';
+                const endTime = timeParts[1] || '-';
+                const statusLabel = normalizeStatusLabel(event.status);
+                const statusClass = statusLabel === 'Completed'
+                    ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]'
+                    : statusLabel === 'Executing'
+                        ? 'bg-[rgba(21,120,208,0.2)] text-[#1578D0]'
+                        : statusLabel === 'Partially Completed'
+                            ? 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'
+                            : 'bg-[rgba(255,52,52,0.2)] text-[#ff3434]';
+                const pricingRegion = getPricingRegion(event);
+                const detailsStatusFilter = state.reportsVppEventsDetails.status || 'All';
+                const detailsSearch = state.reportsVppEventsDetails.search || '';
+                const detailsDerRegion = pricingRegion;
+                const detailsVppName = event.vppName || '-';
+                const detailsTriggerFrom = event.spotPrice ? 'Price' : 'User';
+                const detailsTriggerConditionRaw = event.notes || '-';
+                const hideScheduleFailedText = (value) => String(value ?? '').trim() === 'The device(s) in group failed to schedule.';
+
+                const parseNum = (value) => {
+                    const num = parseFloat(String(value ?? '').replace(/[^0-9.-]/g, ''));
+                    return Number.isFinite(num) ? num : null;
+                };
+                const toMwh = (value) => {
+                    if (!value) return null;
+                    const raw = String(value);
+                    const num = parseNum(raw);
+                    if (num === null) return null;
+                    if (/mwh/i.test(raw)) return num;
+                    if (/kwh/i.test(raw)) return num / 1000;
+                    return num;
+                };
+
+                const vppRevenue = parseNum(event.vppIncome);
+                const vppVolumeMwh = toMwh(event.volume);
+                const vppAvgPrice = vppRevenue !== null && vppVolumeMwh !== null && vppVolumeMwh !== 0 ? `$${(vppRevenue / vppVolumeMwh).toFixed(2)}` : '-';
+
+                let detailsDerEvents = [...MOCK_DATA.reportsDerEvents].filter(der => {
+                    if (!der) return false;
+                    if (String(der.eventType || '') !== String(event.eventType || '')) return false;
+                    if (String(der.date || '') !== String(event.date || '')) return false;
+                    if (String(der.timeRange || '') !== String(event.timeRange || '')) return false;
+                    return true;
+                });
+
+                const matchesDerScope = (der) => {
+                    const derStatusLabel = normalizeStatusLabel(der.status);
+                    const derTriggerFrom = der.from === 'User' ? 'User' : (der.from === 'System' ? 'Price' : (der.from || '-'));
+                    const derTriggerCondition = der.notes || detailsTriggerConditionRaw || '-';
+                    const derVppName = der.vppName || detailsVppName;
+                    const derPricingRegion = der.pricingRegion || der.region || detailsDerRegion;
+                    if (detailsVppName !== '-' && derVppName !== detailsVppName) return false;
+                    if (detailsDerRegion !== '-' && derPricingRegion !== detailsDerRegion) return false;
+                    if (detailsTriggerFrom !== '-' && derTriggerFrom !== detailsTriggerFrom) return false;
+                    if (detailsTriggerConditionRaw !== '-' && derTriggerCondition !== detailsTriggerConditionRaw) return false;
+                    return true;
+                };
+
+                const scopedDerEvents = detailsDerEvents.filter(matchesDerScope);
+                const participatedDerCount = new Set(scopedDerEvents.map(item => item?.sn).filter(Boolean)).size;
+
+                detailsDerEvents = scopedDerEvents.filter(der => {
+                    const derStatusLabel = normalizeStatusLabel(der.status);
+                    const derTriggerFrom = der.from === 'User' ? 'User' : (der.from === 'System' ? 'Price' : (der.from || '-'));
+                    const derTriggerCondition = der.notes || detailsTriggerConditionRaw || '-';
+                    if (detailsStatusFilter !== 'All' && derStatusLabel !== detailsStatusFilter) return false;
+                    const term = String(detailsSearch || '').trim().toLowerCase();
+                    if (!term) return true;
+                    const haystack = [
+                        der.date,
+                        der.sn,
+                        detailsVppName,
+                        derStatusLabel,
+                        detailsDerRegion,
+                        derTriggerFrom,
+                        hideScheduleFailedText(derTriggerCondition) ? '' : derTriggerCondition,
+                        der.eventType,
+                        der.timeRange,
+                        der.power,
+                        der.volume,
+                        der.vppIncome,
+                        der.spotPrice
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    return haystack.includes(term);
+                });
+
+                const detailsDerTableStatusOptions = Array.from(new Set(detailsDerEvents.map(item => normalizeStatusLabel(item.status)).filter(Boolean)));
+                const detailsDerTableRegionOptions = Array.from(new Set([detailsDerRegion].filter(Boolean)));
+                const detailsDerTableEventOptions = Array.from(new Set(detailsDerEvents.map(item => item.eventType || '-').filter(Boolean)));
+
+                state.reportsVppEventsDetailsDerTableFilters.statusOptions = detailsDerTableStatusOptions;
+                state.reportsVppEventsDetailsDerTableFilters.regionOptions = detailsDerTableRegionOptions;
+                state.reportsVppEventsDetailsDerTableFilters.eventOptions = detailsDerTableEventOptions;
+
+                state.reportsVppEventsDetailsDerTableFilters.statuses = state.reportsVppEventsDetailsDerTableFilters.statuses.filter(item => detailsDerTableStatusOptions.includes(item));
+                state.reportsVppEventsDetailsDerTableFilters.regions = state.reportsVppEventsDetailsDerTableFilters.regions.filter(item => detailsDerTableRegionOptions.includes(item));
+                state.reportsVppEventsDetailsDerTableFilters.events = state.reportsVppEventsDetailsDerTableFilters.events.filter(item => detailsDerTableEventOptions.includes(item));
+
+                if (state.reportsVppEventsDetailsDerTableFilters.statuses.length === detailsDerTableStatusOptions.length && detailsDerTableStatusOptions.length > 0) {
+                    state.reportsVppEventsDetailsDerTableFilters.statuses = [];
+                    state.reportsVppEventsDetailsDerTableFilters.statusesAll = true;
+                }
+                if (state.reportsVppEventsDetailsDerTableFilters.regions.length === detailsDerTableRegionOptions.length && detailsDerTableRegionOptions.length > 0) {
+                    state.reportsVppEventsDetailsDerTableFilters.regions = [];
+                    state.reportsVppEventsDetailsDerTableFilters.regionsAll = true;
+                }
+                if (state.reportsVppEventsDetailsDerTableFilters.events.length === detailsDerTableEventOptions.length && detailsDerTableEventOptions.length > 0) {
+                    state.reportsVppEventsDetailsDerTableFilters.events = [];
+                    state.reportsVppEventsDetailsDerTableFilters.eventsAll = true;
+                }
+
+                const {
+                    statuses: detailsDerStatuses,
+                    regions: detailsDerRegions,
+                    events: detailsDerEventFilters,
+                    statusesAll: detailsDerStatusesAll,
+                    regionsAll: detailsDerRegionsAll,
+                    eventsAll: detailsDerEventsAll,
+                    openMenu: detailsDerOpenMenu
+                } = state.reportsVppEventsDetailsDerTableFilters;
+
+                detailsDerEvents = detailsDerEvents.filter(der => {
+                    const derStatusLabel = normalizeStatusLabel(der.status);
+                    const statusMatches = detailsDerStatusesAll ? true : detailsDerStatuses.includes(derStatusLabel);
+                    const regionMatches = detailsDerRegionsAll ? true : detailsDerRegions.includes(detailsDerRegion);
+                    const eventType = der.eventType || '-';
+                    const eventMatches = detailsDerEventsAll ? true : detailsDerEventFilters.includes(eventType);
+                    return statusMatches && regionMatches && eventMatches;
+                });
+
+                container.innerHTML = `
+                    <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col gap-6 p-6">
+                            <div class="flex items-center justify-between py-[8px] gap-[16px]">
+                                <div class="flex items-center gap-[16px]">
+                                    <button onclick="app.closeReportsVppEventsDetails()" class="p-[8px] rounded-[4px] hover:bg-gray-100 transition-colors flex items-center justify-center">
+                                        <i data-lucide="arrow-left" class="w-[24px] h-[24px] text-[#313949]"></i>
+                                    </button>
+                                    <span class="text-[20px] font-bold text-[#1c2026] font-['Roboto']">Details</span>
+                                </div>
+                                <span class="inline-flex items-center gap-[4px] px-[10px] py-[6px] rounded-[14px] text-[12px] font-normal ${statusClass}">
+                                    <span>•</span>
+                                    <span>${statusLabel}</span>
+                                </span>
+                            </div>
+
+                            <div class="bg-[#f3f3f6] rounded-[6px] p-4 flex flex-col gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">VPP</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${detailsVppName || '-'}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Pricing Region</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${pricingRegion || '-'}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Participated DERs</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${participatedDerCount}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Trigger From</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${detailsTriggerFrom || '-'}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Trigger Condition</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${hideScheduleFailedText(detailsTriggerConditionRaw) ? '-' : detailsTriggerConditionRaw}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Event</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.eventType || '-'}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Participated Power</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.power || '-'}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Est. Volume</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.volume || '-'}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Avg.Price</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${vppAvgPrice}</div>
+                                    </div>
+                                    <div class="flex flex-col gap-1 px-2 py-1">
+                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Est. Revenue</div>
+                                        <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.vppIncome || '-'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="bg-[#f3f3f6] flex gap-[4px] items-center p-[4px] relative rounded-[4px] shrink-0 w-fit">
+                                    ${['All', 'Completed', 'Executing', 'Incompleted'].map(item => {
+                                        const isActive = detailsStatusFilter === item;
+                                        const icon = item === 'All' ? '<svg class="w-4 h-4 text-[#313949]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.36285 8.66861V14.002H2.02954V8.66861H7.36285ZM14.0295 8.66861V14.002H8.6962V8.66861H14.0295ZM6.02954 10.002H3.36285V12.6686H6.02954V10.002ZM12.6962 10.002H10.0295V12.6686H12.6962V10.002ZM7.36285 2.00195V7.33523H2.02954V2.00195H7.36285ZM14.0295 2.00195V7.33523H8.6962V2.00195H14.0295ZM12.6962 3.33527H10.0295V6.00195H12.6962V3.33527Z" fill="currentColor"></path></svg>' : '';
+                                        const dot = item === 'Completed' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#3ec064]"></span>' : (item === 'Executing' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#1578D0]"></span>' : (item === 'Incompleted' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#FF3434]"></span>' : ''));
+                                        return `<button onclick="app.updateReportsVppEventsDetailsState('status', '${item}')" class="${isActive ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 transition-all group">
+                                            ${icon}
+                                            ${dot}
+                                            <p class="font-semibold font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">${item}</p>
+                                        </button>`;
+                                    }).join('')}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="app.openReportsVppEventsDetailsExportConfirm()" class="w-[32px] h-[32px] rounded-[4px] bg-[#f3f3f6] flex items-center justify-center text-[#313949] hover:bg-[#e6e8ee] transition-colors" title="Export">
+                                        <i data-lucide="download" class="w-4 h-4"></i>
+                                    </button>
+                                    <div class="relative">
+                                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                        <input type="text" placeholder="Search" value="${detailsSearch}" oninput="app.updateReportsVppEventsDetailsState('search', this.value)" class="bg-[#f3f3f6] border-none rounded-[4px] pl-10 pr-4 py-1.5 text-[14px] text-[#313949] focus:outline-none focus:ring-2 focus:ring-[#2e9f58]/20 w-[240px] transition-colors placeholder:text-[#b5bcc8] font-['Roboto']">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-[4px] p-0 flex flex-col gap-[8px] overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="sticky top-0 z-10 bg-white">
+                                            <tr>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">SN</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                                    <div class="flex items-center gap-2 relative">
+                                                        <span>Status</span>
+                                                        <button onclick="app.toggleReportsVppEventsDetailsDerTableFilter('status')" data-reports-vpp-events-details-der-table-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                        </button>
+                                                        <div id="reports-vpp-events-details-der-table-status-menu" data-reports-vpp-events-details-der-table-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${detailsDerOpenMenu === 'status' ? '' : 'hidden'}">
+                                                            ${state.reportsVppEventsDetailsDerTableFilters.statusOptions.map(option => `
+                                                            <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                                <input type="checkbox" class="accent-[#3ec064]" ${(detailsDerStatusesAll || detailsDerStatuses.includes(option)) ? 'checked' : ''} onchange="app.updateReportsVppEventsDetailsDerTableFilter('statuses', '${option}', this.checked)">
+                                                                <span class="text-xs text-gray-600">${option}</span>
+                                                            </label>
+                                                            `).join('')}
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        ${detailsDerEvents.length === 0 ? `
+                                            <tr>
+                                                <td colspan="10" class="p-[20px]">
+                                                    <div class="h-full flex items-center justify-center">
+                                                        <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                                            <div class="relative w-[88px] h-[88px]">
+                                                                <img src="./assets/icons/empty-state.svg" alt="No Events" class="w-full h-full">
+                                                            </div>
+                                                            <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Event</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ` : detailsDerEvents.map((der, index) => {
+                                            const derTimeParts = der.timeRange ? String(der.timeRange).split(' - ') : [];
+                                            const derStartTime = derTimeParts[0] || '-';
+                                            const derEndTime = derTimeParts[1] || '-';
+                                            const derStatusLabel = normalizeStatusLabel(der.status);
+                                            const derStatusClass = derStatusLabel === 'Completed'
+                                                ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]'
+                                                : derStatusLabel === 'Executing'
+                                                    ? 'bg-[rgba(21,120,208,0.2)] text-[#1578D0]'
+                                                    : derStatusLabel === 'Partially Completed'
+                                                        ? 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'
+                                                        : 'bg-[rgba(255,52,52,0.2)] text-[#ff3434]';
+                                            const revenue = parseNum(der.vppIncome);
+                                            const volumeMwh = toMwh(der.volume);
+                                            const avgPrice = revenue !== null && volumeMwh !== null && volumeMwh !== 0 ? `$${(revenue / volumeMwh).toFixed(2)}` : '-';
+                                            return `
+                                            <tr class="group h-[48px] ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'}">
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${formatAestDate(der.date)}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">${der.sn || '-'}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
+                                                    <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${derStatusClass}">
+                                                        <span>•</span>
+                                                        <span>${derStatusLabel}</span>
+                                                    </span>
+                                                </td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${derStartTime}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${derEndTime}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${der.power || '-'}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${der.volume || '-'}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${avgPrice}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${der.vppIncome || '-'}</td>
+                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
+                                                    <button class="w-[24px] h-[24px] rounded-[4px] flex items-center justify-center text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
+                                                        <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            `;
+                                        }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (this.reportsVppEventsDetailsDerTableOutsideClickHandler) {
+                    document.removeEventListener('click', this.reportsVppEventsDetailsDerTableOutsideClickHandler);
+                }
+                this.reportsVppEventsDetailsDerTableOutsideClickHandler = (event) => {
+                    const statusMenu = document.getElementById('reports-vpp-events-details-der-table-status-menu');
+                    if (!statusMenu) return;
+                    const statusButton = document.querySelector('[data-reports-vpp-events-details-der-table-filter="status"]');
+                    const target = event.target;
+                    if (
+                        (statusMenu.contains(target) || (statusButton && statusButton.contains(target)))
+                    ) {
+                        return;
+                    }
+                    statusMenu.classList.add('hidden');
+                    state.reportsVppEventsDetailsDerTableFilters.openMenu = null;
+                };
+                document.addEventListener('click', this.reportsVppEventsDetailsDerTableOutsideClickHandler);
+
+                lucide.createIcons({ root: container });
+                return;
+            }
+        }
+
+        const totalItems = filteredEvents.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
         const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
         
         const startIdx = (validCurrentPage - 1) * itemsPerPage;
         const endIdx = startIdx + itemsPerPage;
-        const events = allEvents.slice(startIdx, endIdx);
+        const events = filteredEvents.slice(startIdx, endIdx);
 
         // Calculate pagination pages
         let pages = [];
@@ -3966,148 +5384,228 @@ const app = {
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col gap-6 p-6">
-                    <!-- Filters Section -->
-                    <div>
-                        <div class="flex items-end gap-4">
-                            <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
-                                <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
-                                    <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
-                                    <input type="text" placeholder="-" class="w-full text-sm outline-none bg-transparent">
+                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative w-full">
+                        <div class="flex flex-1 gap-4 items-center min-h-px min-w-px relative">
+                            <div class="flex gap-4 items-center relative shrink-0">
+                                <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
+                                    <button onclick="app.updateReportsVppEventsState('currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
+                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
+                                    </button>
+                                    <button onclick="app.updateReportsVppEventsState('currentMode', 'historical')" class="${currentMode === 'historical' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
+                                        <p class="${currentMode === 'historical' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Historical</p>
+                                    </button>
                                 </div>
+                                ${currentMode === 'historical' ? `
+                                <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                                     <input type="date" value="${startValue || ''}" onchange="const val = this.value; const dr = state.reportsVppEvents.dateRange; dr.start = val; app.updateReportsVppEventsState('dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                     <span class="text-[#b5bcc8]">-</span>
+                                     <input type="date" value="${endValue || ''}" onchange="const val = this.value; const dr = state.reportsVppEvents.dateRange; dr.end = val; app.updateReportsVppEventsState('dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                </div>
+                                ` : ''}
                             </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
-                                <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                    <option>All</option>
-                                    <option>Success</option>
-                                    <option>Partially Success</option>
-                                    <option>Failed</option>
-                                </select>
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
-                                <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                    <option>All</option>
-                                    <option>Discharge</option>
-                                    <option>Charge</option>
-                                </select>
-                            </div>
-                             <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">VPP Name</label>
-                                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
-                            </div>
-                            <button class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
-                                Search
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 px-2">
+                        <div class="bg-[#f3f3f6] flex gap-[4px] items-center p-[4px] relative rounded-[4px] shrink-0 w-fit">
+                            ${['All', 'Completed', 'Executing', 'Partially Completed', 'Incompleted'].map(item => {
+                                const isActive = statusFilter === item;
+                                const icon = item === 'All' ? '<svg class="w-4 h-4 text-[#313949]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.36285 8.66861V14.002H2.02954V8.66861H7.36285ZM14.0295 8.66861V14.002H8.6962V8.66861H14.0295ZM6.02954 10.002H3.36285V12.6686H6.02954V10.002ZM12.6962 10.002H10.0295V12.6686H12.6962V10.002ZM7.36285 2.00195V7.33523H2.02954V2.00195H7.36285ZM14.0295 2.00195V7.33523H8.6962V2.00195H14.0295ZM12.6962 3.33527H10.0295V6.00195H12.6962V3.33527Z" fill="currentColor"></path></svg>' : '';
+                                const dot = item === 'Completed' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#3ec064]"></span>' : (item === 'Executing' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#1578D0]"></span>' : (item === 'Partially Completed' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#EC981C]"></span>' : (item === 'Incompleted' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#FF3434]"></span>' : '')));
+                                return `<button onclick="app.updateReportsVppEventsState('status', '${item}')" class="${isActive ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 transition-all group">
+                                    ${icon}
+                                    ${dot}
+                                    <p class="font-semibold font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">${item}</p>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.openReportsVppEventsExportConfirm()" class="w-[32px] h-[32px] rounded-[4px] bg-[#f3f3f6] flex items-center justify-center text-[#313949] hover:bg-[#e6e8ee] transition-colors" title="Export">
+                                <i data-lucide="download" class="w-4 h-4"></i>
                             </button>
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" placeholder="Search" value="${state.reportsVppEvents.search || ''}" oninput="app.updateReportsVppEventsState('search', this.value)" class="bg-[#f3f3f6] border-none rounded-[4px] pl-10 pr-4 py-1.5 text-[14px] text-[#313949] focus:outline-none focus:ring-2 focus:ring-[#2e9f58]/20 w-[240px] transition-colors placeholder:text-[#b5bcc8] font-['Roboto']">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Table Section -->
-                    <div class="flex flex-col flex-1 overflow-hidden border border-gray-200 rounded-xl min-h-[320px]">
-                    <div class="flex-1 overflow-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
-                                <tr>
-                                    <th class="px-6 py-4 w-16 whitespace-nowrap"></th>
-                                    <th class="px-6 py-4 whitespace-nowrap">VPP Name</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Event Type</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Date</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Start Time - End Time</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Power</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Spot Price</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Volume</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">VPP Income</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Status</th>
-                                    <th class="px-6 py-4 w-64 whitespace-nowrap">Notes</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Service Tag</th>
-                                    <th class="px-6 py-4 whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                ${events.map((event, idx) => `
-                                    <tr class="hover:bg-gray-50 transition-colors group">
-                                        <td class="px-6 py-4 text-gray-500">${event.id}</td>
-                                        <td class="px-6 py-4">
-                                            <a href="#" class="text-blue-500 hover:text-blue-700 font-medium">${event.vppName}</a>
-                                        </td>
-                                        <td class="px-6 py-4 text-gray-600">${event.eventType}</td>
-                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.date}</td>
-                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.timeRange}</td>
-                                        <td class="px-6 py-4 text-gray-900">${event.power}</td>
-                                        <td class="px-6 py-4 text-gray-900 font-medium">${event.spotPrice}</td>
-                                        <td class="px-6 py-4 text-gray-900">${event.volume}</td>
-                                        <td class="px-6 py-4 text-gray-900">${event.vppIncome}</td>
-                                        <td class="px-6 py-4">
-                                            <span class="${
-                                                event.status === 'Success' ? 'text-green-600' : 
-                                                event.status === 'Partially Success' ? 'text-orange-500' : 'text-red-500'
-                                            } font-medium block w-max">
-                                                ${event.status}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-gray-500 text-xs leading-relaxed">${event.notes}</td>
-                                        <td class="px-6 py-4 text-gray-500">${event.serviceTag}</td>
-                                        <td class="px-6 py-4 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-                                            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
-                                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <div class="bg-white rounded-[4px] p-0 flex flex-col gap-[8px] overflow-hidden mt-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 z-10 bg-white">
+                                    <tr>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                            <div class="flex items-center gap-2 relative">
+                                                <span>Status</span>
+                                                <button onclick="app.toggleReportsVppEventsTableFilter('status')" data-reports-vpp-events-table-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                                 </button>
-                                                <button class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
-                                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                                <div id="reports-vpp-events-table-status-menu" data-reports-vpp-events-table-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'}">
+                                                    ${state.reportsVppEventsTableFilters.statusOptions.map(option => `
+                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                        <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateReportsVppEventsTableFilter('statuses', '${option}', this.checked)">
+                                                        <span class="text-xs text-gray-600">${option}</span>
+                                                    </label>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                            <div class="flex items-center gap-2 relative">
+                                                <span>Pricing Region</span>
+                                                <button onclick="app.toggleReportsVppEventsTableFilter('region')" data-reports-vpp-events-table-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                                 </button>
+                                                <div id="reports-vpp-events-table-region-menu" data-reports-vpp-events-table-menu="region" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'region' ? '' : 'hidden'}">
+                                                    ${state.reportsVppEventsTableFilters.regionOptions.map(option => `
+                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                        <input type="checkbox" class="accent-[#3ec064]" ${(regionsAll || regions.includes(option)) ? 'checked' : ''} onchange="app.updateReportsVppEventsTableFilter('regions', '${option}', this.checked)">
+                                                        <span class="text-xs text-gray-600">${option}</span>
+                                                    </label>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                            <div class="flex items-center gap-2 relative">
+                                                <span>Event</span>
+                                                <button onclick="app.toggleReportsVppEventsTableFilter('event')" data-reports-vpp-events-table-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                </button>
+                                                <div id="reports-vpp-events-table-event-menu" data-reports-vpp-events-table-menu="event" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'event' ? '' : 'hidden'}">
+                                                    ${state.reportsVppEventsTableFilters.eventOptions.map(option => `
+                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                        <input type="checkbox" class="accent-[#3ec064]" ${(eventsAll || eventFilters.includes(option)) ? 'checked' : ''} onchange="app.updateReportsVppEventsTableFilter('events', '${option}', this.checked)">
+                                                        <span class="text-xs text-gray-600">${option}</span>
+                                                    </label>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                ${events.length === 0 ? `
+                                    <tr>
+                                        <td colspan="14" class="p-[20px]">
+                                            <div class="h-full flex items-center justify-center">
+                                                <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                                    <div class="relative w-[88px] h-[88px]">
+                                                        <img src="./assets/icons/empty-state.svg" alt="No Events" class="w-full h-full">
+                                                    </div>
+                                                    <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Event</p>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-auto flex items-center justify-end px-6 py-4 gap-4 border-t border-gray-100">
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm text-gray-500">Total ${totalItems}</span>
-                            <div class="flex items-center gap-2">
-                               <span class="text-sm text-gray-500">Rows per page:</span>
-                               <select onchange="app.updateReportsVppEventsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
-                                   <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
-                                   <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
-                                   <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
-                                   <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
-                               </select>
-                           </div>
-                        </div>
-                        
-                        <div class="flex items-center gap-2 text-sm">
-                           <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                               <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                           </button>
-                           ${pages.map(pageNum => {
-                               if (pageNum === '...') {
-                                   return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
-                               }
-                               return `<button onclick="app.updateReportsVppEventsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
-                           }).join('')}
-                           <button onclick="app.updateReportsVppEventsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                               <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                           </button>
-                        </div>
-                        
-                        <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
-                            <span>Go to</span>
-                            <input type="text" value="${validCurrentPage}" onchange="app.updateReportsVppEventsState('currentPage', Number(this.value))" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
+                                ` : events.map((event, index) => {
+                                    const timeParts = event.timeRange ? event.timeRange.split(' - ') : [];
+                                    const startTime = timeParts[0] || '-';
+                                    const endTime = timeParts[1] || '-';
+                                    const statusLabel = event.status === 'Partially Success' ? 'Partially Completed' : event.status;
+                                    const statusClass = event.status === 'Success' ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]' : event.status === 'Partially Success' ? 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]' : 'bg-[rgba(255,52,52,0.2)] text-[#ff3434]';
+                                    const absoluteIndex = startIdx + index;
+                                    const parseNum = (value) => {
+                                        const num = parseFloat(String(value ?? '').replace(/[^0-9.-]/g, ''));
+                                        return Number.isFinite(num) ? num : null;
+                                    };
+                                    const toMwh = (value) => {
+                                        if (!value) return null;
+                                        const raw = String(value);
+                                        const num = parseNum(raw);
+                                        if (num === null) return null;
+                                        if (/mwh/i.test(raw)) return num;
+                                        if (/kwh/i.test(raw)) return num / 1000;
+                                        return num;
+                                    };
+                                    const revenue = parseNum(event.vppIncome);
+                                    const volumeMwh = toMwh(event.volume);
+                                    const avgPrice = revenue !== null && volumeMwh !== null && volumeMwh !== 0 ? `$${(revenue / volumeMwh).toFixed(2)}` : '-';
+                                    const pricingRegion = (() => {
+                                        if (event.pricingRegion) return event.pricingRegion;
+                                        if (event.region) return event.region;
+                                        if (event.vppName) {
+                                            const match = event.vppName.match(/^(NSW|VIC|QLD|SA|WA)\b/);
+                                            if (match) return match[1];
+                                        }
+                                        return '-';
+                                    })();
+                                    return `
+                                    <tr class="group h-[48px] ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'}">
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${formatAestDate(event.date)}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">${event.vppName || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
+                                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${statusClass}">
+                                                <span>•</span>
+                                                <span>${statusLabel || '-'}</span>
+                                            </span>
+                                        </td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${pricingRegion}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">-</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">-</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.eventType || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${startTime}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${endTime}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.power || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.volume || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${avgPrice}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.vppIncome || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
+                                            <button onclick="app.openReportsVppEventsDetails(${absoluteIndex})" class="w-[24px] h-[24px] rounded-[4px] flex items-center justify-center text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
+                                                <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        
+
+        if (this.reportsDerEventsTableOutsideClickHandler) {
+            document.removeEventListener('click', this.reportsDerEventsTableOutsideClickHandler);
+        }
+        this.reportsDerEventsTableOutsideClickHandler = (event) => {
+            const statusMenu = document.getElementById('reports-der-events-table-status-menu');
+            const regionMenu = document.getElementById('reports-der-events-table-region-menu');
+            const eventMenu = document.getElementById('reports-der-events-table-event-menu');
+            const statusButton = document.querySelector('[data-reports-der-events-table-filter="status"]');
+            const regionButton = document.querySelector('[data-reports-der-events-table-filter="region"]');
+            const eventButton = document.querySelector('[data-reports-der-events-table-filter="event"]');
+            if (!statusMenu || !regionMenu || !eventMenu) return;
+            const target = event.target;
+            if (statusMenu.contains(target) || regionMenu.contains(target) || eventMenu.contains(target) || (statusButton && statusButton.contains(target)) || (regionButton && regionButton.contains(target)) || (eventButton && eventButton.contains(target))) {
+                return;
+            }
+            statusMenu.classList.add('hidden');
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            state.reportsDerEventsTableFilters.openMenu = null;
+        };
+        document.addEventListener('click', this.reportsDerEventsTableOutsideClickHandler);
+
         lucide.createIcons({
             root: container
         });
     },
 
     renderReportsDerEvents(container) {
-        const { currentPage, itemsPerPage } = state.reportsDerEvents;
+        const { currentPage, itemsPerPage, currentMode, dateRange } = state.reportsDerEvents;
         
         // Mock data expansion for pagination demo
         let allEvents = [...MOCK_DATA.reportsDerEvents];
@@ -4116,13 +5614,145 @@ const app = {
              allEvents = [...allEvents, ...MOCK_DATA.reportsDerEvents.map((e, i) => ({...e, id: allEvents.length + 1 + i}))];
         }
 
-        const totalItems = allEvents.length;
+        const normalizeDateKey = (value) => {
+            if (!value) return '';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+            return '';
+        };
+
+        const eventDateKeys = allEvents.map(event => normalizeDateKey(event.date)).filter(Boolean);
+        const maxDateKey = eventDateKeys.reduce((maxKey, key) => key > maxKey ? key : maxKey, '');
+        const startValue = dateRange?.start || maxDateKey;
+        const endValue = dateRange?.end || maxDateKey;
+        this.reportsDerEventsExportDateLabel = currentMode === 'historical'
+            ? (startValue && endValue ? (startValue === endValue ? startValue : `${startValue}-${endValue}`) : (startValue || endValue || maxDateKey))
+            : maxDateKey;
+
+        let filteredEvents = allEvents;
+        if (currentMode === 'realtime') {
+            if (maxDateKey) {
+                filteredEvents = allEvents.filter(event => normalizeDateKey(event.date) === maxDateKey);
+            }
+        } else {
+            if (startValue || endValue) {
+                filteredEvents = allEvents.filter(event => {
+                    const key = normalizeDateKey(event.date);
+                    if (!key) return false;
+                    if (startValue && key < startValue) return false;
+                    if (endValue && key > endValue) return false;
+                    return true;
+                });
+            }
+        }
+
+        const statusFilter = state.reportsDerEvents.status || 'All';
+        const matchStatus = (status) => {
+            if (statusFilter === 'All') return true;
+            if (statusFilter === 'Completed') return status === 'Completed' || status === 'Success';
+            if (statusFilter === 'Executing') return status === 'Executing';
+            if (statusFilter === 'Partially Completed') return status === 'Partially Completed' || status === 'Partially Success';
+            if (statusFilter === 'Incompleted') return status === 'Incompleted' || status === 'Failed';
+            return status === statusFilter;
+        };
+        filteredEvents = filteredEvents.filter(event => matchStatus(event.status));
+
+        const searchTerm = (state.reportsDerEvents.search || '').trim().toLowerCase();
+        if (searchTerm) {
+            filteredEvents = filteredEvents.filter(event => {
+                const haystack = [
+                    event.sn,
+                    event.eventType,
+                    event.date,
+                    event.timeRange,
+                    event.from,
+                    event.power,
+                    event.spotPrice,
+                    event.volume,
+                    event.vppIncome,
+                    event.notes,
+                    event.status
+                ].filter(Boolean).join(' ').toLowerCase();
+                return haystack.includes(searchTerm);
+            });
+        }
+
+        const formatAestDate = (value) => {
+            if (!value) return '-';
+            const raw = String(value).split(' ')[0];
+            if (raw.includes('/')) {
+                const [day, month, year] = raw.split('/');
+                if (year && month && day) {
+                    return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                const [year, month, day] = raw.split('-');
+                return `${day}-${month}-${year}`;
+            }
+            return value;
+        };
+
+        const normalizeStatusLabel = (status) => {
+            if (status === 'Partially Success') return 'Partially Completed';
+            if (status === 'Success') return 'Completed';
+            if (status === 'Failed') return 'Incompleted';
+            return status || '-';
+        };
+
+        const getPricingRegion = () => '-';
+
+        const tableStatusOptions = ['Completed', 'Executing', 'Partially Completed', 'Incompleted'];
+        const tableRegionOptions = Array.from(new Set(filteredEvents.map(event => getPricingRegion(event)).filter(Boolean)));
+        const tableEventOptions = Array.from(new Set(filteredEvents.map(event => event.eventType || '-').filter(Boolean)));
+
+        state.reportsDerEventsTableFilters.statusOptions = tableStatusOptions;
+        state.reportsDerEventsTableFilters.regionOptions = tableRegionOptions;
+        state.reportsDerEventsTableFilters.eventOptions = tableEventOptions;
+
+        state.reportsDerEventsTableFilters.statuses = state.reportsDerEventsTableFilters.statuses.filter(item => tableStatusOptions.includes(item));
+        state.reportsDerEventsTableFilters.regions = state.reportsDerEventsTableFilters.regions.filter(item => tableRegionOptions.includes(item));
+        state.reportsDerEventsTableFilters.events = state.reportsDerEventsTableFilters.events.filter(item => tableEventOptions.includes(item));
+
+        if (state.reportsDerEventsTableFilters.statuses.length === tableStatusOptions.length && tableStatusOptions.length > 0) {
+            state.reportsDerEventsTableFilters.statuses = [];
+            state.reportsDerEventsTableFilters.statusesAll = true;
+        }
+        if (state.reportsDerEventsTableFilters.regions.length === tableRegionOptions.length && tableRegionOptions.length > 0) {
+            state.reportsDerEventsTableFilters.regions = [];
+            state.reportsDerEventsTableFilters.regionsAll = true;
+        }
+        if (state.reportsDerEventsTableFilters.events.length === tableEventOptions.length && tableEventOptions.length > 0) {
+            state.reportsDerEventsTableFilters.events = [];
+            state.reportsDerEventsTableFilters.eventsAll = true;
+        }
+
+        const { statuses, regions, events: eventFilters, statusesAll, regionsAll, eventsAll, openMenu } = state.reportsDerEventsTableFilters;
+        filteredEvents = filteredEvents.filter(event => {
+            const statusLabel = normalizeStatusLabel(event.status);
+            const statusMatches = statusesAll ? true : statuses.includes(statusLabel);
+            const region = getPricingRegion(event);
+            const regionMatches = regionsAll ? true : regions.includes(region);
+            const eventType = event.eventType || '-';
+            const eventMatches = eventsAll ? true : eventFilters.includes(eventType);
+            return statusMatches && regionMatches && eventMatches;
+        });
+
+        this.reportsDerEventsFilteredAll = filteredEvents;
+
+        const totalItems = filteredEvents.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
         const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
         
         const startIdx = (validCurrentPage - 1) * itemsPerPage;
         const endIdx = startIdx + itemsPerPage;
-        const events = allEvents.slice(startIdx, endIdx);
+        const events = filteredEvents.slice(startIdx, endIdx);
 
         // Calculate pagination pages
         let pages = [];
@@ -4142,143 +5772,192 @@ const app = {
         
         container.innerHTML = `
             <div class="flex flex-col gap-6 w-full h-full overflow-y-auto">
-                <!-- Filters Section -->
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <div class="flex items-end gap-4">
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Time</label>
-                            <div class="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
-                                <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
-                                <input type="text" placeholder="-" class="w-full text-sm outline-none bg-transparent">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col gap-6 p-6">
+                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative w-full">
+                        <div class="flex flex-1 gap-4 items-center min-h-px min-w-px relative">
+                            <div class="flex gap-4 items-center relative shrink-0">
+                                <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
+                                    <button onclick="app.updateReportsDerEventsState('currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
+                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
+                                    </button>
+                                    <button onclick="app.updateReportsDerEventsState('currentMode', 'historical')" class="${currentMode === 'historical' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
+                                        <p class="${currentMode === 'historical' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Historical</p>
+                                    </button>
+                                </div>
+                                ${currentMode === 'historical' ? `
+                                <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                                     <input type="date" value="${startValue || ''}" onchange="const val = this.value; const dr = state.reportsDerEvents.dateRange; dr.start = val; app.updateReportsDerEventsState('dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                     <span class="text-[#b5bcc8]">-</span>
+                                     <input type="date" value="${endValue || ''}" onchange="const val = this.value; const dr = state.reportsDerEvents.dateRange; dr.end = val; app.updateReportsDerEventsState('dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
-                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                <option>All</option>
-                                <option>Discharge</option>
-                                <option>Charge</option>
-                            </select>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
-                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                <option>All</option>
-                                <option>Completed</option>
-                                <option>Failed</option>
-                            </select>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">From</label>
-                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-1 focus:ring-green-500">
-                                <option>All</option>
-                                <option>User</option>
-                                <option>System</option>
-                            </select>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">SN</label>
-                            <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-green-500">
-                        </div>
-                        <button class="px-8 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors">
-                            Search
-                        </button>
                     </div>
-                </div>
-
-                <!-- Table Section -->
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1 overflow-hidden">
-                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                         <button class="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
-                             Export
-                         </button>
-                         
-                         <div class="flex items-center gap-4">
-                             <span class="text-sm text-gray-500">Total ${totalItems}</span>
-                             <div class="flex items-center gap-2">
-                                <span class="text-sm text-gray-500">Rows per page:</span>
-                                <select onchange="app.updateReportsDerEventsState('itemsPerPage', Number(this.value))" class="border border-gray-300 rounded text-sm text-gray-600 focus:outline-none focus:border-manta-primary">
-                                    <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
-                                    <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
-                                    <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
-                                    <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
-                                </select>
+                    <div class="flex items-center justify-between gap-4 px-2">
+                        <div class="bg-[#f3f3f6] flex gap-[4px] items-center p-[4px] relative rounded-[4px] shrink-0 w-fit">
+                            ${['All', 'Completed', 'Executing', 'Incompleted'].map(item => {
+                                const isActive = statusFilter === item;
+                                const icon = item === 'All' ? '<svg class="w-4 h-4 text-[#313949]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.36285 8.66861V14.002H2.02954V8.66861H7.36285ZM14.0295 8.66861V14.002H8.6962V8.66861H14.0295ZM6.02954 10.002H3.36285V12.6686H6.02954V10.002ZM12.6962 10.002H10.0295V12.6686H12.6962V10.002ZM7.36285 2.00195V7.33523H2.02954V2.00195H7.36285ZM14.0295 2.00195V7.33523H8.6962V2.00195H14.0295ZM12.6962 3.33527H10.0295V6.00195H12.6962V3.33527Z" fill="currentColor"></path></svg>' : '';
+                                const dot = item === 'Completed' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#3ec064]"></span>' : (item === 'Executing' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#1578D0]"></span>' : (item === 'Partially Completed' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#EC981C]"></span>' : (item === 'Incompleted' ? '<span class="w-[6px] h-[6px] rounded-full bg-[#FF3434]"></span>' : '')));
+                                return `<button onclick="app.updateReportsDerEventsState('status', '${item}')" class="${isActive ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-[4px] h-[32px] items-center justify-center min-w-[80px] px-[16px] py-[4px] relative rounded-[4px] shrink-0 transition-all group">
+                                    ${icon}
+                                    ${dot}
+                                    <p class="font-semibold font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">${item}</p>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.openReportsDerEventsExportConfirm()" class="w-[32px] h-[32px] rounded-[4px] bg-[#f3f3f6] flex items-center justify-center text-[#313949] hover:bg-[#e6e8ee] transition-colors" title="Export">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                            </button>
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" placeholder="Search" value="${state.reportsDerEvents.search || ''}" oninput="app.updateReportsDerEventsState('search', this.value)" class="bg-[#f3f3f6] border-none rounded-[4px] pl-10 pr-4 py-1.5 text-[14px] text-[#313949] focus:outline-none focus:ring-2 focus:ring-[#2e9f58]/20 w-[240px] transition-colors placeholder:text-[#b5bcc8] font-['Roboto']">
                             </div>
-                             
-                             <!-- Pagination Controls -->
-                             <div class="flex items-center gap-2 text-sm ml-4">
-                                <button onclick="app.updateReportsDerEventsState('currentPage', ${validCurrentPage - 1})" ${validCurrentPage <= 1 ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                                </button>
-                                ${pages.map(pageNum => {
-                                    if (pageNum === '...') {
-                                        return '<span class="w-6 h-6 flex items-center justify-center text-gray-400 text-xs">...</span>';
-                                    }
-                                    return `<button onclick="app.updateReportsDerEventsState('currentPage', ${pageNum})" class="w-6 h-6 flex items-center justify-center rounded ${pageNum === validCurrentPage ? 'bg-manta-primary text-white' : 'hover:bg-gray-100 text-gray-600'} text-xs font-medium">${pageNum}</button>`;
-                                }).join('')}
-                                <button onclick="app.updateReportsDerEventsState('currentPage', ${validCurrentPage + 1})" ${validCurrentPage >= totalPages ? 'disabled' : ''} class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                                </button>
-                             </div>
-                             
-                             <div class="flex items-center gap-2 text-sm text-gray-500 border-l border-gray-200 pl-4 ml-2">
-                                 <span>Go to</span>
-                                 <input type="text" value="${validCurrentPage}" onchange="app.updateReportsDerEventsState('currentPage', Number(this.value))" class="w-10 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:border-green-500">
-                             </div>
-                         </div>
-                     </div>
+                        </div>
+                    </div>
 
-                    <div class="flex-1 overflow-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-700 font-bold bg-gray-50 sticky top-0">
-                                <tr>
-                                    <th class="px-6 py-4 w-16 whitespace-nowrap"></th>
-                                    <th class="px-6 py-4 whitespace-nowrap">SN</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Event Type</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Date</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Start Time - End Time</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">From</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Power</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Spot Price</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Volume</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">VPP Income</th>
-                                    <th class="px-6 py-4 w-64 whitespace-nowrap">Notes</th>
-                                    <th class="px-6 py-4 whitespace-nowrap">Status</th>
-                                    <th class="px-6 py-4 whitespace-nowrap sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                ${events.map((event, idx) => `
-                                    <tr class="hover:bg-gray-50 transition-colors group">
-                                        <td class="px-6 py-4 text-gray-500">${event.id}</td>
-                                        <td class="px-6 py-4">
-                                            <a href="#" class="text-blue-500 hover:text-blue-700 font-medium">${event.sn}</a>
-                                        </td>
-                                        <td class="px-6 py-4 text-gray-600">${event.eventType}</td>
-                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.date}</td>
-                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${event.timeRange}</td>
-                                        <td class="px-6 py-4 text-gray-600">${event.from}</td>
-                                        <td class="px-6 py-4 text-gray-900">${event.power}</td>
-                                        <td class="px-6 py-4 text-gray-900 font-medium">${event.spotPrice}</td>
-                                        <td class="px-6 py-4 text-gray-900">${event.volume}</td>
-                                        <td class="px-6 py-4 text-gray-900">${event.vppIncome}</td>
-                                        <td class="px-6 py-4 text-gray-500 text-xs leading-relaxed">${event.notes}</td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-gray-900 font-medium block w-max">
-                                                ${event.status}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-                                            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
-                                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <div class="bg-white rounded-[4px] p-0 flex flex-col gap-[8px] overflow-hidden mt-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 z-10 bg-white">
+                                    <tr>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">SN</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                            <div class="flex items-center gap-2 relative">
+                                                <span>Status</span>
+                                                <button onclick="app.toggleReportsDerEventsTableFilter('status')" data-reports-der-events-table-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                                 </button>
+                                                <div id="reports-der-events-table-status-menu" data-reports-der-events-table-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'}">
+                                                    ${state.reportsDerEventsTableFilters.statusOptions.map(option => `
+                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                        <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateReportsDerEventsTableFilter('statuses', '${option}', this.checked)">
+                                                        <span class="text-xs text-gray-600">${option}</span>
+                                                    </label>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                            <div class="flex items-center gap-2 relative">
+                                                <span>Pricing Region</span>
+                                                <button onclick="app.toggleReportsDerEventsTableFilter('region')" data-reports-der-events-table-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                </button>
+                                                <div id="reports-der-events-table-region-menu" data-reports-der-events-table-menu="region" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'region' ? '' : 'hidden'}">
+                                                    ${state.reportsDerEventsTableFilters.regionOptions.map(option => `
+                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                        <input type="checkbox" class="accent-[#3ec064]" ${(regionsAll || regions.includes(option)) ? 'checked' : ''} onchange="app.updateReportsDerEventsTableFilter('regions', '${option}', this.checked)">
+                                                        <span class="text-xs text-gray-600">${option}</span>
+                                                    </label>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                            <div class="flex items-center gap-2 relative">
+                                                <span>Event</span>
+                                                <button onclick="app.toggleReportsDerEventsTableFilter('event')" data-reports-der-events-table-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                </button>
+                                                <div id="reports-der-events-table-event-menu" data-reports-der-events-table-menu="event" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'event' ? '' : 'hidden'}">
+                                                    ${state.reportsDerEventsTableFilters.eventOptions.map(option => `
+                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                        <input type="checkbox" class="accent-[#3ec064]" ${(eventsAll || eventFilters.includes(option)) ? 'checked' : ''} onchange="app.updateReportsDerEventsTableFilter('events', '${option}', this.checked)">
+                                                        <span class="text-xs text-gray-600">${option}</span>
+                                                    </label>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                ${events.length === 0 ? `
+                                    <tr>
+                                        <td colspan="15" class="p-[20px]">
+                                            <div class="h-full flex items-center justify-center">
+                                                <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
+                                                    <div class="relative w-[88px] h-[88px]">
+                                                        <img src="./assets/icons/empty-state.svg" alt="No Events" class="w-full h-full">
+                                                    </div>
+                                                    <p class="font-['Roboto'] font-semibold text-[16px] leading-[20px] text-[#313949]">No Event</p>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                ` : events.map((event, index) => {
+                                    const timeParts = event.timeRange ? String(event.timeRange).split(' - ') : [];
+                                    const startTime = timeParts[0] || '-';
+                                    const endTime = timeParts[1] || '-';
+                                    const statusLabel = normalizeStatusLabel(event.status);
+                                    const statusClass = statusLabel === 'Completed'
+                                        ? 'bg-[rgba(62,192,100,0.2)] text-[#3ec064]'
+                                        : statusLabel === 'Executing'
+                                            ? 'bg-[rgba(21,120,208,0.2)] text-[#1578D0]'
+                                            : statusLabel === 'Partially Completed'
+                                                ? 'bg-[rgba(236,152,28,0.2)] text-[#ec981c]'
+                                                : 'bg-[rgba(255,52,52,0.2)] text-[#ff3434]';
+                                    const pricingRegion = getPricingRegion(event);
+                                    const parseNum = (value) => {
+                                        const num = parseFloat(String(value ?? '').replace(/[^0-9.-]/g, ''));
+                                        return Number.isFinite(num) ? num : null;
+                                    };
+                                    const toMwh = (value) => {
+                                        if (!value) return null;
+                                        const raw = String(value);
+                                        const num = parseNum(raw);
+                                        if (num === null) return null;
+                                        if (/mwh/i.test(raw)) return num;
+                                        if (/kwh/i.test(raw)) return num / 1000;
+                                        return num;
+                                    };
+                                    const revenue = parseNum(event.vppIncome);
+                                    const volumeMwh = toMwh(event.volume);
+                                    const avgPrice = revenue !== null && volumeMwh !== null && volumeMwh !== 0 ? `$${(revenue / volumeMwh).toFixed(2)}` : '-';
+                                    return `
+                                    <tr class="group h-[48px] ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'}">
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${formatAestDate(event.date)}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">${event.sn || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#1c2026] whitespace-nowrap">-</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee]">
+                                            <span class="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[12px] text-[12px] font-normal ${statusClass}">
+                                                <span>•</span>
+                                                <span>${statusLabel}</span>
+                                            </span>
+                                        </td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${pricingRegion}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.from === 'User' ? 'User' : (event.from === 'System' ? 'Price' : (event.from || '-'))}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.notes || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.eventType || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${startTime}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${endTime}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.power || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.volume || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${avgPrice}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.vppIncome || '-'}</td>
+                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
+                                            
+                                        </td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5698,10 +7377,23 @@ const app = {
         const rules = state.tradingRules;
         const searchTerm = (state.tradingOverviewSearch || '').toLowerCase();
         
+        const regionOptions = Array.from(new Set(rules.map(rule => rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')).filter(Boolean)));
+        const eventOptions = Array.from(new Set(rules.map(rule => rule.action || '-').filter(Boolean)));
+        const statusOptions = ['Active', 'Inactive'];
+        state.tradingRulesFilters.regionOptions = regionOptions;
+        state.tradingRulesFilters.eventOptions = eventOptions;
+        state.tradingRulesFilters.statusOptions = statusOptions;
+
+        const { regions, events, statuses, regionsAll, eventsAll, statusesAll, openMenu } = state.tradingRulesFilters;
         const filteredRules = rules.filter(rule => {
-            if (!searchTerm) return true;
             const region = rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-');
-            return region.toLowerCase().includes(searchTerm);
+            const regionMatch = !searchTerm || region.toLowerCase().includes(searchTerm);
+            if (!regionMatch) return false;
+            const filterRegion = regionsAll || regions.includes(region);
+            const filterEvent = eventsAll || events.includes(rule.action || '-');
+            const statusLabel = rule.state === 'Inactive' ? 'Inactive' : 'Active';
+            const filterStatus = statusesAll || statuses.includes(statusLabel);
+            return filterRegion && filterEvent && filterStatus;
         });
 
         const displayRules = filteredRules.slice(0, 5);
@@ -5734,11 +7426,56 @@ const app = {
                                     <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                         <tr>
                                             <th class="px-4 py-2 font-medium">Name</th>
-                                            <th class="px-4 py-2 font-medium">Pricing Region</th>
+                                            <th class="px-4 py-2 font-medium">
+                                                <div class="flex items-center gap-2 relative">
+                                                    <span>Pricing Region</span>
+                                                    <button onclick="app.toggleTradingRulesFilter('region')" data-trading-rules-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                    </button>
+                                                    <div id="trading-rules-region-menu" data-trading-rules-menu="region" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'region' ? '' : 'hidden'}">
+                                                        ${regionOptions.map(option => `
+                                                        <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                            <input type="checkbox" class="accent-[#3ec064]" ${(regionsAll || regions.includes(option)) ? 'checked' : ''} onchange="app.updateTradingRulesFilter('regions', '${option}', this.checked)">
+                                                            <span class="text-xs text-gray-600">${option}</span>
+                                                        </label>
+                                                        `).join('')}
+                                                    </div>
+                                                </div>
+                                            </th>
                                             <th class="px-4 py-2 font-medium">Trigger From</th>
                                             <th class="px-4 py-2 font-medium">Trigger Condition</th>
-                                            <th class="px-4 py-2 font-medium">Event</th>
-                                            <th class="px-4 py-2 font-medium">Status</th>
+                                            <th class="px-4 py-2 font-medium">
+                                                <div class="flex items-center gap-2 relative">
+                                                    <span>Event</span>
+                                                    <button onclick="app.toggleTradingRulesFilter('event')" data-trading-rules-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                    </button>
+                                                    <div id="trading-rules-event-menu" data-trading-rules-menu="event" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'event' ? '' : 'hidden'}">
+                                                        ${eventOptions.map(option => `
+                                                        <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                            <input type="checkbox" class="accent-[#3ec064]" ${(eventsAll || events.includes(option)) ? 'checked' : ''} onchange="app.updateTradingRulesFilter('events', '${option}', this.checked)">
+                                                            <span class="text-xs text-gray-600">${option}</span>
+                                                        </label>
+                                                        `).join('')}
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th class="px-4 py-2 font-medium">
+                                                <div class="flex items-center gap-2 relative">
+                                                    <span>Status</span>
+                                                    <button onclick="app.toggleTradingRulesFilter('status')" data-trading-rules-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
+                                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                                    </button>
+                                                    <div id="trading-rules-status-menu" data-trading-rules-menu="status" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'}">
+                                                        ${statusOptions.map(option => `
+                                                        <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
+                                                            <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateTradingRulesFilter('statuses', '${option}', this.checked)">
+                                                            <span class="text-xs text-gray-600">${option}</span>
+                                                        </label>
+                                                        `).join('')}
+                                                    </div>
+                                                </div>
+                                            </th>
                                             <th class="px-4 py-2 font-medium">Applicable VPP</th>
                                             <th class="px-4 py-2 font-medium">Ignore</th>
                                             <th class="px-4 py-2 font-medium">Created</th>
@@ -5815,6 +7552,27 @@ const app = {
                 </div>
             </div>
         `;
+        if (this.tradingRulesOutsideClickHandler) {
+            document.removeEventListener('click', this.tradingRulesOutsideClickHandler);
+        }
+        this.tradingRulesOutsideClickHandler = (event) => {
+            const regionMenu = document.getElementById('trading-rules-region-menu');
+            const eventMenu = document.getElementById('trading-rules-event-menu');
+            const statusMenu = document.getElementById('trading-rules-status-menu');
+            const regionButton = document.querySelector('[data-trading-rules-filter="region"]');
+            const eventButton = document.querySelector('[data-trading-rules-filter="event"]');
+            const statusButton = document.querySelector('[data-trading-rules-filter="status"]');
+            if (!regionMenu || !eventMenu || !statusMenu) return;
+            const target = event.target;
+            if (regionMenu.contains(target) || eventMenu.contains(target) || statusMenu.contains(target) || (regionButton && regionButton.contains(target)) || (eventButton && eventButton.contains(target)) || (statusButton && statusButton.contains(target))) {
+                return;
+            }
+            regionMenu.classList.add('hidden');
+            eventMenu.classList.add('hidden');
+            statusMenu.classList.add('hidden');
+            state.tradingRulesFilters.openMenu = null;
+        };
+        document.addEventListener('click', this.tradingRulesOutsideClickHandler);
         lucide.createIcons();
     },
 
