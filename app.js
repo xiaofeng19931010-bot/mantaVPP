@@ -911,9 +911,7 @@ const state = {
         itemsPerPage: 10,
         currentMode: 'realtime',
         dateRange: { start: null, end: null },
-        activeFilter: null,
-        viewBy: 'calendar',
-        settlementRange: { start: null, end: null }
+        activeFilter: null
     },
     currentUser: {
         company: 'Manta Energy',
@@ -2838,35 +2836,9 @@ const app = {
         if (parts.length === 2) {
             state[parts[0]][parts[1]] = value;
             if (parts[0] === 'arbitrage') {
-                if (parts[1] === 'viewBy' && value === 'settlement') {
-                    const todayStr = new Date().toISOString().split('T')[0];
-                    const range = state.arbitrage.settlementRange || { start: null, end: null };
-                    const baseStart = range.start || state.arbitrage.dateRange.start || todayStr;
-                    const baseEnd = range.end || state.arbitrage.dateRange.end || baseStart;
-                    state.arbitrage.settlementRange = { start: baseStart, end: baseEnd };
-                    state.arbitrage.dateRange = { start: baseStart, end: baseEnd };
-                }
                 this.renderArbitragePoints(document.getElementById('content-area'));
             }
         }
-    },
-
-    updateArbitrageSettlementRange(field, value) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        const currentRange = state.arbitrage.settlementRange || { start: null, end: null };
-        const nextRange = { ...currentRange, [field]: value || todayStr };
-        if (nextRange.start && nextRange.end) {
-            if (nextRange.start > nextRange.end) {
-                if (field === 'start') {
-                    nextRange.end = nextRange.start;
-                } else {
-                    nextRange.start = nextRange.end;
-                }
-            }
-        }
-        state.arbitrage.settlementRange = nextRange;
-        state.arbitrage.dateRange = { start: nextRange.start, end: nextRange.end };
-        this.renderArbitragePoints(document.getElementById('content-area'));
     },
 
     renderCapRules(container) {
@@ -5278,7 +5250,7 @@ const app = {
 
     renderArbitragePoints(container) {
         // Use state from app state
-        const { currentPage, itemsPerPage, currentMode, dateRange, activeFilter, viewBy, settlementRange } = state.arbitrage;
+        const { currentPage, itemsPerPage, currentMode, dateRange, activeFilter } = state.arbitrage;
 
         // Mock Data
         if (!state.arbitrage.data) {
@@ -5339,12 +5311,6 @@ const app = {
         }
 
         const allData = state.arbitrage.data;
-        const resolvedViewBy = viewBy || 'calendar';
-        const todayStr = new Date().toISOString().split('T')[0];
-        const resolvedSettlementRange = {
-            start: settlementRange?.start || dateRange.start || todayStr,
-            end: settlementRange?.end || dateRange.end || settlementRange?.start || dateRange.start || todayStr
-        };
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px] overflow-hidden flex flex-col";
         container.innerHTML = `
@@ -5352,7 +5318,7 @@ const app = {
                 <!-- Header Section -->
                 <div class="flex flex-col gap-4 items-start relative shrink-0 w-full mb-4">
                     <!-- Top Bar -->
-                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative shrink-0 w-full justify-between">
+                    <div class="flex gap-0 h-[40px] items-center px-2 py-0 relative shrink-0 w-full">
                         <div class="flex flex-1 gap-4 items-center min-h-px min-w-px relative">
                             <div class="flex gap-4 items-center relative shrink-0">
                                 <div class="flex gap-2 items-center relative shrink-0">
@@ -5370,18 +5336,6 @@ const app = {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex gap-2 items-center relative shrink-0">
-                                    <p class="font-['Roboto'] font-normal text-[14px] text-[#313949] text-center whitespace-nowrap">View By:</p>
-                                    <div class="flex flex-col gap-1 h-[40px] items-start justify-end relative shrink-0 w-[156px]">
-                                    <div class="bg-white border border-[#cacfd8] flex h-[40px] items-center justify-between px-2 py-0 relative rounded-[4px] shrink-0 w-full">
-                                            <select class="appearance-none bg-transparent border-none w-full text-[14px] text-[#313949] focus:outline-none" onchange="app.updateArbitrageState('arbitrage.viewBy', this.value)">
-                                                <option value="calendar" ${resolvedViewBy === 'calendar' ? 'selected' : ''}>Calendar Date</option>
-                                                <option value="settlement" ${resolvedViewBy === 'settlement' ? 'selected' : ''}>Settlement Date</option>
-                                            </select>
-                                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#313949] absolute right-2 pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
                                     <button onclick="app.updateArbitrageState('arbitrage.currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
                                         <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
@@ -5391,30 +5345,14 @@ const app = {
                                     </button>
                                 </div>
                                 ${currentMode === 'historical' ? `
-                                ${resolvedViewBy === 'settlement' ? `
-                                <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
-                                     <input type="date" value="${resolvedSettlementRange.start}" onchange="app.updateArbitrageSettlementRange('start', this.value)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
-                                     <span class="text-[#b5bcc8]">-</span>
-                                     <input type="date" value="${resolvedSettlementRange.end}" onchange="app.updateArbitrageSettlementRange('end', this.value)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
-                                </div>
-                                ` : `
                                 <div class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
                                      <input type="date" value="${dateRange.start || ''}" onchange="const val = this.value; const dr = state.arbitrage.dateRange; dr.start = val; app.updateArbitrageState('arbitrage.dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
                                      <span class="text-[#b5bcc8]">-</span>
                                      <input type="date" value="${dateRange.end || ''}" onchange="const val = this.value; const dr = state.arbitrage.dateRange; dr.end = val; app.updateArbitrageState('arbitrage.dateRange', dr)" class="bg-white border border-[#cacfd8] text-[#313949] text-[14px] rounded-[4px] px-2 py-1 h-[32px] focus:outline-none focus:border-[#2e9f58]">
                                 </div>
-                                `}
                                 ` : ''}
                             </div>
                         </div>
-                        ${resolvedViewBy === 'settlement' ? `
-                        <div class="relative group">
-                            <button class="w-[20px] h-[20px] rounded-full border border-[#cacfd8] text-[#6b7280] flex items-center justify-center text-[12px] hover:bg-[#f3f3f6] transition-colors">?</button>
-                            <div class="absolute right-0 top-[28px] z-10 hidden group-hover:block bg-[#1f2937] text-white text-[12px] leading-[1.4] px-2 py-1 rounded-[4px] whitespace-nowrap shadow-lg">
-                                Settlement Date daily cycle runs from 4:00 AM to 4:00 AM the next day.
-                            </div>
-                        </div>
-                        ` : ''}
                     </div>
                     
                     <div class="h-px w-full bg-[#e6e8ee]"></div>
@@ -5625,19 +5563,8 @@ const app = {
                 filtered = allData.filter(d => d.settlementTime >= todayStart && d.settlementTime <= futureLimit);
             } else {
                 // Historical
-                const rangeStart = resolvedViewBy === 'settlement' ? resolvedSettlementRange.start : dateRange.start;
-                const rangeEnd = resolvedViewBy === 'settlement' ? resolvedSettlementRange.end : dateRange.end;
-                const start = rangeStart ? new Date(rangeStart) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-                const end = rangeEnd ? new Date(rangeEnd) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-                
-                if (resolvedViewBy === 'settlement') {
-                    const endPlusOne = new Date(end.getTime());
-                    endPlusOne.setDate(endPlusOne.getDate() + 1);
-                    start.setHours(4, 0, 0, 0);
-                    endPlusOne.setHours(4, 0, 0, 0);
-                    endPlusOne.setMilliseconds(endPlusOne.getMilliseconds() - 1);
-                    filtered = allData.filter(d => d.settlementTime >= start && d.settlementTime <= endPlusOne);
-                }
+                const start = dateRange.start ? new Date(dateRange.start) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                const end = dateRange.end ? new Date(dateRange.end) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
                 
                 // Set times to cover full days
                 start.setHours(0, 0, 0, 0);
@@ -5673,19 +5600,12 @@ const app = {
             updatePaginationControls(totalItems, totalPages, validCurrentPage, itemsPerPage);
         };
 
+        // Initialize default dates if needed
         if (currentMode === 'historical' && !dateRange.start) {
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (resolvedViewBy === 'settlement') {
-                const baseStart = state.arbitrage.settlementRange?.start || todayStr;
-                const baseEnd = state.arbitrage.settlementRange?.end || baseStart;
-                state.arbitrage.settlementRange = { start: baseStart, end: baseEnd };
-                state.arbitrage.dateRange = { start: baseStart, end: baseEnd };
-            } else {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yStr = yesterday.toISOString().split('T')[0];
-                state.arbitrage.dateRange = { start: yStr, end: yStr };
-            }
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yStr = yesterday.toISOString().split('T')[0];
+            state.arbitrage.dateRange = { start: yStr, end: yStr };
         }
 
         // Apply filters
@@ -5702,13 +5622,6 @@ const app = {
             hour: '2-digit',
             minute: '2-digit'
         });
-    },
-
-    addDaysToDate(dateString, days) {
-        const date = new Date(dateString);
-        if (Number.isNaN(date.getTime())) return '';
-        date.setDate(date.getDate() + days);
-        return date.toISOString().split('T')[0];
     },
 
     renderHistoryRows(rule) {
