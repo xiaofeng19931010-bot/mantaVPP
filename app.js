@@ -1746,7 +1746,9 @@ const app = {
                         <div class="px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center gap-[8px] min-w-0 flex-1">
                                 <div class="flex items-center justify-center rounded-[12px] size-[24px] shrink-0">
-                                    <img src="http://localhost:3845/assets/5ed8ffaaf567174969bd36dc3605395d659d99e3.svg" alt="" class="w-[18px] h-[10px]">
+                                    <svg preserveAspectRatio="none" class="w-full h-full" viewBox="0 0 19.999 12.0003" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 6.00039L5 6.00027L7 1L10.9995 11.0003L14 4.00027L15 6.00027H18.999" stroke="#313949" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
                                 </div>
                                 <h3 class="font-['Roboto'] font-semibold text-[20px] leading-[1.4] text-[#313949] min-w-0">Spot Price</h3>
                             </div>
@@ -1754,7 +1756,7 @@ const app = {
                                 <!-- Chart Settings -->
                                 <div class="relative">
                                     <button id="chart-settings-btn" title="Settings" class="bg-white rounded-[16px] size-[32px] flex items-center justify-center transition-colors hover:bg-gray-100">
-                                        <img src="http://localhost:3845/assets/e18cf0d24b0274abefe21b5679abbf934905b4ed.svg" alt="" class="w-[20px] h-[20px]">
+                                        <i data-lucide="settings" class="w-[20px] h-[20px]"></i>
                                     </button>
                                     <!-- Settings Menu -->
                                     <div id="chart-settings-menu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-2">
@@ -1812,64 +1814,61 @@ const app = {
                                 </div>
 
                                 <button id="spot-fullscreen-btn" title="Fullscreen" class="size-[32px] flex items-center justify-center rounded-[4px] transition-colors hover:bg-gray-100">
-                                    <img src="http://localhost:3845/assets/8e87f7e2fa192bebfe72a888bf5d943917011f6d.svg" alt="" class="w-[20px] h-[20px]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#313949" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
                                 </button>
                             </div>
                         </div>
                         <!-- Top Stats Bar -->
                         <div class="bg-[#f3f3f6] mx-[16px] px-[16px] py-[12px] rounded-[8px] flex flex-nowrap items-stretch gap-[8px]">
-                            <div class="flex flex-nowrap items-stretch gap-[8px] flex-1">
-                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
-                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
-                                        <span id="stat-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.55</span>
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
-                                    </div>
-                                    <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Spot</span>
-                                    </div>
+                            <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                    <span id="stat-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.55</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
                                 </div>
-                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
-                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
-                                        <span id="stat-predispatch-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.68</span>
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
-                                    </div>
-                                    <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Pre-Dispatch</span>
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
-                                    <div class="flex items-center justify-center gap-[4px] min-h-px min-w-px">
-                                        <span id="stat-forecast-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#3ec064] whitespace-nowrap">0.72</span>
-                                        <div class="bg-[#e4f9e7] min-w-[48px] px-[4px] py-0 rounded-[12px] flex items-center justify-center gap-0">
-                                            <img src="http://localhost:3845/assets/b0f141311f6e2711e406db9a787b6d042bec5579.svg" alt="" class="w-[12px] h-[12px]">
-                                            <span class="font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#3ec064] text-center flex-1">5.2%</span>
-                                        </div>
-                                    </div>
-                                    <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Forecast Spot</span>
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
-                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
-                                        <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">12.5</span>
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">MWh</span>
-                                    </div>
-                                    <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Discharge</span>
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
-                                    <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
-                                        <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">8.2</span>
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">MWh</span>
-                                    </div>
-                                    <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Charge</span>
-                                    </div>
+                                <div class="px-[12px] py-[2px] rounded-[12px]">
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Spot</span>
                                 </div>
                             </div>
-
-                            <div id="trading-opportunities-stats" class="hidden flex flex-nowrap items-stretch gap-[8px]">
+                            <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                    <span id="stat-predispatch-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.68</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
+                                </div>
+                                <div class="px-[12px] py-[2px] rounded-[12px]">
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Pre-Dispatch</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                <div class="flex items-center justify-center gap-[4px] min-h-px min-w-px">
+                                    <span id="stat-forecast-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#3ec064] whitespace-nowrap">0.72</span>
+                                    <div class="bg-[#e4f9e7] min-w-[48px] px-[4px] py-0 rounded-[12px] flex items-center justify-center gap-0 shrink-0">
+                                        <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="#3ec064" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        <span class="font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#3ec064] text-center flex-1">5.2%</span>
+                                    </div>
+                                </div>
+                                <div class="px-[12px] py-[2px] rounded-[12px]">
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Forecast Spot</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                    <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">12.5</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">MWh</span>
+                                </div>
+                                <div class="px-[12px] py-[2px] rounded-[12px]">
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Discharge</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
+                                <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
+                                    <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">8.2</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">MWh</span>
+                                </div>
+                                <div class="px-[12px] py-[2px] rounded-[12px]">
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Charge</span>
+                                </div>
+                            </div>
+                            <div id="trading-opportunities-stats" class="hidden flex gap-[8px]">
                                 <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
                                     <div class="flex items-center gap-[8px] min-h-px min-w-px">
                                         <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949] whitespace-nowrap">3</span>
@@ -5249,20 +5248,7 @@ const app = {
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">SN</th>
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
-                                                    <div class="flex items-center gap-2 relative">
-                                                        <span>Status</span>
-                                                        <button onclick="app.toggleReportsVppEventsDetailsDerTableFilter('status')" data-reports-vpp-events-details-der-table-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
-                                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                                        </button>
-                                                        <div id="reports-vpp-events-details-der-table-status-menu" data-reports-vpp-events-details-der-table-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${detailsDerOpenMenu === 'status' ? '' : 'hidden'}">
-                                                            ${state.reportsVppEventsDetailsDerTableFilters.statusOptions.map(option => `
-                                                            <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
-                                                                <input type="checkbox" class="accent-[#3ec064]" ${(detailsDerStatusesAll || detailsDerStatuses.includes(option)) ? 'checked' : ''} onchange="app.updateReportsVppEventsDetailsDerTableFilter('statuses', '${option}', this.checked)">
-                                                                <span class="text-xs text-gray-600">${option}</span>
-                                                            </label>
-                                                            `).join('')}
-                                                        </div>
-                                                    </div>
+                                                    <span>Status</span>
                                                 </th>
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
@@ -5270,13 +5256,12 @@ const app = {
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
                                                 <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                         ${detailsDerEvents.length === 0 ? `
                                             <tr>
-                                                <td colspan="10" class="p-[20px]">
+                                                <td colspan="9" class="p-[20px]">
                                                     <div class="h-full flex items-center justify-center">
                                                         <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
                                                             <div class="relative w-[88px] h-[88px]">
@@ -5318,11 +5303,6 @@ const app = {
                                                 <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${der.volume || '-'}</td>
                                                 <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${avgPrice}</td>
                                                 <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${der.vppIncome || '-'}</td>
-                                                <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
-                                                    <button class="w-[24px] h-[24px] rounded-[4px] flex items-center justify-center text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
-                                                        <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
-                                                    </button>
-                                                </td>
                                             </tr>
                                             `;
                                         }).join('')}
@@ -5337,21 +5317,6 @@ const app = {
                 if (this.reportsVppEventsDetailsDerTableOutsideClickHandler) {
                     document.removeEventListener('click', this.reportsVppEventsDetailsDerTableOutsideClickHandler);
                 }
-                this.reportsVppEventsDetailsDerTableOutsideClickHandler = (event) => {
-                    const statusMenu = document.getElementById('reports-vpp-events-details-der-table-status-menu');
-                    if (!statusMenu) return;
-                    const statusButton = document.querySelector('[data-reports-vpp-events-details-der-table-filter="status"]');
-                    const target = event.target;
-                    if (
-                        (statusMenu.contains(target) || (statusButton && statusButton.contains(target)))
-                    ) {
-                        return;
-                    }
-                    statusMenu.classList.add('hidden');
-                    state.reportsVppEventsDetailsDerTableFilters.openMenu = null;
-                };
-                document.addEventListener('click', this.reportsVppEventsDetailsDerTableOutsideClickHandler);
-
                 lucide.createIcons({ root: container });
                 return;
             }
@@ -5389,7 +5354,7 @@ const app = {
                             <div class="flex gap-4 items-center relative shrink-0">
                                 <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
                                     <button onclick="app.updateReportsVppEventsState('currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
-                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
+                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Today</p>
                                     </button>
                                     <button onclick="app.updateReportsVppEventsState('currentMode', 'historical')" class="${currentMode === 'historical' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
                                         <p class="${currentMode === 'historical' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Historical</p>
@@ -5436,22 +5401,7 @@ const app = {
                                     <tr>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
-                                            <div class="flex items-center gap-2 relative">
-                                                <span>Status</span>
-                                                <button onclick="app.toggleReportsVppEventsTableFilter('status')" data-reports-vpp-events-table-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
-                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                                </button>
-                                                <div id="reports-vpp-events-table-status-menu" data-reports-vpp-events-table-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'}">
-                                                    ${state.reportsVppEventsTableFilters.statusOptions.map(option => `
-                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
-                                                        <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateReportsVppEventsTableFilter('statuses', '${option}', this.checked)">
-                                                        <span class="text-xs text-gray-600">${option}</span>
-                                                    </label>
-                                                    `).join('')}
-                                                </div>
-                                            </div>
-                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
                                             <div class="flex items-center gap-2 relative">
                                                 <span>Pricing Region</span>
@@ -5778,7 +5728,7 @@ const app = {
                             <div class="flex gap-4 items-center relative shrink-0">
                                 <div class="bg-[#f3f3f6] flex gap-1 items-center p-1 relative rounded-[4px] shrink-0">
                                     <button onclick="app.updateReportsDerEventsState('currentMode', 'realtime')" class="${currentMode === 'realtime' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
-                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Real-time</p>
+                                        <p class="${currentMode === 'realtime' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Today</p>
                                     </button>
                                     <button onclick="app.updateReportsDerEventsState('currentMode', 'historical')" class="${currentMode === 'historical' ? 'bg-white shadow-sm' : 'hover:bg-white/50'} flex gap-0 h-[32px] items-center justify-center min-w-[80px] px-4 py-1 relative rounded-[4px] shrink-0 transition-all">
                                         <p class="${currentMode === 'historical' ? 'font-semibold' : 'font-normal'} font-['Roboto'] text-[14px] text-[#313949] text-center whitespace-nowrap">Historical</p>
@@ -5826,22 +5776,7 @@ const app = {
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">SN</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
-                                            <div class="flex items-center gap-2 relative">
-                                                <span>Status</span>
-                                                <button onclick="app.toggleReportsDerEventsTableFilter('status')" data-reports-der-events-table-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
-                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                                </button>
-                                                <div id="reports-der-events-table-status-menu" data-reports-der-events-table-menu="status" class="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'}">
-                                                    ${state.reportsDerEventsTableFilters.statusOptions.map(option => `
-                                                    <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
-                                                        <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateReportsDerEventsTableFilter('statuses', '${option}', this.checked)">
-                                                        <span class="text-xs text-gray-600">${option}</span>
-                                                    </label>
-                                                    `).join('')}
-                                                </div>
-                                            </div>
-                                        </th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
                                             <div class="flex items-center gap-2 relative">
                                                 <span>Pricing Region</span>
@@ -5882,13 +5817,12 @@ const app = {
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
                                         <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 ${events.length === 0 ? `
                                     <tr>
-                                        <td colspan="15" class="p-[20px]">
+                                        <td colspan="14" class="p-[20px]">
                                             <div class="h-full flex items-center justify-center">
                                                 <div class="bg-[#f3f3f6] w-full rounded-[6px] px-[16px] py-[20px] flex flex-col items-center text-center gap-[10px]">
                                                     <div class="relative w-[88px] h-[88px]">
@@ -5949,9 +5883,6 @@ const app = {
                                         <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.volume || '-'}</td>
                                         <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${avgPrice}</td>
                                         <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] text-[14px] text-[#313949] whitespace-nowrap">${event.vppIncome || '-'}</td>
-                                        <td class="px-[8px] py-[8px] border-b border-[#e6e8ee] sticky right-0 ${index % 2 === 0 ? 'bg-[#f3f3f6]' : 'bg-white'} z-20">
-                                            
-                                        </td>
                                     </tr>
                                     `;
                                 }).join('')}
@@ -7345,26 +7276,30 @@ const app = {
             const isIgnoreChanged = true;
 
             return `
-            <tr class="bg-white border-b border-gray-100">
-                <td class="px-4 py-3 bg-gray-50 text-gray-900 font-medium">${rule.name || '-'}</td>
-                <td class="px-4 py-3 bg-gray-50 text-gray-900 font-medium">${currentRegion}</td>
-                <td class="px-4 py-3 bg-gray-50 text-gray-600">${currentTriggerFrom}</td>
-                <td class="px-4 py-3 ${isConditionChanged ? 'bg-white' : 'bg-gray-50'} text-gray-600">${item.condition}</td>
-                <td class="px-4 py-3 bg-gray-50 text-gray-600">${currentEvent}</td>
-                <td class="px-4 py-3 ${isStatusChanged ? 'bg-white' : 'bg-gray-50'}">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${item.status === 'Inactive' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">${item.status}</span>
+            <tr class="bg-[#f8f9fb] border-b border-[#e6e8ee]">
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">
+                    <div class="flex items-center gap-[10px]">
+                        <img alt="" class="block max-w-none w-[16px] h-[16px] shrink-0" style="filter: brightness(0) saturate(100%) invert(8%) sepia(9%) saturate(2064%) hue-rotate(174deg) brightness(98%) contrast(92%);" src="http://localhost:3845/assets/17e5853f32a5e01749390c3424cfdb4424d82950.svg">
+                    </div>
                 </td>
-                <td class="px-4 py-3 text-gray-600 ${isVppsChanged ? 'bg-white' : 'bg-gray-50'}">
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${currentRegion}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${currentTriggerFrom}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#1c2026] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${item.condition}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${currentEvent}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] border-t border-b border-[#e6e8ee] whitespace-nowrap">
+                    ${item.status === 'Inactive' ? `<span class="text-[#1c2026]">Inactive</span>` : `<span class="text-[#1c2026]">Active</span>`}
+                </td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#1c2026] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">
                     ${item.applicableVpps && item.applicableVpps.length ? item.applicableVpps.map(v => `<div class="truncate max-w-[200px]" title="${v.name}">${v.name}</div>`).filter(Boolean).join('') : '-'}
                 </td>
-                <td class="px-4 py-3 text-gray-600 ${isIgnoreChanged ? 'bg-white' : 'bg-gray-50'}">${item.ignore}</td>
-                <td class="px-4 py-3 bg-gray-50 text-gray-600 whitespace-nowrap">${createdText}</td>
-                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(item.updatedAt)}</td>
-                <td class="px-4 py-3 bg-gray-50 text-gray-600 max-w-[220px] truncate" title="${rule.description || '-'}">${rule.description || '-'}</td>
-                <td class="px-4 py-3 bg-gray-50 sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#1c2026] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${item.ignore}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${createdText}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${app.formatDateTimeWithoutSeconds(item.updatedAt)}</td>
+                <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#1c2026] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap max-w-[220px] truncate" title="${rule.description || '-'}">${rule.description || '-'}</td>
+                <td class="h-[48px] px-[16px] py-[8px] bg-[#f8f9fb] whitespace-nowrap sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
                     <div class="flex items-center">
-                        <button class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View Events">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+                        <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors flex items-center justify-center size-[24px]" title="View Events">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                         </button>
                     </div>
                 </td>
@@ -7400,39 +7335,48 @@ const app = {
 
         container.className = "w-full h-full bg-[#f8f9fb] p-[8px]";
         container.innerHTML = `
-            <div class="flex flex-col h-full gap-4">
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col min-h-0 flex-1">
-                    ${rules.length > 0 ? `
-                        <div class="flex flex-wrap items-center justify-between px-4 py-3 border-b border-gray-100 gap-3">
-                            <h3 class="text-lg font-semibold text-gray-900">Trading Rules</h3>
-                            <div class="flex items-center gap-2">
-                                <button onclick="app.openTradingRuleDrawer()" class="px-3 py-1.5 text-xs font-medium bg-manta-primary text-white rounded-md hover:bg-manta-dark transition-colors">New</button>
-                                <div class="relative">
-                                    <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Pricing Region" 
-                                        value="${state.tradingOverviewSearch || ''}"
-                                        oninput="app.handleTradingOverviewSearch(this.value)"
-                                        class="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-manta-primary w-40"
-                                    >
+            <div class="flex flex-col h-full gap-2">
+                <div class="bg-white rounded-[4px] flex flex-col min-h-0 flex-1">
+                    <div class="flex flex-col gap-[8px] p-[12px] h-full">
+                        <div class="bg-[var(--color/neutal/white,white)] content-stretch flex items-center justify-between relative shrink-0 w-full px-[2px] py-[12px]">
+                            <div class="content-stretch flex gap-[10px] items-center justify-center relative shrink-0">
+                                <p class="font-['Roboto'] font-semibold leading-[1.5] relative shrink-0 text-[16px] text-[#313949] text-center whitespace-nowrap">
+                                    Trading Rules
+                                </p>
+                                <button onclick="app.openTradingRuleDrawer()" class="bg-[#f3f3f6] hover:bg-[#e6e8ee] transition-colors content-stretch flex gap-[4px] items-center justify-center px-[8px] py-[4px] relative rounded-[4px] shrink-0">
+                                    <svg class="w-[14px] h-[14px] text-[#313949]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="bg-[#f3f3f6] content-stretch flex gap-[8px] items-center pl-[8px] pr-[0px] py-[0px] relative rounded-[4px] shrink-0 w-[240px] focus-within:ring-1 focus-within:ring-manta-primary">
+                                <input 
+                                    type="text" 
+                                    placeholder="Pricing Region" 
+                                    value="${state.tradingOverviewSearch || ''}"
+                                    oninput="app.handleTradingOverviewSearch(this.value)"
+                                    class="flex-1 font-['Roboto'] font-normal leading-[normal] min-h-px min-w-px relative text-[14px] text-[#313949] placeholder:text-[#b5bcc8] bg-transparent border-none focus:outline-none focus:ring-0 py-[8px]"
+                                >
+                                <div class="relative rounded-[2px] shrink-0 size-[32px] flex items-center justify-center">
+                                    <svg class="w-[18px] h-[18px] text-[#b5bcc8]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 21l-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
                                 </div>
                             </div>
                         </div>
-                    ` : ''}
-                    <div class="flex-1 overflow-auto">
+                        <div class="flex-1 overflow-auto">
                         ${rules.length > 0 ? `
-                                <table class="w-full text-sm text-left">
-                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-white sticky top-0 z-10">
                                         <tr>
-                                            <th class="px-4 py-2 font-medium">Name</th>
-                                            <th class="px-4 py-2 font-medium">
-                                                <div class="flex items-center gap-2 relative">
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Name</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">
+                                                <div class="flex items-center gap-[8px] relative">
                                                     <span>Pricing Region</span>
                                                     <button onclick="app.toggleTradingRulesFilter('region')" data-trading-rules-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
                                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                                     </button>
-                                                    <div id="trading-rules-region-menu" data-trading-rules-menu="region" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'region' ? '' : 'hidden'}">
+                                                    <div id="trading-rules-region-menu" data-trading-rules-menu="region" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'region' ? '' : 'hidden'} font-normal normal-case">
                                                         ${regionOptions.map(option => `
                                                         <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
                                                             <input type="checkbox" class="accent-[#3ec064]" ${(regionsAll || regions.includes(option)) ? 'checked' : ''} onchange="app.updateTradingRulesFilter('regions', '${option}', this.checked)">
@@ -7442,15 +7386,15 @@ const app = {
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th class="px-4 py-2 font-medium">Trigger From</th>
-                                            <th class="px-4 py-2 font-medium">Trigger Condition</th>
-                                            <th class="px-4 py-2 font-medium">
-                                                <div class="flex items-center gap-2 relative">
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Trigger From</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Trigger Condition</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">
+                                                <div class="flex items-center gap-[8px] relative">
                                                     <span>Event</span>
                                                     <button onclick="app.toggleTradingRulesFilter('event')" data-trading-rules-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
                                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                                     </button>
-                                                    <div id="trading-rules-event-menu" data-trading-rules-menu="event" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'event' ? '' : 'hidden'}">
+                                                    <div id="trading-rules-event-menu" data-trading-rules-menu="event" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'event' ? '' : 'hidden'} font-normal normal-case">
                                                         ${eventOptions.map(option => `
                                                         <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
                                                             <input type="checkbox" class="accent-[#3ec064]" ${(eventsAll || events.includes(option)) ? 'checked' : ''} onchange="app.updateTradingRulesFilter('events', '${option}', this.checked)">
@@ -7460,13 +7404,13 @@ const app = {
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th class="px-4 py-2 font-medium">
-                                                <div class="flex items-center gap-2 relative">
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">
+                                                <div class="flex items-center gap-[8px] relative">
                                                     <span>Status</span>
                                                     <button onclick="app.toggleTradingRulesFilter('status')" data-trading-rules-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
                                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                                     </button>
-                                                    <div id="trading-rules-status-menu" data-trading-rules-menu="status" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'}">
+                                                    <div id="trading-rules-status-menu" data-trading-rules-menu="status" class="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-30 ${openMenu === 'status' ? '' : 'hidden'} font-normal normal-case">
                                                         ${statusOptions.map(option => `
                                                         <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer">
                                                             <input type="checkbox" class="accent-[#3ec064]" ${(statusesAll || statuses.includes(option)) ? 'checked' : ''} onchange="app.updateTradingRulesFilter('statuses', '${option}', this.checked)">
@@ -7476,28 +7420,36 @@ const app = {
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th class="px-4 py-2 font-medium">Applicable VPP</th>
-                                            <th class="px-4 py-2 font-medium">Ignore</th>
-                                            <th class="px-4 py-2 font-medium">Created</th>
-                                            <th class="px-4 py-2 font-medium">Updated</th>
-                                            <th class="px-4 py-2 font-medium">Description</th>
-                                            <th class="px-4 py-2 font-medium sticky right-0 bg-gray-50 z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Applicable VPP</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Ignore</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Created</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Updated</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Description</th>
+                                            <th class="h-[48px] px-[16px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-100">
+                                    <tbody class="bg-[#f8f9fb]">
                                         ${displayRules.map(rule => `
-                                            <tr class="group hover:bg-gray-50 transition-colors">
-                                                <td class="px-4 py-3 text-gray-900 font-medium">${rule.name || '-'}</td>
-                                                <td class="px-4 py-3 text-gray-900 font-medium">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || '-')}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.action || '-'}</td>
-                                                <td class="px-4 py-3">
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${rule.state === 'Inactive' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">${rule.state === 'Inactive' ? 'Inactive' : 'Active'}</span>
+                                            <tr class="group bg-white hover:bg-gray-50 transition-colors">
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.name || '-'}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#313949] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.region || (['NSW', 'VIC', 'QLD', 'SA', 'WA'].includes(rule.state) ? rule.state : '-')}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.triggerType === 'Price' ? 'Spot Price' : (rule.triggerType === 'Arbitrage' ? 'Arbitrage Point' : rule.triggerType || '-')}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${rule.price} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal}`}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.action || '-'}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] border-t border-b border-[#e6e8ee] whitespace-nowrap">
+                                                    ${rule.state === 'Inactive' ? `
+                                                    <div class="bg-[#f3f3f6] flex items-center justify-center gap-[4px] min-w-[48px] px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#b5bcc8] font-['Roboto'] font-normal leading-[1.33] w-fit">
+                                                        <span>•</span><span>Inactive</span>
+                                                    </div>
+                                                    ` : `
+                                                    <div class="bg-[rgba(140,218,47,0.2)] flex items-center justify-center gap-[4px] min-w-[48px] px-[8px] py-[4px] rounded-[12px] text-[12px] text-[#8cda2f] font-['Roboto'] font-normal leading-[1.33] w-fit">
+                                                        <span>•</span><span>Active</span>
+                                                    </div>
+                                                    `}
                                                 </td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => `<div class="truncate max-w-[200px]" title="${v.name}">${v.name}</div>`).filter(Boolean).join('') : (rule.vpp || '-')}</td>
-                                                <td class="px-4 py-3 text-gray-600">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => {
-                                                    if (!v.ignoreTimeEnabled || !v.ignoreTimeStart || !v.ignoreTimeEnd) return '<div>-</div>';
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => `<div class="truncate max-w-[200px]" title="${v.name}">${v.name}</div>`).filter(Boolean).join('') : (rule.vpp || '-')}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${rule.applicableVpps && rule.applicableVpps.length ? rule.applicableVpps.map(v => {
+                                                    if (!v.ignoreTimeEnabled || !v.ignoreTimeStart || !v.ignoreTimeEnd) return '-';
                                                     let content = `${v.ignoreTimeStart} - ${v.ignoreTimeEnd}`;
                                                     const frequency = v.ignoreFrequency || 'Everyday';
                                                     content += ` (${frequency}`;
@@ -7505,24 +7457,24 @@ const app = {
                                                         content += `: ${v.ignoreDateStart} To ${v.ignoreDateEnd}`;
                                                     }
                                                     content += ')';
-                                                    return `<div>${content}</div>`;
+                                                    return content;
                                                 }).join('') : '-'}</td>
-                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.createdAt)}</td>
-                                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.updatedAt)}</td>
-                                                <td class="px-4 py-3 text-gray-600 max-w-[220px] truncate" title="${rule.description || '-'}">${rule.description || '-'}</td>
-                                                <td class="px-4 py-3 sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-                                                    <div class="flex items-center gap-2">
-                                                        <button onclick="app.openTradingRuleDrawer(${rule.id})" class="p-1 text-gray-500 hover:text-manta-primary transition-colors" title="Edit">
-                                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.createdAt)}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap">${app.formatDateTimeWithoutSeconds(rule.updatedAt)}</td>
+                                                <td class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#1c2026] border-t border-b border-[#e6e8ee] whitespace-nowrap max-w-[220px] truncate" title="${rule.description || '-'}">${rule.description || '-'}</td>
+                                                <td class="h-[48px] px-[16px] py-[8px] border-t border-b border-[#e6e8ee] whitespace-nowrap sticky right-0 bg-white group-hover:bg-gray-50 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)] transition-colors">
+                                                    <div class="flex items-center gap-[12px] min-w-[80px]">
+                                                        <button onclick="app.openTradingRuleDrawer(${rule.id})" class="text-[#b5bcc8] hover:text-manta-primary transition-colors flex items-center justify-center size-[24px]" title="Edit">
+                                                            <i data-lucide="edit-3" class="w-[16px] h-[16px]"></i>
                                                         </button>
-                                                        <button onclick="app.viewDetails(${rule.id})" class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View Details">
-                                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                                        <button onclick="app.viewDetails(${rule.id})" class="text-[#b5bcc8] hover:text-blue-600 transition-colors flex items-center justify-center size-[24px]" title="View Events">
+                                                            <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"></path><path d="M15 8h-5"></path><path d="M19 17V5a2 2 0 0 0-2-2H4"></path><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"></path></svg>
                                                         </button>
-                                                        <button onclick="app.viewHistory(${rule.id})" class="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="View History">
-                                                            <i data-lucide="${state.tradingRulesList.expandedHistoryRuleId === rule.id ? 'chevron-up' : 'history'}" class="w-4 h-4"></i>
+                                                        <button onclick="app.viewHistory(${rule.id})" class="text-[#b5bcc8] hover:text-blue-600 transition-colors flex items-center justify-center size-[24px]" title="View History">
+                                                            <i data-lucide="${state.tradingRulesList.expandedHistoryRuleId === rule.id ? 'chevron-up' : 'history'}" class="w-[16px] h-[16px]"></i>
                                                         </button>
-                                                        <button onclick="app.deleteTradingRule(${rule.id})" class="p-1 text-gray-500 hover:text-red-600 transition-colors" title="Delete">
-                                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                        <button onclick="app.deleteTradingRule(${rule.id})" class="text-[#b5bcc8] hover:text-red-600 transition-colors flex items-center justify-center size-[24px]" title="Delete">
+                                                            <i data-lucide="trash-2" class="w-[16px] h-[16px]"></i>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -7548,6 +7500,7 @@ const app = {
                                     </div>
                                 </div>
                             `}
+                        </div>
                     </div>
                 </div>
             </div>
