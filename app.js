@@ -35,11 +35,11 @@ const MOCK_DATA = {
     vpps: [],
     assignedDevices: [],
     devices: [
-        { id: 101, sn: 'INV-2024-001', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW', inverterType: 'Hybrid' },
-        { id: 102, sn: 'BAT-2024-002', vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC', inverterType: 'Hybrid' },
-        { id: 103, sn: 'INV-2024-003', vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD', inverterType: 'Grid-Tied' },
-        { id: 104, sn: 'BAT-2024-004', vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA', inverterType: 'Hybrid' },
-        { id: 105, sn: 'INV-2024-005', vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW', inverterType: 'AC-Coupled' },
+        { id: 101, sn: 'INV-2024-001', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW', inverterType: 'Hybrid' },
+        { id: 102, sn: 'BAT-2024-002', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC', inverterType: 'Hybrid' },
+        { id: 103, sn: 'INV-2024-003', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD', inverterType: 'Grid-Tied' },
+        { id: 104, sn: 'BAT-2024-004', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA', inverterType: 'Hybrid' },
+        { id: 105, sn: 'INV-2024-005', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW', inverterType: 'AC-Coupled' },
     ],
     pricingRegions: [
         { id: 'NSW', name: 'New South Wales' },
@@ -2949,7 +2949,7 @@ const app = {
                                 </button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-y-auto">
+                        <div class="flex-1 overflow-y-auto px-[16px]">
                             <table class="w-full text-sm text-left">
                                 <thead class="bg-gray-50 text-gray-500 sticky top-0 z-10">
                                     <tr>
@@ -9468,17 +9468,24 @@ const app = {
                                             </div>
                                             
                                             <!-- Actions -->
-                                            <div class="flex items-center gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                                ${isEstablished ? `
-                                                <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#ff3434] transition-all" title="Close">
-                                                    <i data-lucide="link-2-off" class="w-[24px] h-[24px]"></i>
+                                            <div class="flex items-center gap-[4px] transition-opacity shrink-0">
+                                                ${(sys.vendor === 'Ginlong (Solis)' || sys.vendor === 'Fox') ? `
+                                                <button onclick="event.stopPropagation(); app.openQRCodeModal('${sys.vendor}')" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#313949] transition-all" title="QR Code">
+                                                    <i data-lucide="qr-code" class="w-[24px] h-[24px]"></i>
                                                 </button>
                                                 ` : ''}
-                                                ${s === 'failed' ? `
-                                                <button onclick="event.stopPropagation(); app.openCloudBindDrawer(${sys.id})" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#313949] transition-all" title="Edit Connection">
-                                                    <i data-lucide="edit-2" class="w-[24px] h-[24px]"></i>
-                                                </button>
-                                                ` : ''}
+                                                <div class="flex items-center gap-[4px]">
+                                                    ${isEstablished ? `
+                                                    <button onclick="app.confirmCloseSystem(${sys.id}, event)" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#ff3434] transition-all" title="Close">
+                                                        <i data-lucide="link-2-off" class="w-[24px] h-[24px]"></i>
+                                                    </button>
+                                                    ` : ''}
+                                                    ${s === 'failed' ? `
+                                                    <button onclick="event.stopPropagation(); app.openCloudBindDrawer(${sys.id})" class="flex items-center justify-center px-[8px] py-[4px] rounded-[12px] hover:bg-[#f3f3f6] text-[#b5bcc8] hover:text-[#313949] transition-all" title="Edit Connection">
+                                                        <i data-lucide="edit-2" class="w-[24px] h-[24px]"></i>
+                                                    </button>
+                                                    ` : ''}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -9569,6 +9576,11 @@ const app = {
                                                     </td>
                                                     <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                         <div class="flex items-center justify-start gap-[12px]">
+                                                            ${(sys.vendor === 'Ginlong (Solis)' || sys.vendor === 'Fox') ? `
+                                                            <button onclick="event.stopPropagation(); app.openQRCodeModal('${sys.vendor}')" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="QR Code">
+                                                                <i data-lucide="qr-code" class="w-[16px] h-[16px]"></i>
+                                                            </button>
+                                                            ` : ''}
                                                             ${s !== 'establishing' ? `
                                                             <button onclick="app.navigate('system_details', { id: ${sys.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors" title="View">
                                                                 <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
@@ -9824,13 +9836,13 @@ const app = {
             </div>
 
             <!-- Device Table -->
-            <div class="flex-1 overflow-y-auto">
+            <div class="flex-1 overflow-y-auto px-[16px]">
                 <table class="w-full text-left border-collapse">
                     <thead class="sticky top-0 z-10 bg-white">
                         <tr>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">NMI</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">State</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                         </tr>
                     </thead>
@@ -9845,10 +9857,10 @@ const app = {
                                     </span>
                                 </td>
                                 <td class="px-[8px]">
-                                    <div class="text-[14px] text-[#313949] font-normal font-mono">${dev.sn}</div>
+                                    <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.nmi || '-'}</div>
                                 </td>
                                 <td class="px-[8px]">
-                                    <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${(state.vpps.find(v => v.id === dev.vppId) || {}).state || '-'}</div>
+                                    <div class="text-[14px] text-[#313949] font-normal font-mono">${dev.sn}</div>
                                 </td>
                                 <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                     <div class="flex items-center justify-start gap-[12px]">
@@ -10195,7 +10207,7 @@ const app = {
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">NMI</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SN</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">MANUFACTURER</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">STATE</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PRICE REGION</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED POWER</th>
                                 ${filterType !== 'EV' ? `
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PV CAPACITY</th>
@@ -10285,10 +10297,10 @@ const app = {
                                     <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                         <div class="flex items-center justify-start gap-[12px]">
                                             <button onclick="app.openAssignVppDrawer('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors" title="Assign VPP" aria-label="Assign VPP">
-                                                <i data-lucide="link-2" class="w-[24px] h-[24px]"></i>
+                                                <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M8 4v4M4 12h16M16 10v4M4 18h16M8 16v4"/></svg>
                                             </button>
                                             <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
-                                                <i data-lucide="eye" class="w-[24px] h-[24px]"></i>
+                                                <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5C7.5 5 3.5 8.5 2.5 12C3.5 15.5 7.5 19 12 19C16.5 19 20.5 15.5 21.5 12C20.5 8.5 16.5 5 12 5Z"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
                                             </button>
                                         </div>
                                     </td>
@@ -10644,6 +10656,68 @@ const app = {
                 resolve(results);
             }, 400);
         });
+    },
+
+    openQRCodeModal(vendor) {
+        this.updateModalWidth('max-w-md');
+        const content = document.getElementById('modal-content');
+        
+        const mockLink = `https://auth.manta.energy/bind/${vendor.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+        
+        content.innerHTML = `
+            <div class="p-[24px] bg-white rounded-[12px] flex flex-col items-center">
+                <div class="w-full flex justify-between items-center mb-[24px]">
+                    <h3 class="text-[20px] font-bold text-[#1c2026] font-['Roboto']">QR Code</h3>
+                    <button onclick="app.closeModal()" class="text-[#b5bcc8] hover:text-[#1c2026] transition-colors">
+                        <i data-lucide="x" class="w-[20px] h-[20px]"></i>
+                    </button>
+                </div>
+                
+                <div class="w-full p-[12px] bg-[#fffbe6] border border-[#ffe58a] rounded-[4px] mb-[24px]">
+                    <p class="text-[12px] text-[#ad6800] leading-[1.5] text-left">
+                        When a DER initially accesses Manta through ${vendor} Cloud, authorization from the DER owner is required. Please invite the DER owner to log in via a QR code or link to complete the authorization.
+                    </p>
+                </div>
+
+                <!-- QR Code Placeholder -->
+                <div class="w-[200px] h-[200px] bg-gray-50 border border-gray-200 rounded-[8px] flex items-center justify-center mb-[24px] p-[8px]">
+                    <img src="https://quickchart.io/qr?size=200&text=${encodeURIComponent(mockLink)}&centerImageUrl=${encodeURIComponent(`https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.company)}&background=fff&color=1c2026&size=64&bold=true&rounded=true`)}&margin=1&ecLevel=H" alt="QR Code" class="w-full h-full object-contain">
+                </div>
+                
+                <div class="flex items-center gap-[16px] mb-[32px]">
+                    <button onclick="app.downloadQRCode('${mockLink}')" title="Save QR Code" class="p-[8px] bg-white border border-[#e6e8ee] rounded-[4px] text-[#313949] hover:bg-[#f8f9fb] transition-colors shadow-sm flex items-center justify-center">
+                        <i data-lucide="download" class="w-[16px] h-[16px]"></i>
+                    </button>
+                    <button onclick="app.copyToClipboardDirect('${mockLink}')" title="Copy Link" class="p-[8px] bg-white border border-[#e6e8ee] rounded-[4px] text-[#313949] hover:bg-[#f8f9fb] transition-colors shadow-sm flex items-center justify-center">
+                        <i data-lucide="copy" class="w-[16px] h-[16px]"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        this.toggleModal(true);
+        lucide.createIcons();
+    },
+
+    downloadQRCode(data) {
+        const url = `https://quickchart.io/qr?size=400&text=${encodeURIComponent(data)}&centerImageUrl=${encodeURIComponent(`https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.company)}&background=fff&color=1c2026&size=64&bold=true&rounded=true`)}&margin=1&ecLevel=H`;
+        fetch(url)
+            .then(response => response.blob())
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = 'authorization-qrcode.png';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(a);
+                this.showToast('Image saved successfully', 'success');
+            })
+            .catch(() => {
+                this.showToast('Failed to download image', 'error');
+            });
     },
 
     openDeviceEditModal(sn) {
@@ -11658,22 +11732,22 @@ const app = {
                                     
                                     <div class="flex flex-[1_0_0] flex-col gap-[16px] items-start relative">
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
-                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">ASSIGNED VPP</span></div>
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto']">Assigned Vpp</span></div>
                                             <div class="flex items-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${vpp.name || 'Unassigned'}</span></div>
                                         </div>
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
-                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">STATE</span></div>
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto']">Price Region</span></div>
                                             <div class="flex items-center justify-center h-[40px]"><span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${vpp.state || '-'}</span></div>
                                         </div>
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
-                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">GRID STATUS</span></div>
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto']">Grid Status</span></div>
                                             <div class="flex gap-[8px] items-center h-[40px]">
                                                 <div class="h-[12px] w-[4px] rounded-[2px] ${device.status === 'online' ? 'bg-[#8cda2f]' : 'bg-[#b5bcc8]'}"></div>
                                                 <span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">${device.status === 'online' ? 'On-Grid' : 'Off-Grid'}</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col items-start min-w-[160px] relative shrink-0">
-                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto'] uppercase">Operating Mode</span></div>
+                                            <div class="flex gap-[4px] items-center"><span class="text-[14px] text-[#5f646e] font-['Roboto']">Operating Mode</span></div>
                                             <div class="flex gap-[8px] items-center h-[40px]">
                                                 <div class="h-[12px] w-[4px] rounded-[2px] bg-[#8cda2f]"></div>
                                                 <span class="text-[18px] font-semibold text-[#313949] font-['Roboto']">Normal</span>
@@ -12861,7 +12935,7 @@ const app = {
                                 <th class="px-[8px] font-normal">SN</th>
                                 <th class="px-[8px] font-normal">Type</th>
                                 <th class="px-[8px] font-normal">Manufacturer</th>
-                                <th class="px-[8px] font-normal">State</th>
+                                <th class="px-[8px] font-normal">Price Region</th>
                                 <th class="px-[8px] font-normal">Rated Power</th>
                                 <th class="px-[8px] font-normal">PV Capacity</th>
                                 <th class="px-[8px] font-normal">Rated Capacity</th>
@@ -13083,9 +13157,9 @@ const app = {
 
         const toast = document.createElement('div');
         const colors = {
-            success: 'bg-white border-green-200 text-green-700 border',
-            error: 'bg-white border-red-200 text-red-700 border',
-            info: 'bg-white border-blue-200 text-blue-700 border'
+            success: 'bg-white border-green-200 text-black border',
+            error: 'bg-white border-red-200 text-black border',
+            info: 'bg-white border-blue-200 text-black border'
         };
         const icons = {
             success: 'check-circle',
@@ -13093,9 +13167,15 @@ const app = {
             info: 'info'
         };
 
+        const iconColors = {
+            success: 'text-green-500',
+            error: 'text-red-500',
+            info: 'text-blue-500'
+        };
+
         toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 ${colors[type]}`;
         toast.innerHTML = `
-            <i data-lucide="${icons[type]}" class="w-5 h-5"></i>
+            <i data-lucide="${icons[type]}" class="w-5 h-5 ${iconColors[type]}"></i>
             <span class="font-medium text-sm">${message}</span>
         `;
 
@@ -13486,10 +13566,13 @@ const app = {
             'Fronius',
             'SMA',
             'Delta', 
-            'Enphase'
+            'Enphase',
+            'Fox'
         ];
 
         const manufacturers = allManufacturers.filter(m => !connectedSystemNames.includes(m));
+        
+        const initialManufacturer = manufacturers.length > 0 ? manufacturers[0] : '';
 
         drawerContent.innerHTML = `
             <div class="bg-white h-full flex flex-col font-['Roboto']">
@@ -13539,7 +13622,7 @@ const app = {
                                 <span class="text-[#5f646e] text-[12px] leading-normal">Manufacturer Cloud</span>
                             </div>
                             <div class="h-[32px]">
-                                <select name="manufacturers" onchange="app.handleManufacturerChange(this.value)" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] text-[14px] text-[#313949] focus:border-[#3ec064] outline-none appearance-none transition-colors">
+                                <select name="manufacturers" id="manufacturer-select" onchange="app.handleManufacturerChange(this.value)" class="w-full h-full bg-white border border-[#cacfd8] rounded-[4px] px-[8px] text-[14px] text-[#313949] focus:border-[#3ec064] outline-none appearance-none transition-colors">
                                     ${manufacturers.length > 0 ? manufacturers.map(m => `
                                         <option value="${m}">${m}</option>
                                     `).join('') : '<option value="" disabled selected>No cloud nodes found for your company.</option>'}
@@ -13577,6 +13660,11 @@ const app = {
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Developer Registration Hint -->
+                            <div id="developer-hint" class="p-[12px] bg-[#e6f4ff] border border-[#91caff] rounded-[4px]">
+                                <p class="text-[12px] text-[#0958d9] leading-[1.5]">First-time access to <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> device: Register on <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> Cloud to get your App Key and App Secret.</p>
                             </div>
                         </div>
 
@@ -13759,6 +13847,30 @@ const app = {
         }
     },
 
+    copyToClipboardDirect(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showToast('Copied to clipboard', 'success');
+            }).catch(() => {
+                this.showToast('Failed to copy', 'error');
+            });
+        } else {
+             // Fallback
+             const textArea = document.createElement("textarea");
+             textArea.value = text;
+             document.body.appendChild(textArea);
+             textArea.focus();
+             textArea.select();
+             try {
+                 document.execCommand('copy');
+                 this.showToast('Copied to clipboard', 'success');
+             } catch (err) {
+                 this.showToast('Failed to copy', 'error');
+             }
+             document.body.removeChild(textArea);
+        }
+    },
+
     handleSystemTypeChange(type) {
         const cloudSection = document.getElementById('section-cloud');
         const scadaSection = document.getElementById('section-scada');
@@ -13779,12 +13891,18 @@ const app = {
 
     handleManufacturerChange(manufacturer) {
         const sajOptions = document.getElementById('saj-options');
+        const developerHintManufacturers = document.querySelectorAll('.developer-hint-manufacturer');
+
         if (sajOptions) {
             if (manufacturer === 'SAJ') {
                 sajOptions.classList.remove('hidden');
             } else {
                 sajOptions.classList.add('hidden');
             }
+        }
+        
+        if (developerHintManufacturers.length > 0) {
+            developerHintManufacturers.forEach(el => el.textContent = manufacturer);
         }
     },
 
@@ -13818,12 +13936,13 @@ const app = {
                     if (systemType === 'aggregator_cloud') typeLabel = 'Aggregator Cloud';
                     if (systemType === 'private_cloud') typeLabel = 'Private Cloud';
 
+                    const isSolisOrFox = m === 'Ginlong (Solis)' || m === 'Fox';
                     const systemData = {
                         id: timestamp + index,
                         name: m,
                         type: typeLabel,
                         vendor: m,
-                        deviceCount: Math.floor(Math.random() * 10) + 1, // Random mock count
+                        deviceCount: isSolisOrFox ? 0 : (Math.floor(Math.random() * 10) + 1), // Random mock count
                         status: 'establishing'
                     };
 
@@ -13870,9 +13989,9 @@ const app = {
             // Add new systems to state
             state.systems.push(...newSystems);
 
-            // Auto-update establishing status after 10s
+            // Auto-update establishing status after 10s (except for Solis and Fox)
             newSystems.forEach(sys => {
-                if (sys.status === 'establishing') {
+                if (sys.status === 'establishing' && sys.vendor !== 'Ginlong (Solis)' && sys.vendor !== 'Fox') {
                     setTimeout(() => {
                         const targetSys = state.systems.find(s => s.id === sys.id);
                         if (targetSys) {
@@ -13887,15 +14006,20 @@ const app = {
                 }
             });
 
-            // Populate devices if empty (first bind simulation)
+            // Populate devices if empty (first bind simulation) - skip if only Solis/Fox were added
+            const onlySolisFox = newSystems.every(sys => sys.vendor === 'Ginlong (Solis)' || sys.vendor === 'Fox');
             if (!state.devices || state.devices.length === 0) {
-                 state.devices = [
-                    { sn: 'INV-2024001', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 50, address: '123 Solar St, Sydney' },
-                    { sn: 'BAT-2024002', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 13.5, address: '123 Solar St, Sydney' },
-                    { sn: 'INV-2024003', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'offline', capacity: 100, address: '456 Wind Way, Melbourne' },
-                    { sn: 'BAT-2024004', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 27, address: '456 Wind Way, Melbourne' },
-                    { sn: 'INV-2024005', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 30, address: '789 Energy Rd, Brisbane' }
-                ];
+                 if (!onlySolisFox) {
+                     state.devices = [
+                        { sn: 'INV-2024001', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 50, address: '123 Solar St, Sydney' },
+                        { sn: 'BAT-2024002', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 13.5, address: '123 Solar St, Sydney' },
+                        { sn: 'INV-2024003', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'offline', capacity: 100, address: '456 Wind Way, Melbourne' },
+                        { sn: 'BAT-2024004', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 27, address: '456 Wind Way, Melbourne' },
+                        { sn: 'INV-2024005', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 30, address: '789 Energy Rd, Brisbane' }
+                    ];
+                 } else {
+                     state.devices = [];
+                 }
             }
 
             this.showToast('Systems connected successfully', 'success');
@@ -14455,9 +14579,9 @@ const app = {
         const toast = document.createElement('div');
         
         const colors = {
-            success: 'border-l-success bg-surface-light text-white',
-            error: 'border-l-danger bg-surface-light text-white',
-            info: 'border-l-brand bg-surface-light text-white'
+            success: 'border-l-success bg-surface-light text-black',
+            error: 'border-l-danger bg-surface-light text-black',
+            info: 'border-l-brand bg-surface-light text-black'
         };
         
         const icons = {
