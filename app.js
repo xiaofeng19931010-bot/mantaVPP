@@ -9843,6 +9843,7 @@ const app = {
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">NMI</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Price Region</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                         </tr>
                     </thead>
@@ -9862,6 +9863,9 @@ const app = {
                                 <td class="px-[8px]">
                                     <div class="text-[14px] text-[#313949] font-normal font-mono">${dev.sn}</div>
                                 </td>
+                                <td class="px-[8px]">
+                                    <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.priceRegion || '-'}</div>
+                                </td>
                                 <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                     <div class="flex items-center justify-start gap-[12px]">
                                         <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
@@ -9872,7 +9876,7 @@ const app = {
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="4" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
+                                <td colspan="5" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
                                     No devices found.
                                 </td>
                             </tr>
@@ -10206,20 +10210,20 @@ const app = {
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Status</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">NMI</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SN</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">MANUFACTURER</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PRICE REGION</th>
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED POWER</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Manufacturer</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Price Region</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Rated Power</th>
                                 ${filterType !== 'EV' ? `
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PV CAPACITY</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">PV Capacity</th>
                                 ` : ''}
                                 ${(filterType !== 'Inverter' && filterType !== 'Single PV') ? `
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">RATED CAPACITY</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Rated Capacity</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">SOC</th>
                                 ` : ''}
                                 ${filterType !== 'EV' ? `
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">TODAY YIELD</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Today Yield</th>
                                 ` : ''}
-                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">ASSIGNED VPP</th>
+                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee]">Assigned VPP</th>
                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] font-['Roboto'] border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
@@ -10298,6 +10302,9 @@ const app = {
                                         <div class="flex items-center justify-start gap-[12px]">
                                             <button onclick="app.openAssignVppDrawer('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors" title="Assign VPP" aria-label="Assign VPP">
                                                 <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M8 4v4M4 12h16M16 10v4M4 18h16M8 16v4"/></svg>
+                                            </button>
+                                            <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors" title="View Events">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                                             </button>
                                             <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                                 <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5C7.5 5 3.5 8.5 2.5 12C3.5 15.5 7.5 19 12 19C16.5 19 20.5 15.5 21.5 12C20.5 8.5 16.5 5 12 5Z"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
@@ -10676,7 +10683,7 @@ const app = {
                 <div class="w-full p-[12px] bg-[#fffbe6] border border-[#ffe58a] rounded-[4px] mb-[24px] flex items-start gap-[8px]">
                     <i data-lucide="info" class="w-[16px] h-[16px] text-[#ad6800] shrink-0 mt-[1px]"></i>
                     <p class="text-[12px] text-[#ad6800] leading-[1.5] text-left">
-                        When a DER initially accesses Manta through ${vendor} Cloud, authorization from the DER owner is required. Please invite the DER owner to log in via a QR code or link to complete the authorization.
+                        When a DER initially accesses Manta via ${vendor} Cloud, the DER owner’s authorization is required. Please invite the owner to log in via QR code or link to complete authorization.
                     </p>
                 </div>
 
@@ -12574,7 +12581,7 @@ const app = {
                              <!-- State Select -->
                              <div class="flex gap-[4px] items-center relative shrink-0 group cursor-pointer">
                                  <select id="vpp-state-filter" class="bg-transparent border-none focus:ring-0 text-[14px] font-normal text-[#313949] cursor-pointer pr-5 py-0 appearance-none leading-normal" onchange="app.filterVPPs()">
-                                     <option value="">all</option>
+                                     <option value="">All</option>
                                      ${MOCK_DATA.overview.regions.map(r => `<option value="${r.name}" ${state.vppList.state === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
                                  </select>
                                  <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[16px] h-[16px] flex items-center justify-center pointer-events-none">
@@ -12617,12 +12624,6 @@ const app = {
                         <i data-lucide="search" class="w-6 h-6 text-gray-400"></i>
                      </div>
                      <h3 class="text-base font-medium text-gray-900 mb-1">No VPPs found</h3>
-                     <p class="text-sm text-gray-500 mb-4 text-center">
-                        No VPPs match your current filters.
-                     </p>
-                     <button onclick="app.resetVPPFilters()" class="px-3 py-1.5 bg-white border border-gray-300 shadow-sm rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                        Clear Filters
-                     </button>
                 </div>
                 ` : isCardView ? `
                 <div class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start bg-gray-50 rounded-xl p-4 border border-gray-100">
@@ -12675,6 +12676,9 @@ const app = {
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button class="w-[32px] h-[32px] bg-[#f3f3f6] rounded-[16px] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+                                    </button>
                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="w-[32px] h-[32px] bg-[#f3f3f6] rounded-[16px] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors">
                                         <i data-lucide="edit-2" class="w-[14px] h-[14px] text-[#5f646e]"></i>
                                     </button>
@@ -12776,15 +12780,15 @@ const app = {
                         <table class="w-full text-left border-collapse">
                             <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">VPP Name</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Pricing Region</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Active Market</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Power</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Rated Capacity</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Today Yield</th>
-                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee] min-w-[120px]">VPP Name</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Pricing Region</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Active Market</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee]">DERs</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee]">Rated Power</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee]">PV Capacity</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee]">Rated Capacity</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee]">Today Yield</th>
+                                    <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] tracking-wider border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="">
@@ -12846,6 +12850,9 @@ const app = {
                                                 <div class="flex items-center justify-start gap-[12px]">
                                                     <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
+                                                    </button>
+                                                    <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors flex items-center justify-center size-[24px]" title="View Events">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                                                     </button>
                                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="edit-2" class="w-[16px] h-[16px]"></i>
@@ -13131,26 +13138,15 @@ const app = {
                     </div>
 
                     <!-- Header (Figma 168-2975) -->
-                    <div class="flex justify-start gap-2 items-center px-[24px] py-[16px] bg-white">
-                         <!-- Tab Group -->
-                         <div class="bg-[#f3f3f6] p-[4px] rounded-[4px] flex items-center">
-                            <button onclick="app.setVPPDetailsTab('der-list')" class="min-w-[80px] h-[32px] flex items-center justify-center rounded-[4px] px-[16px] text-[14px] transition-all ${state.vppDetailsTab === 'der-list' ? 'bg-white font-semibold text-[#313949] shadow-sm' : 'font-normal text-[#313949] hover:bg-gray-100'}">
-                                DERs
-                            </button>
-                            <button onclick="app.setVPPDetailsTab('event-list')" class="min-w-[80px] h-[32px] flex items-center justify-center rounded-[4px] px-[16px] text-[14px] transition-all ${state.vppDetailsTab === 'event-list' ? 'bg-white font-semibold text-[#313949] shadow-sm' : 'font-normal text-[#313949] hover:bg-gray-100'}">
-                                Events
-                            </button>
-                         </div>
+                    <div class="flex justify-between gap-2 items-center px-[24px] py-[16px] bg-white">
+                         <h2 class="text-[16px] font-bold text-[#1c2026] font-['Roboto']">DERs</h2>
 
                         <div class="ml-auto flex items-center gap-2">
-                            ${(state.vppDetailsTab === 'der-list') ? `
-                            <button onclick="app.toggleAddDeviceDrawer(true)" class="bg-[#0052ff] text-white px-[16px] py-[6px] rounded-[4px] hover:bg-[#0043cc] transition-colors text-[14px] font-medium flex items-center gap-[4px]">
+                            <button onclick="app.toggleAddDeviceDrawer(true)" class="bg-[#2e9f58] text-white px-[16px] py-[6px] rounded-[4px] hover:bg-[#258046] active:bg-[#1a6e3b] transition-colors text-[14px] font-medium flex items-center gap-[4px]">
                                <i data-lucide="plus" class="w-[16px] h-[16px]"></i>
                                Add
                             </button>
-                            ` : ''}
 
-                            ${(state.vppDetailsTab === 'der-list') ? `
                             <div class="bg-[#f3f3f6] rounded-[4px] flex items-center w-[240px] h-[32px] px-[8px] gap-[8px]">
                                 <input 
                                     type="text" 
@@ -13164,14 +13160,12 @@ const app = {
                                     <i data-lucide="search" class="w-[18px] h-[18px] text-[#b5bcc8]"></i>
                                 </div>
                             </div>
-                            ` : ''}
                         </div>
                     </div>
                 </div>
 
                 <!-- Content -->
                 <div class="flex-1 px-[24px] overflow-y-auto min-h-0">
-                    ${(state.vppDetailsTab === 'der-list') ? `
                     <table class="w-full text-left border-collapse font-['Roboto']">
                         <thead class="sticky top-0 bg-white z-10">
                             <tr class="h-[48px] text-[12px] text-[#b5bcc8] font-normal border-b border-[#e6e8ee]">
@@ -13231,6 +13225,9 @@ const app = {
                                             <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#313949] transition-colors" title="View Details">
                                                 <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                             </button>
+                                            <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors" title="View Events">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+                                            </button>
                                             <button onclick="app.confirmRemoveDER('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-red-600 transition-colors" title="Remove">
                                                 <i data-lucide="trash-2" class="w-[16px] h-[16px]"></i>
                                             </button>
@@ -13246,56 +13243,7 @@ const app = {
                             `}
                         </tbody>
                     </table>
-                    ` : state.vppDetailsTab === 'event-list' ? `
-                    <table class="w-full text-left border-collapse">
-                        <thead class="sticky top-0 bg-white z-10">
-                            <tr class="h-[48px] text-[12px] text-[#5f646e] border-b border-[#e6e8ee]">
-                                <th class="px-[16px] font-medium">Date</th>
-                                <th class="px-[16px] font-medium">Start Time - End Time</th>
-                                <th class="px-[16px] font-medium">Event Type</th>
-                                <th class="px-[16px] font-medium">Power</th>
-                                <th class="px-[16px] font-medium">Spot Price</th>
-                                <th class="px-[16px] font-medium">Volume</th>
-                                <th class="px-[16px] font-medium">VPP Income</th>
-                                <th class="px-[16px] font-medium">Status</th>
-                                <th class="px-[16px] font-medium">Notes</th>
-                                <th class="px-[16px] font-medium sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-[14px] text-[#313949]">
-                            ${MOCK_DATA.tradingEvents.map(event => `
-                                <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee] last:border-0">
-                                    <td class="px-[16px] py-[12px] text-[#313949]">${event.date.split(' ')[0]}</td>
-                                    <td class="px-[16px] py-[12px] text-[#5f646e]">${event.timeRange}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949]">${event.eventType}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.power}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.spotPrice}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.volume}</td>
-                                    <td class="px-[16px] py-[12px] text-[#313949] font-mono">${event.vppIncome}</td>
-                                    <td class="px-[16px] py-[12px]">
-                                        <span class="inline-flex items-center gap-[6px] px-[8px] py-[2px] rounded-[12px] text-[12px] ${event.status === 'Success' ? 'bg-[#e6f4d0] text-[#4b7b0f]' : event.status === 'Partially Success' ? 'bg-[#fff7ed] text-[#c2410c]' : 'bg-[#e6e8ee] text-[#5f646e]'}">
-                                            <span class="w-[6px] h-[6px] rounded-full bg-current"></span>
-                                            ${event.status === 'Pending' ? 'Partially Completed' : event.status}
-                                        </span>
-                                    </td>
-                                    <td class="px-[16px] py-[12px] text-[#5f646e] max-w-xs truncate" title="${event.notes}">${event.notes || '-'}</td>
-                                    <td class="px-[16px] py-[12px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-                                        <button class="text-[#b5bcc8] hover:text-[#313949] transition-colors">
-                                            <i data-lucide="external-link" class="w-[16px] h-[16px]"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    ` : `
-                    <div class="flex flex-col items-center justify-center h-full text-[#5f646e]">
-                        <i data-lucide="calendar-off" class="w-[48px] h-[48px] mb-[16px] text-[#e6e8ee]"></i>
-                        <p class="text-[14px]">No events found</p>
-                    </div>
-                    `}
                 </div>
-                ${(state.vppDetailsTab === 'der-list') ? `
                 <div class="flex items-center justify-end px-[16px] py-[12px] mt-auto bg-white rounded-b-[4px]">
                     <div class="flex items-center gap-[12px]">
                         <div class="relative mr-2">
@@ -13348,7 +13296,6 @@ const app = {
                         </div>
                     </div>
                 </div>
-                ` : ''}
             </div>
         `;
         
