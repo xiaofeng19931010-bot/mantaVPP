@@ -10673,7 +10673,8 @@ const app = {
                     </button>
                 </div>
                 
-                <div class="w-full p-[12px] bg-[#fffbe6] border border-[#ffe58a] rounded-[4px] mb-[24px]">
+                <div class="w-full p-[12px] bg-[#fffbe6] border border-[#ffe58a] rounded-[4px] mb-[24px] flex items-start gap-[8px]">
+                    <i data-lucide="info" class="w-[16px] h-[16px] text-[#ad6800] shrink-0 mt-[1px]"></i>
                     <p class="text-[12px] text-[#ad6800] leading-[1.5] text-left">
                         When a DER initially accesses Manta through ${vendor} Cloud, authorization from the DER owner is required. Please invite the DER owner to log in via a QR code or link to complete the authorization.
                     </p>
@@ -10692,6 +10693,118 @@ const app = {
                         <i data-lucide="copy" class="w-[16px] h-[16px]"></i>
                     </button>
                 </div>
+            </div>
+        `;
+        
+        this.toggleModal(true);
+        lucide.createIcons();
+    },
+
+    openGuidanceModal(step = 1) {
+        this.updateModalWidth('max-w-2xl');
+        const modalContainer = document.getElementById('modal-container');
+        if (modalContainer) {
+            modalContainer.style.zIndex = '9999'; // Ensure guidance modal is always on top
+        }
+        
+        const content = document.getElementById('modal-content');
+        
+        const manufacturerSelect = document.getElementById('manufacturer-select');
+        const vendor = manufacturerSelect ? manufacturerSelect.value : 'Cloud';
+        
+        let stepContent = '';
+        
+        if (step === 1) {
+            stepContent = `
+                <div class="flex flex-col gap-[16px]">
+                    <div class="flex items-center gap-[8px]">
+                        <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">1</div>
+                        <p class="text-[16px] text-[#1c2026] font-medium">Click to enter the <a href="#" target="_blank" class="text-[#1677ff] hover:underline">${vendor} Cloud</a> registration page</p>
+                    </div>
+                    <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
+                        <!-- Placeholder for Step 1 Thumbnail -->
+                        <div class="flex flex-col items-center text-[#b5bcc8]">
+                            <i data-lucide="layout-template" class="w-[48px] h-[48px] mb-[8px]"></i>
+                            <span class="text-[14px]">Registration Page Thumbnail</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-[8px]">
+                        <button onclick="app.openGuidanceModal(2)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
+                            Next Step
+                            <i data-lucide="arrow-right" class="w-[16px] h-[16px]"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else if (step === 2) {
+            stepContent = `
+                <div class="flex flex-col gap-[16px]">
+                    <div class="flex items-center gap-[8px]">
+                        <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">2</div>
+                        <p class="text-[16px] text-[#1c2026] font-medium">View and copy AppKey and AppSecret in the Developer Center</p>
+                    </div>
+                    <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
+                        <!-- Placeholder for Step 2 Thumbnail -->
+                        <div class="flex flex-col items-center text-[#b5bcc8]">
+                            <i data-lucide="key" class="w-[48px] h-[48px] mb-[8px]"></i>
+                            <span class="text-[14px]">Developer Center Thumbnail</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-[8px]">
+                        <button onclick="app.openGuidanceModal(1)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-white border border-[#e6e8ee] hover:bg-[#f8f9fb] text-[#313949] rounded-[4px] transition-colors text-[14px] font-medium">
+                            <i data-lucide="arrow-left" class="w-[16px] h-[16px]"></i>
+                            Previous Step
+                        </button>
+                        <button onclick="app.openGuidanceModal(3)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
+                            Next Step
+                            <i data-lucide="arrow-right" class="w-[16px] h-[16px]"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else if (step === 3) {
+            stepContent = `
+                <div class="flex flex-col gap-[16px]">
+                    <div class="flex items-center gap-[8px]">
+                        <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">3</div>
+                        <p class="text-[16px] text-[#1c2026] font-medium">Copy and paste AppKey and AppSecret into Manta</p>
+                    </div>
+                    <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
+                        <!-- Placeholder for Step 3 Thumbnail -->
+                        <div class="flex flex-col items-center text-[#b5bcc8]">
+                            <i data-lucide="clipboard-paste" class="w-[48px] h-[48px] mb-[8px]"></i>
+                            <span class="text-[14px]">Manta Form Thumbnail</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-[8px]">
+                        <button onclick="app.openGuidanceModal(2)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-white border border-[#e6e8ee] hover:bg-[#f8f9fb] text-[#313949] rounded-[4px] transition-colors text-[14px] font-medium">
+                            <i data-lucide="arrow-left" class="w-[16px] h-[16px]"></i>
+                            Previous Step
+                        </button>
+                        <button onclick="app.closeModal()" class="flex items-center gap-[8px] px-[24px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        content.innerHTML = `
+            <div class="p-[24px] bg-white rounded-[12px] flex flex-col font-['Roboto']">
+                <div class="w-full flex justify-between items-center mb-[24px] pb-[16px] border-b border-[#e6e8ee]">
+                    <h3 class="text-[20px] font-bold text-[#1c2026]">Access Guidance</h3>
+                    <button onclick="app.closeModal()" class="text-[#b5bcc8] hover:text-[#1c2026] transition-colors">
+                        <i data-lucide="x" class="w-[24px] h-[24px]"></i>
+                    </button>
+                </div>
+                
+                <div class="flex gap-[8px] mb-[24px] justify-center">
+                    <div class="h-[4px] rounded-full flex-1 max-w-[80px] ${step >= 1 ? 'bg-[#3ec064]' : 'bg-[#e6e8ee]'} transition-colors duration-300"></div>
+                    <div class="h-[4px] rounded-full flex-1 max-w-[80px] ${step >= 2 ? 'bg-[#3ec064]' : 'bg-[#e6e8ee]'} transition-colors duration-300"></div>
+                    <div class="h-[4px] rounded-full flex-1 max-w-[80px] ${step >= 3 ? 'bg-[#3ec064]' : 'bg-[#e6e8ee]'} transition-colors duration-300"></div>
+                </div>
+
+                ${stepContent}
             </div>
         `;
         
@@ -13663,8 +13776,11 @@ const app = {
                             </div>
                             
                             <!-- Developer Registration Hint -->
-                            <div id="developer-hint" class="p-[12px] bg-[#e6f4ff] border border-[#91caff] rounded-[4px]">
-                                <p class="text-[12px] text-[#0958d9] leading-[1.5]">First-time access to <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> device: Register on <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> Cloud to get your App Key and App Secret.</p>
+                            <div id="developer-hint" class="p-[12px] bg-[#e6f4ff] border border-[#91caff] rounded-[4px] flex items-start gap-[8px]">
+                                <i data-lucide="info" class="w-[16px] h-[16px] text-[#0958d9] shrink-0 mt-[1px]"></i>
+                                <p class="text-[12px] text-[#0958d9] leading-[1.5]">
+                                    First-time access to <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> device: Register on <span class="font-medium"><span class="developer-hint-manufacturer">${initialManufacturer}</span> Cloud</span> to get your App Key and App Secret. <span onclick="app.openGuidanceModal()" class="font-medium cursor-pointer hover:underline text-[#1677ff]">For more guidance , click here.</span>
+                                </p>
                             </div>
                         </div>
 
@@ -14567,6 +14683,10 @@ const app = {
     },
 
     closeModal() {
+        const modalContainer = document.getElementById('modal-container');
+        if (modalContainer) {
+            modalContainer.style.zIndex = ''; // Reset z-index
+        }
         this.toggleModal(false);
     },
 
