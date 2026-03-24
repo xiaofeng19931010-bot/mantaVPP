@@ -10708,7 +10708,7 @@ const app = {
     },
 
     openGuidanceModal(step = 1) {
-        this.updateModalWidth('max-w-2xl');
+        this.updateModalWidth('max-w-3xl');
         const modalContainer = document.getElementById('modal-container');
         if (modalContainer) {
             modalContainer.style.zIndex = '9999';
@@ -10722,14 +10722,13 @@ const app = {
         const redirectUrl = `https://auth.manta.energy/bind/${vendor.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
         
         let stepContent = '';
-        let totalSteps = isSolisOrFox ? 5 : 3;
+        let totalSteps = isSolisOrFox ? 5 : 4;
         
         if (step === 1) {
             stepContent = `
                 <div class="flex flex-col gap-[16px]">
                     <div class="flex items-center gap-[8px]">
-                        <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">1</div>
-                        <p class="text-[16px] text-[#1c2026] font-medium">Click to enter the <a href="#" target="_blank" class="text-[#1677ff] hover:underline">${vendor} Cloud</a>, register as a developer and log in.</p>
+                        <p class="text-[16px] text-[#1c2026] font-medium">Click to log in to <a href="#" target="_blank" class="text-[#1677ff] hover:underline">${vendor} Cloud</a> and enter the Developer Center (New users sign up first).</p>
                     </div>
                     <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
                         <div class="flex flex-col items-center text-[#b5bcc8]">
@@ -10750,7 +10749,6 @@ const app = {
                 stepContent = `
                     <div class="flex flex-col gap-[16px]">
                         <div class="flex items-center gap-[8px]">
-                            <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">2</div>
                             <p class="text-[16px] text-[#1c2026] font-medium">Set the Redirect URL in the Developer Center to <span class="relative group/copy"><span onclick="app.copyToClipboardDirect('${redirectUrl}')" class="text-[#1677ff] hover:underline cursor-pointer">Manta</span><span class="absolute left-0 top-full mt-[4px] hidden group-hover/copy:block bg-[#313949] text-white text-[12px] px-[8px] py-[4px] rounded-[4px] whitespace-nowrap z-10 shadow-lg">Click to Copy Manta Redirect URL:<br>${redirectUrl}</span></span>.</p>
                         </div>
                         <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
@@ -10775,7 +10773,6 @@ const app = {
                 stepContent = `
                     <div class="flex flex-col gap-[16px]">
                         <div class="flex items-center gap-[8px]">
-                            <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">2</div>
                             <p class="text-[16px] text-[#1c2026] font-medium">View and copy your AppKey and AppSecret in the Developer Center.</p>
                         </div>
                         <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
@@ -10802,7 +10799,6 @@ const app = {
                 stepContent = `
                     <div class="flex flex-col gap-[16px]">
                         <div class="flex items-center gap-[8px]">
-                            <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">3</div>
                             <p class="text-[16px] text-[#1c2026] font-medium">View and copy your AppKey and AppSecret in the Developer Center.</p>
                         </div>
                         <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
@@ -10827,7 +10823,6 @@ const app = {
                 stepContent = `
                     <div class="flex flex-col gap-[16px]">
                         <div class="flex items-center gap-[8px]">
-                            <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">3</div>
                             <p class="text-[16px] text-[#1c2026] font-medium">Paste your AppKey and AppSecret into Manta.</p>
                         </div>
                         <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
@@ -10841,8 +10836,9 @@ const app = {
                                 <i data-lucide="arrow-left" class="w-[16px] h-[16px]"></i>
                                 Previous Step
                             </button>
-                            <button onclick="app.closeModal()" class="flex items-center gap-[8px] px-[24px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
-                                Got it
+                            <button onclick="app.openGuidanceModal(4)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
+                                Next Step
+                                <i data-lucide="arrow-right" class="w-[16px] h-[16px]"></i>
                             </button>
                         </div>
                     </div>
@@ -10853,7 +10849,6 @@ const app = {
                 stepContent = `
                     <div class="flex flex-col gap-[16px]">
                         <div class="flex items-center gap-[8px]">
-                            <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">4</div>
                             <p class="text-[16px] text-[#1c2026] font-medium">Paste your AppKey and AppSecret into Manta.</p>
                         </div>
                         <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
@@ -10878,17 +10873,16 @@ const app = {
                 stepContent = `
                     <div class="flex flex-col gap-[16px]">
                         <div class="flex items-center gap-[8px]">
-                            <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">3</div>
-                            <p class="text-[16px] text-[#1c2026] font-medium">Paste your AppKey and AppSecret into Manta.</p>
+                            <p class="text-[16px] text-[#1c2026] font-medium">Invite customers to join your VPP via ${vendor} Cloud.</p>
                         </div>
                         <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
                             <div class="flex flex-col items-center text-[#b5bcc8]">
-                                <i data-lucide="clipboard-paste" class="w-[48px] h-[48px] mb-[8px]"></i>
-                                <span class="text-[14px]">Manta Form Thumbnail</span>
+                                <i data-lucide="qr-code" class="w-[48px] h-[48px] mb-[8px]"></i>
+                                <span class="text-[14px]">Invite via QR Code Thumbnail</span>
                             </div>
                         </div>
                         <div class="flex justify-between mt-[8px]">
-                            <button onclick="app.openGuidanceModal(2)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-white border border-[#e6e8ee] hover:bg-[#f8f9fb] text-[#313949] rounded-[4px] transition-colors text-[14px] font-medium">
+                            <button onclick="app.openGuidanceModal(3)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-white border border-[#e6e8ee] hover:bg-[#f8f9fb] text-[#313949] rounded-[4px] transition-colors text-[14px] font-medium">
                                 <i data-lucide="arrow-left" class="w-[16px] h-[16px]"></i>
                                 Previous Step
                             </button>
@@ -10899,35 +10893,22 @@ const app = {
                     </div>
                 `;
             }
-        } else if (step === 5) {
-            stepContent = `
-                <div class="flex flex-col gap-[16px]">
-                    <div class="flex items-center gap-[8px]">
-                        <div class="w-[24px] h-[24px] rounded-full bg-[#3ec064] text-white flex items-center justify-center text-[14px] font-bold">5</div>
-                        <p class="text-[16px] text-[#1c2026] font-medium">Invite customers to join your Manta VPP via QR code or link.</p>
-                    </div>
-                    <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
-                        <div class="flex flex-col items-center text-[#b5bcc8]">
-                            <i data-lucide="qr-code" class="w-[48px] h-[48px] mb-[8px]"></i>
-                            <span class="text-[14px]">Invite via QR Code Thumbnail</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between mt-[8px]">
-                        <button onclick="app.openGuidanceModal(4)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-white border border-[#e6e8ee] hover:bg-[#f8f9fb] text-[#313949] rounded-[4px] transition-colors text-[14px] font-medium">
-                            <i data-lucide="arrow-left" class="w-[16px] h-[16px]"></i>
-                            Previous Step
-                        </button>
-                        <button onclick="app.closeModal()" class="flex items-center gap-[8px] px-[24px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
-                            Got it
-                        </button>
-                    </div>
-                </div>
-            `;
         }
 
         let progressBars = '';
         for (let i = 1; i <= totalSteps; i++) {
-            progressBars += `<div class="h-[4px] rounded-full flex-1 max-w-[80px] ${step >= i ? 'bg-[#3ec064]' : 'bg-[#e6e8ee]'} transition-colors duration-300"></div>`;
+            const isCompleted = step >= i;
+            const circleBg = isCompleted ? 'bg-[#3ec064]' : 'bg-[#e6e8ee]';
+            const circleText = isCompleted ? 'text-white' : 'text-[#b5bcc8]';
+            progressBars += `
+                <div class="flex items-center gap-0">
+                    <div class="w-[24px] h-[24px] rounded-full ${circleBg} ${circleText} flex items-center justify-center text-[12px] font-bold shrink-0">${i}</div>
+                </div>
+            `;
+            if (i < totalSteps) {
+                const lineBg = step > i ? 'bg-[#3ec064]' : 'bg-[#e6e8ee]';
+                progressBars += `<div class="h-[2px] flex-1 ${lineBg} transition-colors duration-300 min-w-[40px]"></div>`;
+            }
         }
 
         content.innerHTML = `
@@ -10938,7 +10919,7 @@ const app = {
                     </button>
                 </div>
                 
-                <div class="flex gap-[8px] mb-[38px] justify-center">
+                <div class="flex items-center w-full mb-[38px]">
                     ${progressBars}
                 </div>
 
@@ -13858,7 +13839,7 @@ const app = {
                                 <i data-lucide="info" class="w-[16px] h-[16px] text-[#0958d9] shrink-0 mt-[1px]"></i>
                                 <div class="flex flex-col gap-[4px]">
                                     <p class="text-[12px] text-[#0958d9] leading-[1.5]">
-                                        First-time access to <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> device: Register on <span class="font-medium"><span class="developer-hint-manufacturer">${initialManufacturer}</span> Cloud</span> to get your App Key and App Secret.
+                                        First-time <span class="developer-hint-manufacturer font-medium">${initialManufacturer}</span> access: Get your App Key and App Secret from <span class="font-medium"><span class="developer-hint-manufacturer">${initialManufacturer}</span> Cloud</span>, then enter them in Manta.
                                     </p>
                                     <p onclick="app.openGuidanceModal()" class="cursor-pointer hover:underline text-[#1677ff]">For more guidance , <span class="font-medium">Click Here</span>.</p>
                                 </div>
