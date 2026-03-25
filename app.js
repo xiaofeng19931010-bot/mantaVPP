@@ -35,11 +35,11 @@ const MOCK_DATA = {
     vpps: [],
     assignedDevices: [],
     devices: [
-        { id: 101, sn: 'INV-2024-001', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW', inverterType: 'Hybrid' },
-        { id: 102, sn: 'BAT-2024-002', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC', inverterType: 'Hybrid' },
-        { id: 103, sn: 'INV-2024-003', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD', inverterType: 'Grid-Tied' },
-        { id: 104, sn: 'BAT-2024-004', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA', inverterType: 'Hybrid' },
-        { id: 105, sn: 'INV-2024-005', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW', inverterType: 'AC-Coupled' },
+        { id: 101, sn: 'INV-2024-001', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 50, userName: 'Alice Green', phone: '+1 555-0201', email: 'alice@example.com', address: '321 Green Way', state: 'NSW', inverterType: 'Hybrid', authStatus: 'expired' },
+        { id: 102, sn: 'BAT-2024-002', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'CATL', type: 'Battery', status: 'online', capacity: 200, userName: 'Charlie Black', phone: '+1 555-0202', email: 'charlie@example.com', address: '654 Energy Blvd', state: 'VIC', inverterType: 'Hybrid', authStatus: 'authorized' },
+        { id: 103, sn: 'INV-2024-003', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Huawei', type: 'Inverter', status: 'offline', capacity: 45, userName: 'David White', phone: '+1 555-0203', email: 'david@example.com', address: '987 Volt Rd', state: 'QLD', inverterType: 'Grid-Tied', authStatus: 'expired' },
+        { id: 104, sn: 'BAT-2024-004', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'BYD', type: 'Battery', status: 'online', capacity: 150, userName: 'Eva Blue', phone: '+1 555-0204', email: 'eva@example.com', address: '147 Ampere Ct', state: 'SA', inverterType: 'Hybrid', authStatus: 'authorized' },
+        { id: 105, sn: 'INV-2024-005', nmi: 'NMI' + Math.floor(Math.random() * 1000000000), vendor: 'Sungrow', type: 'Inverter', status: 'online', capacity: 55, userName: 'Frank Red', phone: '+1 555-0205', email: 'frank@example.com', address: '258 Ohm Pl', state: 'NSW', inverterType: 'AC-Coupled', authStatus: 'authorized' },
     ],
     pricingRegions: [
         { id: 'NSW', name: 'New South Wales' },
@@ -1819,7 +1819,7 @@ const app = {
                             </div>
                         </div>
                         <!-- Top Stats Bar -->
-                        <div class="bg-[#f3f3f6] mx-[16px] px-[16px] py-[12px] rounded-[8px] flex flex-nowrap items-stretch gap-[8px]">
+                        <div id="spot-price-stats-container" class="bg-[#f3f3f6] mx-[16px] px-[16px] py-[12px] rounded-[8px] flex flex-nowrap items-stretch gap-[8px]">
                             <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
                                 <div class="flex items-center gap-[8px] min-h-px min-w-px whitespace-nowrap">
                                     <span id="stat-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949]">0.55</span>
@@ -2833,6 +2833,8 @@ const app = {
                     realTimeTab.className = "bg-white h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] shadow-sm transition-all font-['Roboto'] font-semibold text-[14px] text-[#313949]";
                     historicalTab.className = "h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] transition-all hover:bg-white/50 font-['Roboto'] font-normal text-[14px] text-[#313949]";
                     if (datePickerContainer) datePickerContainer.classList.add('hidden');
+                    const statsContainer = document.getElementById('spot-price-stats-container');
+                    if (statsContainer) statsContainer.classList.remove('hidden');
                     updateChart();
                     startRefreshInterval();
                 });
@@ -2842,6 +2844,8 @@ const app = {
                     historicalTab.className = "bg-white h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] shadow-sm transition-all font-['Roboto'] font-semibold text-[14px] text-[#313949]";
                     realTimeTab.className = "h-[32px] min-w-[80px] px-[16px] py-[4px] rounded-[4px] transition-all hover:bg-white/50 font-['Roboto'] font-normal text-[14px] text-[#313949]";
                     if (datePickerContainer) datePickerContainer.classList.remove('hidden');
+                    const statsContainer = document.getElementById('spot-price-stats-container');
+                    if (statsContainer) statsContainer.classList.add('hidden');
                     updateChart();
                     stopRefreshInterval();
                 });
@@ -9330,13 +9334,27 @@ const app = {
                 const statusConfig = getStatusConfig(sys.status);
                 const isEstablished = (sys.status || '').toLowerCase() === 'established';
                 const isDisconnected = (sys.status || '').toLowerCase() === 'disconnected';
-                // Only allow click navigation if not in a transitional or closed state (optional, but good UX)
-                const isClickable = !['establishing', 'closed', 'disconnected', 'failed'].includes((sys.status || '').toLowerCase());
+                const isClosed = (sys.status || '').toLowerCase() === 'closed';
+                const isClickable = !['establishing', 'disconnected', 'failed'].includes((sys.status || '').toLowerCase());
+                const isCardClickable = isClickable || isClosed;
                 
-                const onclickAttr = isClickable ? `onclick="app.navigate('system_details', { id: ${sys.id} })"` : '';
-                const cursorClass = isClickable ? 'cursor-pointer' : 'cursor-default';
+                const onclickAttr = isCardClickable ? `onclick="app.navigate('system_details', { id: ${sys.id} })"` : '';
+                const cursorClass = isCardClickable ? 'cursor-pointer' : 'cursor-default';
+                
+                const expiredCount = sysDevices.filter(d => (d.authStatus || '').toLowerCase() === 'expired').length;
+                const totalAuth = sysDevices.length;
+                let authLabel = '';
+                if (totalAuth === 0) {
+                    authLabel = '';
+                } else if (totalAuth > 0 && expiredCount === 0) {
+                    authLabel = 'Authorized';
+                } else if (expiredCount > 0) {
+                    authLabel = `${expiredCount} Expired`;
+                } else {
+                    authLabel = '-';
+                }
 
-                return { sys, sysDevices, stats, statusConfig, isEstablished, isDisconnected, onclickAttr, cursorClass };
+                return { sys, sysDevices, stats, statusConfig, isEstablished, isDisconnected, onclickAttr, cursorClass, authLabel };
             });
 
             // Calculate pagination pages
@@ -9541,11 +9559,12 @@ const app = {
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Online</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Offline</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Authorization</th>
                                                 <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="">
-                                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished }) => {
+                                            ${systemsWithStats.map(({ sys, sysDevices, stats, statusConfig, isDisconnected, isEstablished, authLabel }) => {
                                                 const s = (sys.status || '').toLowerCase();
                                                 let label = (sys.status || 'Unknown').toUpperCase();
                                                 if (s === 'established' || s === 'connected' || s === 'online') label = 'ESTABLISHED';
@@ -9573,6 +9592,9 @@ const app = {
                                                     </td>
                                                     <td class="px-[8px]">
                                                         <span class="text-[14px] font-normal text-gray-400 font-['Roboto']">${stats.inv.offline + stats.bat.offline}</span>
+                                                    </td>
+                                                    <td class="px-[8px]">
+                                                        ${authLabel === 'Authorized' ? '<i data-lucide="check-circle" class="w-[16px] h-[16px] text-[#3ec064]"></i>' : `<span class="text-[14px] font-normal text-[#ff3434] font-['Roboto']">${authLabel}</span>`}
                                                     </td>
                                                     <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                                         <div class="flex items-center justify-start gap-[12px]">
@@ -9672,8 +9694,9 @@ const app = {
         container.innerHTML = '';
         container.className = "w-full flex-1 bg-[#f3f3f6] p-[8px] flex flex-col overflow-hidden min-h-0";
 
-        // Calculate Metrics
-        const devices = state.devices || [];
+        // Calculate Metrics - filter devices by vendor for this system
+        const allDevices = state.devices || [];
+        const devices = allDevices.filter(d => d.vendor === system.vendor);
         const { currentPage, itemsPerPage } = state.systemDetails.deviceListPagination;
         const start = (currentPage - 1) * itemsPerPage;
         const end = start + itemsPerPage;
@@ -9844,11 +9867,23 @@ const app = {
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">NMI</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Price Region</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Authorization</th>
                             <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="">
                         ${paginatedDevices.length > 0 ? paginatedDevices.map(dev => {
+                            let authContent = '';
+                            let devAuthStatus = (dev.authStatus || '').toLowerCase();
+                            if (!devAuthStatus && (dev.sn === 'INV-2024-001' || dev.sn === 'BAT-2024-002' || dev.sn === 'INV-2024001')) {
+                                devAuthStatus = 'expired';
+                            }
+                            
+                            if (devAuthStatus === 'expired') {
+                                authContent = '<i data-lucide="alert-circle" class="w-[16px] h-[16px] text-[#ff3434]" title="Expired"></i>';
+                            } else {
+                                authContent = '<i data-lucide="check-circle" class="w-[16px] h-[16px] text-[#3ec064]" title="Authorized"></i>';
+                            }
                             return `
                             <tr class="h-[48px] hover:bg-[#f3f3f6] transition-colors group border-b border-[#e6e8ee]">
                                 <td class="px-[8px]">
@@ -9866,6 +9901,9 @@ const app = {
                                 <td class="px-[8px]">
                                     <div class="text-[14px] text-[#313949] font-normal font-['Roboto']">${dev.priceRegion || '-'}</div>
                                 </td>
+                                <td class="px-[8px]">
+                                    ${authContent}
+                                </td>
                                 <td class="px-[8px] sticky right-0 bg-white group-hover:bg-[#f3f3f6] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                     <div class="flex items-center justify-start gap-[12px]">
                                         <button onclick="app.openDERDetails('${dev.sn}', event)" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
@@ -9876,7 +9914,7 @@ const app = {
                             </tr>
                         `}).join('') : `
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
+                                <td colspan="6" class="py-8 text-center text-[#b5bcc8] font-['Roboto']">
                                     No devices found.
                                 </td>
                             </tr>
@@ -10303,11 +10341,11 @@ const app = {
                                             <button onclick="app.openAssignVppDrawer('${dev.sn}')" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors" title="Assign VPP" aria-label="Assign VPP">
                                                 <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M8 4v4M4 12h16M16 10v4M4 18h16M8 16v4"/></svg>
                                             </button>
-                                            <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors" title="View Events">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
-                                            </button>
                                             <button onclick="app.navigate('device_details', { sn: '${dev.sn}' })" class="text-[#b5bcc8] hover:text-[#3ec064] transition-colors">
                                                 <svg class="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5C7.5 5 3.5 8.5 2.5 12C3.5 15.5 7.5 19 12 19C16.5 19 20.5 15.5 21.5 12C20.5 8.5 16.5 5 12 5Z"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+                                            </button>
+                                            <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors" title="View Events">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                                             </button>
                                         </div>
                                     </td>
@@ -10693,7 +10731,7 @@ const app = {
                 </div>
                 
                 <div class="flex items-center gap-[16px] mb-[32px]">
-                    <button onclick="app.downloadQRCode('${mockLink}')" title="Save QR Code" class="p-[8px] bg-white border border-[#e6e8ee] rounded-[4px] text-[#313949] hover:bg-[#f8f9fb] transition-colors shadow-sm flex items-center justify-center">
+                    <button onclick="app.downloadQRCode('${mockLink}', '${vendor}')" title="Save QR Code" class="p-[8px] bg-white border border-[#e6e8ee] rounded-[4px] text-[#313949] hover:bg-[#f8f9fb] transition-colors shadow-sm flex items-center justify-center">
                         <i data-lucide="download" class="w-[16px] h-[16px]"></i>
                     </button>
                     <button onclick="app.copyToClipboardDirect('${mockLink}')" title="Copy Link" class="p-[8px] bg-white border border-[#e6e8ee] rounded-[4px] text-[#313949] hover:bg-[#f8f9fb] transition-colors shadow-sm flex items-center justify-center">
@@ -10893,6 +10931,29 @@ const app = {
                     </div>
                 `;
             }
+        } else if (step === 5) {
+            stepContent = `
+                <div class="flex flex-col gap-[16px]">
+                    <div class="flex items-center gap-[8px]">
+                        <p class="text-[16px] text-[#1c2026] font-medium">Invite your customers to join Manta VPP via QR code or link.</p>
+                    </div>
+                    <div class="w-full aspect-[16/9] bg-[#f8f9fb] border border-[#e6e8ee] rounded-[8px] flex items-center justify-center overflow-hidden relative group">
+                        <div class="flex flex-col items-center text-[#b5bcc8]">
+                            <i data-lucide="qr-code" class="w-[48px] h-[48px] mb-[8px]"></i>
+                            <span class="text-[14px]">Invite via QR Code Thumbnail</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-[8px]">
+                        <button onclick="app.openGuidanceModal(4)" class="flex items-center gap-[8px] px-[16px] py-[8px] bg-white border border-[#e6e8ee] hover:bg-[#f8f9fb] text-[#313949] rounded-[4px] transition-colors text-[14px] font-medium">
+                            <i data-lucide="arrow-left" class="w-[16px] h-[16px]"></i>
+                            Previous Step
+                        </button>
+                        <button onclick="app.closeModal()" class="flex items-center gap-[8px] px-[24px] py-[8px] bg-[#3ec064] hover:bg-[#35a656] text-white rounded-[4px] transition-colors text-[14px] font-medium">
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
         let progressBars = '';
@@ -10913,11 +10974,7 @@ const app = {
 
         content.innerHTML = `
             <div class="p-[24px] bg-white rounded-[12px] flex flex-col font-['Roboto']">
-                <div class="w-full flex justify-end items-center mb-[8px]">
-                    <button onclick="app.closeModal()" class="text-[#b5bcc8] hover:text-[#1c2026] transition-colors">
-                        <i data-lucide="x" class="w-[24px] h-[24px]"></i>
-                    </button>
-                </div>
+                <div class="mb-[8px]">
                 
                 <div class="flex items-center w-full mb-[38px]">
                     ${progressBars}
@@ -10931,7 +10988,8 @@ const app = {
         lucide.createIcons();
     },
 
-    downloadQRCode(data) {
+    downloadQRCode(data, vendor) {
+        const vendorName = vendor || 'qrcode';
         const url = `https://quickchart.io/qr?size=400&text=${encodeURIComponent(data)}&centerImageUrl=${encodeURIComponent(`https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.company)}&background=fff&color=1c2026&size=64&bold=true&rounded=true`)}&margin=1&ecLevel=H`;
         fetch(url)
             .then(response => response.blob())
@@ -10940,7 +10998,7 @@ const app = {
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = blobUrl;
-                a.download = 'authorization-qrcode.png';
+                a.download = `${vendorName}.png`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(blobUrl);
@@ -12657,11 +12715,11 @@ const app = {
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button class="w-[32px] h-[32px] bg-[#f3f3f6] rounded-[16px] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
-                                    </button>
                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="w-[32px] h-[32px] bg-[#f3f3f6] rounded-[16px] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors">
                                         <i data-lucide="edit-2" class="w-[14px] h-[14px] text-[#5f646e]"></i>
+                                    </button>
+                                    <button class="w-[32px] h-[32px] bg-[#f3f3f6] rounded-[16px] flex items-center justify-center hover:bg-[#e0e0e0] transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                                     </button>
                                     <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="w-[32px] h-[32px] bg-[rgba(255,52,52,0.1)] rounded-[16px] flex items-center justify-center hover:bg-[rgba(255,52,52,0.2)] transition-colors">
                                         <i data-lucide="trash-2" class="w-[14px] h-[14px] text-[#ff3434]"></i>
@@ -12832,11 +12890,11 @@ const app = {
                                                     <button onclick="event.stopPropagation(); app.navigate('vpp_details', { id: ${vpp.id} })" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="eye" class="w-[16px] h-[16px]"></i>
                                                     </button>
-                                                    <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors flex items-center justify-center size-[24px]" title="View Events">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
-                                                    </button>
                                                     <button onclick="event.stopPropagation(); app.openVPPDrawer(${vpp.id})" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="edit-2" class="w-[16px] h-[16px]"></i>
+                                                    </button>
+                                                    <button class="text-[#b5bcc8] hover:text-blue-600 transition-colors flex items-center justify-center size-[24px]" title="View Events">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
                                                     </button>
                                                     <button onclick="event.stopPropagation(); app.confirmDeleteVPP(${vpp.id})" class="text-[#1c2026] hover:text-[#5f646e] transition-colors">
                                                         <i data-lucide="trash-2" class="w-[16px] h-[16px]"></i>
@@ -14189,11 +14247,12 @@ const app = {
             if (!state.devices || state.devices.length === 0) {
                  if (!onlySolisFox) {
                      state.devices = [
-                        { sn: 'INV-2024001', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 50, address: '123 Solar St, Sydney' },
-                        { sn: 'BAT-2024002', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 13.5, address: '123 Solar St, Sydney' },
-                        { sn: 'INV-2024003', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'offline', capacity: 100, address: '456 Wind Way, Melbourne' },
-                        { sn: 'BAT-2024004', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 27, address: '456 Wind Way, Melbourne' },
-                        { sn: 'INV-2024005', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 30, address: '789 Energy Rd, Brisbane' }
+                        { sn: 'INV-2024001', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 50, address: '123 Solar St, Sydney', authStatus: 'expired' },
+                        { sn: 'BAT-2024002', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 13.5, address: '123 Solar St, Sydney', authStatus: 'expired' },
+                        { sn: 'INV-2024003', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'offline', capacity: 100, address: '456 Wind Way, Melbourne', authStatus: 'authorized' },
+                        { sn: 'BAT-2024004', type: 'Battery', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 27, address: '456 Wind Way, Melbourne', authStatus: 'authorized' },
+                        { sn: 'INV-2024005', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 30, address: '789 Energy Rd, Brisbane', authStatus: 'authorized' },
+                        { sn: 'INV-2024006', type: 'Inverter', vendor: newSystems[0]?.vendor || 'Generic', status: 'online', capacity: 45, address: '101 Solar Ave, Perth', authStatus: 'expired' }
                     ];
                  } else {
                      state.devices = [];
