@@ -842,21 +842,6 @@ const state = {
             applicableVpps: [
                 { id: 'vpp-005', name: 'SA VPP', ignoreTimeEnabled: true, ignoreTimeStart: '10:00', ignoreTimeEnd: '14:00', ignoreFrequency: 'Everyday' }
             ]
-        },
-        {
-            id: 2,
-            vpp: 'NSW VPP',
-            state: 'Inactive',
-            region: 'NSW',
-            triggerType: 'Arbitrage',
-            priceSource: 'Signal by Spot',
-            arbitrageSignal: 'High',
-            action: 'Charge',
-            createdAt: '2026-02-22T10:15:00.000Z',
-            updatedAt: '2026-02-22T10:15:00.000Z',
-            applicableVpps: [
-                { id: 'vpp-001', name: 'NSW VPP' }
-            ]
         }
     ], // Store created rules
     tradingOverviewSearch: '',
@@ -7242,18 +7227,11 @@ const app = {
         // Mock history data based on the current rule
         const historyItems = [
             {
-                condition: rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${parseFloat(rule.price) + 10} $/MW` : `${rule.priceSource} = Low`,
+                condition: rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${parseFloat(rule.price) + 10} $/MW` : `${rule.priceSource} = ${rule.arbitrageSignal || 'Discharge'}`,
                 status: 'Inactive',
                 applicableVpps: rule.applicableVpps,
                 ignore: '-',
                 updatedAt: new Date(new Date(rule.updatedAt).getTime() - 86400000).toISOString() // 1 day ago
-            },
-            {
-                condition: rule.triggerType === 'Price' ? `${rule.priceSource} ${rule.condition} ${parseFloat(rule.price) + 20} $/MW` : `${rule.priceSource} = High`,
-                status: 'Active',
-                applicableVpps: rule.applicableVpps,
-                ignore: '12:00 - 15:00 (Everyday)',
-                updatedAt: new Date(new Date(rule.updatedAt).getTime() - 172800000).toISOString() // 2 days ago
             }
         ];
 
@@ -7282,8 +7260,10 @@ const app = {
             return `
             <tr class="bg-[#f8f9fb] border-b border-[#e6e8ee]">
                 <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">
-                    <div class="flex items-center gap-[10px]">
-                        <img alt="" class="block max-w-none w-[16px] h-[16px] shrink-0" style="filter: brightness(0) saturate(100%) invert(8%) sepia(9%) saturate(2064%) hue-rotate(174deg) brightness(98%) contrast(92%);" src="http://localhost:3845/assets/17e5853f32a5e01749390c3424cfdb4424d82950.svg">
+                    <div class="flex items-center justify-center w-full h-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 8H12" stroke="#B5BCC8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
                 </td>
                 <td class="h-[48px] px-[8px] py-[8px] bg-[#f8f9fb] text-[#b5bcc8] font-['Roboto'] font-normal text-[14px] leading-[1.42] whitespace-nowrap">${currentRegion}</td>
