@@ -1820,7 +1820,7 @@ const app = {
                                     <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
                                 </div>
                                 <div class="px-[12px] py-[2px] rounded-[12px]">
-                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Pre-Dispatch</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Pre-Dispatch Next Spot</span>
                                 </div>
                             </div>
                             <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
@@ -1832,7 +1832,7 @@ const app = {
                                     </div>
                                 </div>
                                 <div class="px-[12px] py-[2px] rounded-[12px]">
-                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Forecast Spot</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Forecast Next Spot</span>
                                 </div>
                             </div>
                             <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
@@ -1867,7 +1867,7 @@ const app = {
                                         <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#3ec064] whitespace-nowrap">+$1,520</span>
                                     </div>
                                     <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Est. Revenue</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Opportunity Revenue</span>
                                     </div>
                                 </div>
                             </div>
@@ -2140,8 +2140,8 @@ const app = {
                 const tableHeader = `
                             <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">VPP</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                         <div class="flex items-center gap-2 relative">
                                             <span>Status</span>
                                             <button onclick="app.toggleSpotTradingEventsFilter('status')" data-spot-trading-events-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -2157,9 +2157,9 @@ const app = {
                                             </div>
                                         </div>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Trigger From</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Trigger Condition</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                         <div class="flex items-center gap-2 relative">
                                             <span>Event</span>
                                             <button onclick="app.toggleSpotTradingEventsFilter('event')" data-spot-trading-events-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -2175,13 +2175,13 @@ const app = {
                                             </div>
                                         </div>
                                     </th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
-                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Start Time</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">End Time</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Participated Power</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Volume</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Avg. Price</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Revenue</th>
+                                    <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                 </tr>
                             </thead>
                 `;
@@ -3084,7 +3084,7 @@ const app = {
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
                     <div class="overflow-auto flex-1">
                         <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                            <thead class="text-xs text-gray-500 tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium text-left w-16 whitespace-nowrap">#</th>
                                     <th class="px-6 py-3 font-medium whitespace-nowrap">Pricing Region</th>
@@ -5163,43 +5163,43 @@ const app = {
                             <div class="bg-[#f3f3f6] rounded-[6px] p-4 flex flex-col gap-4">
                                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">VPP</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">VPP</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${detailsVppName || '-'}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Pricing Region</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Pricing Region</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${pricingRegion || '-'}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Participated DERs</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Participated DERs</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${participatedDerCount}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Trigger From</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Trigger From</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${detailsTriggerFrom || '-'}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Trigger Condition</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Trigger Condition</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${hideScheduleFailedText(detailsTriggerConditionRaw) ? '-' : detailsTriggerConditionRaw}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Event</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Event</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.eventType || '-'}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Participated Power</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Participated Power</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.power || '-'}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Est. Volume</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Est. Volume</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.volume || '-'}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Avg.Price</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Avg. Price</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${vppAvgPrice}</div>
                                     </div>
                                     <div class="flex flex-col gap-1 px-2 py-1">
-                                        <div class="text-[12px] text-[#b5bcc8] uppercase">Est. Revenue</div>
+                                        <div class="text-[12px] text-[#b5bcc8]">Est. Revenue</div>
                                         <div class="text-[14px] text-[#313949] font-['Roboto'] font-semibold">${event.vppIncome || '-'}</div>
                                     </div>
                                 </div>
@@ -5234,17 +5234,17 @@ const app = {
                                     <table class="w-full text-left border-collapse">
                                         <thead class="sticky top-0 z-10 bg-white">
                                             <tr>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">SN</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Date</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">SN</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                                     <span>Status</span>
                                                 </th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
-                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Start Time</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">End Time</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Participated Power</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Volume</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Avg. Price</th>
+                                                <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Revenue</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -5388,10 +5388,10 @@ const app = {
                             <table class="w-full text-left border-collapse">
                                 <thead class="sticky top-0 z-10 bg-white">
                                     <tr>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Date</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">VPP</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Status</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                             <div class="flex items-center gap-2 relative">
                                                 <span>Pricing Region</span>
                                                 <button onclick="app.toggleReportsVppEventsTableFilter('region')" data-reports-vpp-events-table-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -5407,9 +5407,9 @@ const app = {
                                                 </div>
                                             </div>
                                         </th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Trigger From</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Trigger Condition</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                             <div class="flex items-center gap-2 relative">
                                                 <span>Event</span>
                                                 <button onclick="app.toggleReportsVppEventsTableFilter('event')" data-reports-vpp-events-table-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -5425,13 +5425,13 @@ const app = {
                                                 </div>
                                             </div>
                                         </th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Start Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">End Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Participated Power</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Volume</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Avg. Price</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Revenue</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap sticky right-0 bg-white z-20">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -5762,11 +5762,11 @@ const app = {
                             <table class="w-full text-left border-collapse">
                                 <thead class="sticky top-0 z-10 bg-white">
                                     <tr>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Date</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">SN</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">VPP</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Status</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Date</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">SN</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">VPP</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Status</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                             <div class="flex items-center gap-2 relative">
                                                 <span>Pricing Region</span>
                                                 <button onclick="app.toggleReportsDerEventsTableFilter('region')" data-reports-der-events-table-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -5782,9 +5782,9 @@ const app = {
                                                 </div>
                                             </div>
                                         </th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger From</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Trigger Condition</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Trigger From</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Trigger Condition</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">
                                             <div class="flex items-center gap-2 relative">
                                                 <span>Event</span>
                                                 <button onclick="app.toggleReportsDerEventsTableFilter('event')" data-reports-der-events-table-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -5800,12 +5800,12 @@ const app = {
                                                 </div>
                                             </div>
                                         </th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Start Time</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">End Time</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Participated Power</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Volume</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Avg.Price</th>
-                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] uppercase whitespace-nowrap">Est. Revenue</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Start Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">End Time</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Participated Power</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Volume</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Avg. Price</th>
+                                        <th class="h-[48px] px-[8px] border-b border-[#e6e8ee] font-normal text-[12px] text-[#b5bcc8] whitespace-nowrap">Est. Revenue</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -6186,7 +6186,7 @@ const app = {
                     </div>
                     <div class="overflow-auto flex-1">
                         <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                            <thead class="text-xs text-gray-500 tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium">Date</th>
                                     <th class="px-6 py-3 font-medium">VPP</th>
@@ -6355,7 +6355,7 @@ const app = {
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
                     <div class="overflow-auto flex-1">
                         <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                            <thead class="text-xs text-gray-500 tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium text-left w-16">#</th>
                                     <th class="px-6 py-3 font-medium">Pricing Region</th>
@@ -6537,7 +6537,7 @@ const app = {
                     </div>
                     <div class="overflow-auto flex-1">
                         <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
+                            <thead class="text-xs text-gray-500 tracking-wider border-b border-gray-100 bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-3 font-medium text-left w-16">#</th>
                                     <th class="px-6 py-3 font-medium">Local Time</th>
@@ -6996,22 +6996,22 @@ const app = {
                             <thead class="sticky top-0 z-10 bg-white">
                                 <tr>
                                     <th class="h-[48px] w-[120px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME</p>
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8]">Time</p>
                                     </th>
                                     <th class="h-[48px] w-[120px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SPOT ($/MW)</p>
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8]">Spot ($/MW)</p>
                                     </th>
                                     <th class="h-[48px] w-[152px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">FORECAST SPOT ($/MW)</p>
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8]">Forecast Spot ($/MW)</p>
                                     </th>
                                     <th class="h-[48px] min-w-[191px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">TIME / FORECAST SPOT ($/MW)</p>
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8]">Time / Forecast Spot ($/MW)</p>
                                     </th>
                                     <th class="h-[48px] w-[160px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY FORECAST</p>
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8]">Signal by Forecast</p>
                                     </th>
                                     <th class="h-[48px] w-[160px] px-[8px] border-b border-[#e6e8ee] bg-white">
-                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8] uppercase">SIGNAL BY SPOT</p>
+                                        <p class="font-['Roboto'] font-normal text-[12px] text-[#b5bcc8]">Signal by Spot</p>
                                     </th>
                                 </tr>
                             </thead>
@@ -7353,8 +7353,8 @@ const app = {
                                 <table class="w-full text-left border-collapse">
                                     <thead class="bg-white sticky top-0 z-10">
                                         <tr>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Name</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Name</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">
                                                 <div class="flex items-center gap-[8px] relative">
                                                     <span>Pricing Region</span>
                                                     <button onclick="app.toggleTradingRulesFilter('region')" data-trading-rules-filter="region" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -7370,9 +7370,9 @@ const app = {
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Trigger From</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Trigger Condition</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Trigger From</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Trigger Condition</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">
                                                 <div class="flex items-center gap-[8px] relative">
                                                     <span>Event</span>
                                                     <button onclick="app.toggleTradingRulesFilter('event')" data-trading-rules-filter="event" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -7388,7 +7388,7 @@ const app = {
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">
                                                 <div class="flex items-center gap-[8px] relative">
                                                     <span>Status</span>
                                                     <button onclick="app.toggleTradingRulesFilter('status')" data-trading-rules-filter="status" class="w-[20px] h-[20px] flex items-center justify-center rounded hover:bg-gray-100 text-[#b5bcc8]">
@@ -7404,12 +7404,12 @@ const app = {
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Applicable VPP</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Ignore</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Created</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Updated</th>
-                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap">Description</th>
-                                            <th class="h-[48px] px-[16px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] uppercase border-b border-[#e6e8ee] whitespace-nowrap sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">Actions</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Applicable VPP</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Ignore</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Created</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Updated</th>
+                                            <th class="h-[48px] px-[8px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap">Description</th>
+                                            <th class="h-[48px] px-[16px] py-[8px] font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#b5bcc8] border-b border-[#e6e8ee] whitespace-nowrap sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-[#f8f9fb]">
@@ -8199,7 +8199,7 @@ const app = {
                     <!-- Table -->
                     <div class="flex-1 overflow-auto">
                         <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10">
+                            <thead class="text-xs text-gray-700 bg-gray-50 sticky top-0 z-10">
                                 <tr>
                                     <th scope="col" class="px-6 py-3">Rule ID</th>
                                     <th scope="col" class="px-6 py-3">VPP Name</th>
@@ -9009,7 +9009,7 @@ const app = {
                             </div>
                             <div class="overflow-x-auto flex-1">
                                 <table class="w-full text-sm text-left">
-                                    <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                    <thead class="text-xs text-gray-500 tracking-wider border-b border-gray-100">
                                         <tr>
                                             <th class="px-4 py-2 font-medium">Pricing Region</th>
                                             <th class="px-4 py-2 font-medium text-left">Charge</th>
@@ -9533,14 +9533,14 @@ const app = {
                                     <table class="w-full text-left border-collapse">
                                         <thead class="sticky top-0 z-10 bg-white">
                                             <tr>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Name</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[120px]">Type</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">DERs</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Online</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Offline</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Authorization</th>
-                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee] min-w-[120px]">Name</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee] min-w-[120px]">Type</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Status</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">DERs</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Online</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Offline</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Authorization</th>
+                                                <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee] min-w-[140px] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="">
@@ -9843,12 +9843,12 @@ const app = {
                 <table class="w-full text-left border-collapse">
                     <thead class="sticky top-0 z-10 bg-white">
                         <tr>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Status</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">NMI</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">SN</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Price Region</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee]">Authorization</th>
-                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] uppercase tracking-wider border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Status</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">NMI</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">SN</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Price Region</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee]">Authorization</th>
+                            <th class="h-[48px] px-[8px] text-[12px] font-normal text-[#b5bcc8] border-b border-[#e6e8ee] sticky right-0 bg-white z-20 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="">
@@ -11841,7 +11841,7 @@ const app = {
                 <table class="min-w-full text-left border-collapse">
                     <thead class="sticky top-0 bg-[#f9fafb] z-10">
                         <tr>
-                            ${headers.map(h => `<th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200 whitespace-nowrap">${h}</th>`).join('')}
+                            ${headers.map(h => `<th class="px-6 py-3 text-xs font-medium text-gray-500 tracking-wider border-b border-gray-200 whitespace-nowrap">${h}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
