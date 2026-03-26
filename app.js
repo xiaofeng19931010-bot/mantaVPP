@@ -849,7 +849,8 @@ const app = {
                             </div>
                             <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
                                 <div class="flex items-center justify-center gap-[4px] min-h-px min-w-px">
-                                    <span id="stat-forecast-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#3ec064] whitespace-nowrap">0.72</span>
+                                    <span id="stat-forecast-spot-price" class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949] whitespace-nowrap">0.72</span>
+                                    <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#b5bcc8]">$/MWh</span>
                                     <div class="bg-[#e4f9e7] min-w-[48px] px-[4px] py-0 rounded-[12px] flex items-center justify-center gap-0 shrink-0">
                                         <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="#3ec064" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         <span class="font-['Roboto'] font-normal text-[12px] leading-[1.33] text-[#3ec064] text-center flex-1">5.2%</span>
@@ -877,13 +878,14 @@ const app = {
                                     <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Available Charge</span>
                                 </div>
                             </div>
+                            <div class="w-px h-full bg-[#e6e8ee] self-center"></div>
                             <div id="trading-opportunities-stats" class="hidden flex gap-[8px]">
                                 <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
                                     <div class="flex items-center gap-[8px] min-h-px min-w-px">
                                         <span class="font-['Roboto'] font-semibold text-[18px] leading-[1.55] text-[#313949] whitespace-nowrap">3</span>
                                     </div>
                                     <div class="px-[12px] py-[2px] rounded-[12px]">
-                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Trading Opportunities</span>
+                                        <span class="font-['Roboto'] font-normal text-[14px] leading-[1.42] text-[#5f646e] whitespace-nowrap">Opportunities</span>
                                     </div>
                                 </div>
                                 <div class="flex-1 min-w-0 flex flex-col items-center gap-[8px]">
@@ -1533,7 +1535,13 @@ const app = {
                         {
                             type: 'value',
                             scale: true,
-                            splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } }
+                            name: '$/MWh',
+                            nameLocation: 'end',
+                            nameTextStyle: { color: '#9ca3af', fontSize: 12, padding: [0, 0, 0, -10] },
+                            splitLine: { show: true, lineStyle: { type: 'dashed', color: '#e5e7eb' } },
+                            axisLabel: {
+                                formatter: '{value}'
+                            }
                         }
                     ],
                     series: [
