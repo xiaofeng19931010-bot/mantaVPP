@@ -1,9 +1,10 @@
 {
   "name": "manta-web",
   "version": "1.0.0",
-  "description": "Manta VPP Management Web Interface",
+  "description": "Manta VPP Management Web Interface - Prototype Demo",
   "scripts": {
     "start": "python3 -m http.server 3000",
+    "serve": "python3 -m http.server 3000",
     "test:visual": "backstop test",
     "test:visual:approve": "backstop approve"
   },
